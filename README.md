@@ -1,5 +1,5 @@
 
-# BoardGameCafè JAVA Application
+# Board-Game Cafè JAVA Application
 
 Large-Scale and Multi-Structured Databases Project
 
