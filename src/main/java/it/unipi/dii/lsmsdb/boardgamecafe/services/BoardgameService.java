@@ -15,7 +15,7 @@ import java.util.Optional;
 public class BoardgameService {
 
     @Autowired
-    private BoardgameMongoDB boargameMongo;
+    private BoardgameMongoDB boardgameMongo;
     @Autowired
     private ReviewMongoDB reviewMongo;
 
