@@ -15,6 +15,6 @@ Large-Scale and Multi-Structured Databases Project
 
 ## Authors
 
-* Alberto Atzori, a.atzori10@studenti.unipi.it
+* Alberto Atzori, a.atzori1@studenti.unipi.it
 * Gaetano Sferrazza, g.sferrazza@studenti.unipi.it
 * Nicola Riccardi, n.riccardi1@studenti.unipi.it
