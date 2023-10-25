@@ -1,6 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import it.unipi.dii.lsmsdb.phoneworld.model.GenericUser;
+//import it.unipi.dii.lsmsdb.phoneworld.model.GenericUser;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
