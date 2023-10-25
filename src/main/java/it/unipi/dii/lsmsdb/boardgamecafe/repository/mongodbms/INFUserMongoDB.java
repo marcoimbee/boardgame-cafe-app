@@ -13,6 +13,7 @@ public interface INFUserMongoDB extends MongoRepository<GenericUser, String> {
 
     @Query("{'username': {$regex : ?0, $options: 'i'}, '_class': ?1}")
     List<GenericUser> findByUsernameRegexAnd_class(String username, String classType);
+    list
 
     Optional<GenericUser> findByUsername(String username);
 
