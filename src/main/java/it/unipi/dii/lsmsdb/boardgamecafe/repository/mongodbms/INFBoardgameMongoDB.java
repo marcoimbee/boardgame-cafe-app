@@ -1,6 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import it.unipi.dii.lsmsdb.phoneworld.model.Phone;
+//import it.unipi.dii.lsmsdb.phoneworld.model.Phone;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
