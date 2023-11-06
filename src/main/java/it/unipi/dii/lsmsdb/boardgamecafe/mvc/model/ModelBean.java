@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
 
 import java.util.HashMap;
@@ -15,3 +16,4 @@ public class ModelBean {
         return mapBean.get(key);
     }
 }
+*/

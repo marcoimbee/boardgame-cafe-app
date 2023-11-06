@@ -1,12 +1,11 @@
-/*
 package it.unipi.dii.lsmsdb.phoneworld.services;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
-//import it.unipi.dii.lsmsdb.phoneworld.model.User;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.UserTest;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.ReviewMongo;
-//import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.UserMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserMongo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +20,15 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 @Component
-public class UserService {
+public class ServiceUser {
 
     @Autowired
-    private UserMongoDB userMongo;
-    @Autowired
-    private ReviewMongoDB reviewMongo;
-    @Autowired
-    private PhoneMongo phoneMongo;  //to be replaced with BoardgameMongoDB properly
+    private UserMongo userMongo;
+
+    //@Autowired
+    //private ReviewMongoDB reviewMongo;
+    //@Autowired
+    //private PhoneMongo phoneMongo;  //to be replaced with BoardgameMongoDB properly
 
     private final static Logger logger = LoggerFactory.getLogger(ServiceUser.class);
 
@@ -57,40 +57,42 @@ public class UserService {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    public Admin createAdmin(String username, String password){
-        String salt = this.getSalt();
-        String hashedPassword = this.getHashedPassword(password, salt);
-        return new Admin(username, salt, hashedPassword, "admin");
-    }
+    public UserTest createUser(String id, String username, String email, String password,
+                                String name, String surname, String gender,
+                                String nationality, String banned, int year,
+                                int month, int day)
+    {
+        //LocalDate localDate = LocalDate.now();
+        //LocalDate birthday = LocalDate.of(year,month,day);
+        //int age = Period.between(birthday,localDate).getYears();
 
-    public User createUser(String firstName, String lastName, String gender, String country, String city,
-                           String streetName, int streetNumber, String email, String username, String password,
-                           int year, int month, int day) {
-        LocalDate localDate = LocalDate.now();
-        LocalDate birthday = LocalDate.of(year,month,day);
-        int age = Period.between(birthday,localDate).getYears();
+        boolean bannedUser = false;
+        String adminChoice = "NotBanned";
+
         Date dateOfBirth = new GregorianCalendar(year, month-1, day+1).getTime();
+
         String salt = this.getSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
-        return new User(username,salt,hashedPassword,"user",gender,firstName,lastName,streetNumber,streetName,
-                city,country, email,dateOfBirth,age);
+
+        if(!adminChoice.equals(banned))
+            bannedUser = true;
+
+        return new UserTest(id,username,email,password,
+                            salt, name, surname,
+                            gender,dateOfBirth,
+                            nationality,bannedUser);
     }
 
-    public boolean insertAdmin(Admin admin) {
-        boolean result = true;
-        if (!userMongo.addUser(admin)) {
-            logger.error("Error in adding the admin to MongoDB");
-            return false;
-        }
-        return result;
-    }
+    public boolean insertUser(UserTest user) {
 
-    public boolean insertUser(User user) {
         boolean result = true;
         if (!userMongo.addUser(user)) {
             logger.error("Error in adding the user to MongoDB");
             return false;
         }
+
+        //Gestion GraphDB temporarily unused
+        /*
         if (!App.getInstance().getUserNeo4j().addUser(user.getId(), user.getUsername())) {
             logger.error("Error in adding the user to Neo4j");
             if (!userMongo.deleteUser(user)) {
@@ -98,10 +100,13 @@ public class UserService {
             }
             return false;
         }
+        */
+
         return result;
     }
 
-    public boolean deleteUser(User user) {
+    public boolean deleteUser(UserTest user) {
+
         String username = user.getUsername();
         String userId = user.getId();
         try {
@@ -109,6 +114,9 @@ public class UserService {
                 logger.error("Error in deleting the user from the user collection");
                 return false;
             }
+
+            //Gestion GraphDB temporarily unused
+            /*
             if (!App.getInstance().getUserNeo4j().deleteUserAddsRelationships(userId)) {
                 logger.error("Error in deleting the user's add relationships");
                 return false;
@@ -128,11 +136,13 @@ public class UserService {
             if (!phoneMongo.updatePhoneReviewsOldUser(username)) {
                 logger.error("Error in removing the username from the reviews in phones");
             }
+            */
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return true;
     }
 
 }
-*/

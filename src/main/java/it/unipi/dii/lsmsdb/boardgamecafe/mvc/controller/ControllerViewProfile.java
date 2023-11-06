@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
@@ -81,3 +82,4 @@ public class ControllerViewProfile implements Initializable {
         stageManager.closeStage(this.buttonCancel);
     }
 }
+*/

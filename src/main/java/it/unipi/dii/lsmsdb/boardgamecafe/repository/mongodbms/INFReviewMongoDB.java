@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 //import it.unipi.dii.lsmsdb.phoneworld.model.Review;
@@ -20,3 +21,4 @@ public interface INFReviewMongoDB extends MongoRepository<Review, String> {
 
 
 }
+*/

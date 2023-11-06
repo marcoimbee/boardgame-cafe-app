@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
@@ -34,7 +35,7 @@ public class ControllerViewLogin {
     @Autowired
     private UserMongoDB userMongo;
     @Autowired
-    private ServiceUser serviceUser;
+    private UserService serviceUser;
     @FXML
     private Button buttonCancel;
     @FXML
@@ -126,3 +127,4 @@ public class ControllerViewLogin {
         if (keyEvent.getCode() == KeyCode.ENTER) this.onClickLogin();
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
@@ -92,3 +93,4 @@ public class BoardgameService {
     }
 
 }
+*/

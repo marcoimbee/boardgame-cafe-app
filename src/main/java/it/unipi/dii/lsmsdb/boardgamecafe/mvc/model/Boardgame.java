@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
 
 import org.springframework.data.annotation.Id;
@@ -234,3 +235,4 @@ public class Boardgame {
                 '}';
     }
 }
+*/

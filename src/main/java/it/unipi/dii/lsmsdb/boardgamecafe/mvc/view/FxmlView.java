@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.view;
 
 import java.util.ResourceBundle;
@@ -153,5 +154,5 @@ public enum FxmlView {
         return ResourceBundle.getBundle("Bundle").getString(key);
     }
 }
-
+*/
 

@@ -1,5 +1,6 @@
-package it.unipi.dii.lsmsdb.boardgamecafe.mvc.view;
 
+//package it.unipi.dii.lsmsdb.boardgamecafe.mvc.view;
+/*
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.config.SpringFXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -236,3 +237,4 @@ public class StageManager {
 
 
 }
+*/

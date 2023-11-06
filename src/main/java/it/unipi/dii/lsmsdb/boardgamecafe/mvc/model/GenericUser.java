@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
 
 import org.springframework.data.annotation.Id;
@@ -63,3 +64,4 @@ public abstract class GenericUser {
         this._class = _class;
     }
 }
+*/

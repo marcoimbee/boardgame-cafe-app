@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
 import org.neo4j.driver.Record;
@@ -259,3 +260,4 @@ public class UserNeo4jDB {
     }
 
 }
+*/
