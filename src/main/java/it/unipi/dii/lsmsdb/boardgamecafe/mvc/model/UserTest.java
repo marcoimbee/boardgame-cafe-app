@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Document(collection = "users")
-//@TypeAlias("user")
+@TypeAlias("user")
 public class UserTest {
     @Id
     private String id;

@@ -46,7 +46,6 @@ public class UserMongo {
         }
         return result;
     }
-
     public boolean deleteUser(UserTest user) {
         try {
             userMongo.delete(user);
@@ -86,6 +85,5 @@ public class UserMongo {
         }
         return true;
     }
-
 
 }

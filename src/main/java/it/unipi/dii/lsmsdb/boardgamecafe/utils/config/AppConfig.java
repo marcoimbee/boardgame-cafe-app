@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.utils.config;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -27,3 +28,4 @@ public class AppConfig {
     }
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.utils.config;
 
 import javafx.fxml.FXMLLoader;
@@ -30,3 +31,4 @@ public class SpringFXMLLoader {
         return loader.load();
     }
 }
+*/

@@ -1,4 +1,4 @@
-package it.unipi.dii.lsmsdb.phoneworld.services;
+package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
@@ -49,7 +49,6 @@ public class ServiceUser {
         }
         return generatedPassword;
     }
-
     public String getSalt() {
         SecureRandom sr = new SecureRandom();
         byte[] salt = new byte[16];
@@ -77,7 +76,7 @@ public class ServiceUser {
         if(!adminChoice.equals(banned))
             bannedUser = true;
 
-        return new UserTest(id,username,email,password,
+        return new UserTest(id,username,email,hashedPassword,
                             salt, name, surname,
                             gender,dateOfBirth,
                             nationality,bannedUser);
@@ -91,7 +90,7 @@ public class ServiceUser {
             return false;
         }
 
-        //Gestion GraphDB temporarily unused
+        //Gestione GraphDB temporarily unused
         /*
         if (!App.getInstance().getUserNeo4j().addUser(user.getId(), user.getUsername())) {
             logger.error("Error in adding the user to Neo4j");
