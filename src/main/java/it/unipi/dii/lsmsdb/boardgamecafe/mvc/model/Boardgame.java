@@ -1,4 +1,3 @@
-/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
 
 import org.springframework.data.annotation.Id;
@@ -7,183 +6,151 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "phones")
+@Document(collection = "boardgame")
 public class Boardgame {
 
     @Id
-    private String id;
-    private String brand;
+    private String boardgameId;
     private String name;
-    private String picture;
-    private String body;
-    private String os;
-    private String storage;
-    private String displaySize;
-    private String displayResolution;
-    private String cameraPixels;
-    private String videoPixels;
-    private String ram;
-    private String chipset;
-    private String batterySize;
-    private String batteryType;
-    private int releaseYear;
+    private String thumbnail;
+    private String image;
+    private String description;
+    private int yearPublished;
+    private int minPlayers;
+    private int maxPlayers;
+    private int playingTime;
+    private int minAge;
+    private String boardgameCategory;
+    private String boardgameDesigner;
+    private String boardgamePublisher;
     private List<Review> reviews = new ArrayList<>();
 
-    public Boardgame() {
-    }
+    public Boardgame(){}
 
-    public Boardgame (String brand, String name, String picture, String body, String os, String storage,
-                 String displaySize, String displayResolution, String cameraPixels, String videoPixels,
-                 String ram, String chipset, String batterySize, String batteryType, int releaseYear) {
-        this.brand = brand;
+    public Boardgame(String boardgameId, String name, String thumbnail, String image, String description, int yearPublished, int minPlayers, int maxPlayers, int playingTime, int minAge, String boardgameCategory, String boardgameDesigner, String boardgamePublisher) {
+        this.boardgameId = boardgameId;
         this.name = name;
-        this.picture = picture;
-        this.releaseYear = releaseYear;
-        this.body = body;
-        this.os = os;
-        this.storage = storage;
-        this.displaySize = displaySize;
-        this.displayResolution = displayResolution;
-        this.cameraPixels = cameraPixels;
-        this.videoPixels = videoPixels;
-        this.ram = ram;
-        this.chipset = chipset;
-        this.batterySize = batterySize;
-        this.batteryType = batteryType;
+        this.thumbnail = thumbnail;
+        this.image = image;
+        this.description = description;
+        this.yearPublished = yearPublished;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
+        this.playingTime = playingTime;
+        this.minAge = minAge;
+        this.boardgameCategory = boardgameCategory;
+        this.boardgameDesigner = boardgameDesigner;
+        this.boardgamePublisher = boardgamePublisher;
     }
 
-    public String getId() {
-        return id;
+    public String getBoardgameId() {
+        return boardgameId;
     }
 
-    public String getBrand() {
-        return brand;
+    public void setBoardgameId(String boardgameId) {
+        this.boardgameId = boardgameId;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public int getReleaseYear() {
-        return releaseYear;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public String getOs() {
-        return os;
-    }
-
-    public String getStorage() {
-        return storage;
-    }
-
-    public String getDisplaySize() {
-        return displaySize;
-    }
-
-    public String getDisplayResolution() {
-        return displayResolution;
-    }
-
-    public String getCameraPixels() {
-        return cameraPixels;
-    }
-
-    public String getVideoPixels() {
-        return videoPixels;
-    }
-
-    public String getRam() {
-        return ram;
-    }
-
-    public String getChipset() {
-        return chipset;
-    }
-
-    public String getBatterySize() {
-        return batterySize;
-    }
-
-    public String getBatteryType() {
-        return batteryType;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public String getThumbnail() {
+        return thumbnail;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
-    public void setOs(String os) {
-        this.os = os;
+    public String getImage() {
+        return image;
     }
 
-    public void setStorage(String storage) {
-        this.storage = storage;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public void setDisplaySize(String displaySize) {
-        this.displaySize = displaySize;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDisplayResolution(String displayResolution) {
-        this.displayResolution = displayResolution;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setCameraPixels(String cameraPixels) {
-        this.cameraPixels = cameraPixels;
+    public int getYearPublished() {
+        return yearPublished;
     }
 
-    public void setVideoPixels(String videoPixels) {
-        this.videoPixels = videoPixels;
+    public void setYearPublished(int yearPublished) {
+        this.yearPublished = yearPublished;
     }
 
-    public void setRam(String ram) {
-        this.ram = ram;
+    public int getMinPlayers() {
+        return minPlayers;
     }
 
-    public void setChipset(String chipset) {
-        this.chipset = chipset;
+    public void setMinPlayers(int minPlayers) {
+        this.minPlayers = minPlayers;
     }
 
-    public void setBatterySize(String batterySize) {
-        this.batterySize = batterySize;
+    public int getMaxPlayers() {
+        return maxPlayers;
     }
 
-    public void setBatteryType(String batteryType) {
-        this.batteryType = batteryType;
+    public void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
     }
 
-    public void setReleaseYear(int releaseYear) {
-        this.releaseYear = releaseYear;
+    public int getPlayingTime() {
+        return playingTime;
     }
 
+    public void setPlayingTime(int playingTime) {
+        this.playingTime = playingTime;
+    }
+
+    public int getMinAge() {
+        return minAge;
+    }
+
+    public void setMinAge(int minAge) {
+        this.minAge = minAge;
+    }
+
+    public String getBoardgameCategory() {
+        return boardgameCategory;
+    }
+
+    public void setBoardgameCategory(String boardgameCategory) {
+        this.boardgameCategory = boardgameCategory;
+    }
+
+    public String getBoardgameDesigner() {
+        return boardgameDesigner;
+    }
+
+    public void setBoardgameDesigner(String boardgameDesigner) {
+        this.boardgameDesigner = boardgameDesigner;
+    }
+
+    public String getBoardgamePublisher() {
+        return boardgamePublisher;
+    }
+
+    public void setBoardgamePublisher(String boardgamePublisher) {
+        this.boardgamePublisher = boardgamePublisher;
+    }
+
+    // --- Reviews Management ---
+    public List<Review> getReviews() {
+        return reviews;
+    }
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
     }
@@ -192,8 +159,8 @@ public class Boardgame {
         this.reviews.add(0, review);
     }
 
-    public boolean deleteReview(String id) {
-        Review review = this.getReviewInPhone(id);
+    public boolean deleteReview(int id) {
+        Review review = this.getReviewInBoardgame(id);
         if (review != null) {
             reviews.remove(review);
             return true;
@@ -201,10 +168,10 @@ public class Boardgame {
         return false;
     }
 
-    public Review getReviewInPhone(String id) {
+    public Review getReviewInBoardgame(int id) {
         if (!this.reviews.isEmpty()) {
             for (Review review : reviews) {
-                if (review.getId().equals(id)) {
+                if (review.getBoardgameId() == id) {
                     return review;
                 }
             }
@@ -214,25 +181,21 @@ public class Boardgame {
 
     @Override
     public String toString() {
-        return "Phone{" +
-                "id='" + id + '\'' +
-                ", brand='" + brand + '\'' +
+        return "Boardgame{" +
+                "boardgameId='" + boardgameId + '\'' +
                 ", name='" + name + '\'' +
-                ", picture='" + picture + '\'' +
-                ", releaseDate=" + releaseYear +
-                ", body='" + body + '\'' +
-                ", os='" + os + '\'' +
-                ", storage='" + storage + '\'' +
-                ", displaySize='" + displaySize + '\'' +
-                ", displayResolution='" + displayResolution + '\'' +
-                ", cameraPixels='" + cameraPixels + '\'' +
-                ", videoPixels='" + videoPixels + '\'' +
-                ", ram='" + ram + '\'' +
-                ", chipset='" + chipset + '\'' +
-                ", batterySize='" + batterySize + '\'' +
-                ", batteryType='" + batteryType + '\'' +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", image='" + image + '\'' +
+                ", description='" + description + '\'' +
+                ", yearPublished=" + yearPublished +
+                ", minPlayers=" + minPlayers +
+                ", maxPlayers=" + maxPlayers +
+                ", playingTime=" + playingTime +
+                ", minAge=" + minAge +
+                ", boardgameCategory='" + boardgameCategory + '\'' +
+                ", boardgameDesigner='" + boardgameDesigner + '\'' +
+                ", boardgamePublisher='" + boardgamePublisher + '\'' +
                 ", reviews=" + reviews +
                 '}';
     }
 }
-*/
