@@ -108,7 +108,6 @@ public class ControllerViewSignUp implements Initializable {
                         "please try again");
                 return;
             }
-
             BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.CURRENT_USER, user);
 
             stageManager.closeStage(this.buttonSignUp);
