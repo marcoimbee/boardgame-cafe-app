@@ -18,7 +18,7 @@ public class Review {
     private String comment;
     private Date dateOfReview;
 
-    // - Costruttore vuoto necessario per la corretta deserializzazione JSON -
+    // - Costruttore vuoto necessario per la corretta deserializzazione JSON in Spring -
     public Review() {}
 
     // - Costruttore con parametri -
