@@ -1,8 +1,8 @@
-/*
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
 import org.neo4j.driver.*;
 
+import java.lang.Record;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class GraphNeo4jDB implements AutoCloseable {
                 Result result = tx.run( query, parameters );
                 List<Record> records = new ArrayList<>();
                 while (result.hasNext()) {
-                    Record r = result.next();
+                    Record r = (Record) result.next();
                     records.add(r);
                 }
                 return records;
@@ -56,4 +56,3 @@ public class GraphNeo4jDB implements AutoCloseable {
     }
 
 }
-*/
