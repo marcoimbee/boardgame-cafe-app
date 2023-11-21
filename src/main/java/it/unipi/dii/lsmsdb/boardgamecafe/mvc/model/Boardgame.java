@@ -147,6 +147,7 @@ public class Boardgame {
         this.boardgamePublisher = boardgamePublisher;
     }
 
+
     // --- Reviews Management ---
     public List<Review> getReviews() {
         return reviews;
@@ -159,7 +160,7 @@ public class Boardgame {
         this.reviews.add(0, review);
     }
 
-    public boolean deleteReview(int id) {
+    public boolean deleteReview(String id) {
         Review review = this.getReviewInBoardgame(id);
         if (review != null) {
             reviews.remove(review);
@@ -168,10 +169,10 @@ public class Boardgame {
         return false;
     }
 
-    public Review getReviewInBoardgame(int id) {
+    public Review getReviewInBoardgame(String id) {
         if (!this.reviews.isEmpty()) {
             for (Review review : reviews) {
-                if (review.getBoardgameId() == id) {
+                if (review.getId().equals(id)) {
                     return review;
                 }
             }

@@ -95,17 +95,25 @@ public class ControllerViewSignUp implements Initializable {
             stageManager.showInfoMessage("ERROR", "Password and repeated password must be the same!");
             return;
         }
+
         try {
-            User user = serviceUser.createUser(firstName,lastName,gender,country,city,streetName,
-                    streetNumber, email,username,password, year, month, day);
-            if (!serviceUser.insertUser(user)) {
+            User user = serviceUser.createUser(firstName,lastName,gender,
+                                    country,city,streetName,
+                                    streetNumber, email,username,
+                                    password, year, month, day);
+
+            if (!serviceUser.insertUser(user))
+            {
                 stageManager.showInfoMessage("ERROR", "Error in adding new user, " +
                         "please try again");
                 return;
             }
+
             BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.CURRENT_USER, user);
+
             stageManager.closeStage(this.buttonSignUp);
             stageManager.switchScene(FxmlView.USER);
+
         } catch (Exception e) {
             logger.error("Error in adding new user: " + e.getLocalizedMessage());
             e.printStackTrace();
