@@ -93,7 +93,6 @@ public class Review {
         return sb.toString();
     }
 
-
     // - toString() Methods Customized -
     public String toStringTable(boolean isBoardgame) {
 
