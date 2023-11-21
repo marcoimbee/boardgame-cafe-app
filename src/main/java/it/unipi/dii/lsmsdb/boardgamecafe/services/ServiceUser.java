@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
+import it.unipi.dii.lsmsdb.boardgamecafe.BoardgamecafeApplication;  //Used For neo4j ops handle
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.UserTest;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.ReviewMongo;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Component;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.Base64;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -91,15 +90,13 @@ public class ServiceUser {
         }
 
         //Gestione GraphDB temporarily unused
-        /*
-        if (!App.getInstance().getUserNeo4j().addUser(user.getId(), user.getUsername())) {
+        if (!BoardgamecafeApplication.getInstance().getUserNeo4j().addUser(user.getId(), user.getUsername())) {
             logger.error("Error in adding the user to Neo4j");
             if (!userMongo.deleteUser(user)) {
                 logger.error("Error in deleting the user from MongoDB");
             }
             return false;
         }
-        */
 
         return result;
     }
