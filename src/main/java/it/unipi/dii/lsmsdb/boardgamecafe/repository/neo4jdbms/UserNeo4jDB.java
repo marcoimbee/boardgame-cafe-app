@@ -1,12 +1,12 @@
-/*
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
-import org.neo4j.driver.Record;
+//import org.neo4j.driver.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -260,4 +260,3 @@ public class UserNeo4jDB {
     }
 
 }
-*/
