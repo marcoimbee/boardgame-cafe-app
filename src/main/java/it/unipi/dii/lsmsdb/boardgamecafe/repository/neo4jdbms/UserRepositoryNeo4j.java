@@ -22,11 +22,7 @@ public interface UserRepositoryNeo4j extends Neo4jRepository<UserNeo4j, String> 
 
     @Query("Match (n:User)-[r:ADDS]->(b:Boardgame) where n.username = $userName RETURN n, collect(r), collect(b)")
     UserNeo4j findUserAndBoardgamesAdded(@Param("userName") String personName);
-
     @Query("MATCH (u1:User {id:$userId})-[a:ADDS]->(b:Boardgame) RETURN distinct b")
     List<UserNeo4j> getUserAndGames(@Param("userId") String userId);
-
-    @Query("MATCH (n:User) RETURN n.id as id LIMIT 25")
-    UserNeo4j newFindById();
 
 }
