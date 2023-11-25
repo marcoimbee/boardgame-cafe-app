@@ -2,8 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
-import it.unipi.dii.lsmsdb.boardgamecafe.BoardgamecafeApplication;  //Used For neo4j ops handle
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserTest;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.ReviewMongo;
@@ -59,7 +58,7 @@ public class ServiceUser {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    public UserTest createUser(String id, String username, String email, String password,
+    public UserMongo createUser(String id, String username, String email, String password,
                                 String name, String surname, String gender,
                                 String nationality, String banned, int year,
                                 int month, int day)
@@ -79,13 +78,13 @@ public class ServiceUser {
         if(!adminChoice.equals(banned))
             bannedUser = true;
 
-        return new UserTest(id,username,email,hashedPassword,
+        return new UserMongo(id,username,email,hashedPassword,
                             salt, name, surname,
                             gender,dateOfBirth,
                             nationality,bannedUser);
     }
 
-    public boolean insertUser(UserTest userMongo, UserNeo4j userNeo4j) {
+    public boolean insertUser(UserMongo userMongo, UserNeo4j userNeo4j) {
 
         boolean result = true;
         if (!userMongoDB.addUser(userMongo)) {
@@ -105,7 +104,7 @@ public class ServiceUser {
         return result;
     }
 
-    public boolean deleteUser(UserTest user) {
+    public boolean deleteUser(UserMongo user) {
 
         String username = user.getUsername();
         String userId = user.getId();

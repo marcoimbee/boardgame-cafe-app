@@ -7,17 +7,18 @@ import org.springframework.data.neo4j.core.schema.Node;
 public class BoardgameNeo4j {
 
     @Id
-    private String boardgameId;
-    private String name;
-    private String image;
-    private String yearPublished;
+    public String boardgameId;
+    public String name;
+    public String image;
+    public String yearPublished;
 
-    public BoardgameNeo4j(){};
-
-    public BoardgameNeo4j(String boardgameId, String name, String image, String yearPublished) {
+    public BoardgameNeo4j(String boardgameId, String name, String image) {
         this.boardgameId = boardgameId;
         this.name = name;
         this.image = image;
+    }
+
+    public BoardgameNeo4j(String yearPublished) {
         this.yearPublished = yearPublished;
     }
 

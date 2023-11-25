@@ -11,17 +11,20 @@ import java.util.List;
 public class UserNeo4j {
 
     @Id
-    private String id;
-    private String username;
+    public String id;
+    public String username;
 
     @Relationship(type = "ADDS", direction = Relationship.Direction.OUTGOING)
-    private List<BoardgameNeo4j> boardgamesNeo4j;
+    public List<BoardgameNeo4j> boardgamesNeo4j;
 
-    public UserNeo4j() {};
+    public UserNeo4j() {}
 
     public UserNeo4j(String id, String username) {
         this.id = id;
         this.username = username;
+    }
+    public UserNeo4j(List<BoardgameNeo4j> boardgamesNeo4j) {
+        this.boardgamesNeo4j = boardgamesNeo4j;
     }
 
     // Metodi setter/getter
@@ -41,5 +44,12 @@ public class UserNeo4j {
         this.username = username;
     }
 
+    public List<BoardgameNeo4j> getBoardgamesNeo4j() {
+        return boardgamesNeo4j;
+    }
+
+    public void setBoardgamesNeo4j(List<BoardgameNeo4j> boardgamesNeo4j) {
+        this.boardgamesNeo4j = boardgamesNeo4j;
+    }
 }
 

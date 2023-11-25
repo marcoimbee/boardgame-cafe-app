@@ -4,13 +4,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Document(collection = "users")
 @TypeAlias("user")
-public class UserTest {
+public class UserMongo {
     @Id
     private String id;
     private String username;
@@ -24,11 +22,11 @@ public class UserTest {
     private String nationality;
     private boolean banned;
 
-    public UserTest(){};
+    public UserMongo(){};
 
-    public UserTest(String id, String username, String email, String passwordHash,
-                    String salt, String name, String surname, String gender,
-                    Date dateOfBirth, String nationality, boolean banned) {
+    public UserMongo(String id, String username, String email, String passwordHash,
+                     String salt, String name, String surname, String gender,
+                     Date dateOfBirth, String nationality, boolean banned) {
         this.id = id;
         this.username = username;
         this.email = email;

@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 @Document(collection = "reviews")
-public class Review {
+public class ReviewMongo {
 
     @Id
     private String id;
@@ -19,10 +19,10 @@ public class Review {
     private Date dateOfReview;
 
     // - Costruttore vuoto necessario per la corretta deserializzazione JSON in Spring -
-    public Review() {}
+    public ReviewMongo() {}
 
     // - Costruttore con parametri -
-    public Review(String id, String boardgameName, String username, Double rating, String comment, Date dateOfReview) {
+    public ReviewMongo(String id, String boardgameName, String username, Double rating, String comment, Date dateOfReview) {
         this.id = id;
         this.boardgameName = boardgameName;
         this.username = username;
@@ -32,7 +32,7 @@ public class Review {
     }
 
     // - Constructor Builder-Pattern-Based -
-    public Review(ReviewBuilder builder) {
+    public ReviewMongo(ReviewBuilder builder) {
         this.id = builder.id;
         this.boardgameName = builder.boardgameName;
         this.rating = builder.rating;
@@ -152,11 +152,11 @@ public class Review {
             this.comment = comment;
             this.dateOfReview = dateOfReview;
         }
-        public ReviewBuilder(Review review) {
-            this.rating = review.rating;
-            this.username = review.username;
-            this.comment = review.comment;
-            this.dateOfReview = review.dateOfReview;
+        public ReviewBuilder(ReviewMongo reviewMongo) {
+            this.rating = reviewMongo.rating;
+            this.username = reviewMongo.username;
+            this.comment = reviewMongo.comment;
+            this.dateOfReview = reviewMongo.dateOfReview;
         }
         public ReviewBuilder id (String id) {
             this.id = id;
@@ -170,8 +170,8 @@ public class Review {
             this.boardgameName = boardgameName;
             return this;
         }
-        public Review build() {
-            return new Review(this);
+        public ReviewMongo build() {
+            return new ReviewMongo(this);
         }
     }
 

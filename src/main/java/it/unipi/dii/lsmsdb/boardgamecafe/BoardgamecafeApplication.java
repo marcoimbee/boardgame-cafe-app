@@ -5,10 +5,9 @@ package it.unipi.dii.lsmsdb.boardgamecafe;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.PhoneNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.UserNeo4j;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserTest;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.INFUserNeo4jDB;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.INFUserMongoDB;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserRepositoryNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepositoryMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ServiceUser;
 
 //import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -18,13 +17,10 @@ import it.unipi.dii.lsmsdb.boardgamecafe.services.ServiceUser;
 
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-
-import java.util.Optional;
 
 @SpringBootApplication  //extends Application
 public class BoardgamecafeApplication {
@@ -32,9 +28,9 @@ public class BoardgamecafeApplication {
     @Autowired
     Driver driver;
     @Autowired
-    private INFUserMongoDB mongoRepository;
+    private UserRepositoryMongo mongoRepository;
     @Autowired
-    private INFUserNeo4jDB neo4jRepository;
+    private UserRepositoryNeo4j neo4jRepository;
     @Autowired
     private ServiceUser serviceUser;
 
@@ -49,13 +45,10 @@ public class BoardgamecafeApplication {
     public void afterTheStart()
     {
         /* ------ Test Operations on BoardGameCafeDB ------*/
-
-        String username1 = "whitekoala768";
-        String username2 = "heavyladybug904";
-        String idUser = "e076a482ec7643c0a9f01db0";
+        String username = "whitekoala768";
+        String idUser = "655f83770b0a94c33a977526";
 
         //UserTest userMongo = new UserTest();
-
         /*
         UserTest userMongo = serviceUser.createUser(idUser,
                 "heavyladybug904", "dyon.zonnenberg@example.com",
@@ -78,18 +71,22 @@ public class BoardgamecafeApplication {
         //System.out.println("- Reference USERNAME: " + username2 + "\n");
         //System.out.println(mongoRepository.findByUsername(username1));
 
-
         // - Neo4jDB Operations Management -
 
         //System.out.println(" \n- Shown below is one user within Neo4jDB -\n");
         //System.out.println(neo4jRepository.findByUsername(username1).stream().map(u->u.getUsername()).toList());
 
-        System.out.println(" \n- Shown below are users within Neo4jDB (half of those) -\n");
+        /*System.out.println(" \n- Shown below are users within Neo4jDB (half of those) -\n");
         try (var session = driver.session()){
             session.run("MATCH (n:User) RETURN n.username as username LIMIT 25").list().forEach(r ->{
                 System.out.println((r.get("username")));
             });
-        }
+        }*/
+
+
+        System.out.println(" \n- Shown below is user within Neo4jDB -\n");
+        UserNeo4j specifcUser = neo4jRepository.findById(idUser).get();
+        System.out.println(specifcUser);
 
     }
 }

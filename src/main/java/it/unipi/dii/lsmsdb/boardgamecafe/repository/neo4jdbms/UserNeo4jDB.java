@@ -1,8 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserTest;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
-import org.neo4j.driver.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
@@ -10,18 +8,16 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.neo4j.driver.Values.parameters;
-
 @Component
 public class UserNeo4jDB {
 
     @Autowired
-    INFUserNeo4jDB userNeo4jDB;
+    UserRepositoryNeo4j userNeo4jDB;
     @Autowired
-    Neo4jOperations neo4jOperations;
+    Neo4jOperations neo4jOperations; //useful for aggregation
 
 
-    public INFUserNeo4jDB getUserNeo4jDB() {
+    public UserRepositoryNeo4j getUserNeo4jDB() {
         return userNeo4jDB;
     }
 
