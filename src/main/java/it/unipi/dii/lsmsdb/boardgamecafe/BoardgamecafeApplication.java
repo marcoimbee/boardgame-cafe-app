@@ -76,17 +76,16 @@ public class BoardgamecafeApplication {
         //System.out.println(" \n- Shown below is one user within Neo4jDB -\n");
         //System.out.println(neo4jRepository.findByUsername(username1).stream().map(u->u.getUsername()).toList());
 
-        /*System.out.println(" \n- Shown below are users within Neo4jDB (half of those) -\n");
+        System.out.println(" \n- Shown below are users within Neo4jDB (half of those) -\n");
         try (var session = driver.session()){
             session.run("MATCH (n:User) RETURN n.username as username LIMIT 25").list().forEach(r ->{
                 System.out.println((r.get("username")));
             });
-        }*/
+        }
 
-
-        System.out.println(" \n- Shown below is user within Neo4jDB -\n");
-        UserNeo4j specifcUser = neo4jRepository.findById(idUser).get();
-        System.out.println(specifcUser);
+        //System.out.println(" \n- Shown below is user within Neo4jDB -\n");
+        //UserNeo4j specifcUser = neo4jRepository.findById(idUser).get();
+        //System.out.println(specifcUser);
 
     }
 }
