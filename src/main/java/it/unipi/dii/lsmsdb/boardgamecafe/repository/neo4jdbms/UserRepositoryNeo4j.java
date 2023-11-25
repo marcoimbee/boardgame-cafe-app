@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface UserRepositoryNeo4j extends Neo4jRepository<UserNeo4j, String> {
 
     @Query("Match (n:User) where n.username = $userName RETURN n")
