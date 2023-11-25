@@ -3,10 +3,12 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 //import it.unipi.dii.lsmsdb.phoneworld.App;
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
 import it.unipi.dii.lsmsdb.boardgamecafe.BoardgamecafeApplication;  //Used For neo4j ops handle
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.UserTest;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserTest;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.ReviewMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserMongoDB;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserNeo4jDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,9 @@ import java.util.GregorianCalendar;
 public class ServiceUser {
 
     @Autowired
-    private UserMongo userMongo;
+    private UserMongoDB userMongoDB;
+    @Autowired
+    private UserNeo4jDB userNeo4jDB;
 
     //@Autowired
     //private ReviewMongoDB reviewMongo;
@@ -81,18 +85,18 @@ public class ServiceUser {
                             nationality,bannedUser);
     }
 
-    public boolean insertUser(UserTest user) {
+    public boolean insertUser(UserTest userMongo, UserNeo4j userNeo4j) {
 
         boolean result = true;
-        if (!userMongo.addUser(user)) {
+        if (!userMongoDB.addUser(userMongo)) {
             logger.error("Error in adding the user to MongoDB");
             return false;
         }
 
-        //Gestione GraphDB temporarily unused
-        if (!BoardgamecafeApplication.getInstance().getUserNeo4j().addUser(user.getId(), user.getUsername())) {
+        // Spring - Gestione GraphDB temporarily unused
+        if (!userNeo4jDB.addUser(userNeo4j)) {
             logger.error("Error in adding the user to Neo4j");
-            if (!userMongo.deleteUser(user)) {
+            if (!userMongoDB.deleteUser(userMongo)) {
                 logger.error("Error in deleting the user from MongoDB");
             }
             return false;
@@ -106,7 +110,7 @@ public class ServiceUser {
         String username = user.getUsername();
         String userId = user.getId();
         try {
-            if (!userMongo.deleteUser(user)) {
+            if (!userMongoDB.deleteUser(user)) {
                 logger.error("Error in deleting the user from the user collection");
                 return false;
             }
