@@ -1,3 +1,4 @@
+/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.BoardgamecafeApplication;
@@ -96,18 +97,23 @@ public class ControllerViewSignUp implements Initializable {
             return;
         }
 
+        //********* Aggiornamento gestione inserimento utente con springNeo4j *********
+
         try {
-            User user = serviceUser.createUser(firstName,lastName,gender,
+            User userMongo = serviceUser.createUser(firstName,lastName,gender,
                                     country,city,streetName,
                                     streetNumber, email,username,
                                     password, year, month, day);
+            UserNeo4j userNeo4j = new UserNeo4j(user.getId(), user.getUsername());
 
-            if (!serviceUser.insertUser(user))
+            if (!serviceUser.insertUser(userMongo, userNeo4j))
             {
                 stageManager.showInfoMessage("ERROR", "Error in adding new user, " +
                         "please try again");
                 return;
             }
+         //*******************************************************************************
+
             BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.CURRENT_USER, user);
 
             stageManager.closeStage(this.buttonSignUp);
@@ -143,3 +149,4 @@ public class ControllerViewSignUp implements Initializable {
         this.comboBoxGender.getItems().addAll("male","female", "not specified");
     }
 }
+*/
