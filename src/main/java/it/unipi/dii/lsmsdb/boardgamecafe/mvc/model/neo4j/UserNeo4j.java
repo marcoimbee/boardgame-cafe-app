@@ -7,7 +7,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import java.util.List;
 
 
-@Node
+@Node("User")
 public class UserNeo4j {
 
     @Id
@@ -15,25 +15,17 @@ public class UserNeo4j {
     public String username;
 
     @Relationship(type = "ADDS", direction = Relationship.Direction.OUTGOING)
-    public List<BoardgameNeo4j> boardgamesNeo4j;
+    public List<BoardgameNeo4j> boardgames;
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
+    public List<UserNeo4j> followedUsers;
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
+    public List<UserNeo4j> followers;
 
     public UserNeo4j() {}
-
-    public UserNeo4j(String id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-    public UserNeo4j(List<BoardgameNeo4j> boardgamesNeo4j) {
-        this.boardgamesNeo4j = boardgamesNeo4j;
-    }
 
     // Metodi setter/getter
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -44,12 +36,16 @@ public class UserNeo4j {
         this.username = username;
     }
 
-    public List<BoardgameNeo4j> getBoardgamesNeo4j() {
-        return boardgamesNeo4j;
+    public List<BoardgameNeo4j> getBoardgames() {
+        return this.boardgames;
     }
 
-    public void setBoardgamesNeo4j(List<BoardgameNeo4j> boardgamesNeo4j) {
-        this.boardgamesNeo4j = boardgamesNeo4j;
+    public List<UserNeo4j> getFollowedUsers() {
+        return followedUsers;
+    }
+
+    public List<UserNeo4j> getFollowers() {
+        return followers;
     }
 }
 
