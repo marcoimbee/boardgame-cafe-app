@@ -3,31 +3,23 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
-@Node
+@Node("Boardgame")
 public class BoardgameNeo4j {
 
     @Id
-    public String boardgameId;
+    public String id;
     public String name;
     public String image;
-    public String yearPublished;
+    public String yearpublished;
 
-    public BoardgameNeo4j(String boardgameId, String name, String image) {
-        this.boardgameId = boardgameId;
-        this.name = name;
-        this.image = image;
+    public BoardgameNeo4j(){};
+
+    public String getId() {
+        return id;
     }
 
-    public BoardgameNeo4j(String yearPublished) {
-        this.yearPublished = yearPublished;
-    }
-
-    public String getBoardgameId() {
-        return boardgameId;
-    }
-
-    public void setBoardgameId(String boardgameId) {
-        this.boardgameId = boardgameId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -46,12 +38,12 @@ public class BoardgameNeo4j {
         this.image = image;
     }
 
-    public String getYearPublished() {
-        return yearPublished;
+    public String getYearpublished() {
+        return yearpublished;
     }
 
-    public void setYearPublished(String yearPublished) {
-        this.yearPublished = yearPublished;
+    public void setYearpublished(String yearpublished) {
+        this.yearpublished = yearpublished;
     }
 }
 
