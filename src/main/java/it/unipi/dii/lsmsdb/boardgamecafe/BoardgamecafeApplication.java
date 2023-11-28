@@ -5,7 +5,10 @@ package it.unipi.dii.lsmsdb.boardgamecafe;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.PhoneNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.UserNeo4j;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameRepositoryNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserNeo4jDB;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserRepositoryNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepositoryMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ServiceUser;
@@ -26,17 +29,20 @@ import org.springframework.context.event.EventListener;
 public class BoardgamecafeApplication {
 
     @Autowired
-    Driver driver;
+    Driver driver; //Used in version without Interface Repository
+
+    @Autowired
+    private UserRepositoryNeo4j userRepositoryNeo4j;
     @Autowired
     private UserRepositoryMongo mongoRepository;
     @Autowired
-    private UserRepositoryNeo4j neo4jRepository;
-    @Autowired
     private ServiceUser serviceUser;
+
 
     public static void main(String[] args)
     {
-        SpringApplication.run(BoardgamecafeApplication.class, args);
+        SpringApplication.
+                run(BoardgamecafeApplication.class, args);
     }
 
     //Annotation @EventListner: indicates to Spring that the
@@ -45,6 +51,7 @@ public class BoardgamecafeApplication {
     public void afterTheStart()
     {
         /* ------ Test Operations on BoardGameCafeDB ------*/
+
         String username = "whitekoala768";
         String idUser = "655f83770b0a94c33a977526";
 
@@ -61,31 +68,55 @@ public class BoardgamecafeApplication {
         serviceUser.insertUser(userMongo, userNeo4j);
         */
 
-        // - MongoDB Operations Management -
+        // *************** MongoDB Operations Management ***************
 
-        //System.out.println(" \n- Shown below are users within MongoDB -\n");
+        //System.out.println(" \n- Shown below are all users within MongoDB -\n");
         //mongoRepository.findAll().forEach(System.out::println);
-        //System.out.println(mongoRepository.findByUsername(username1));
 
         //System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
         //System.out.println("- Reference USERNAME: " + username2 + "\n");
         //System.out.println(mongoRepository.findByUsername(username1));
 
-        // - Neo4jDB Operations Management -
 
-        //System.out.println(" \n- Shown below is one user within Neo4jDB -\n");
-        //System.out.println(neo4jRepository.findByUsername(username1).stream().map(u->u.getUsername()).toList());
+        // *************** Neo4jDB Operations Management ***************
 
-        System.out.println(" \n- Shown below are users within Neo4jDB (half of those) -\n");
+        /*System.out.println(" \n- Shown below is one user and its followers list within Neo4jDB (By ID) -\n");
         try (var session = driver.session()){
-            session.run("MATCH (n:User) RETURN n.username as username LIMIT 25").list().forEach(r ->{
+            session.run("MATCH (u1:User {id: '655f83770b0a94c33a977526'})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2.username as username").list().forEach(r ->{
                 System.out.println((r.get("username")));
             });
+        }*/
+
+        for(UserNeo4j users: userRepositoryNeo4j.findAll())
+        {
+            System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
+
+            System.out.println(" " + "# List of ' BOARDGAMES ' added: \n");
+
+            if (users.getBoardgames().isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Boardgames Added");
+            }
+            for (BoardgameNeo4j boardgames: users.getBoardgames()) {
+                System.out.println("    " + " - Boardgame: " + boardgames.getName());
+            }
+
+            System.out.println("\n " + "# List of ' FOLLOWERS ' users: \n");
+
+            if (users.getFollowers().isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Followed By Any Users");
+            }
+            for (UserNeo4j follower: users.getFollowers()) {
+                System.out.println("    " + " - Follower: " + follower.getUsername());
+            }
+
+            System.out.println("\n " + "# List of ' FOLLOWING ' users: \n");
+
+            if (users.getFollowedUsers().isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Following Any Users");
+            }
+            for (UserNeo4j follower: users.getFollowedUsers()) {
+                System.out.println("    " + " - Follower: " + follower.getUsername());
+            }
         }
-
-        //System.out.println(" \n- Shown below is user within Neo4jDB -\n");
-        //UserNeo4j specifcUser = neo4jRepository.findById(idUser).get();
-        //System.out.println(specifcUser);
-
     }
 }
