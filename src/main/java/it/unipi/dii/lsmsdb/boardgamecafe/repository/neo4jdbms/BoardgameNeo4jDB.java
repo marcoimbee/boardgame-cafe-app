@@ -3,7 +3,9 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BoardgameNeo4jDB {
 
     @Autowired
