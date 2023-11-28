@@ -21,10 +21,10 @@ public class UserNeo4jDB {
         return userNeo4jDB;
     }
 
-    public boolean addUser(UserNeo4j user) {
+    public boolean addUser(UserNeo4j userNeo4j) {
         boolean result = true;
         try {
-            userNeo4jDB.save(user);
+            userNeo4jDB.save(userNeo4j);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
@@ -33,24 +33,24 @@ public class UserNeo4jDB {
     }
 
     public List<UserNeo4j> getFollowed(String userId) {
-        List<UserNeo4j> userFollowed = new ArrayList<>();
+        List<UserNeo4j> userNeo4jFollowed = new ArrayList<>();
         try {
             return userNeo4jDB.findFollowed(userId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return userFollowed;
+        return userNeo4jFollowed;
     }
 
 
     public List<UserNeo4j> getFollowedList(String userId) {
-        List<UserNeo4j> userFollowed = new ArrayList<>();
+        List<UserNeo4j> userNeo4jFollowed = new ArrayList<>();
         try {
-            userFollowed.addAll(userNeo4jDB.findFollowed(userId));
+            userNeo4jFollowed.addAll(userNeo4jDB.findFollowed(userId));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return userFollowed;
+        return userNeo4jFollowed;
     }
 
     public List<UserNeo4j> getFollowers(String userId) {
