@@ -7,22 +7,25 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepositoryNeo4j extends Neo4jRepository<UserNeo4j, String> {
 
-    @Query("Match (n:User) where n.username = $userName RETURN n")
-    List<UserNeo4j> findUserByUsername(@Param("userName") String personName);
-    List<UserNeo4j> findByUsername(String personName);
+    Optional<UserNeo4j> findByUsername(String username);
 
-    @Query("MATCH (u1:User {id: $userId})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2")
-    List<UserNeo4j> findFollowers(@Param("userId") String userId);
-    @Query("MATCH (u1:User {id: $userId})-[:FOLLOWS]->(u2:User) RETURN DISTINCT u2")
-    List<UserNeo4j> findFollowed(@Param("userId") String userId);
+    @Query("MATCH (u:User {username: $username}) DETACH DELETE u")
+    void deleteUserDetachByUsername(@Param("username") String username);
 
-    @Query("Match (n:User)-[r:ADDS]->(b:Boardgame) where n.username = $userName RETURN n, collect(r), collect(b)")
-    UserNeo4j findUserAndBoardgamesAdded(@Param("userName") String personName);
-    @Query("MATCH (u1:User {id:$userId})-[a:ADDS]->(b:Boardgame) RETURN distinct b")
-    List<UserNeo4j> getUserAndGames(@Param("userId") String userId);
+    @Query("MATCH (u1:User {username: $userName})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2")
+    List<UserNeo4j> findFollowersByUsername(@Param("userName") String username);
+
+    @Query("MATCH (u1:User {username: $userName})-[:FOLLOWS]->(u2:User) RETURN DISTINCT u2")
+    List<UserNeo4j> findFollowingByUsername(@Param("userName") String username);
+
+    @Query("MATCH (u1:User)-[a:ADDS]->(b:Boardgame {name: $boardgameName}) RETURN DISTINCT u1")
+    List<UserNeo4j> findUsersByBoardgameName(@Param("boardgameName") String boardgamename);
+
+
 
 }
