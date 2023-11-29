@@ -5,6 +5,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.PhoneNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.UserNeo4j;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameRepositoryNeo4j;
@@ -25,12 +26,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.util.List;
+
 @SpringBootApplication  //extends Application
 public class BoardgamecafeApplication {
 
     @Autowired
     Driver driver; //Used in version without Interface Repository
 
+    @Autowired
+    private UserNeo4jDB userNeo4jDB;
+
+    @Autowired
+    private BoardgameRepositoryNeo4j boardgameRepositoryNeo4j;
     @Autowired
     private UserRepositoryNeo4j userRepositoryNeo4j;
     @Autowired
@@ -53,29 +61,34 @@ public class BoardgamecafeApplication {
         /* ------ Test Operations on BoardGameCafeDB ------*/
 
         String username = "whitekoala768";
+        String username2 = "johnny.test30";
+        String bordgameName ="Monopoly";
         String idUser = "655f83770b0a94c33a977526";
+        String idUser2 = "865l9633f0l96v33a2569885";
 
-        //UserTest userMongo = new UserTest();
-        /*
-        UserTest userMongo = serviceUser.createUser(idUser,
-                "heavyladybug904", "dyon.zonnenberg@example.com",
-                "123456","Dyon","Zonnenberg","male",
-                "NL","NotBanned",1974,06,11);
+
+        UserMongo userMongo = serviceUser.createUser(idUser2,
+                username2, "giovanni_testemail@example.com",
+                "24681012","Giovanni","Test","male",
+                "IT","NotBanned",1974,06,11);
 
         UserNeo4j userNeo4j = new UserNeo4j(userMongo.getId(), userMongo.getUsername());
 
         System.out.println(" \n- New user added within MongoDB -\n");
         serviceUser.insertUser(userMongo, userNeo4j);
-        */
+
+        //serviceUser.deleteUser(userMongo);
+        //System.out.println(" \n- The user" + username2 + " DELETED from both MongoDB and Neo4j dbms -\n");
+
 
         // *************** MongoDB Operations Management ***************
 
         //System.out.println(" \n- Shown below are all users within MongoDB -\n");
         //mongoRepository.findAll().forEach(System.out::println);
 
-        //System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
-        //System.out.println("- Reference USERNAME: " + username2 + "\n");
-        //System.out.println(mongoRepository.findByUsername(username1));
+        System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
+        System.out.println("- Reference USERNAME: " + username2 + "\n");
+        System.out.println(mongoRepository.findByUsername(username2));
 
 
         // *************** Neo4jDB Operations Management ***************
@@ -87,7 +100,7 @@ public class BoardgamecafeApplication {
             });
         }*/
 
-        for(UserNeo4j users: userRepositoryNeo4j.findAll())
+        /*for(UserNeo4j users: userRepositoryNeo4j.findAll())
         {
             System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
 
@@ -117,6 +130,22 @@ public class BoardgamecafeApplication {
             for (UserNeo4j follower: users.getFollowedUsers()) {
                 System.out.println("    " + " - Follower: " + follower.getUsername());
             }
-        }
+        }*/
+
+        //UserNeo4j user = userRepositoryNeo4j.findByUsername(username);
+        //System.out.println(user);
+
+        /*Direct Test of the method Inside Repository Interface
+        System.out.println(userRepositoryNeo4j.findFollowersByUsername(username));
+        System.out.println(userRepositoryNeo4j.findUsersByBoardgameName(bordgameName));
+        System.out.println(boardgameRepositoryNeo4j.findBoardgamesByUsername(username));
+
+        //Indirect Test of the method Inside Repository Interface
+        System.out.println(userNeo4jDB.getFollowing(username));*/
+
+        System.out.println("\n- Shown below is a specifc user into Neo4jDB filtered out by username -");
+        System.out.println("- Reference USERNAME: " + username2 + "\n");
+        System.out.println(userRepositoryNeo4j.findByUsername(username2));
+
     }
 }
