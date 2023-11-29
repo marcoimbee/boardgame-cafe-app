@@ -93,14 +93,17 @@ public class BoardgamecafeApplication {
 
         // *************** Neo4jDB Operations Management ***************
 
-        /*System.out.println(" \n- Shown below is one user and its followers list within Neo4jDB (By ID) -\n");
+        /*
+        System.out.println(" \n- Shown below is one user and its followers list within Neo4jDB (By ID) -\n");
         try (var session = driver.session()){
             session.run("MATCH (u1:User {id: '655f83770b0a94c33a977526'})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2.username as username").list().forEach(r ->{
                 System.out.println((r.get("username")));
             });
-        }*/
+        }
+        */
 
-        /*for(UserNeo4j users: userRepositoryNeo4j.findAll())
+        /*
+        for(UserNeo4j users: userRepositoryNeo4j.findAll())
         {
             System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
 
@@ -130,18 +133,21 @@ public class BoardgamecafeApplication {
             for (UserNeo4j follower: users.getFollowedUsers()) {
                 System.out.println("    " + " - Follower: " + follower.getUsername());
             }
-        }*/
+        }
+        */
 
         //UserNeo4j user = userRepositoryNeo4j.findByUsername(username);
         //System.out.println(user);
 
-        /*Direct Test of the method Inside Repository Interface
+        /*
+        //Direct Test of the method Inside Repository Interface
         System.out.println(userRepositoryNeo4j.findFollowersByUsername(username));
         System.out.println(userRepositoryNeo4j.findUsersByBoardgameName(bordgameName));
         System.out.println(boardgameRepositoryNeo4j.findBoardgamesByUsername(username));
 
         //Indirect Test of the method Inside Repository Interface
-        System.out.println(userNeo4jDB.getFollowing(username));*/
+        System.out.println(userNeo4jDB.getFollowing(username));
+        */
 
         System.out.println("\n- Shown below is a specifc user into Neo4jDB filtered out by username -");
         System.out.println("- Reference USERNAME: " + username2 + "\n");
