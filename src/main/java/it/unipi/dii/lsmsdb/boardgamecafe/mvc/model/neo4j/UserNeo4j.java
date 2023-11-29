@@ -23,6 +23,11 @@ public class UserNeo4j {
 
     public UserNeo4j() {}
 
+    public UserNeo4j(String id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
     // Metodi setter/getter
     public String getId() {
         return id;
@@ -36,16 +41,26 @@ public class UserNeo4j {
         this.username = username;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public List<BoardgameNeo4j> getBoardgames() {
         return this.boardgames;
     }
-
     public List<UserNeo4j> getFollowedUsers() {
         return followedUsers;
     }
-
     public List<UserNeo4j> getFollowers() {
         return followers;
+    }
+
+    @Override
+    public String toString() {
+        return "UserNeo4j{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                '}';
     }
 }
 
