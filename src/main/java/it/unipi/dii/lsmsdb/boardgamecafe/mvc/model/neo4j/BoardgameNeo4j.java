@@ -14,6 +14,14 @@ public class BoardgameNeo4j {
 
     public BoardgameNeo4j(){};
 
+    public BoardgameNeo4j(String id, String name, String image, String yearpublished) {
+        this.id = id;
+        this.name = name;
+        this.image = image;
+        this.yearpublished = yearpublished;
+    }
+
+    // Metodi setter/getter
     public String getId() {
         return id;
     }
@@ -44,6 +52,16 @@ public class BoardgameNeo4j {
 
     public void setYearpublished(String yearpublished) {
         this.yearpublished = yearpublished;
+    }
+
+    @Override
+    public String toString() {
+        return "BoardgameNeo4j{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", yearpublished='" + yearpublished + '\'' +
+                '}';
     }
 }
 
