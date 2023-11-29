@@ -104,43 +104,24 @@ public class ServiceUser {
         return result;
     }
 
-    public boolean deleteUser(UserMongo user) {
+    public boolean deleteUser(UserMongo userMongo) {
 
-        String username = user.getUsername();
-        String userId = user.getId();
+        String username = userMongo.getUsername();
         try {
-            if (!userMongoDB.deleteUser(user)) {
+            if (!userMongoDB.deleteUser(userMongo)) {
                 logger.error("Error in deleting the user from the user collection");
                 return false;
             }
 
-            //Gestion GraphDB temporarily unused
-            /*
-            if (!App.getInstance().getUserNeo4j().deleteUserAddsRelationships(userId)) {
+            //Gestione GraphDB
+
+            if (!userNeo4jDB.deleteUserDetach(username)) {
                 logger.error("Error in deleting the user's add relationships");
                 return false;
             }
-            if (!App.getInstance().getUserNeo4j().deleteUserFollowsRelationships(userId)) {
-                logger.error("Error in deleting the user's follow relationships");
-                return false;
-            }
-            if (!App.getInstance().getUserNeo4j().deleteUserOnly(userId)) {
-                logger.error("Error in deleting the user from neo4j");
-                return false;
-            }
-            if (!reviewMongo.updateReviewsOldUser(username)) {
-                logger.error("Error in removing the username from the reviews collection");
-                return false;
-            }
-            if (!phoneMongo.updatePhoneReviewsOldUser(username)) {
-                logger.error("Error in removing the username from the reviews in phones");
-            }
-            */
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return true;
     }
 
