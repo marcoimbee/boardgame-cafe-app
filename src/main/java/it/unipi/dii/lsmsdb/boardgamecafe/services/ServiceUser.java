@@ -113,8 +113,7 @@ public class ServiceUser {
                 return false;
             }
 
-            //Gestione GraphDB
-
+            //Gestione consistenza: Neo4jDB operations
             if (!userNeo4jDB.deleteUserDetach(username)) {
                 logger.error("Error in deleting the user's add relationships");
                 return false;
