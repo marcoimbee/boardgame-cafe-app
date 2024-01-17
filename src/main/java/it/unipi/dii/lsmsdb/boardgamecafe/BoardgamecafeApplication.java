@@ -5,14 +5,13 @@ package it.unipi.dii.lsmsdb.boardgamecafe;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.PhoneNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.neo4j.UserNeo4j;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameRepositoryNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserNeo4jDB;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserRepositoryNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepositoryMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.ServiceUser;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameRepoNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserRepoNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepoMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
 //import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 //import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -26,8 +25,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
-import java.util.List;
-
 @SpringBootApplication  //extends Application
 public class BoardgamecafeApplication {
 
@@ -35,16 +32,16 @@ public class BoardgamecafeApplication {
     Driver driver; //Used in version without Interface Repository
 
     @Autowired
-    private UserNeo4jDB userNeo4jDB;
+    private UserDBNeo4j userNeo4jDB;
 
     @Autowired
-    private BoardgameRepositoryNeo4j boardgameRepositoryNeo4j;
+    private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
     @Autowired
-    private UserRepositoryNeo4j userRepositoryNeo4j;
+    private UserRepoNeo4j userRepositoryNeo4j;
     @Autowired
-    private UserRepositoryMongo mongoRepository;
+    private UserRepoMongo mongoRepository;
     @Autowired
-    private ServiceUser serviceUser;
+    private UserService serviceUser;
 
 
     public static void main(String[] args)
@@ -67,12 +64,12 @@ public class BoardgamecafeApplication {
         String idUser2 = "865l9633f0l96v33a2569885";
 
 
-        UserMongo userMongo = serviceUser.createUser(idUser2,
+        UserModelMongo userMongo = serviceUser.createUser(idUser2,
                 username2, "giovanni_testemail@example.com",
                 "24681012","Giovanni","Test","male",
                 "IT","NotBanned",1974,06,11);
 
-        UserNeo4j userNeo4j = new UserNeo4j(userMongo.getId(), userMongo.getUsername());
+        UserModelNeo4j userNeo4j = new UserModelNeo4j(userMongo.getId(), userMongo.getUsername());
 
         System.out.println(" \n- New user added within MongoDB -\n");
         serviceUser.insertUser(userMongo, userNeo4j);
