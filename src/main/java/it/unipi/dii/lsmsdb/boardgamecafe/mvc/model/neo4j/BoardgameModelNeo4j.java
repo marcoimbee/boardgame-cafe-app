@@ -4,7 +4,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node("Boardgame")
-public class BoardgameNeo4j {
+public class BoardgameModelNeo4j {
 
     @Id
     public String id;
@@ -12,9 +12,9 @@ public class BoardgameNeo4j {
     public String image;
     public String yearpublished;
 
-    public BoardgameNeo4j(){};
+    public BoardgameModelNeo4j(){};
 
-    public BoardgameNeo4j(String id, String name, String image, String yearpublished) {
+    public BoardgameModelNeo4j(String id, String name, String image, String yearpublished) {
         this.id = id;
         this.name = name;
         this.image = image;

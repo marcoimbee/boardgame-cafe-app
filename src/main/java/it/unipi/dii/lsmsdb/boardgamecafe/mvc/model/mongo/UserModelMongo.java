@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Document(collection = "users")
 @TypeAlias("user")
-public class UserMongo {
+public class UserModelMongo {
     @Id
     private String id;
     private String username;
@@ -22,11 +22,11 @@ public class UserMongo {
     private String nationality;
     private boolean banned;
 
-    public UserMongo(){};
+    public UserModelMongo(){};
 
-    public UserMongo(String id, String username, String email, String passwordHash,
-                     String salt, String name, String surname, String gender,
-                     Date dateOfBirth, String nationality, boolean banned) {
+    public UserModelMongo(String id, String username, String email, String passwordHash,
+                          String salt, String name, String surname, String gender,
+                          Date dateOfBirth, String nationality, boolean banned) {
         this.id = id;
         this.username = username;
         this.email = email;

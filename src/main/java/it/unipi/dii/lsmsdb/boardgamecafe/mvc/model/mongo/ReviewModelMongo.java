@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 @Document(collection = "reviews")
-public class ReviewMongo {
+public class ReviewModelMongo {
 
     @Id
     private String id;
@@ -19,10 +19,10 @@ public class ReviewMongo {
     private Date dateOfReview;
 
     // - Costruttore vuoto necessario per la corretta deserializzazione JSON in Spring -
-    public ReviewMongo() {}
+    public ReviewModelMongo() {}
 
     // - Costruttore con parametri -
-    public ReviewMongo(String id, String boardgameName, String username, Double rating, String comment, Date dateOfReview) {
+    public ReviewModelMongo(String id, String boardgameName, String username, Double rating, String comment, Date dateOfReview) {
         this.id = id;
         this.boardgameName = boardgameName;
         this.username = username;
@@ -32,7 +32,7 @@ public class ReviewMongo {
     }
 
     // - Constructor Builder-Pattern-Based -
-    public ReviewMongo(ReviewBuilder builder) {
+    public ReviewModelMongo(ReviewBuilder builder) {
         this.id = builder.id;
         this.boardgameName = builder.boardgameName;
         this.rating = builder.rating;
@@ -152,7 +152,7 @@ public class ReviewMongo {
             this.comment = comment;
             this.dateOfReview = dateOfReview;
         }
-        public ReviewBuilder(ReviewMongo reviewMongo) {
+        public ReviewBuilder(ReviewModelMongo reviewMongo) {
             this.rating = reviewMongo.rating;
             this.username = reviewMongo.username;
             this.comment = reviewMongo.comment;
@@ -170,8 +170,8 @@ public class ReviewMongo {
             this.boardgameName = boardgameName;
             return this;
         }
-        public ReviewMongo build() {
-            return new ReviewMongo(this);
+        public ReviewModelMongo build() {
+            return new ReviewModelMongo(this);
         }
     }
 

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "boardgame")
-public class BoardgameMongo {
+public class BoardgameModelMongo {
 
     @Id
     private String boardgameId;
@@ -23,11 +23,11 @@ public class BoardgameMongo {
     private String boardgameCategory;
     private String boardgameDesigner;
     private String boardgamePublisher;
-    private List<ReviewMongo> reviewMongos = new ArrayList<>();
+    private List<ReviewModelMongo> reviewMongo = new ArrayList<>();
 
-    public BoardgameMongo(){}
+    public BoardgameModelMongo(){}
 
-    public BoardgameMongo(String boardgameId, String name, String thumbnail, String image, String description, int yearPublished, int minPlayers, int maxPlayers, int playingTime, int minAge, String boardgameCategory, String boardgameDesigner, String boardgamePublisher) {
+    public BoardgameModelMongo(String boardgameId, String name, String thumbnail, String image, String description, int yearPublished, int minPlayers, int maxPlayers, int playingTime, int minAge, String boardgameCategory, String boardgameDesigner, String boardgamePublisher) {
         this.boardgameId = boardgameId;
         this.name = name;
         this.thumbnail = thumbnail;
@@ -149,29 +149,29 @@ public class BoardgameMongo {
 
 
     // --- Reviews Management ---
-    public List<ReviewMongo> getReviews() {
-        return reviewMongos;
+    public List<ReviewModelMongo> getReviews() {
+        return reviewMongo;
     }
-    public void setReviews(List<ReviewMongo> reviewMongos) {
-        this.reviewMongos = reviewMongos;
+    public void setReviews(List<ReviewModelMongo> reviewMongo) {
+        this.reviewMongo = reviewMongo;
     }
 
-    public void addReview (ReviewMongo reviewMongo) {
-        this.reviewMongos.add(0, reviewMongo);
+    public void addReview (ReviewModelMongo reviewMongo) {
+        this.reviewMongo.add(0, reviewMongo);
     }
 
     public boolean deleteReview(String id) {
-        ReviewMongo reviewMongo = this.getReviewInBoardgame(id);
+        ReviewModelMongo reviewMongo = this.getReviewInBoardgame(id);
         if (reviewMongo != null) {
-            reviewMongos.remove(reviewMongo);
+            this.reviewMongo.remove(reviewMongo);
             return true;
         }
         return false;
     }
 
-    public ReviewMongo getReviewInBoardgame(String id) {
-        if (!this.reviewMongos.isEmpty()) {
-            for (ReviewMongo reviewMongo : reviewMongos) {
+    public ReviewModelMongo getReviewInBoardgame(String id) {
+        if (!this.reviewMongo.isEmpty()) {
+            for (ReviewModelMongo reviewMongo : reviewMongo) {
                 if (reviewMongo.getId().equals(id)) {
                     return reviewMongo;
                 }
@@ -196,7 +196,7 @@ public class BoardgameMongo {
                 ", boardgameCategory='" + boardgameCategory + '\'' +
                 ", boardgameDesigner='" + boardgameDesigner + '\'' +
                 ", boardgamePublisher='" + boardgamePublisher + '\'' +
-                ", reviews=" + reviewMongos +
+                ", reviews=" + reviewMongo +
                 '}';
     }
 

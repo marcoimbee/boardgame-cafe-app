@@ -8,22 +8,22 @@ import java.util.List;
 
 
 @Node("User")
-public class UserNeo4j {
+public class UserModelNeo4j {
 
     @Id
     public String id;
     public String username;
 
     @Relationship(type = "ADDS", direction = Relationship.Direction.OUTGOING)
-    public List<BoardgameNeo4j> boardgames;
+    public List<BoardgameModelNeo4j> boardgames;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
-    public List<UserNeo4j> followedUsers;
+    public List<UserModelNeo4j> followedUsers;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
-    public List<UserNeo4j> followers;
+    public List<UserModelNeo4j> followers;
 
-    public UserNeo4j() {}
+    public UserModelNeo4j() {}
 
-    public UserNeo4j(String id, String username) {
+    public UserModelNeo4j(String id, String username) {
         this.id = id;
         this.username = username;
     }
@@ -45,13 +45,13 @@ public class UserNeo4j {
         this.id = id;
     }
 
-    public List<BoardgameNeo4j> getBoardgames() {
+    public List<BoardgameModelNeo4j> getBoardgames() {
         return this.boardgames;
     }
-    public List<UserNeo4j> getFollowedUsers() {
+    public List<UserModelNeo4j> getFollowedUsers() {
         return followedUsers;
     }
-    public List<UserNeo4j> getFollowers() {
+    public List<UserModelNeo4j> getFollowers() {
         return followers;
     }
 

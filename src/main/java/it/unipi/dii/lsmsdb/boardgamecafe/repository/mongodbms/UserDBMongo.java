@@ -2,7 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
 //import it.unipi.dii.lsmsdb.phoneworld.model.GenericUser;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
@@ -10,35 +10,35 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class UserMongoDB {
+public class UserDBMongo {
 
-    public UserMongoDB() {
+    public UserDBMongo() {
     }
 
     //private final static Logger logger = LoggerFactory.getLogger(Boardgame.class);
 
     @Autowired
-    private UserRepositoryMongo userMongo;
+    private UserRepoMongo userRepoMongo;
     @Autowired
     private MongoOperations mongoOperations;
 
-    public UserRepositoryMongo getUserMongo() {
-        return userMongo;
+    public UserRepoMongo getUserMongo() {
+        return userRepoMongo;
     }
 
-    public boolean addUser(UserMongo user) {
+    public boolean addUser(UserModelMongo user) {
         boolean result = true;
         try {
-            userMongo.save(user);
+            userRepoMongo.save(user);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
         }
         return result;
     }
-    public boolean deleteUser(UserMongo user) {
+    public boolean deleteUser(UserModelMongo user) {
         try {
-            userMongo.delete(user);
+            userRepoMongo.delete(user);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -46,20 +46,20 @@ public class UserMongoDB {
         return true;
     }
 
-    public Optional<UserMongo> findByUsername(String username) {
-        Optional<UserMongo> user = Optional.empty();
+    public Optional<UserModelMongo> findByUsername(String username) {
+        Optional<UserModelMongo> user = Optional.empty();
         try {
-            user = userMongo.findByUsername(username);
+            user = userRepoMongo.findByUsername(username);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return user;
     }
 
-    public Optional<UserMongo> findUserById(String id) {
-        Optional<UserMongo> user = Optional.empty();
+    public Optional<UserModelMongo> findUserById(String id) {
+        Optional<UserModelMongo> user = Optional.empty();
         try {
-            user = userMongo.findById(id);
+            user = userRepoMongo.findById(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,7 +68,7 @@ public class UserMongoDB {
 
     public boolean deleteUserById(String id) {
         try {
-            userMongo.deleteById(id);
+            userRepoMongo.deleteById(id);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
