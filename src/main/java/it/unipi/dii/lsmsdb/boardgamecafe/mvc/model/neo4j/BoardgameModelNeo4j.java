@@ -3,7 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
-@Node("Boardgame")
+@Node("Boardgames")
 public class BoardgameModelNeo4j {
 
     @Id
