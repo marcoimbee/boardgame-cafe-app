@@ -54,7 +54,7 @@ public class ReviewDBMongo {
         return review;
     }
 
-    public Optional<ReviewModelMongo> findByUsernameAndBoardgameNam(String username, String boardgameName) {
+    public Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username, String boardgameName) {
         Optional<ReviewModelMongo> review = Optional.empty();
         try {
             review = reviewMongo.findByUsernameAndBoardgameName(username, boardgameName);
