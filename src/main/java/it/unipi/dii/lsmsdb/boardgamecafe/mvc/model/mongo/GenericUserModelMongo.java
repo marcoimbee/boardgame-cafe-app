@@ -1,26 +1,25 @@
-/*
-package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
+package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
-public abstract class GenericUser {
+public abstract class GenericUserModelMongo {
 
     @Id
     protected String id;
     protected String username;
     protected String salt;
-    protected String hashedPassword;
+    protected String passwordHash;
     protected String _class;
 
-    protected GenericUser() {
+    protected GenericUserModelMongo() {
     }
 
-    protected GenericUser(String username, String salt, String hashedPassword, String _class) {
+    protected GenericUserModelMongo(String username, String salt, String passwordHash, String _class) {
         this.username = username;
         this.salt = salt;
-        this.hashedPassword = hashedPassword;
+        this.passwordHash = passwordHash;
         this._class = _class;
     }
 
@@ -36,8 +35,8 @@ public abstract class GenericUser {
         return salt;
     }
 
-    public String getHashedPassword() {
-        return hashedPassword;
+    public String getPasswordHashed() {
+        return passwordHash;
     }
 
     public void setUsername(String username) {
@@ -48,8 +47,8 @@ public abstract class GenericUser {
         this.salt = salt;
     }
 
-    public void setHashedPassword(String hashedPassword) {
-        this.hashedPassword = hashedPassword;
+    public void setPasswordHashed(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public void setId(String id) {
@@ -64,4 +63,3 @@ public abstract class GenericUser {
         this._class = _class;
     }
 }
-*/

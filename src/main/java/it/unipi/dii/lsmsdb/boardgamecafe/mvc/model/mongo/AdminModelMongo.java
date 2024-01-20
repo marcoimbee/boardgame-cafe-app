@@ -1,18 +1,17 @@
-/*
-package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
+package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
 @TypeAlias("admin")
-public class Admin extends GenericUser{
+public class AdminModelMongo extends GenericUserModelMongo {
 
-    public Admin() {
+    public AdminModelMongo() {
     }
 
-    public Admin(String username, String salt, String hashedPassword, String _class) {
-        super(username, salt, hashedPassword, _class);
+    public AdminModelMongo(String username, String salt, String passwordHash, String _class) {
+        super(username, salt, passwordHash, _class);
     }
 
     @Override
@@ -21,8 +20,7 @@ public class Admin extends GenericUser{
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", salt='" + salt + '\'' +
-                ", hashedPassword='" + hashedPassword + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 '}';
     }
 }
-*/
