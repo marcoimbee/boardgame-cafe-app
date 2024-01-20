@@ -10,17 +10,17 @@ import java.util.Optional;
 @Repository
 public interface ReviewRepoMongo extends MongoRepository<ReviewModelMongo, String> {
 
-    Optional<ReviewModelMongo> findByUsernameAndPhoneName(String username, String phoneName);
+    Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username, String boardgameName);
 
     List<ReviewModelMongo> findByUsername(String id);
 
-    List<ReviewModelMongo> findByPhoneName(String id);
+    List<ReviewModelMongo> findByBoardgameName(String id);
 
     List<ReviewModelMongo> findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(String word, String word1);
 
     void deleteReviewsByUsername(String id);
 
-    void deleteReviewByPhoneName(String id);
+    void deleteReviewByBoardgameName(String id);
 
     void deleteReviewByUsername(String id);
 

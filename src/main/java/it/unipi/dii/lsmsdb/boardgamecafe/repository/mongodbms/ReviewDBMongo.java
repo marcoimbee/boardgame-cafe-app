@@ -54,10 +54,10 @@ public class ReviewDBMongo {
         return review;
     }
 
-    public Optional<ReviewModelMongo> findByUsernameAndPhoneName(String username, String phoneName) {
+    public Optional<ReviewModelMongo> findByUsernameAndBoardgameNam(String username, String boardgameName) {
         Optional<ReviewModelMongo> review = Optional.empty();
         try {
-            review = reviewMongo.findByUsernameAndPhoneName(username, phoneName);
+            review = reviewMongo.findByUsernameAndBoardgameName(username, boardgameName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,10 +74,10 @@ public class ReviewDBMongo {
         return reviews;
     }
 
-    public List<ReviewModelMongo> findReviewByPhoneName(String phoneName) {
+    public List<ReviewModelMongo> findReviewByBoardgameName(String boardgameName) {
         List<ReviewModelMongo> reviews = null;
         try {
-            reviews = reviewMongo.findByPhoneName(phoneName);
+            reviews = reviewMongo.findByBoardgameName(boardgameName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,10 +134,10 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewByPhoneName(String id) {
+    public boolean deleteReviewByBoardgameName(String id) {
         boolean result = true;
         try {
-            reviewMongo.deleteReviewByPhoneName(id);
+            reviewMongo.deleteReviewByBoardgameName(id);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
@@ -159,12 +159,12 @@ public class ReviewDBMongo {
         return reviews;
     }
 
-    public List<ReviewModelMongo> findOldReviews(String parameter, boolean isPhone) {
+    public List<ReviewModelMongo> findOldReviews(String parameter, boolean isBoardgame) {
         List<ReviewModelMongo> reviews = new ArrayList<>();
         try {
             Query query = new Query();
-            if (isPhone) {
-                query.addCriteria(new Criteria("phoneName").is(parameter));
+            if (isBoardgame) {
+                query.addCriteria(new Criteria("boardgameName").is(parameter));
             } else {
                 query.addCriteria(new Criteria("username").is(parameter));
             }
