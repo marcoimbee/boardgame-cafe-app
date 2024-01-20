@@ -16,7 +16,6 @@ public class UserModelNeo4j {
 
     @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
     public List<PostModelNeo4j> posts;
-
     @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
     public List<CommentModelNeo4j> comments;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
