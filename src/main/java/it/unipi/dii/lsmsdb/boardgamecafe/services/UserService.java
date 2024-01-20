@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 //import it.unipi.dii.lsmsdb.phoneworld.App;
 //import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 //import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
@@ -58,28 +59,38 @@ public class UserService {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    public UserModelMongo createUser(String id, String username, String email, String password,
+    public AdminModelMongo createAdmin(String username, String password){
+        String salt = this.getSalt();
+        String hashedPassword = this.getHashedPassword(password, salt);
+        return new AdminModelMongo(username, salt, hashedPassword, "admin");
+    }
+
+    public boolean insertAdmin(AdminModelMongo admin) {
+        boolean result = true;
+        if (!userMongoDB.addUser(admin)) {
+            logger.error("Error in adding the admin to MongoDB");
+            return false;
+        }
+        return result;
+    }
+
+    public UserModelMongo createUser(String username, String email, String password,
                                      String name, String surname, String gender,
                                      String nationality, String banned, int year,
                                      int month, int day)
     {
-        //LocalDate localDate = LocalDate.now();
-        //LocalDate birthday = LocalDate.of(year,month,day);
-        //int age = Period.between(birthday,localDate).getYears();
-
         boolean bannedUser = false;
         String adminChoice = "NotBanned";
-
-        Date dateOfBirth = new GregorianCalendar(year, month-1, day+1).getTime();
-
-        String salt = this.getSalt();
-        String hashedPassword = this.getHashedPassword(password, salt);
 
         if(!adminChoice.equals(banned))
             bannedUser = true;
 
-        return new UserModelMongo(id,username,email,hashedPassword,
-                            salt, name, surname,
+        Date dateOfBirth = new GregorianCalendar(year, month-1, day+1).getTime();
+        String salt = this.getSalt();
+        String hashedPassword = this.getHashedPassword(password, salt);
+
+        return new UserModelMongo(username,hashedPassword,
+                            salt, "user",email, name, surname,
                             gender,dateOfBirth,
                             nationality,bannedUser);
     }
@@ -92,7 +103,7 @@ public class UserService {
             return false;
         }
 
-        // Spring - Gestione GraphDB temporarily unused
+        // Spring - Gestione GraphDB
         if (!userNeo4jDB.addUser(userNeo4j)) {
             logger.error("Error in adding the user to Neo4j");
             if (!userMongoDB.deleteUser(userMongo)) {

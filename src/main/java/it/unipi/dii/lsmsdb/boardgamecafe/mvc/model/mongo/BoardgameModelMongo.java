@@ -6,12 +6,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "boardgame")
+@Document(collection = "boardgames")
 public class BoardgameModelMongo {
 
     @Id
     private String boardgameId;
-    private String name;
+    private String boardgameName;
     private String thumbnail;
     private String image;
     private String description;
@@ -20,16 +20,16 @@ public class BoardgameModelMongo {
     private int maxPlayers;
     private int playingTime;
     private int minAge;
-    private String boardgameCategory;
-    private String boardgameDesigner;
-    private String boardgamePublisher;
+    private List<String> boardgameCategoryList = new ArrayList<>();
+    private List<String> boardgameDesignerList = new ArrayList<>();
+    private List<String> boardgamePublisherList = new ArrayList<>();
     private List<ReviewModelMongo> reviewMongo = new ArrayList<>();
 
     public BoardgameModelMongo(){}
 
-    public BoardgameModelMongo(String boardgameId, String name, String thumbnail, String image, String description, int yearPublished, int minPlayers, int maxPlayers, int playingTime, int minAge, String boardgameCategory, String boardgameDesigner, String boardgamePublisher) {
+    public BoardgameModelMongo(String boardgameId, String boardgameName, String thumbnail, String image, String description, int yearPublished, int minPlayers, int maxPlayers, int playingTime, int minAge, List<String> boardgameCategoryList, List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
         this.boardgameId = boardgameId;
-        this.name = name;
+        this.boardgameName = boardgameName;
         this.thumbnail = thumbnail;
         this.image = image;
         this.description = description;
@@ -38,9 +38,9 @@ public class BoardgameModelMongo {
         this.maxPlayers = maxPlayers;
         this.playingTime = playingTime;
         this.minAge = minAge;
-        this.boardgameCategory = boardgameCategory;
-        this.boardgameDesigner = boardgameDesigner;
-        this.boardgamePublisher = boardgamePublisher;
+        this.boardgameCategoryList = boardgameCategoryList;
+        this.boardgameDesignerList = boardgameDesignerList;
+        this.boardgamePublisherList = boardgamePublisherList;
     }
 
     public String getBoardgameId() {
@@ -51,12 +51,12 @@ public class BoardgameModelMongo {
         this.boardgameId = boardgameId;
     }
 
-    public String getName() {
-        return name;
+    public String getBoardgameName () {
+        return boardgameName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBoardgameName(String boardgameName) {
+        this.boardgameName = boardgameName;
     }
 
     public String getThumbnail() {
@@ -123,28 +123,28 @@ public class BoardgameModelMongo {
         this.minAge = minAge;
     }
 
-    public String getBoardgameCategory() {
-        return boardgameCategory;
+    public List<String> getBoardgameCategoryList() {
+        return boardgameCategoryList;
     }
 
-    public void setBoardgameCategory(String boardgameCategory) {
-        this.boardgameCategory = boardgameCategory;
+    public void setBoardgameCategoryList(List<String> boardgameCategoryList) {
+        this.boardgameCategoryList = boardgameCategoryList;
     }
 
-    public String getBoardgameDesigner() {
-        return boardgameDesigner;
+    public List<String> getBoardgameDesignerList() {
+        return boardgameDesignerList;
     }
 
-    public void setBoardgameDesigner(String boardgameDesigner) {
-        this.boardgameDesigner = boardgameDesigner;
+    public void setBoardgameDesignerList(List<String> boardgameDesignerList) {
+        this.boardgameDesignerList = boardgameDesignerList;
     }
 
-    public String getBoardgamePublisher() {
-        return boardgamePublisher;
+    public List<String> getBoardgamePublisherList() {
+        return boardgamePublisherList;
     }
 
-    public void setBoardgamePublisher(String boardgamePublisher) {
-        this.boardgamePublisher = boardgamePublisher;
+    public void setBoardgamePublisherList(List<String> boardgamePublisherList) {
+        this.boardgamePublisherList = boardgamePublisherList;
     }
 
 
@@ -160,15 +160,6 @@ public class BoardgameModelMongo {
         this.reviewMongo.add(0, reviewMongo);
     }
 
-    public boolean deleteReview(String id) {
-        ReviewModelMongo reviewMongo = this.getReviewInBoardgame(id);
-        if (reviewMongo != null) {
-            this.reviewMongo.remove(reviewMongo);
-            return true;
-        }
-        return false;
-    }
-
     public ReviewModelMongo getReviewInBoardgame(String id) {
         if (!this.reviewMongo.isEmpty()) {
             for (ReviewModelMongo reviewMongo : reviewMongo) {
@@ -180,11 +171,20 @@ public class BoardgameModelMongo {
         return null;
     }
 
+    public boolean deleteReview(String id) {
+        ReviewModelMongo reviewMongo = this.getReviewInBoardgame(id);
+        if (reviewMongo != null) {
+            this.reviewMongo.remove(reviewMongo);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Boardgame{" +
                 "boardgameId='" + boardgameId + '\'' +
-                ", name='" + name + '\'' +
+                ", boardgameName='" + boardgameName + '\'' +
                 ", thumbnail='" + thumbnail + '\'' +
                 ", image='" + image + '\'' +
                 ", description='" + description + '\'' +
@@ -193,11 +193,10 @@ public class BoardgameModelMongo {
                 ", maxPlayers=" + maxPlayers +
                 ", playingTime=" + playingTime +
                 ", minAge=" + minAge +
-                ", boardgameCategory='" + boardgameCategory + '\'' +
-                ", boardgameDesigner='" + boardgameDesigner + '\'' +
-                ", boardgamePublisher='" + boardgamePublisher + '\'' +
+                ", boardgameCategoryList=" + boardgameCategoryList +
+                ", boardgameDesignerList=" + boardgameDesignerList +
+                ", boardgamePublisherList=" + boardgamePublisherList +
                 ", reviews=" + reviewMongo +
                 '}';
     }
-
 }

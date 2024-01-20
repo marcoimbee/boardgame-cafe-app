@@ -1,8 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-//import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
-//import it.unipi.dii.lsmsdb.phoneworld.model.GenericUser;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
@@ -26,7 +25,7 @@ public class UserDBMongo {
         return userRepoMongo;
     }
 
-    public boolean addUser(UserModelMongo user) {
+    public boolean addUser(GenericUserModelMongo user) {
         boolean result = true;
         try {
             userRepoMongo.save(user);
@@ -36,7 +35,7 @@ public class UserDBMongo {
         }
         return result;
     }
-    public boolean deleteUser(UserModelMongo user) {
+    public boolean deleteUser(GenericUserModelMongo user) {
         try {
             userRepoMongo.delete(user);
         } catch (Exception e) {
@@ -46,8 +45,8 @@ public class UserDBMongo {
         return true;
     }
 
-    public Optional<UserModelMongo> findByUsername(String username) {
-        Optional<UserModelMongo> user = Optional.empty();
+    public Optional<GenericUserModelMongo> findByUsername(String username) {
+        Optional<GenericUserModelMongo> user = Optional.empty();
         try {
             user = userRepoMongo.findByUsername(username);
         } catch (Exception e) {
@@ -56,8 +55,8 @@ public class UserDBMongo {
         return user;
     }
 
-    public Optional<UserModelMongo> findUserById(String id) {
-        Optional<UserModelMongo> user = Optional.empty();
+    public Optional<GenericUserModelMongo> findUserById(String id) {
+        Optional<GenericUserModelMongo> user = Optional.empty();
         try {
             user = userRepoMongo.findById(id);
         } catch (Exception e) {

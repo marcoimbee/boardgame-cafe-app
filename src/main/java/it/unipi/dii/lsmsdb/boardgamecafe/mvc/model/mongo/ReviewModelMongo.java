@@ -15,19 +15,19 @@ public class ReviewModelMongo {
     private String boardgameName;
     private String username;
     private Double rating;
-    private String comment;
+    private String body;
     private Date dateOfReview;
 
     // - Costruttore vuoto necessario per la corretta deserializzazione JSON in Spring -
     public ReviewModelMongo() {}
 
     // - Costruttore con parametri -
-    public ReviewModelMongo(String id, String boardgameName, String username, Double rating, String comment, Date dateOfReview) {
+    public ReviewModelMongo(String id, String boardgameName, String username, Double rating, String body, Date dateOfReview) {
         this.id = id;
         this.boardgameName = boardgameName;
         this.username = username;
         this.rating = rating;
-        this.comment = comment;
+        this.body = body;
         this.dateOfReview = dateOfReview;
     }
 
@@ -37,7 +37,7 @@ public class ReviewModelMongo {
         this.boardgameName = builder.boardgameName;
         this.rating = builder.rating;
         this.username = builder.username;
-        this.comment = builder.comment;
+        this.body = builder.body;
         this.dateOfReview = builder.dateOfReview;
     }
 
@@ -66,12 +66,12 @@ public class ReviewModelMongo {
         this.rating = rating;
     }
 
-    public String getComment() {
-        return comment;
+    public String getBody() {
+        return body;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public String getId() {
@@ -107,7 +107,7 @@ public class ReviewModelMongo {
         this.setFields(sb);
         //******************************************
 
-        StringBuilder sBody = new StringBuilder(this.comment);
+        StringBuilder sBody = new StringBuilder(this.body);
         int i = 0;
         while ((i = sBody.indexOf(" ", i + 125)) != -1) {
             sBody.replace(i, i+1, "\n");
@@ -126,7 +126,7 @@ public class ReviewModelMongo {
         this.setFields(sb);
         //******************************************
 
-        StringBuilder sBody = new StringBuilder(this.comment);
+        StringBuilder sBody = new StringBuilder(this.body);
         int i = 0;
         while ((i = sBody.indexOf(" ", i + 80)) != -1) {
             sBody.replace(i, i+1, "\n");
@@ -142,20 +142,20 @@ public class ReviewModelMongo {
         private String boardgameName;
         private String username;
         private Double rating;
-        private String comment;
+        private String body;
         private Date dateOfReview;
 
-        public ReviewBuilder(Double rating, String username, String comment, Date dateOfReview)
+        public ReviewBuilder(Double rating, String username, String body, Date dateOfReview)
         {
             this.rating = rating;
             this.username = username;
-            this.comment = comment;
+            this.body = body;
             this.dateOfReview = dateOfReview;
         }
         public ReviewBuilder(ReviewModelMongo reviewMongo) {
             this.rating = reviewMongo.rating;
             this.username = reviewMongo.username;
-            this.comment = reviewMongo.comment;
+            this.body = reviewMongo.body;
             this.dateOfReview = reviewMongo.dateOfReview;
         }
         public ReviewBuilder id (String id) {
@@ -182,7 +182,7 @@ public class ReviewModelMongo {
                 ", boardgameName='" + boardgameName + '\'' +
                 ", username='" + username + '\'' +
                 ", rating=" + rating +
-                ", comment='" + comment + '\'' +
+                ", body='" + body + '\'' +
                 ", dateOfReview=" + dateOfReview +
                 '}';
     }
