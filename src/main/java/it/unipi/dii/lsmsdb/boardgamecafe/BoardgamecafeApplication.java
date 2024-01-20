@@ -64,14 +64,13 @@ public class BoardgamecafeApplication {
         String idUser2 = "865l9633f0l96v33a2569885";
 
 
-        UserModelMongo userMongo = serviceUser.createUser(idUser2,
-                username2, "giovanni_testemail@example.com",
+        UserModelMongo userMongo = serviceUser.createUser(username2, "giovanni_testemail@example.com",
                 "24681012","Giovanni","Test","male",
                 "IT","NotBanned",1974,06,11);
 
         UserModelNeo4j userNeo4j = new UserModelNeo4j(userMongo.getId(), userMongo.getUsername());
 
-        System.out.println(" \n- New user added within MongoDB -\n");
+        System.out.println(" \n- New user added within MongoDB and Neo4j -\n");
         serviceUser.insertUser(userMongo, userNeo4j);
 
         //serviceUser.deleteUser(userMongo);
