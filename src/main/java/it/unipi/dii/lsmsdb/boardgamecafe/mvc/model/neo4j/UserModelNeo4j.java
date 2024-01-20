@@ -7,15 +7,18 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import java.util.List;
 
 
-@Node("User")
+@Node("Users")
 public class UserModelNeo4j {
 
     @Id
     public String id;
     public String username;
 
-    @Relationship(type = "ADDS", direction = Relationship.Direction.OUTGOING)
-    public List<BoardgameModelNeo4j> boardgames;
+    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
+    public List<PostModelNeo4j> posts;
+
+    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
+    public List<CommentModelNeo4j> comments;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     public List<UserModelNeo4j> followedUsers;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
@@ -45,9 +48,6 @@ public class UserModelNeo4j {
         this.id = id;
     }
 
-    public List<BoardgameModelNeo4j> getBoardgames() {
-        return this.boardgames;
-    }
     public List<UserModelNeo4j> getFollowedUsers() {
         return followedUsers;
     }
