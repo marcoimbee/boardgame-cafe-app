@@ -145,9 +145,11 @@ public class BoardgamecafeApplication {
         System.out.println(userNeo4jDB.getFollowing(username));
         */
 
+        /*
         System.out.println("\n- Shown below is a specifc user into Neo4jDB filtered out by username -");
         System.out.println("- Reference USERNAME: " + username2 + "\n");
         System.out.println(userRepositoryNeo4j.findByUsername(username2));
+        */
 
     }
 }
