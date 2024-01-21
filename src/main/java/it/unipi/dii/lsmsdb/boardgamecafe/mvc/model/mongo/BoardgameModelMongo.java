@@ -27,7 +27,12 @@ public class BoardgameModelMongo {
 
     public BoardgameModelMongo(){}
 
-    public BoardgameModelMongo(String boardgameId, String boardgameName, String thumbnail, String image, String description, int yearPublished, int minPlayers, int maxPlayers, int playingTime, int minAge, List<String> boardgameCategoryList, List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
+    public BoardgameModelMongo(String boardgameId, String boardgameName,
+                               String thumbnail, String image, String description,
+                               int yearPublished, int minPlayers, int maxPlayers,
+                               int playingTime, int minAge, List<String> boardgameCategoryList,
+                               List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
+
         this.boardgameId = boardgameId;
         this.boardgameName = boardgameName;
         this.thumbnail = thumbnail;

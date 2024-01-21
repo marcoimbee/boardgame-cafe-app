@@ -9,7 +9,9 @@ public class AdminModelMongo extends GenericUserModelMongo {
 
     public AdminModelMongo() {
     }
-    public AdminModelMongo(String username, String salt, String passwordHash, String _class) {
+    public AdminModelMongo(String username, String salt,
+                           String passwordHash, String _class) {
+
         super(username, salt, passwordHash, _class);
     }
 

@@ -1,12 +1,10 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-//import it.unipi.dii.lsmsdb.phoneworld.App;
-//import it.unipi.dii.lsmsdb.phoneworld.model.Admin;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-//import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
-//import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.ReviewMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import org.slf4j.Logger;
@@ -27,11 +25,10 @@ public class UserService {
     private UserDBMongo userMongoDB;
     @Autowired
     private UserDBNeo4j userNeo4jDB;
-
-    //@Autowired
-    //private ReviewMongoDB reviewMongo;
-    //@Autowired
-    //private PhoneMongo phoneMongo;  //to be replaced with BoardgameMongoDB properly
+    @Autowired
+    private ReviewDBMongo reviewMongoOp;
+    @Autowired
+    private BoardgameDBMongo boardgameMongoOp;
 
     private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 

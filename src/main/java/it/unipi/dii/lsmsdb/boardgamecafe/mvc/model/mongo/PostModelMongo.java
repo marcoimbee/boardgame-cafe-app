@@ -18,7 +18,9 @@ public class PostModelMongo {
     private Date timestamp;
     private List<CommentModelMongo> comments = new ArrayList<>();
 
-    public PostModelMongo(String id, String username, String title, String text, String tag, Date timestamp) {
+    public PostModelMongo(String id, String username,
+                          String title, String text,
+                          String tag, Date timestamp) {
         this.id = id;
         this.username = username;
         this.title = title;

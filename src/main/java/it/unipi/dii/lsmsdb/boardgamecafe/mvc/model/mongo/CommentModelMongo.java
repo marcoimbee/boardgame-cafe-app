@@ -15,7 +15,9 @@ public class CommentModelMongo {
     private String text;
     private Instant timestamp;
 
-    public CommentModelMongo(String id, String post, String username, String text, Instant timestamp) {
+    public CommentModelMongo(String id, String post,
+                             String username, String text,
+                             Instant timestamp) {
         this.id = id;
         this.post = post;
         this.username = username;
