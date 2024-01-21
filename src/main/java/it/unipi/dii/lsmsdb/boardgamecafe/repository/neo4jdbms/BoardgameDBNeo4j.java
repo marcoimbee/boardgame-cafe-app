@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
+
 @Component
 public class BoardgameDBNeo4j {
 
@@ -31,11 +34,31 @@ public class BoardgameDBNeo4j {
 
     public boolean deleteBoardgameDetach(String boardgameName) {
         try {
-            boardgameRepoNeo4jOp.deleteAndDetachBoardgameByName(boardgameName); //Detach esplicito in repositoryINF
+            boardgameRepoNeo4jOp.deleteAndDetachBoardgameByName(boardgameName);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
         return true;
     }
+
+    public boolean updateBoardgameNeo4j(String id, BoardgameModelNeo4j newBoardgame) {
+
+        boolean result = true;
+        try {
+            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4jOp.findById(id);
+            if (boardgameNeo.isPresent()) {
+                boardgameNeo.get().setName(newBoardgame.getName());
+                boardgameNeo.get().setImage(newBoardgame.getImage());
+                boardgameNeo.get().setYearPublished(newBoardgame.getYearPublished());
+
+                boardgameRepoNeo4jOp.save(boardgameNeo.get());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
+
 }

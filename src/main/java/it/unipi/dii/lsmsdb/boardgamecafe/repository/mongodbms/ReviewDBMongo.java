@@ -53,7 +53,9 @@ public class ReviewDBMongo {
         return review;
     }
 
-    public Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username, String boardgameName) {
+    public Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username,
+                                                                     String boardgameName) {
+
         Optional<ReviewModelMongo> review = Optional.empty();
         try {
             review = reviewMongo.findByUsernameAndBoardgameName(username, boardgameName);
@@ -84,13 +86,19 @@ public class ReviewDBMongo {
     }
 
     public boolean updateReview(String id, ReviewModelMongo newReview) {
+
         boolean result = true;
         try {
             Optional<ReviewModelMongo> review = reviewMongo.findById(id);
             if (review.isPresent()) {
                 ReviewModelMongo resultReview = review.get();
-                ReviewModelMongo.ReviewBuilder builder = new ReviewModelMongo.ReviewBuilder(newReview);
-                builder.id(id).boardgameName(resultReview.getBoardgameName()).username(resultReview.getUsername());
+
+                ReviewModelMongo.ReviewBuilder builder =
+                        new ReviewModelMongo.ReviewBuilder(newReview);
+
+                builder.id(id).boardgameName(resultReview.getBoardgameName()).
+                               username(resultReview.getUsername());
+
                 this.addReview(builder.build());
             }
         } catch (Exception e) {
@@ -148,9 +156,11 @@ public class ReviewDBMongo {
         List<ReviewModelMongo> reviews = new ArrayList<>();
         try {
             if (word.isEmpty()) {
-                reviews.addAll(reviewMongo.findAll(Sort.by(Sort.Direction.DESC, "dateOfReview")));
+                reviews.addAll(reviewMongo.
+                        findAll(Sort.by(Sort.Direction.DESC, "dateOfReview")));
             } else {
-                reviews.addAll(reviewMongo.findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(word, word));
+                reviews.addAll(reviewMongo.
+                        findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(word, word));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -181,7 +191,10 @@ public class ReviewDBMongo {
             Query query = Query.query(
                     Criteria.where("username").is(username));
             Update update = new Update().set("username", "Deleted User");
-            mongoOperations.updateMulti(query, update, ReviewModelMongo.class, "reviews");
+            mongoOperations.updateMulti(query,
+                                        update,
+                                        ReviewModelMongo.class,
+                                        "reviews");
         } catch (Exception e) {
             e.printStackTrace();
             return false;

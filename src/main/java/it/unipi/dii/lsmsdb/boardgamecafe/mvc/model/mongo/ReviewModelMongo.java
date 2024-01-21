@@ -14,15 +14,17 @@ public class ReviewModelMongo {
     private String id;
     private String boardgameName;
     private String username;
-    private Double rating;
+    private int rating;
     private String body;
     private Date dateOfReview;
 
-    // - Costruttore vuoto necessario per la corretta deserializzazione JSON in Spring -
+    // - Costruttore vuoto utile per la corretta deserializzazione JSON in Spring -
     public ReviewModelMongo() {}
 
     // - Costruttore con parametri -
-    public ReviewModelMongo(String id, String boardgameName, String username, Double rating, String body, Date dateOfReview) {
+    public ReviewModelMongo(String id, String boardgameName,
+                            String username, int rating,
+                            String body, Date dateOfReview) {
         this.id = id;
         this.boardgameName = boardgameName;
         this.username = username;
@@ -58,11 +60,11 @@ public class ReviewModelMongo {
         this.username = username;
     }
 
-    public double getRating() {
+    public int getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(int rating) {
         this.rating = rating;
     }
 
@@ -141,11 +143,12 @@ public class ReviewModelMongo {
         private String id;
         private String boardgameName;
         private String username;
-        private Double rating;
+        private int rating;
         private String body;
         private Date dateOfReview;
 
-        public ReviewBuilder(Double rating, String username, String body, Date dateOfReview)
+        public ReviewBuilder(int rating, String username,
+                             String body, Date dateOfReview)
         {
             this.rating = rating;
             this.username = username;

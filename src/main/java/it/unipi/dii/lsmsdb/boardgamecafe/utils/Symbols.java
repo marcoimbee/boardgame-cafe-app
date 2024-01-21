@@ -1,4 +1,4 @@
-package it.unipi.dii.lsmsdb.boardgamecafe.utils.staticValues;
+package it.unipi.dii.lsmsdb.boardgamecafe.utils;
 
 public class Symbols {
     public static final String CURRENT_USER = "currentUser";

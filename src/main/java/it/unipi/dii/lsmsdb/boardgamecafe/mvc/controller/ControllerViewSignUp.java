@@ -2,7 +2,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.BoardgamecafeApplication;
-import it.unipi.dii.lsmsdb.boardgamecafe.utils.staticValues.Symbols;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Symbols;
 //import it.unipi.dii.lsmsdb.phoneworld.Constants;
 //import it.unipi.dii.lsmsdb.phoneworld.model.GenericUser;
 //import it.unipi.dii.lsmsdb.phoneworld.model.User;

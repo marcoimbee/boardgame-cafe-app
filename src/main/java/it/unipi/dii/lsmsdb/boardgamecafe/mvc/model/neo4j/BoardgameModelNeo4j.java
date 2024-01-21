@@ -10,11 +10,13 @@ public class BoardgameModelNeo4j {
     public String id;
     public String name;
     public String image;
-    public String yearpublished;
+    public int yearpublished;
 
     public BoardgameModelNeo4j(){};
 
-    public BoardgameModelNeo4j(String id, String name, String image, String yearpublished) {
+    public BoardgameModelNeo4j(String id, String name,
+                               String image, int yearpublished) {
+
         this.id = id;
         this.name = name;
         this.image = image;
@@ -46,11 +48,11 @@ public class BoardgameModelNeo4j {
         this.image = image;
     }
 
-    public String getYearpublished() {
+    public int getYearPublished() {
         return yearpublished;
     }
 
-    public void setYearpublished(String yearpublished) {
+    public void setYearPublished(int yearpublished) {
         this.yearpublished = yearpublished;
     }
 

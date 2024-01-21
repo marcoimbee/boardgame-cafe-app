@@ -23,8 +23,10 @@ public class UserModelMongo extends GenericUserModelMongo {
     public UserModelMongo(){};
 
     public UserModelMongo(String username, String passwordHash,
-                          String salt, String _class, String email,  String name, String surname, String gender,
+                          String salt, String _class, String email,
+                          String name, String surname, String gender,
                           Date dateOfBirth, String nationality, boolean banned) {
+
         super(username, salt, passwordHash, _class);
         this.email = email;
         this.name = name;
