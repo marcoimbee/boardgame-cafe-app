@@ -43,7 +43,7 @@ public class UserDBNeo4j {
 
     public boolean deleteUserDetach(String username) {
         try {
-            userNeo4jDB.deleteUserDetachByUsername(username); //Detach esplicito in repositoryINF
+            userNeo4jDB.deleteAndDetachUserByUsername(username); //Detach esplicito in repositoryINF
         } catch (Exception e) {
             e.printStackTrace();
             return false;
