@@ -27,5 +27,4 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     List<UserModelNeo4j> findUsersByBoardgameName(@Param("boardgameName") String boardgamename);
 
 
-
 }
