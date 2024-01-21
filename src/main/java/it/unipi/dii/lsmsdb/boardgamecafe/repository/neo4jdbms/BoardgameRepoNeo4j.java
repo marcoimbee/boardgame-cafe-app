@@ -14,4 +14,8 @@ public interface BoardgameRepoNeo4j extends Neo4jRepository<BoardgameModelNeo4j,
     @Query("MATCH (b:Boardgames {boardgameName: $bordgameName}) DETACH DELETE b, (b)-[r]-()")
     void deleteAndDetachBoardgameByName(@Param("bordgameName") String boardgameName);
 
+
+
+
+
 }
