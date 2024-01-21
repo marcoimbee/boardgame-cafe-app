@@ -11,11 +11,7 @@ import java.util.List;
 @Repository
 public interface BoardgameRepoNeo4j extends Neo4jRepository<BoardgameModelNeo4j, String>{
 
+    @Query("MATCH (b:Boardgames {boardgameName: $bordgameName}) DETACH DELETE b, (b)-[r]-()")
+    void deleteAndDetachBoardgameByName(@Param("bordgameName") String boardgameName);
 
-    @Query("MATCH (u1:User {username: $userName})-[a:ADDS]->(b:Boardgame) RETURN DISTINCT b")
-    List<BoardgameModelNeo4j> findBoardgamesByUsername(@Param("userName") String username);
-
-    //Below is retrieved relationship as well (for graph, not useful - toCheck)
-    @Query("Match (u:User)-[r:ADDS]->(b:Boardgame) where u.username = $userName RETURN u, collect(r), collect(b)")
-    List<BoardgameModelNeo4j> findBoardgamesAndUserByUsername(@Param("userName") String personName);
 }

@@ -9,23 +9,33 @@ import org.springframework.stereotype.Component;
 public class BoardgameDBNeo4j {
 
     @Autowired
-    BoardgameRepoNeo4j boardgameNeo4jDB;
+    BoardgameRepoNeo4j boardgameRepoNeo4jOp;
     @Autowired
     Neo4jOperations neo4jOperations;
 
     public BoardgameRepoNeo4j getUserNeo4jDB() {
-        return boardgameNeo4jDB;
+        return boardgameRepoNeo4jOp;
     }
 
 
     public boolean addBoardgame(BoardgameModelNeo4j boardgameNeo4j) {
         boolean result = true;
         try {
-            boardgameNeo4jDB.save(boardgameNeo4j);
+            boardgameRepoNeo4jOp.save(boardgameNeo4j);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
         }
         return result;
+    }
+
+    public boolean deleteBoardgameDetach(String boardgameName) {
+        try {
+            boardgameRepoNeo4jOp.deleteAndDetachBoardgameByName(boardgameName); //Detach esplicito in repositoryINF
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
