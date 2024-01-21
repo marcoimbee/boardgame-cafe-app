@@ -28,7 +28,6 @@ public class ReviewDBMongo {
     @Autowired
     private MongoOperations mongoOperations;
 
-
     public ReviewRepoMongo getReviewMongo() {
         return reviewMongo;
     }
