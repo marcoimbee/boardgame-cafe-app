@@ -12,6 +12,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserRepoNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepoMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 
 //import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 //import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -42,6 +43,15 @@ public class BoardgamecafeApplication {
     private UserRepoMongo mongoRepository;
     @Autowired
     private UserService serviceUser;
+    private ModelBean modelBean = new ModelBean();
+    private static final BoardgamecafeApplication singleton = new BoardgamecafeApplication();
+
+    public static BoardgamecafeApplication getInstance() {
+        return singleton;
+    }
+    public ModelBean getModelBean() {
+        return modelBean;
+    }
 
 
     public static void main(String[] args)
