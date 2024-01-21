@@ -103,7 +103,7 @@ public class UserService {
             return false;
         }
 
-        // Spring - Gestione GraphDB
+        // Spring - Gestione Neo4j
         if (!userNeo4jDB.addUser(userNeo4j)) {
             logger.error("Error in adding the user to Neo4j");
             if (!userMongoDB.deleteUser(userMongo)) {
@@ -118,13 +118,14 @@ public class UserService {
     public boolean deleteUser(UserModelMongo userMongo) {
 
         String username = userMongo.getUsername();
+
         try {
             if (!userMongoDB.deleteUser(userMongo)) {
                 logger.error("Error in deleting the user from the user collection");
                 return false;
             }
 
-            //Gestione consistenza: Neo4jDB operations
+            //Gestione consistenza: Neo4jDB
             if (!userNeo4jDB.deleteUserDetach(username)) {
                 logger.error("Error in deleting the user's add relationships");
                 return false;
