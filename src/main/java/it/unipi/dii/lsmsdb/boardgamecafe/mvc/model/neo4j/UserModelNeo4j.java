@@ -6,7 +6,6 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.List;
 
-
 @Node("Users")
 public class UserModelNeo4j {
 
