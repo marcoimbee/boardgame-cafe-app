@@ -22,7 +22,7 @@ they can also interact with other users by following them and commenting on thei
 They also have access to the usage analytics of the application and Ban Users if needed.
 
 
-*N.B.*
+***N.B.***
 Users who do not comply with the social network rules may incur in a status change within the application, more precisely
 they may be "*Banned*" by the admin, as already mention above, and this involves a drastic deletion of the user profile and
 all content linked to it irreversibly.
@@ -36,13 +36,13 @@ To run the application correctly, the following software needs to be set up:
 - [MongoDB](https://www.mongodb.com/try/download/community)
 - [Neo4j](https://neo4j.com/download/)
 
-## Quick Start
+## Package Structure
 
  - More details will come soon.
 
 ## Documentation Report
 
-You can find out more in detail by reading the final report on the [BoardGameCafè-Documentation](/docs/BoardGameCafè-Documentation)
+You can find out more in detail by reading the final report on the [BoardGameCafè Documentation](/docs/BoardGameCafè-Documentation)
 
 ## Authors
 
