@@ -32,7 +32,7 @@ all content linked to it irreversibly.
 To run the application correctly, the following software needs to be set up:
 
 - [Intellij IDEA](https://www.jetbrains.com/idea/download/) (Even a different one as long as there is compatibility)
-- [JavaFX](https://openjfx.io/)  (Follow [this](https://ashley-tharp.medium.com/solved-error-javafx-runtime-components-are-missing-and-are-required-to-run-this-application-ec4779eb796d) guide in case of problems occurs)
+- [JavaFX](https://openjfx.io/)  (Follow [this](https://ashley-tharp.medium.com/solved-error-javafx-runtime-components-are-missing-and-are-required-to-run-this-application-ec4779eb796d) guide in case any problems arise)
 - [MongoDB](https://www.mongodb.com/try/download/community)
 - [Neo4j](https://neo4j.com/download/)
 
