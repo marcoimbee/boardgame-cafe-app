@@ -1,7 +1,7 @@
 
 # Board-Game Cafè JAVA Application
 
-![alt text]([(https://github.com/g-sferr/BoardGame-Cafe_App/tree/g.sferr/various/images/LogoReadmePresentation.png)](https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/various/images/LogoReadmePresentation.png))
+![alt text](https://github.com/g-sferr/BoardGame-Cafe_App/tree/g.sferr/src/main/resources/LogoReadmePresentation.png)
 
 Large-Scale and Multi-Structured Databases Project at University of Pisa - MSc Computer Engineering
 
