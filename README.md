@@ -15,6 +15,6 @@ Large-Scale and Multi-Structured Databases Project at University of Pisa - MSc C
 
 ## Authors
 
-* Alberto Atzori, a.atzori1@studenti.unipi.it - [ [@albertoatzori](https://github.com/albertoatzori) ]
-* Gaetano Sferrazza, g.sferrazza@studenti.unipi.it - [ [@g-sferr](https://github.com/g-sferr) ]
-* Nicola Riccardi, n.riccardi1@studenti.unipi.it - [ [@nickrick3](https://github.com/nickrick3) ]
+* Alberto Atzori - **e-mail*: a.atzori1@studenti.unipi.it, **GitHub Profile*: [ [@albertoatzori](https://github.com/albertoatzori) ]
+* Gaetano Sferrazza - **e-mail*: g.sferrazza@studenti.unipi.it, **GitHub Profile*: [ [@g-sferr](https://github.com/g-sferr) ]
+* Nicola Riccardi - **e-mail*: n.riccardi1@studenti.unipi.it, **GitHub Profile*: [ [@nickrick3](https://github.com/nickrick3) ]
