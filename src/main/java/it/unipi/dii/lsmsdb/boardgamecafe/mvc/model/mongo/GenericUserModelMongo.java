@@ -8,7 +8,9 @@ public abstract class GenericUserModelMongo {
 
     @Id
     protected String id;
+
     protected String username;
+    protected String email;
     protected String salt;
     protected String passwordHash;
     protected String _class;
@@ -16,9 +18,11 @@ public abstract class GenericUserModelMongo {
     protected GenericUserModelMongo() {
     }
 
-    protected GenericUserModelMongo(String username, String salt,
-                                    String passwordHash, String _class) {
+    protected GenericUserModelMongo(String username, String email,
+                                    String salt, String passwordHash,
+                                    String _class) {
         this.username = username;
+        this.email = email;
         this.salt = salt;
         this.passwordHash = passwordHash;
         this._class = _class;
@@ -30,6 +34,12 @@ public abstract class GenericUserModelMongo {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getEmail() { return email; }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getSalt() {
