@@ -42,7 +42,7 @@ To run the application correctly, the following software needs to be set up:
 
 ## Documentation Report
 
-You can find out more in detail by reading the final report on the [Board-Game Cafè Documentation](/docs/BoardGameCafe-Documentation)
+You can find out more in detail by reading the final report on the [Board-Game Cafè Documentation](/docs/BoardGameCafe-Documentation.pdf)
 
 ## Authors
 
