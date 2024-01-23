@@ -92,6 +92,7 @@ public class UserDBMongo {
                 if (userType.equals("admin")) {
                     AdminModelMongo administrator = (AdminModelMongo) genericUser.get();
                     administrator.setUsername(newGenericUser.getUsername());
+                    administrator.setEmail(newGenericUser.getEmail());
                     administrator.setPasswordHashed(newGenericUser.getPasswordHashed());
                     administrator.setSalt(newGenericUser.getSalt());
 

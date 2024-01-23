@@ -56,10 +56,14 @@ public class UserService {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    public AdminModelMongo createAdmin(String username, String password){
+    public AdminModelMongo createAdmin(String username,
+                                       String email,
+                                       String password){
+
         String salt = this.getSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
-        return new AdminModelMongo(username, salt, hashedPassword, "admin");
+
+        return new AdminModelMongo(username, email, salt, hashedPassword, "admin");
     }
 
     public boolean insertAdmin(AdminModelMongo admin) {

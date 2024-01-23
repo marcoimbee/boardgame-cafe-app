@@ -10,8 +10,6 @@ import java.util.List;
 @Document(collection = "users")
 @TypeAlias("user")
 public class UserModelMongo extends GenericUserModelMongo {
-
-    private String email;
     private String name;
     private String surname;
     private String gender;
@@ -27,22 +25,13 @@ public class UserModelMongo extends GenericUserModelMongo {
                           String name, String surname, String gender,
                           Date dateOfBirth, String nationality, boolean banned) {
 
-        super(username, salt, passwordHash, _class);
-        this.email = email;
+        super(username, email, salt, passwordHash, _class);
         this.name = name;
         this.surname = surname;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.nationality = nationality;
         this.banned = banned;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getName() {
@@ -142,5 +131,7 @@ public class UserModelMongo extends GenericUserModelMongo {
                 ", reviews=" + reviews +
                 '}';
     }
+
+
 }
 

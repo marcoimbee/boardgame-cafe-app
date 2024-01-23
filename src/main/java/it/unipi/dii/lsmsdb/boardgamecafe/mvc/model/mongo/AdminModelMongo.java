@@ -9,10 +9,10 @@ public class AdminModelMongo extends GenericUserModelMongo {
 
     public AdminModelMongo() {
     }
-    public AdminModelMongo(String username, String salt,
+    public AdminModelMongo(String username, String email, String salt,
                            String passwordHash, String _class) {
 
-        super(username, salt, passwordHash, _class);
+        super(username, email, salt, passwordHash, _class);
     }
 
     @Override
@@ -20,6 +20,7 @@ public class AdminModelMongo extends GenericUserModelMongo {
         return "Admin{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", salt='" + salt + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
                 '}';
