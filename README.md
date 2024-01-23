@@ -1,5 +1,5 @@
 
-# Board-Game Cafè JAVA Application
+# Board-Game Cafè Java Application
 
 ![alt text](https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/LogoReadmePresentation.png)
 
@@ -31,7 +31,7 @@ all content linked to it irreversibly.
 
 To run the application correctly, the following software needs to be set up:
 
-- [Intellij IDEA](https://www.jetbrains.com/idea/download/) (Or other compatible IDE)
+- [Intellij IDEA](https://www.jetbrains.com/idea/download/) (Even a different one as long as there is compatibility)
 - [JavaFX](https://openjfx.io/)  (Follow [this](https://ashley-tharp.medium.com/solved-error-javafx-runtime-components-are-missing-and-are-required-to-run-this-application-ec4779eb796d) guide in case of problems occurs)
 - [MongoDB](https://www.mongodb.com/try/download/community)
 - [Neo4j](https://neo4j.com/download/)
