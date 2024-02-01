@@ -1,7 +1,11 @@
 
 # Board-Game Cafè Java Application
 
-![alt text](https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/logo.png)
+<p align="center">
+  <img src="https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/logo.png?raw=true" alt="MyPodcastDB-Logo" height="64px"/>
+</p>
+
+[comment]: <> (![alt text](https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/logo.png)
 
 Large-Scale and Multi-Structured Databases Project at University of Pisa - MSc Computer Engineering & Artificial Intelligence and Data Engineering
 
