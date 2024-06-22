@@ -75,4 +75,7 @@ public class ControllerObjectPost {
 
     public void likeDislikePost(ActionEvent event) {
     }
+
+    public void commentPost(ActionEvent event) {
+    }
 }
