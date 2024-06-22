@@ -23,22 +23,11 @@ public class ControllerObjectBoardgame {
     protected Label boardgameName;
 
     private BoardgameListener boardgameListener;
-    private boolean toFind = false;
 
-    /**
-     * method that set the data of the item and set the videogame class variable that will
-     * be passed at the onClickListener method by the click function
-     * @param boardgame clicked
-     * param boardgameListener object to identify the correct on click listener
-     * param toFind parameter that discriminate if make or not the db call
-     * @throws FileNotFoundException
-     *
-     * , BoardgameListener boardgameListener, boolean toFind
-     */
+    public ControllerObjectBoardgame() {}
 
-
-    // Cache in memoria per le immagini per migliorare l'efficienza dell'applicazione ed evitare di scaricare
-    // più volte una stessa immagine dal server
+    // Caching in memory per le immagini, migliora l'efficienza dell'applicazione ed evita l'eventuale
+    // scaricamento multiplo di una stessa immagine dal server
     private static final Map<String, Image> imageCache = new HashMap<>();
 
     public void setData(BoardgameModelMongo boardgame) {
@@ -60,9 +49,9 @@ public class ControllerObjectBoardgame {
 
                 image = new Image(new ByteArrayInputStream(imageBytes)); // Crea l'oggetto Image
                 addImageToCache(imageBoardgameURL, image); // Aggiungi l'immagine alla cache
+
             } catch (URISyntaxException | IOException e) { // Handle both URISyntaxException and IOException
                 e.printStackTrace();
-                // Potresti impostare un'immagine di placeholder o mostrare un messaggio di errore
             }
         }
 
@@ -92,9 +81,6 @@ public class ControllerObjectBoardgame {
 
     /*
     public void setData(BoardgameModelMongo boardgame){
-        //this.boardgame = boardgame;
-        //this.boardgameListener = boardgameListener;
-        //this.toFind = toFind;
         String imageBoardgameResource = boardgame.getImage();
         String nameBoardgameResource = boardgame.getBoardgameName();
         Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imageBoardgameResource)));
@@ -102,23 +88,4 @@ public class ControllerObjectBoardgame {
         imageSrc.setImage(image);
     }*/
 
-    /**
-     * method that call the on click listener that is redefined in the different fill grid pane
-     * in the different pages,
-     * the listener has as parameter userFromDB that is the object user retrieved from the db
-     * using the find method applied to the username obtained by the setData
-     *
-     * @param mouseEvent of the mouse when the videogame community item is clicked
-
-    @FXML
-    public void clickMouse(javafx.scene.input.MouseEvent mouseEvent) {
-
-        if(this.toFind){
-            VideogameCommunity videogameFromDB = videogameService.find(videogame.getId());
-            videogameListener.onClickListener(mouseEvent, videogameFromDB);
-        }
-        else{
-            videogameListener.onClickListener(mouseEvent, videogame);
-        }
-    }*/
 }
