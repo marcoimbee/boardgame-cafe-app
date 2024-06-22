@@ -1,158 +1,99 @@
-/*
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.view;
-
-import java.util.ResourceBundle;
 
 public enum FxmlView {
 
-    UNUSER {
+    WELCOMEPAGE {
         @Override
         public String getTitle() {
-            return "PhoneWorld";
+            return "Welcome Page of BoardGameCafè App";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewUnregisteredUser.fxml";
-        }
-    }, AUTORIZATION {
-        @Override
-        public String getTitle() {
-            return "LOGIN/SIGN UP";
-        }
-
-        @Override
-        public String getFxmlFile() {
-            return "/viewAuthorization.fxml";
+            return "/viewWelcomePage.fxml";
         }
     }, LOGIN {
         @Override
         public String getTitle() {
-            return "LOG IN";
+            return "LOG-IN Page";
         }
 
         @Override
-        public String getFxmlFile() {
-            return "/viewLogin.fxml";
-        }
+        public String getFxmlFile() { return "/viewLogin.fxml"; }
     }, SIGNUP {
         @Override
         public String getTitle() {
-            return "SIGN UP";
+            return "Sign-Up Page";
         }
 
         @Override
         public String getFxmlFile() {
             return "/viewSignUp.fxml";
         }
-    }, USER {
+    }, GUESTBOARDGAMES {
         @Override
         public String getTitle() {
-            return "PhoneWorld";
+            return "Guest-Boardgames Page";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewRegisteredUser.fxml";
+            return "/viewGuestBoardgamesPage.fxml";
         }
-    }, PROFILE {
+    }, GUESTPOSTS {
         @Override
         public String getTitle() {
-            return "YOUR PROFILE";
+            return "Guest-Boardgames's Posts Page";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewProfile.fxml";
+            return "/viewGuestPostPage.fxml";
         }
-    }, UPDATE {
+    }, USERHOMEPAGE {
         @Override
         public String getTitle() {
-            return "UPDATE PROFILE";
+            return "User HomePage - BoardGameCafè App";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewUpdate.fxml";
+            return "/viewUserHomePage.fxml";
         }
-    }, DETAILS_USER {
+    }, BOARDGAME_DETAILS {
         @Override
         public String getTitle() {
-            return "USER DETAILS";
+            return "Boardgame Details Page";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewDetailsUser.fxml";
+            return "/viewSignUp.fxml"; //JustToTest
         }
-    }, DETAILS_PHONES {
+    }, OBJECTBOARDGAME {
         @Override
         public String getTitle() {
-            return "PHONE DETAILS";
+            return "Boardgame Preview";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewDetailsPhone.fxml";
+            return "/viewObjectBoardgame.fxml";
         }
-    }, STATISTISCS {
+    }, OBJECTPOST {
         @Override
         public String getTitle() {
-            return "STATISTICS";
+            return "Post Preview";
         }
 
         @Override
         public String getFxmlFile() {
-            return "/viewStatistics.fxml";
-        }
-    }, REVIEW {
-        @Override
-        public String getTitle() {
-            return "REVIEW";
-        }
-
-        @Override
-        public String getFxmlFile() {
-            return "/viewReview.fxml";
-        }
-    }, FIND_REVIEWS {
-        @Override
-        public String getTitle() {
-            return "FIND REVIEWS";
-        }
-
-        @Override
-        public String getFxmlFile() {
-            return "/viewFindReviews.fxml";
-        }
-    }, ADD_ADMIN {
-        @Override
-        public String getTitle() {
-            return "ADD ADMIN";
-        }
-
-        @Override
-        public String getFxmlFile() {
-            return "/viewAddAdmin.fxml";
-        }
-    }, MANAGEMENT_PHONE {
-        @Override
-        public String getTitle() {
-            return "PHONE HANDLER";
-        }
-
-        @Override
-        public String getFxmlFile() {
-            return "/viewManagementPhone.fxml";
+            return "/viewObjectPost.fxml";
         }
     };
 
     public abstract String getTitle();
     public abstract String getFxmlFile();
 
-    String getStringFromResourceBoundle(String key) {
-        return ResourceBundle.getBundle("Bundle").getString(key);
-    }
 }
-*/
 
