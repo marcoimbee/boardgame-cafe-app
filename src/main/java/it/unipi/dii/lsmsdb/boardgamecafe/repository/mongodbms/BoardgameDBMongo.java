@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,5 +97,22 @@ public class BoardgameDBMongo {
         }
         return boardgames;
     }
+
+
+    //ToCheck
+    public List<BoardgameModelMongo> findBoardgames(String name, String param, int limit, int skip) {
+        List<BoardgameModelMongo> boardgames = new ArrayList<>();
+        try {
+            if (name.isEmpty()) {
+                boardgames.addAll(findRecentBoardgames(limit, skip));
+            } else if (param.equals("Name")){
+                boardgames.addAll(boardgameRepoMongoOp.findByNameRegexOrderByYearPublicationDesc(name,
+                        Sort.by(Sort.Direction.DESC, "yearPublished"))); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return boardgames;
+    }
+
 
 }
