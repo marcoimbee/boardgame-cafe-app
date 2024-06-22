@@ -66,8 +66,8 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
     private int columnGridPane = 0;
     private int rowGridPane = 0;
     private int skipCounter = 0;
-    private final static int SKIP = 16; //how many boardgame to skip per time
-    private final static int LIMIT = 16; //how many boardgame to show for each page
+    private final static int SKIP = 12; //how many boardgame to skip per time
+    private final static int LIMIT = 12; //how many boardgame to show for each page
 
     private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
 
