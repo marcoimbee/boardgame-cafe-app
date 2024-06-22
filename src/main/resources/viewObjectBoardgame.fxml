@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
+   <children>
+      <VBox alignment="CENTER" prefHeight="239.0" prefWidth="189.0">
+         <children>
+            <ImageView fx:id="imageSrc" fitHeight="221.0" fitWidth="164.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../image_sample.jpg" />
+               </image></ImageView>
+         </children>
+      </VBox>
+      <Label fx:id="boardgameName" alignment="CENTER" layoutX="11.0" layoutY="239.0" prefHeight="21.0" prefWidth="168.0" text="Board-Game Name">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>
