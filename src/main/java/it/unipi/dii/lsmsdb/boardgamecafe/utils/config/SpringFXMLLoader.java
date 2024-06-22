@@ -1,4 +1,3 @@
-/*
 package it.unipi.dii.lsmsdb.boardgamecafe.utils.config;
 
 import javafx.fxml.FXMLLoader;
@@ -11,6 +10,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
+
+// --- La classe SpringFXMLLoader è un FXMLLoader personalizzato che si integra con
+// l'iniezione delle dipendenze di Spring. Consente di caricare file FXML e iniettare
+// automaticamente gli "oggetti controller" nei componenti FXML.
+// Ciò rende più facile gestire le dipendenze e creare un'applicazione più decoesa. ---
 @Component
 public class SpringFXMLLoader {
 
@@ -18,7 +22,7 @@ public class SpringFXMLLoader {
     private final ApplicationContext context;
 
     @Autowired @Lazy
-    public SpringFXMLLoader(ResourceBundle resourceBundle, ApplicationContext context) {
+    public SpringFXMLLoader(ApplicationContext context, ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
         this.context = context;
     }
@@ -31,4 +35,3 @@ public class SpringFXMLLoader {
         return loader.load();
     }
 }
-*/
