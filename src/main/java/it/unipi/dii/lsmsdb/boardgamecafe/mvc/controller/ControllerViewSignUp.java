@@ -44,9 +44,8 @@ public class ControllerViewSignUp implements Initializable {
     public void onClickFinish(ActionEvent event)
     {
         //DoStuff - toDo
+        stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered");
         stageManager.closeStage(this.finishButton);
     }
-
-
 
 }
