@@ -6,17 +6,13 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.List;
 
-@Node("Users")
+@Node("User")
 public class UserModelNeo4j {
 
     @Id
     public String id;
     public String username;
 
-    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
-    public List<PostModelNeo4j> posts;
-    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
-    public List<CommentModelNeo4j> comments;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     public List<UserModelNeo4j> followedUsers;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
