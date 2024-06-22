@@ -2,25 +2,28 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Component
 public class BoardgameDBMongo {
 
-    public BoardgameDBMongo() {
-    }
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(BoardgameModelMongo.class);
+    private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
 
     @Autowired
     private BoardgameRepoMongo boardgameRepoMongoOp;
     @Autowired
     private MongoOperations mongoOperations;
+
+    public BoardgameDBMongo() {}
 
     public boolean addBoardgame(BoardgameModelMongo boardgame) {
         boolean result = true;
@@ -80,4 +83,18 @@ public class BoardgameDBMongo {
         }
         return result;
     }
+
+    public List<BoardgameModelMongo> findRecentBoardgames(int limit, int skip) {
+        List<BoardgameModelMongo> boardgames = null;
+        try {
+            Query query = new Query();
+            query.with(Sort.by(Sort.Direction.DESC, "yearPublished"));
+            query.skip(skip).limit(limit);
+            boardgames = mongoOperations.find(query, BoardgameModelMongo.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return boardgames;
+    }
+
 }
