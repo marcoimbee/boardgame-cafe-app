@@ -95,7 +95,6 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
                 logger.error("Exception occurred: " + e.getLocalizedMessage());
             }
         }
-
         fillGridPane();
     }
 
@@ -104,12 +103,15 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         stageManager.closeStage(this.boardgamePostsButton);
     }
 
-
     public void onClickSignUp(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 
     public void onClickSearch() {
+
+        String text = this.textFieldSearch.getText();
+
+        stageManager.showInfoMessage("Info Text", text);
     }
 
     public void onClickClearField() {
