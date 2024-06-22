@@ -43,7 +43,7 @@ public class ControllerViewSignUp implements Initializable {
 
     public void onClickFinish(ActionEvent event)
     {
-        //DoStuff
+        //DoStuff - toDo
         stageManager.closeStage(this.finishButton);
     }
 
