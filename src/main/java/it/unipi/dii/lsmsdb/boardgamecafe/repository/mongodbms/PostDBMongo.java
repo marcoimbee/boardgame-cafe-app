@@ -1,8 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -85,4 +88,18 @@ public class PostDBMongo {
         }
         return posts;
     }
+
+    public List<PostModelMongo> findRecentPosts(int limit, int skip) {
+        List<PostModelMongo> posts = null;
+        try {
+            Query query = new Query();
+            query.with(Sort.by(Sort.Direction.DESC, "timestamp"));
+            query.skip(skip).limit(limit);
+            posts = mongoOperations.find(query, PostModelMongo.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
 }
