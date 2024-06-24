@@ -48,6 +48,8 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
     @FXML
     private Button signUpButton;
     @FXML
+    private Button loginButton;
+    @FXML
     private GridPane boardgameGridPane;
     @FXML
     private ScrollPane scrollSet;
@@ -262,4 +264,8 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         }
     }
 
+    public void onClickLogin(ActionEvent event) {
+        stageManager.showWindow(FxmlView.LOGIN);
+        stageManager.closeStage(this.loginButton);
+    }
 }

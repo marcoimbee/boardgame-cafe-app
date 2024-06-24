@@ -49,6 +49,8 @@ public class ControllerViewGuestPostsPage implements Initializable {
     @FXML
     private Button signUpButton;
     @FXML
+    private Button loginButton;
+    @FXML
     private GridPane postGridPane;
     @FXML
     private ScrollPane scrollSet;
@@ -112,6 +114,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
     }
 
     public void onClickClearField() {
+        this.textFieldSearch.clear();
     }
 
     public void onClickReturnWelcomePage(ActionEvent actionEvent)
@@ -254,5 +257,10 @@ public class ControllerViewGuestPostsPage implements Initializable {
     }
 
     public void likeDislikePost(ActionEvent event) {
+    }
+
+    public void onClickLogin(ActionEvent event) {
+        stageManager.showWindow(FxmlView.LOGIN);
+        stageManager.closeStage(this.loginButton);
     }
 }
