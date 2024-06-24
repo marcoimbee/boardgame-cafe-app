@@ -110,6 +110,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickSearch() {
+        String text = this.textFieldSearch.getText();
+
+        stageManager.showInfoMessage("Info Text", text);
     }
 
     public void onClickClearField() {
