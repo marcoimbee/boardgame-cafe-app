@@ -50,7 +50,27 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewGuestPostPage.fxml";
         }
-    }, USERHOMEPAGE {
+    }, REGUSERPOSTS {
+        @Override
+        public String getTitle() {
+            return "Registered User-Boardgames's Posts Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewRegUserPostPage.fxml";
+        }
+    }, REGUSERBOARDGAMES {
+        @Override
+        public String getTitle() {
+            return "Registered User-Boardgames Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewRegUserBoardgamesPage.fxml";
+        }
+    }, USERPOFILEPAGE {
         @Override
         public String getTitle() {
             return "User HomePage - BoardGameCafè App";
@@ -58,7 +78,7 @@ public enum FxmlView {
 
         @Override
         public String getFxmlFile() {
-            return "/viewUserHomePage.fxml";
+            return "/viewRegUserProfilePage.fxml";
         }
     }, BOARDGAME_DETAILS {
         @Override
