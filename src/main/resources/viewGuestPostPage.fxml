@@ -43,6 +43,11 @@
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
+            <Button fx:id="loginButton" contentDisplay="CENTER" layoutX="24.0" layoutY="512.0" mnemonicParsing="false" onAction="#onClickLogin" prefHeight="38.0" prefWidth="77.0" style="-fx-background-color: #ffffff;" text="Log-In" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
          </children>
       </AnchorPane>
    </left>
@@ -61,7 +66,7 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <TextField layoutX="80.0" layoutY="45.0" prefHeight="32.0" prefWidth="285.0" promptText="Search Posts About a Bordgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" prefHeight="32.0" prefWidth="285.0" promptText="Search Posts About a Bordgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
                   <FontAwesomeIconView fill="#182e58" glyphName="SEARCH" layoutX="53.0" layoutY="68.0" size="20" />
                   <ScrollPane fx:id="scrollSet" layoutY="115.0" prefHeight="492.0" prefWidth="953.0">
                      <content>

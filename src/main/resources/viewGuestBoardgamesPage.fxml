@@ -43,6 +43,11 @@
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
+            <Button fx:id="loginButton" contentDisplay="CENTER" layoutX="24.0" layoutY="512.0" mnemonicParsing="false" onAction="#onClickLogin" prefHeight="38.0" prefWidth="77.0" style="-fx-background-color: #ffffff;" text="Log-In" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
          </children>
       </AnchorPane>
    </left>
