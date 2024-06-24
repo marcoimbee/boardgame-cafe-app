@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -47,6 +48,7 @@ public class ControllerViewWelcomePage {
     public void onClickQuitAppButton(ActionEvent actionEvent)
     {
         stageManager.closeStage(this.quitAppButton);
+        Platform.exit();
         System.exit(0);
     }
 }
