@@ -48,6 +48,6 @@ You can find out more in detail by reading the final report on the [Board-Game C
 
 ## Authors
 
-* Alberto Atzori - *e-mail*: a.atzori1@studenti.unipi.it - *GitHub Profile*: [ [@albertoatzori](https://github.com/albertoatzori) ]
+* Francesco Bruno - *e-mail*: f.bruno10@studenti.unipi.it - *GitHub Profile*: [ [@francescoB1997](https://github.com/francescoB1997) ]
 * Gaetano Sferrazza - *e-mail*: g.sferrazza@studenti.unipi.it - *GitHub Profile*: [ [@g-sferr](https://github.com/g-sferr) ]
-* Nicola Riccardi - *e-mail*: n.riccardi1@studenti.unipi.it - *GitHub Profile*: [ [@nickrick3](https://github.com/nickrick3) ]
+* Marco Imbellicai - *e-mail*: m.imbellicai@studenti.unipi.it - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]
