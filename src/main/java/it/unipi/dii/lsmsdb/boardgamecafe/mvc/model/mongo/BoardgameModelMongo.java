@@ -10,7 +10,7 @@ import java.util.List;
 public class BoardgameModelMongo {
 
     @Id
-    private String boardgameId;
+    private String id;
     private String boardgameName;
     private String thumbnail;
     private String image;
@@ -27,13 +27,13 @@ public class BoardgameModelMongo {
 
     public BoardgameModelMongo(){}
 
-    public BoardgameModelMongo(String boardgameId, String boardgameName,
+    public BoardgameModelMongo(String id, String boardgameName,
                                String thumbnail, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
                                int playingTime, int minAge, List<String> boardgameCategoryList,
                                List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
 
-        this.boardgameId = boardgameId;
+        this.id = id;
         this.boardgameName = boardgameName;
         this.thumbnail = thumbnail;
         this.image = image;
@@ -48,12 +48,12 @@ public class BoardgameModelMongo {
         this.boardgamePublisherList = boardgamePublisherList;
     }
 
-    public String getBoardgameId() {
-        return boardgameId;
+    public String getId() {
+        return id;
     }
 
-    public void setBoardgameId(String boardgameId) {
-        this.boardgameId = boardgameId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getBoardgameName () {
@@ -188,7 +188,7 @@ public class BoardgameModelMongo {
     @Override
     public String toString() {
         return "Boardgame{" +
-                "boardgameId='" + boardgameId + '\'' +
+                "id='" + id + '\'' +
                 ", boardgameName='" + boardgameName + '\'' +
                 ", thumbnail='" + thumbnail + '\'' +
                 ", image='" + image + '\'' +

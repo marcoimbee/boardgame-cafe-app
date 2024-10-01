@@ -20,12 +20,12 @@ public class UserModelMongo extends GenericUserModelMongo {
 
     public UserModelMongo(){};
 
-    public UserModelMongo(String username, String passwordHash,
+    public UserModelMongo(String id, String username, String passwordHash,
                           String salt, String _class, String email,
                           String name, String surname, String gender,
                           Date dateOfBirth, String nationality, boolean banned) {
 
-        super(username, email, salt, passwordHash, _class);
+        super(id, username, email, salt, passwordHash, _class);
         this.name = name;
         this.surname = surname;
         this.gender = gender;
