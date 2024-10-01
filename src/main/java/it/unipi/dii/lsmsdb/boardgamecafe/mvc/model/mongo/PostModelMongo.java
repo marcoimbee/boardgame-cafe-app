@@ -97,7 +97,7 @@ public class PostModelMongo {
         this.comments.add(0, comment);
     }
 
-    public boolean deleteComment(String id) {
+    public boolean deleteCommentInPost(String id) {
         CommentModelMongo comment = this.getCommentInPost(id);
         if (comment != null) {
             comments.remove(comment);
@@ -113,9 +113,9 @@ public class PostModelMongo {
         return "Post{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
-                ", title=" + title + '\'' +
-                ", tag=" + tag + '\'' +
-                ", text=" + text + '\'' +
+                ", title='" + title + '\'' +
+                ", tag='" + tag + '\'' +
+                ", text='" + text + '\'' +
                 ", timestamp=" + timestamp +
                 ", comments=" + comments +
                 '}';

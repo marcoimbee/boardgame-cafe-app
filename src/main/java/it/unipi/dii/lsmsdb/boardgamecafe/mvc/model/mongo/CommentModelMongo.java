@@ -3,8 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
-import java.time.Instant;
+import java.util.Date;
 
 @Document("comments")
 public class CommentModelMongo {
@@ -13,11 +12,11 @@ public class CommentModelMongo {
     private String post;
     private String username;
     private String text;
-    private Instant timestamp;
+    private Date timestamp;
 
     public CommentModelMongo(String id, String post,
                              String username, String text,
-                             Instant timestamp) {
+                             Date timestamp) {
         this.id = id;
         this.post = post;
         this.username = username;
@@ -54,11 +53,11 @@ public class CommentModelMongo {
         this.text = text;
     }
 
-    public Instant getTimestamp(){
+    public Date getTimestamp(){
         return timestamp;
     }
 
-    public void setTimestamp(Instant timestamp){
+    public void setTimestamp(Date timestamp){
         this.timestamp = timestamp;
     }
 
@@ -69,7 +68,7 @@ public class CommentModelMongo {
                 "id='" + id + '\'' +
                 ", post='" + post + '\'' +
                 ", username='" + username + '\'' +
-                ", text=" + text + '\'' +
+                ", text='" + text + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }
