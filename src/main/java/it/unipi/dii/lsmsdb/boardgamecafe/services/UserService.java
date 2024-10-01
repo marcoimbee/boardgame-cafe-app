@@ -1,11 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import org.neo4j.cypherdsl.core.Use;
+import java.util.*;
 
 @Component
 public class UserService {
@@ -27,6 +30,14 @@ public class UserService {
     private UserDBNeo4j userNeo4jDB;
     @Autowired
     private ReviewDBMongo reviewMongoOp;
+    @Autowired
+    private PostDBMongo postMongoOp;
+    @Autowired
+    private PostDBNeo4j postNeo4jOp;
+    @Autowired
+    private CommentDBMongo commentMongoOp;
+    @Autowired
+    private CommentDBNeo4j commentNeo4jOp;
     @Autowired
     private BoardgameDBMongo boardgameMongoOp;
 
@@ -63,72 +74,164 @@ public class UserService {
         String salt = this.getSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        return new AdminModelMongo(username, email, salt, hashedPassword, "admin");
+        return new AdminModelMongo(null, username, email, salt, hashedPassword, "admin");
     }
 
     public boolean insertAdmin(AdminModelMongo admin) {
-        boolean result = true;
         if (!userMongoDB.addUser(admin)) {
             logger.error("Error in adding the admin to MongoDB");
             return false;
         }
-        return result;
+        return true;
     }
 
     public UserModelMongo createUser(String username, String email, String password,
                                      String name, String surname, String gender,
-                                     String nationality, String banned, int year,
+                                     String nationality, int year,
                                      int month, int day)
     {
-        boolean bannedUser = false;
-        String adminChoice = "NotBanned";
-
-        if(!adminChoice.equals(banned))
-            bannedUser = true;
-
         Date dateOfBirth = new GregorianCalendar(year, month-1, day+1).getTime();
         String salt = this.getSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        return new UserModelMongo(username,hashedPassword,
-                            salt, "user",email, name, surname,
-                            gender,dateOfBirth,
-                            nationality,bannedUser);
+        return new UserModelMongo(null, username,hashedPassword,
+                salt, "user",email, name, surname,
+                gender,dateOfBirth,
+                nationality, false);
     }
 
-    public boolean insertUser(UserModelMongo userMongo, UserModelNeo4j userNeo4j) {
-
-        boolean result = true;
-        if (!userMongoDB.addUser(userMongo)) {
+    public boolean insertUser(UserModelMongo user) {
+        // MongoDB
+        if (!userMongoDB.addUser(user)) {
             logger.error("Error in adding the user to MongoDB");
             return false;
         }
 
-        // Spring - Gestione Neo4j
-        if (!userNeo4jDB.addUser(userNeo4j)) {
+        // Update id
+        user = (UserModelMongo) userMongoDB.findByUsername(user.getUsername()).get();
+
+        // Neo4j
+        if (!userNeo4jDB.addUser(new UserModelNeo4j(user.getId(), user.getUsername()))) {
             logger.error("Error in adding the user to Neo4j");
-            if (!userMongoDB.deleteUser(userMongo)) {
+            if (!userMongoDB.deleteUser(user)) {
                 logger.error("Error in deleting the user from MongoDB");
             }
             return false;
         }
 
-        return result;
+        return true;
     }
 
-    public boolean deleteUser(UserModelMongo userMongo) {
+    private boolean removeUserReviews(UserModelMongo user) {
+        for (ReviewModelMongo review : user.getReviews()) {
+            Optional<BoardgameModelMongo> boardgameResult = boardgameMongoOp.findBoardgameByName(review.getBoardgameName());
+            if (boardgameResult.isPresent()) {
+                BoardgameModelMongo boardgame = boardgameResult.get();
+                boardgame.deleteReview(review.getId());
+                if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame)) {
+                    logger.error("Error in deleting review inside boardgame collection in MongoDB");
+                    return false;
+                }
+            }
+        }
 
-        String username = userMongo.getUsername();
+        if (!reviewMongoOp.deleteReviewByUsername(user.getId())) {
+            logger.error("Error in deleting reviews written by user in MongoDB");
+            return false;
+        }
+        return true;
+    }
+    private boolean removeUserPosts(String username) {
+        Optional<UserModelNeo4j> userResult = userNeo4jDB.findByUsername(username);
+        if (userResult.isEmpty()) {
+            return true;
+        }
+        UserModelNeo4j user = userResult.get();
+
+        // Delete comments in posts written by the user
+        for (PostModelNeo4j post : user.getWrittenPosts()) {
+            // MongoDB
+            if (!commentMongoOp.deleteByPost(post.getId())) {
+                logger.error("Error deleting comments in post written by user in MongoDB");
+                return false;
+            }
+            // Neo4j
+            if (!commentNeo4jOp.deleteByPost(post.getId())) {
+                logger.error("Error deleting comments in post written by user in Neo4j");
+                return false;
+            }
+        }
+
+        // Delete posts
+        // MongoDB
+        if (!postMongoOp.deleteByUsername(user.getUsername())) {
+            logger.error("Error deleting posts written by user in MongoDB");
+            return false;
+        }
+        // Neo4j
+        if (!postNeo4jOp.deleteByUsername(user.getUsername())) {
+            logger.error("Error deleting posts written by user in Neo4j");
+            return false;
+        }
+        return true;
+    }
+    private boolean removeUserComments(String username) {
+        // Update comments in post collection
+        for (CommentModelMongo comment : commentMongoOp.findByUsername(username)) {
+            Optional<PostModelMongo> postResult = postMongoOp.findById(comment.getPost());
+            if (postResult.isPresent()) {
+                PostModelMongo post = postResult.get();
+                post.deleteCommentInPost(comment.getId());
+                comment.setUsername("[deleted]");
+                comment.setText("[deleted]");
+                post.addComment(comment);
+                if (!postMongoOp.updatePost(post.getId(), post)) {
+                    logger.error("Error in deleting user comments in post collection in MongoDB");
+                    return false;
+                }
+            }
+        }
+
+        // Delete Comments
+        // MongoDB
+        if (!commentMongoOp.deleteByUsername(username)) {
+            logger.error("Error in deleting user comments in MongoDB");
+            return false;
+        }
+        // Neo4j
+        if (!commentNeo4jOp.deleteByUsername(username)) {
+            logger.error("Error in deleting user comments in Neo4j");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean banUser(UserModelMongo user) {
+        String username = user.getUsername();
+        user.setBanned(true);
+
+        if (!userMongoDB.updateUser(user.getId(), user, "user")) {
+            logger.error("Error in setting banned flag in user");
+            return false;
+        }
+        return removeUserReviews(user) && removeUserPosts(username) && removeUserComments(username);
+    }
+    public boolean deleteUser(UserModelMongo user) {
+        String username = user.getUsername();
+
+        if (!removeUserReviews(user) || !removeUserPosts(username) || !removeUserComments(username))
+            return false;
 
         try {
-            if (!userMongoDB.deleteUser(userMongo)) {
-                logger.error("Error in deleting the user from the user collection");
+            // MongoDB
+            if (!userMongoDB.deleteUser(user)) {
+                logger.error("Error in deleting the user from the user collection in MongoDB");
                 return false;
             }
 
-            //Gestione consistenza: Neo4jDB
+            // Neo4jDB
             if (!userNeo4jDB.deleteUserDetach(username)) {
-                logger.error("Error in deleting the user's add relationships");
+                logger.error("Error in deleting the user in Neo4j");
                 return false;
             }
         } catch (Exception e) {

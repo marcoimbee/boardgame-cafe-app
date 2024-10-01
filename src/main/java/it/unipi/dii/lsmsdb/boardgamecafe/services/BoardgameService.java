@@ -1,15 +1,18 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class BoardgameService {
@@ -20,12 +23,21 @@ public class BoardgameService {
     private BoardgameDBNeo4j boardgameNeo4jOp;
     @Autowired
     private ReviewDBMongo reviewMongoOp;
+    @Autowired
+    private UserDBMongo userMongoOp;
+    @Autowired
+    private PostDBNeo4j postNeo4jOp;
+    @Autowired
+    private PostDBMongo postMongoOp;
+    @Autowired
+    private CommentDBNeo4j commentNeo4jOp;
+    @Autowired
+    private CommentDBMongo commentMongoOp;
 
     private final static Logger logger = LoggerFactory.getLogger(BoardgameService.class);
 
 
-    public boolean insertBoardgame(BoardgameModelMongo boardgameMongo,
-                                   BoardgameModelNeo4j boardgameNeo4j) {
+    public boolean insertBoardgame(BoardgameModelMongo boardgameMongo) {
         boolean result = true;
 
         // Gestione MongoDB
@@ -33,9 +45,11 @@ public class BoardgameService {
             logger.error("Error in adding the user to MongoDB");
             return false;
         }
+        // Aggiorna id
+        boardgameMongo = boardgameMongoOp.findBoardgameByName(boardgameMongo.getBoardgameName()).get();
 
         // Gestione Neo4j
-        if (!boardgameNeo4jOp.addBoardgame(boardgameNeo4j)) {
+        if (!boardgameNeo4jOp.addBoardgame(new BoardgameModelNeo4j(boardgameMongo.getId(), boardgameMongo.getBoardgameName(), boardgameMongo.getThumbnail(), boardgameMongo.getYearPublished()))) {
             logger.error("Error in adding the board game to Neo4j");
             if (!boardgameMongoOp.deleteBoardgame(boardgameMongo)) {
                 logger.error("Error in deleting the board game from MongoDB");
@@ -47,10 +61,15 @@ public class BoardgameService {
     }
 
     public boolean deleteBoardgame(BoardgameModelMongo boardgame) {
-
         String boardgameName = boardgame.getBoardgameName();
-        String boardgameIdId = boardgame.getBoardgameId();
         try {
+            //--- Deleting reviews ---
+            if (!deleteBoardgameReviews(boardgame))
+                return false;
+
+            //--- Deleting posts
+            if (!deleteBoardgamePosts(boardgameName))
+                return false;
 
             //--- Deleting From MONGO DB ---
             if (!boardgameMongoOp.deleteBoardgame(boardgame)) {
@@ -62,23 +81,6 @@ public class BoardgameService {
                 logger.error("Error in deleting the board game and its relationship from Neo4j");
                 return false;
             }
-            //--- Deleting From MONGO DB ---
-            if (!reviewMongoOp.deleteReviewByBoardgameName(boardgameName)) {
-                logger.error("Error in deleting the reviews of the Board Game from the reviews collection");
-                return false;
-            }
-
-            /*
-            Gestione Neo4j (OLD)
-            if (!App.getInstance().getPhoneNeo4j().deletePhoneRelationships(phoneId)) {
-                logger.error("Error in deleting phone's relationships");
-                return false;
-            }
-            if (!App.getInstance().getPhoneNeo4j().deletePhoneOnly(phoneId)) {
-                logger.error("Error in deleting the phone from Neo4j");
-                return false;
-            }
-            */
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,18 +88,63 @@ public class BoardgameService {
         return true;
     }
 
+    private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
+        // Delete reviews in user collection
+        for (ReviewModelMongo review : boardgame.getReviews()) {
+            UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername()).get();
+            user.deleteReview(review.getId());
+            if (!userMongoOp.updateUser(user.getId(), user, "user")) {
+                logger.error("Error in deleting reviews about boardgame in user collection");
+                return false;
+            }
+        }
+
+        // delete reviews in their own collection
+        if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
+            logger.error("Error in deleting reviews about boardgame");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean deleteBoardgamePosts(String boardgameName) {
+        List<PostModelMongo> posts = postMongoOp.findByTag(boardgameName);
+
+        // delete comments
+        for (PostModelMongo post: posts) {
+            if (!commentMongoOp.deleteByPost(post.getId())) {
+                logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+                return false;
+            }
+            if (!commentNeo4jOp.deleteByPost(post.getId())) {
+                logger.error("Error in deleting comments in posts about boardgame in Neo4j");
+                return false;
+            }
+        }
+
+        // Delete posts
+        if (!postMongoOp.deleteByTag(boardgameName)) {
+            logger.error("Error in deleting posts about boardgame in MongoDB");
+            return false;
+        }
+        if (!postNeo4jOp.deleteByReferredBoardgame(boardgameName)) {
+            logger.error("Error in deleting posts about boardgame in Neo4j");
+            return false;
+        }
+        return true;
+    }
 
     public boolean updateBoardgame(BoardgameModelMongo boardgameMongo) {
         try {
 
-            String boardgameId = boardgameMongo.getBoardgameId();
+            String boardgameId = boardgameMongo.getId();
             String boardgameName = boardgameMongo.getBoardgameName();
             String image = boardgameMongo.getImage();
             int yearPublished = boardgameMongo.getYearPublished();
 
             BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(boardgameId,
-                                                                        boardgameName,
-                                                                        image, yearPublished);
+                    boardgameName,
+                    image, yearPublished);
 
             //Gestione MongoDB
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
@@ -111,13 +158,6 @@ public class BoardgameService {
                 return false;
             }
 
-            /*
-            Gestione Neo4j (OLD)
-            if (!App.getInstance().getPhoneNeo4j().updatePhone(phoneId, brand, picture, releaseYear)) {
-                logger.error("Error in updating the phone on Neo4j");
-                return false;
-            }
-            */
         } catch (Exception e) {
             e.printStackTrace();
             return false;

@@ -11,6 +11,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Symbols;
 
+import org.neo4j.cypherdsl.core.Use;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +42,13 @@ public class ReviewService {
                 logger.error("Error in adding the review to the collection of reviews");
                 return false;
             }
-            String reviewId = this.getReviewId(review);
-            int rating = review.getRating();
-            //String title = review.getTitle();
-            String body = review.getBody();
-            String boardgameName = review.getBoardgameName();
-            String username = review.getUsername();
+            review = reviewMongoOp.findByUsernameAndBoardgameName(user.getUsername(), boardgame.getBoardgameName()).get();
 
-            if (!addReviewToUser(rating, username, body, boardgameName, reviewId, user, review)) {
+            if (!addReviewToUser(user, review)) {
                 logger.error("Error in adding the review to the collection of users");
                 return false;
             }
-            if (!addReviewToBoardgame(rating, body, username, reviewId, boardgame, review)) {
+            if (!addReviewToBoardgame(boardgame, review)) {
                 logger.error("Error in adding the review to the collection of boardgames");
                 return false;
             }
@@ -62,16 +58,10 @@ public class ReviewService {
         return true;
     }
 
-    private boolean addReviewToUser(int rating, String username, String body,
-                                    String boardgameName, String reviewId,
-                                    UserModelMongo user, ReviewModelMongo review) {
+    private boolean addReviewToUser(UserModelMongo user, ReviewModelMongo review) {
 
-        ReviewModelMongo reviewUser =
-                        new ReviewModelMongo.ReviewBuilder(rating, username, body,
-                        new Date()).boardgameName(boardgameName).id(reviewId).build();
-
-        checkLastReviewUser(user, false);
-        user.addReview(reviewUser);
+        //checkLastReviewUser(user, false);
+        user.addReview(review);
 
         if (!userMongoOp.updateUser(user.getId(), user, "user")) {
             logger.error("Error in adding the review to the collection of users");
@@ -83,18 +73,11 @@ public class ReviewService {
         return true;
     }
 
-    public boolean addReviewToBoardgame(int rating, String body, String username,
-                                    String reviewId, BoardgameModelMongo boardgame,
-                                    ReviewModelMongo review) {
+    public boolean addReviewToBoardgame(BoardgameModelMongo boardgame, ReviewModelMongo review) {
+        // checkLastReviewBoardgame(boardgame, false);
+        boardgame.addReview(review);
 
-        ReviewModelMongo reviewBoardgame =
-                        new ReviewModelMongo.ReviewBuilder(rating, username, body,
-                        new Date()).username(username).id(reviewId).build();
-
-        checkLastReviewBoardgame(boardgame, false);
-        boardgame.addReview(reviewBoardgame);
-
-        if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getBoardgameId(), boardgame))  {
+        if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame))  {
             logger.error("Error in adding the review to the collection of boardgames");
             if (!reviewMongoOp.deleteReview(review)) {
                 logger.error("Error in deleting the review from the collection of reviews");
@@ -108,15 +91,14 @@ public class ReviewService {
                                 BoardgameModelMongo boardgame,
                                 UserModelMongo user) {
         try {
-            boolean isEmbedded = (boolean) BoardgamecafeApplication.getInstance().
-                                           getModelBean().getBean(Symbols.IS_EMBEDDED);
+
             String reviewId = selectedReview.getId();
 
-            if (!deleteReviewInBoardgame(boardgame, selectedReview, reviewId, isEmbedded)) {
+            if (!deleteReviewInBoardgame(boardgame, selectedReview, reviewId)) {
                 logger.error("Error in deleting the review from the collection of boardgames");
                 return false;
             }
-            if (!deleteReviewInUser(user, selectedReview, reviewId, isEmbedded)) {
+            if (!deleteReviewInUser(user, selectedReview, reviewId)) {
                 logger.error("Error in deleting the review from the collection of users");
                 return false;
             }
@@ -133,7 +115,7 @@ public class ReviewService {
 
     private boolean deleteReviewInUser(UserModelMongo user,
                                        ReviewModelMongo selectedReview,
-                                       String reviewId, boolean isEmbedded) {
+                                       String reviewId) {
         if (user == null) {
 
             String username = selectedReview.getUsername();
@@ -142,7 +124,7 @@ public class ReviewService {
             }
 
             Optional<GenericUserModelMongo> userResult =
-                                            userMongoOp.findByUsername(username);
+                    userMongoOp.findByUsername(username);
 
             if (userResult.isEmpty()) {
                 return false;
@@ -151,16 +133,14 @@ public class ReviewService {
             UserModelMongo newUser = (UserModelMongo) userResult.get();
             return deleteUserReview(newUser, reviewId);
 
-        } else if (isEmbedded) {
+        } else
             return deleteUserReview(user, reviewId);
-        }
-        return true;
     }
 
     public boolean deleteUserReview(UserModelMongo user, String reviewId) {
 
         if (user.getReviewInUser(reviewId) != null) {
-            checkLastReviewUser(user, true);
+            //checkLastReviewUser(user, true);
             user.deleteReview(reviewId);
             return userMongoOp.updateUser(user.getId(), user, "user");
         }
@@ -170,45 +150,45 @@ public class ReviewService {
     public boolean deleteBoardgameReview(BoardgameModelMongo boardgame, String reviewId) {
 
         if (boardgame.getReviewInBoardgame(reviewId) != null) {
-            checkLastReviewBoardgame(boardgame, true);
+            //checkLastReviewBoardgame(boardgame, true);
             boardgame.deleteReview(reviewId);
-            return boardgameMongoOp.updateBoardgameMongo(boardgame.getBoardgameId(), boardgame);
+            return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
         }
         return true;
     }
+    /*
+        private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
 
-    private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
-
-        int numReviews = boardgame.getReviews().size();
-        if (numReviews == 50) {
-            if (isDelete) {
-                List<ReviewModelMongo> oldReviews = reviewMongoOp.
-                                       findOldReviews(boardgame.getBoardgameName(), true);
-                boardgame.getReviews().add(numReviews, oldReviews.get(0));
-            } else {
-                boardgame.getReviews().remove(numReviews - 1);
+            int numReviews = boardgame.getReviews().size();
+            if (numReviews == 50) {
+                if (isDelete) {
+                    List<ReviewModelMongo> oldReviews = reviewMongoOp.
+                                           findOldReviews(boardgame.getBoardgameName(), true);
+                    boardgame.getReviews().add(numReviews, oldReviews.get(0));
+                } else {
+                    boardgame.getReviews().remove(numReviews - 1);
+                }
             }
         }
-    }
 
-    private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
+        private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
 
-        int numReviews = newUser.getReviews().size();
-        if (numReviews == 50) {
-            if (isDelete) {
-                List<ReviewModelMongo> oldReviews =
-                        reviewMongoOp.findOldReviews(newUser.getUsername(), false);
+            int numReviews = newUser.getReviews().size();
+            if (numReviews == 50) {
+                if (isDelete) {
+                    List<ReviewModelMongo> oldReviews =
+                            reviewMongoOp.findOldReviews(newUser.getUsername(), false);
 
-                newUser.getReviews().add(numReviews, oldReviews.get(0));
-            } else {
-                newUser.getReviews().remove(numReviews - 1);
+                    newUser.getReviews().add(numReviews, oldReviews.get(0));
+                } else {
+                    newUser.getReviews().remove(numReviews - 1);
+                }
             }
         }
-    }
-
+    */
     public boolean deleteReviewInBoardgame(BoardgameModelMongo boardgame,
-                                       ReviewModelMongo selectedReview,
-                                       String reviewId, boolean isEmbedded){
+                                           ReviewModelMongo selectedReview,
+                                           String reviewId){
         if (boardgame == null)
         {
             Optional<BoardgameModelMongo> boardgameResult =
@@ -220,18 +200,15 @@ public class ReviewService {
             BoardgameModelMongo newBoardgame = boardgameResult.get();
             return deleteBoardgameReview(newBoardgame ,reviewId);
 
-        } else if (isEmbedded) {
-
+        } else
             return deleteBoardgameReview(boardgame ,reviewId);
-        }
-        return true;
     }
 
     private String getReviewId(ReviewModelMongo review) {
 
         Optional<ReviewModelMongo> reviewResult =
                 reviewMongoOp.findByUsernameAndBoardgameName( review.getUsername(),
-                                                              review.getBoardgameName());
+                        review.getBoardgameName());
         if (reviewResult.isPresent()) {
             return reviewResult.get().getId();
         } else {
@@ -239,99 +216,81 @@ public class ReviewService {
         }
         return "";
     }
+    /*
+        public ReviewModelMongo getSelectedReview(int counterPages, int tableIndex,
+                                                  UserModelMongo user, BoardgameModelMongo boardagme,
+                                                  List<ReviewModelMongo> reviews) {
+            boolean isEmbedded = true;
+            int index;
 
-    public ReviewModelMongo getSelectedReview(int counterPages, int tableIndex,
-                                              UserModelMongo user, BoardgameModelMongo boardagme,
-                                              List<ReviewModelMongo> reviews) {
-        boolean isEmbedded = true;
-        int index;
-
-        ReviewModelMongo review;
-        if (counterPages > 4) {
-            index = tableIndex + (counterPages * 10 - 50);
-            review = reviews.get(index);
-            isEmbedded = false;
-        } else {
-            index = tableIndex + (counterPages * 10);
-            if (boardagme == null) {
-                review = user.getReviews().get(index);
+            ReviewModelMongo review;
+            if (counterPages > 4) {
+                index = tableIndex + (counterPages * 10 - 50);
+                review = reviews.get(index);
+                isEmbedded = false;
             } else {
-                review = boardagme.getReviews().get(index);
+                index = tableIndex + (counterPages * 10);
+                if (boardagme == null) {
+                    review = user.getReviews().get(index);
+                } else {
+                    review = boardagme.getReviews().get(index);
+                }
             }
+            if (review == null) {
+                logger.error("Review null, not found ");
+                return null;
+            }
+            BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.IS_EMBEDDED, isEmbedded);
+            return review;
         }
-        if (review == null) {
-            logger.error("Review null, not found ");
-            return null;
-        }
-        BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.IS_EMBEDDED, isEmbedded);
-        return review;
-    }
-
-    private boolean updateReviewInBoardgame(int rating, String body,
-                                            String username, String reviewId,
-                                            String boardgameName) {
+    */
+    private boolean updateReviewInBoardgame(ReviewModelMongo selectedReview) {
 
         Optional<BoardgameModelMongo> boardgameResult =
-                                        boardgameMongoOp.findBoardgameByName(boardgameName);
+                boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
         if (boardgameResult.isPresent()) {
-
-            ReviewModelMongo newReview =
-                    new ReviewModelMongo.ReviewBuilder(rating, username, body,
-                    new Date()).username(username).id(reviewId).build();
-
             BoardgameModelMongo boardgame = boardgameResult.get();
 
-            if (boardgame.deleteReview(reviewId)) {
-                boardgame.addReview(newReview);
+            if (boardgame.deleteReview(selectedReview.getId())) {
+                boardgame.addReview(selectedReview);
             }
-            return boardgameMongoOp.updateBoardgameMongo(boardgame.getBoardgameId(), boardgame);
+            return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
         }
         return false;
     }
 
-    public boolean updateReviewInUser(int rating, String body,
-                                      String boardgameName, String reviewId,
-                                      UserModelMongo user) {
+    public boolean updateReviewInUser(ReviewModelMongo selectedReview) {
+        Optional<GenericUserModelMongo> userResult =
+                userMongoOp.findByUsername(selectedReview.getUsername());
 
-        String username = user.getUsername();
+        if (userResult.isPresent()) {
+            GenericUserModelMongo genericUser = userResult.get();
+            if (genericUser.get_class() != "user") {
+                logger.error("Error: selected user is not a common user");
+                return false;
+            }
+            UserModelMongo user = (UserModelMongo) genericUser;
 
-        if ((boolean) BoardgamecafeApplication.getInstance().
-                getModelBean().getBean(Symbols.IS_EMBEDDED)) {
-
-            ReviewModelMongo newReview =
-                    new ReviewModelMongo.ReviewBuilder(rating, username, body,
-                    new Date()).boardgameName(boardgameName).id(reviewId).build();
-
-            if (user.deleteReview(reviewId)) {
-                user.addReview(newReview);
+            if (user.deleteReview(selectedReview.getId())) {
+                user.addReview(selectedReview);
             }
             return userMongoOp.updateUser(user.getId(), user, "user");
         }
         return false;
     }
 
-    public boolean updateReview(ReviewModelMongo selectedReview,
-                                UserModelMongo user, int rating,
-                                Date dateOfReview, String body) {
+    public boolean updateReview(ReviewModelMongo selectedReview) {
         try {
-            String reviewId = selectedReview.getId();
-            String username = user.getUsername();
-            String boardgameName = selectedReview.getBoardgameName();
-
-            ReviewModelMongo newReview =
-                    new ReviewModelMongo.ReviewBuilder(rating, username,
-                    body, dateOfReview).username(username).boardgameName(boardgameName).build();
-
-            if (!reviewMongoOp.updateReview(reviewId, newReview)) {
+            if (!reviewMongoOp.updateReview(selectedReview.getId(), selectedReview)) {
                 logger.error("Error in updating the review in the collection of reviews");
                 return false;
             }
-            if (!updateReviewInUser(rating, body, boardgameName, reviewId, user)) {
+            if (!updateReviewInUser(selectedReview)) {
                 logger.error("Error in updating the review in the collection of users");
                 return false;
             }
-            if (!updateReviewInBoardgame(rating, body, username, reviewId, boardgameName)) {
+            if (!updateReviewInBoardgame(selectedReview)) {
                 logger.error("Error in updating the review in the collection of Board Games");
                 return false;
             }
