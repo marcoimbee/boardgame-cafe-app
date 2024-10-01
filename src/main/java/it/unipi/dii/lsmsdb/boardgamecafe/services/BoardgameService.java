@@ -1,94 +1,167 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-//import it.unipi.dii.lsmsdb.phoneworld.App;
-//import it.unipi.dii.lsmsdb.phoneworld.model.Phone;
-//import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.PhoneMongo;
-//import it.unipi.dii.lsmsdb.phoneworld.repository.mongo.ReviewMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
+
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.util.List;
 
 @Component
 public class BoardgameService {
 
     @Autowired
-    private BoardgameMongoDB boargameMongo;
+    private BoardgameDBMongo boardgameMongoOp;
     @Autowired
-    private ReviewMongoDB reviewMongo;
+    private BoardgameDBNeo4j boardgameNeo4jOp;
+    @Autowired
+    private ReviewDBMongo reviewMongoOp;
+    @Autowired
+    private UserDBMongo userMongoOp;
+    @Autowired
+    private PostDBNeo4j postNeo4jOp;
+    @Autowired
+    private PostDBMongo postMongoOp;
+    @Autowired
+    private CommentDBNeo4j commentNeo4jOp;
+    @Autowired
+    private CommentDBMongo commentMongoOp;
 
-    private final static Logger logger = LoggerFactory.getLogger(ServicePhone.class);
+    private final static Logger logger = LoggerFactory.getLogger(BoardgameService.class);
 
-    public boolean deletePhone(Phone phone) {
-        String phoneName = phone.getName();
-        String phoneId = phone.getId();
-        try {
-            if (!phoneMongo.deletePhone(phone)) {
-                logger.error("Error in deleting the phone from MongoDB");
-                return false;
-            }
-            if (!App.getInstance().getPhoneNeo4j().deletePhoneRelationships(phoneId)) {
-                logger.error("Error in deleting phone's relationships");
-                return false;
-            }
-            if (!App.getInstance().getPhoneNeo4j().deletePhoneOnly(phoneId)) {
-                logger.error("Error in deleting the phone from Neo4j");
-                return false;
-            }
-            if (!reviewMongo.deleteReviewByPhoneName(phoneName)) {
-                logger.error("Error in deleting the reviews of the phone from the reviews collection");
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
 
-    public boolean updatePhone(Phone phone) {
-        try {
-            String phoneId = phone.getId();
-            String brand = phone.getBrand();
-            String picture = phone.getPicture();
-            int releaseYear = phone.getReleaseYear();
-            if (!phoneMongo.updatePhone(phone.getId(), phone)) {
-                logger.error("Error in updating the phone in MongoDB");
-                return false;
-            }
-            if (!App.getInstance().getPhoneNeo4j().updatePhone(phoneId, brand, picture, releaseYear)) {
-                logger.error("Error in updating the phone on Neo4j");
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean insertPhone(Phone phone, String brand, String name, String picture,
-                               int releaseYear) {
+    public boolean insertBoardgame(BoardgameModelMongo boardgameMongo) {
         boolean result = true;
-        if (!phoneMongo.addPhone(phone)) {
-            logger.error("Error in adding the phone to MongoDB");
+
+        // Gestione MongoDB
+        if (!boardgameMongoOp.addBoardgame(boardgameMongo)) {
+            logger.error("Error in adding the user to MongoDB");
             return false;
         }
-        Optional<Phone> phoneResult = phoneMongo.findPhoneByName(name);
-        if (phoneResult.isEmpty()) {
-            logger.error("Error in retriving the phone to MongoDB");
-            return false;
-        }
-        String id = phoneResult.get().getId();
-        if (!App.getInstance().getPhoneNeo4j().addPhone(id, brand, name, picture, releaseYear)) {
-            logger.error("Error in adding the phone to Neo4j");
-            if (!phoneMongo.deletePhone(phone)) {
-                logger.error("Error in deleting the phone from MongoDB");
+        // Aggiorna id
+        boardgameMongo = boardgameMongoOp.findBoardgameByName(boardgameMongo.getBoardgameName()).get();
+
+        // Gestione Neo4j
+        if (!boardgameNeo4jOp.addBoardgame(new BoardgameModelNeo4j(boardgameMongo.getId(), boardgameMongo.getBoardgameName(), boardgameMongo.getThumbnail(), boardgameMongo.getYearPublished()))) {
+            logger.error("Error in adding the board game to Neo4j");
+            if (!boardgameMongoOp.deleteBoardgame(boardgameMongo)) {
+                logger.error("Error in deleting the board game from MongoDB");
             }
             return false;
         }
+
         return result;
     }
 
+    public boolean deleteBoardgame(BoardgameModelMongo boardgame) {
+        String boardgameName = boardgame.getBoardgameName();
+        try {
+            //--- Deleting reviews ---
+            if (!deleteBoardgameReviews(boardgame))
+                return false;
+
+            //--- Deleting posts
+            if (!deleteBoardgamePosts(boardgameName))
+                return false;
+
+            //--- Deleting From MONGO DB ---
+            if (!boardgameMongoOp.deleteBoardgame(boardgame)) {
+                logger.error("Error in deleting the Board Game from MongoDB");
+                return false;
+            }
+            //--- Deleting From NEO4J DB ---
+            if (!boardgameNeo4jOp.deleteBoardgameDetach(boardgameName)) {
+                logger.error("Error in deleting the board game and its relationship from Neo4j");
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
+        // Delete reviews in user collection
+        for (ReviewModelMongo review : boardgame.getReviews()) {
+            UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername()).get();
+            user.deleteReview(review.getId());
+            if (!userMongoOp.updateUser(user.getId(), user, "user")) {
+                logger.error("Error in deleting reviews about boardgame in user collection");
+                return false;
+            }
+        }
+
+        // delete reviews in their own collection
+        if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
+            logger.error("Error in deleting reviews about boardgame");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean deleteBoardgamePosts(String boardgameName) {
+        List<PostModelMongo> posts = postMongoOp.findByTag(boardgameName);
+
+        // delete comments
+        for (PostModelMongo post: posts) {
+            if (!commentMongoOp.deleteByPost(post.getId())) {
+                logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+                return false;
+            }
+            if (!commentNeo4jOp.deleteByPost(post.getId())) {
+                logger.error("Error in deleting comments in posts about boardgame in Neo4j");
+                return false;
+            }
+        }
+
+        // Delete posts
+        if (!postMongoOp.deleteByTag(boardgameName)) {
+            logger.error("Error in deleting posts about boardgame in MongoDB");
+            return false;
+        }
+        if (!postNeo4jOp.deleteByReferredBoardgame(boardgameName)) {
+            logger.error("Error in deleting posts about boardgame in Neo4j");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateBoardgame(BoardgameModelMongo boardgameMongo) {
+        try {
+
+            String boardgameId = boardgameMongo.getId();
+            String boardgameName = boardgameMongo.getBoardgameName();
+            String image = boardgameMongo.getImage();
+            int yearPublished = boardgameMongo.getYearPublished();
+
+            BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(boardgameId,
+                    boardgameName,
+                    image, yearPublished);
+
+            //Gestione MongoDB
+            if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
+                logger.error("Error in updating the Board Game in MongoDB");
+                return false;
+            }
+
+            //Gestione Neo4j (NEW)
+            if(!boardgameNeo4jOp.updateBoardgameNeo4j(boardgameId, boardgameNeo4j)){
+                logger.error("Error in updating the Board Game on Neo4j");
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
