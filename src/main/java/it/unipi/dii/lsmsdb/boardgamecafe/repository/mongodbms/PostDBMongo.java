@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,6 +83,51 @@ public class PostDBMongo {
         List<PostModelMongo> posts = new ArrayList<>();
         try {
             posts = postMongo.findByUsername(username);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
+
+    public Optional<PostModelMongo> findByUsernameAndTimestamp(String username, Date timestamp) {
+        Optional<PostModelMongo> post = Optional.empty();
+        try {
+            post = postMongo.findByUsernameAndTimestamp(username, timestamp);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return post;
+    }
+
+    public boolean deleteByTag(String bgName) {
+        try {
+            postMongo.deleteByTag(bgName);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean deleteByUsername(String username) {
+        try {
+            postMongo.deleteByUsername(username);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public List<PostModelMongo> findByTag(String bgName) {
+        List<PostModelMongo> posts = new ArrayList<>();
+        try {
+            posts = postMongo.findByTag(bgName);
         }
         catch (Exception e) {
             e.printStackTrace();

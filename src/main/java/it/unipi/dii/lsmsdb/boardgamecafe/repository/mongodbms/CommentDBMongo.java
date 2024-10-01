@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,25 @@ public class CommentDBMongo {
     public boolean addComment(CommentModelMongo comment) {
         try {
             commentMongo.save(comment);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateComment(String id, CommentModelMongo updated) {
+        try {
+            Optional<CommentModelMongo> old = commentMongo.findById(id);
+            if (old.isPresent()) {
+                CommentModelMongo comment = old.get();
+                comment.setPost(updated.getPost());
+                comment.setText(updated.getText());
+                comment.setTimestamp(updated.getTimestamp());
+                comment.setUsername(updated.getUsername());
+                commentMongo.save(comment);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -57,6 +77,17 @@ public class CommentDBMongo {
         return commentList;
     }
 
+    public List<CommentModelMongo> findByUsername(String username) {
+        List<CommentModelMongo> commentList = new ArrayList<>();
+        try {
+            commentList = commentMongo.findByUsername(username);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return commentList;
+    }
+
     public Optional<CommentModelMongo> findById(String id) {
         Optional<CommentModelMongo> comment = Optional.empty();
         try {
@@ -66,5 +97,38 @@ public class CommentDBMongo {
             e.printStackTrace();
         }
         return comment;
+    }
+
+    public Optional<CommentModelMongo> findByUsernameAndPostAndTimestamp(String username, String post, Date timestamp) {
+        Optional<CommentModelMongo> comment = Optional.empty();
+        try {
+            comment = commentMongo.findByUsernameAndPostAndTimestamp(username, post, timestamp);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return comment;
+    }
+
+    public boolean deleteByPost(String postId) {
+        try {
+            commentMongo.deleteByPost(postId);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean deleteByUsername(String username) {
+        try {
+            commentMongo.deleteByUsername(username);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

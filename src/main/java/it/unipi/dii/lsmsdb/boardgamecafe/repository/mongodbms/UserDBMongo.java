@@ -18,7 +18,7 @@ public class UserDBMongo {
 
     public UserDBMongo() {}
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(BoardgameModelMongo.class);
+    //private final static Logger logger = (Logger) LoggerFactory.getLogger(BoardgameModelMongo.class);
 
     @Autowired
     private UserRepoMongo userRepoMongo;

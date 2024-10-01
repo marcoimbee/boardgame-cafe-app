@@ -20,8 +20,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 @Component
 public class ReviewDBMongo {
 
-    public ReviewDBMongo() {
-    }
+    public ReviewDBMongo() {}
 
     @Autowired
     private ReviewRepoMongo reviewMongo;
@@ -85,6 +84,8 @@ public class ReviewDBMongo {
         return reviews;
     }
 
+
+    /*
     public boolean updateReview(String id, ReviewModelMongo newReview) {
 
         boolean result = true;
@@ -100,6 +101,27 @@ public class ReviewDBMongo {
                                username(resultReview.getUsername());
 
                 this.addReview(builder.build());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }     */
+
+    public boolean updateReview(String id, ReviewModelMongo newReview) {
+
+        boolean result = true;
+        try {
+            Optional<ReviewModelMongo> review = reviewMongo.findById(id);
+            if (review.isPresent()) {
+                review.get().setUsername(newReview.getUsername());
+                review.get().setBoardgameName(newReview.getBoardgameName());
+                review.get().setRating(newReview.getRating());
+                review.get().setBody(newReview.getBody());
+                review.get().setDateOfReview(newReview.getDateOfReview());
+
+                reviewMongo.save(review.get());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,22 +174,6 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public List<ReviewModelMongo> findByWord(String word) {
-        List<ReviewModelMongo> reviews = new ArrayList<>();
-        try {
-            if (word.isEmpty()) {
-                reviews.addAll(reviewMongo.
-                        findAll(Sort.by(Sort.Direction.DESC, "dateOfReview")));
-            } else {
-                reviews.addAll(reviewMongo.
-                        findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(word, word));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return reviews;
-    }
-
     public List<ReviewModelMongo> findOldReviews(String parameter, boolean isBoardgame) {
         List<ReviewModelMongo> reviews = new ArrayList<>();
         try {
@@ -203,6 +209,7 @@ public class ReviewDBMongo {
     }
 
     // --- ToBeChanged ---
+    /*
     public Document findTopPhonesByRating(int minReviews, int results) {
         GroupOperation groupOperation = group("$phoneName").avg("$rating")
                 .as("avgRating").count().as("numReviews");
@@ -235,5 +242,5 @@ public class ReviewDBMongo {
                 .aggregate(aggregation, "reviews", ReviewModelMongo.class);
         return result.getRawResults();
     }
-
+    */
 }
