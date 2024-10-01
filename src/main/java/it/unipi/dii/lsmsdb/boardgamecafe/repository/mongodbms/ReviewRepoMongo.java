@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Repository //Check if it is needed comment it
 public interface ReviewRepoMongo extends MongoRepository<ReviewModelMongo, String> {
 
     Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username, String boardgameName);
@@ -16,12 +16,12 @@ public interface ReviewRepoMongo extends MongoRepository<ReviewModelMongo, Strin
 
     List<ReviewModelMongo> findByBoardgameName(String id);
 
-    List<ReviewModelMongo> findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(String word, String word1);
-
     void deleteReviewsByUsername(String id);
 
     void deleteReviewByBoardgameName(String id);
 
     void deleteReviewByUsername(String id);
 
+    //DA ELIMINARE
+    //List<ReviewModelMongo> findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(String word, String word1);
 }
