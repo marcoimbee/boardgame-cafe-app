@@ -8,19 +8,19 @@ public class BoardgameModelNeo4j {
 
     @Id
     public String id;
-    public String name;
-    public String image;
-    public int yearpublished;
+    public String boardgameName;
+    public String thumbnail;
+    public int yearPublished;
 
     public BoardgameModelNeo4j(){};
 
-    public BoardgameModelNeo4j(String id, String name,
-                               String image, int yearpublished) {
+    public BoardgameModelNeo4j(String id, String boardgameName,
+                               String thumbnail, int yearPublished) {
 
         this.id = id;
-        this.name = name;
-        this.image = image;
-        this.yearpublished = yearpublished;
+        this.boardgameName = boardgameName;
+        this.thumbnail = thumbnail;
+        this.yearPublished = yearPublished;
     }
 
     // Metodi setter/getter
@@ -32,37 +32,37 @@ public class BoardgameModelNeo4j {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getBoardgameName() {
+        return boardgameName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBoardgameName(String boardgameName) {
+        this.boardgameName = boardgameName;
     }
 
-    public String getImage() {
-        return image;
+    public String getThumbnail() {
+        return thumbnail;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public int getYearPublished() {
-        return yearpublished;
+        return yearPublished;
     }
 
-    public void setYearPublished(int yearpublished) {
-        this.yearpublished = yearpublished;
+    public void setYearPublished(int yearPublished) {
+        this.yearPublished = yearPublished;
     }
 
     @Override
     public String toString() {
         return "BoardgameNeo4j{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", image='" + image + '\'' +
-                ", yearpublished='" + yearpublished + '\'' +
+                ", name='" + boardgameName + '\'' +
+                ", image='" + thumbnail + '\'' +
+                ", yearpublished='" + yearPublished + '\'' +
                 '}';
     }
 }
