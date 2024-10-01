@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class UserDBNeo4j {
@@ -31,6 +32,26 @@ public class UserDBNeo4j {
         return result;
     }
 
+    public boolean updateUser(String id, UserModelNeo4j updated) {
+        try {
+            Optional<UserModelNeo4j> old = userNeo4jDB.findById(id);
+            if (old.isPresent()) {
+                UserModelNeo4j oldUser = old.get();
+                oldUser.setUsername(updated.getUsername());
+                oldUser.setFollowedUsers(updated.getFollowedUsers());
+                oldUser.setWrittenPosts(updated.getWrittenPosts());
+                oldUser.setLikedPosts(updated.getLikedPosts());
+                oldUser.setWrittenComments(updated.getWrittenComments());
+                userNeo4jDB.save(oldUser);
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
     public boolean deleteUser(UserModelNeo4j user) {
         try {
             userNeo4jDB.delete(user);   //Default method (elimina soltanto l'utente)
@@ -51,14 +72,15 @@ public class UserDBNeo4j {
         return true;
     }
 
-    public List<UserModelNeo4j> getFollowing(String username) {
-        List<UserModelNeo4j> following = new ArrayList<>();
+    public Optional<UserModelNeo4j> findByUsername(String username) {
+        Optional<UserModelNeo4j> user = Optional.empty();
         try {
-            return userNeo4jDB.findFollowingByUsername(username);
-        } catch (Exception e) {
-            e.printStackTrace();
+            user = userNeo4jDB.findByUsername(username);
         }
-        return following;
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return user;
     }
 
     public List<UserModelNeo4j> getFollowers(String username) {
@@ -70,5 +92,17 @@ public class UserDBNeo4j {
         }
         return followers;
     }
+
+
+    public List<UserModelNeo4j> getFollowing(String username) {
+        List<UserModelNeo4j> following = new ArrayList<>();
+        try {
+            return userNeo4jDB.findFollowingByUsername(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return following;
+    }
+
 
 }

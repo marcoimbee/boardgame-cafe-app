@@ -12,19 +12,19 @@ import java.util.Optional;
 public class BoardgameDBNeo4j {
 
     @Autowired
-    BoardgameRepoNeo4j boardgameRepoNeo4jOp;
+    BoardgameRepoNeo4j boardgameRepoNeo4j;
     @Autowired
     Neo4jOperations neo4jOperations;
 
     public BoardgameRepoNeo4j getUserNeo4jDB() {
-        return boardgameRepoNeo4jOp;
+        return boardgameRepoNeo4j;
     }
 
 
     public boolean addBoardgame(BoardgameModelNeo4j boardgameNeo4j) {
         boolean result = true;
         try {
-            boardgameRepoNeo4jOp.save(boardgameNeo4j);
+            boardgameRepoNeo4j.save(boardgameNeo4j);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
@@ -34,7 +34,7 @@ public class BoardgameDBNeo4j {
 
     public boolean deleteBoardgameDetach(String boardgameName) {
         try {
-            boardgameRepoNeo4jOp.deleteAndDetachBoardgameByName(boardgameName);
+            boardgameRepoNeo4j.deleteAndDetachBoardgameByBoardgameName(boardgameName);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -46,13 +46,13 @@ public class BoardgameDBNeo4j {
 
         boolean result = true;
         try {
-            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4jOp.findById(id);
+            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4j.findById(id);
             if (boardgameNeo.isPresent()) {
-                boardgameNeo.get().setName(newBoardgame.getName());
-                boardgameNeo.get().setImage(newBoardgame.getImage());
+                boardgameNeo.get().setBoardgameName(newBoardgame.getBoardgameName());
+                boardgameNeo.get().setThumbnail(newBoardgame.getThumbnail());
                 boardgameNeo.get().setYearPublished(newBoardgame.getYearPublished());
 
-                boardgameRepoNeo4jOp.save(boardgameNeo.get());
+                boardgameRepoNeo4j.save(boardgameNeo.get());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,4 +61,25 @@ public class BoardgameDBNeo4j {
         return result;
     }
 
+    public Optional<BoardgameModelNeo4j> findById(String id) {
+        Optional<BoardgameModelNeo4j> bg = Optional.empty();
+        try {
+            bg = boardgameRepoNeo4j.findById(id);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return bg;
+    }
+
+    public Optional<BoardgameModelNeo4j> findByBoardgameName(String boardgameName) {
+        Optional<BoardgameModelNeo4j> bg = Optional.empty();
+        try {
+            bg = boardgameRepoNeo4j.findByBoardgameName(boardgameName);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return bg;
+    }
 }
