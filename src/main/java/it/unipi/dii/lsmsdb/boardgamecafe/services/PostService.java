@@ -121,4 +121,28 @@ public class PostService {
         }
         return "";
     }
+
+    public void likeOrDislikePost(String username, String postId) {
+        try {
+            if (postDBNeo4j.hasUserLikedPost(username, postId)) {
+                postDBNeo4j.addLikePost(username, postId);
+            } else {
+                postDBNeo4j.removeLikePost(username, postId);
+            }
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            logger.error("Error liking or disliking post for user " + username + " on post " + postId + ": " + ex.getMessage());
+        }
+    }
+
+    public boolean hasLikedPost(String username, String postId) {
+        try {
+            return postDBNeo4j.hasUserLikedPost(username, postId);
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            logger.error("Error checking like status for user " + username + " on post " + postId + ": " + ex.getMessage());
+            return false; // Restituisce false in caso di errore
+        }
+    }
+
 }
