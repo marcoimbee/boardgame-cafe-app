@@ -1,20 +1,18 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.LikedPostsCache;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -37,15 +35,18 @@ public class ControllerObjectPost {
     @FXML
     protected TextArea textTitleLabel;
 
-
-    private static final Map<String, Image> likeCache = new HashMap<>();
     private static final Map<String, String> commentCache = new HashMap<>();
+
+    @Autowired
+    private PostService postService; // Iniezione del servizio
+
+    @Autowired
+    private LikedPostsCache postLikes;
 
     public ControllerObjectPost() {
     }
 
     public void setData(PostModelMongo post) {
-
         this.likeButton.setDisable(true);
         this.commentButton.setDisable(true);
         this.removeButton.setDisable(true);
@@ -56,7 +57,7 @@ public class ControllerObjectPost {
         if (commentCache.containsKey(post.getId())) {
             commentsCounter = commentCache.get(post.getId());
         } else {
-            // Calculate and cache comments count
+            // Calcola e memorizza il conteggio dei commenti
             int sizeCommentsList = post.getComments().size();
             commentsCounter = String.valueOf(sizeCommentsList);
             commentCache.put(post.getId(), commentsCounter);
@@ -65,17 +66,42 @@ public class ControllerObjectPost {
         authorLabel.setText(post.getUsername());
         timestampLabel.setText(creationDate);
         commentsLabel.setText(commentsCounter);
-        likesLabel.setText("10k");
+
+        updateLikesLabel(post.getId());
+        //updateLikeButton(post.getUsername(), post.getId());
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
-
-    }
-
-    public void removePost(ActionEvent event) {
     }
 
     public void likeDislikePost(ActionEvent event) {
+        String username = "CurrentUsername"; // Ottieni l'username attuale, ad esempio dal contesto dell'app
+        String postId = "CurrentPostId"; // Ottieni l'ID del post attuale
+
+        // Effettua l'operazione di like/dislike
+        postService.likeOrDislikePost(username, postId);
+
+        // Aggiorna il conteggio dei like
+        updateLikesLabel(postId);
+        //updateLikeButton(username, postId);
+    }
+
+    private void updateLikesLabel(String postId) {
+        int likeCount = postLikes.getLikeCount(postId);
+        likesLabel.setText(String.valueOf(likeCount));
+    }
+
+    private void updateLikeButton(String usernameCurrUser, String postId) {
+        if (postService.hasLikedPost(usernameCurrUser, postId)) {
+            likeButton.setText("Dislike");
+        } else {
+            likeButton.setText("Like");
+        }
+    }
+
+    public void removePost(ActionEvent event) {
+        // Implementazione per rimuovere il post
     }
 
     public void commentPost(ActionEvent event) {
+        // Implementazione per commentare il post
     }
 }
