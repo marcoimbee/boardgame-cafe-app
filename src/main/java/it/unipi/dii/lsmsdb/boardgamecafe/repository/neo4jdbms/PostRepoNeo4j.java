@@ -25,4 +25,13 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
 
     @Query("MATCH (p:Post)-[:REFERS_TO]->(b:Boardgame {boardgameName: $bgn}) RETURN p")
     List<PostModelNeo4j> findFromReferredBoardgame(@Param("bgn") String boardgameName);
+
+    @Query("MATCH (u:User {username: $username}), (p:Post {id: $postId}) MERGE (u)-[:LIKES]->(p)")
+    void addLike(@Param("username") String username, @Param("postId") String postId);
+
+    @Query("MATCH (u:User {username: $username})-[r:LIKES]->(p:Post {id: $postId}) DELETE r")
+    void removeLike(@Param("username") String username, @Param("postId") String postId);
+
+    @Query("MATCH (u:User {username: $username})-[:LIKES]->(p:Post {id: $postId}) RETURN COUNT(p) > 0")
+    boolean hasLiked(@Param("username") String username, @Param("postId") String postId);
 }

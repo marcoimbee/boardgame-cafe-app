@@ -1,7 +1,9 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +24,9 @@ public class ControllerViewSignUp implements Initializable {
     private Button cancelButton;
     @FXML
     private Button finishButton;
+
+    @Autowired
+    private UserService serviceUser;
 
     private final StageManager stageManager;
 
@@ -46,6 +51,25 @@ public class ControllerViewSignUp implements Initializable {
         //DoStuff - toDo
         stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered");
         stageManager.closeStage(this.finishButton);
+
+        /* ***
+        try {
+            //Creazione User dopo aver acquisito le info
+            UserModelMongo user = serviceUser.createUser(username,email,password,name,surname,gender,
+                    nationality, year, month, day);
+
+            //Inserimento User in Mongo e Neo4j DBs
+            if (!serviceUser.insertUser(user)) {
+                stageManager.showInfoMessage("ERROR", "Error in adding new user, " +
+                        "please try again");
+                return;
+            }
+            stageManager.closeStage(this.buttonSignUp);
+            stageManager.switchScene(FxmlView.USER);
+        } catch (Exception e) {
+            logger.error("Error in adding new user: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } *** */
     }
 
 }

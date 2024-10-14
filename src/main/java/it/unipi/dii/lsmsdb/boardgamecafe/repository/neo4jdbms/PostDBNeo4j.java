@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.LikedPostsCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,10 @@ import java.util.Optional;
 public class PostDBNeo4j {
     @Autowired
     private PostRepoNeo4j postRepoNeo4j;
-
     @Autowired
     private Neo4jOperations neo4jOperations;
+    @Autowired
+    private LikedPostsCache likedPostsCache;
 
     public PostRepoNeo4j getPostRepoNeo4j() {
         return postRepoNeo4j;
@@ -112,4 +114,49 @@ public class PostDBNeo4j {
         }
         return posts;
     }
+
+    public void addLikePost(String username, String postId) {
+        try {
+            if (!likedPostsCache.hasLiked(username, postId)) {
+                postRepoNeo4j.addLike(username, postId);
+                likedPostsCache.addLike(username, postId);
+            }
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            System.err.println("Error adding like from user " + username + " to post " + postId + ": " + ex.getMessage());
+        }
+    }
+
+    public void removeLikePost(String username, String postId) {
+        try {
+            if (likedPostsCache.hasLiked(username, postId)) {
+                postRepoNeo4j.removeLike(username, postId);
+                likedPostsCache.removeLike(username, postId);
+            }
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            System.err.println("Error removing like from user " + username + " for post " + postId + ": " + ex.getMessage());
+        }
+    }
+
+    public boolean hasUserLikedPost(String username, String postId) {
+        try {
+            // Prima controlla la cache
+            if (likedPostsCache.hasLiked(username, postId)) {
+                return true;
+            }
+            // Se non è in cache, controlla il database Neo4j
+            boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
+            if (hasLiked) {
+                likedPostsCache.addLike(username, postId); // Aggiorna la cache
+            }
+            return hasLiked;
+
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            System.err.println("Error checking like status for user " + username + " on post " + postId + ": " + ex.getMessage());
+            return false; // In caso di errore, restituisce false
+        }
+    }
+
 }

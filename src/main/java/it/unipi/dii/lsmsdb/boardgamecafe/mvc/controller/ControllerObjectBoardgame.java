@@ -7,6 +7,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javafx.scene.image.Image;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
@@ -28,7 +30,7 @@ public class ControllerObjectBoardgame {
 
     // Caching in memory per le immagini, migliora l'efficienza dell'applicazione ed evita l'eventuale
     // scaricamento multiplo di una stessa immagine dal server
-    private static final Map<String, Image> imageCache = new HashMap<>();
+    private static final Map<String, Image> imageCache = new ConcurrentHashMap<>();
 
     public void setData(BoardgameModelMongo boardgame) {
 
