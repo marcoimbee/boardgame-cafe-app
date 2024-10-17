@@ -172,6 +172,17 @@ public class BoardgamecafeApplication {
             System.out.println("Nessun post con più like trovato.");
         }
 
+        // Test del metodo findCountriesWithMostUsers
+        System.out.println("\n- Countries With Most Users -");
+        try {
+            Document countriesMostUsers = userDBMongo.
+                    findCountriesWithMostUsers(10);  // Ad esempio, minimo 10 recensioni e top 5 risultati
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(countriesMostUsers.toJson());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching countries: " + ex.getMessage());
+        }
+
         // Test del metodo findTopRatedBoardgamesPerYear
         System.out.println("\n- Top Rated Boardgames per Year -");
         try {
