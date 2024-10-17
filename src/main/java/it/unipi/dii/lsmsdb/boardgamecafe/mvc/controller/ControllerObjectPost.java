@@ -1,9 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
-import it.unipi.dii.lsmsdb.boardgamecafe.utils.LikedPostsCache;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -41,7 +40,7 @@ public class ControllerObjectPost {
     private PostService postService; // Iniezione del servizio
 
     @Autowired
-    private LikedPostsCache postLikes;
+    private PostDBNeo4j postDBNeo4j;
 
     public ControllerObjectPost() {
     }
@@ -85,7 +84,7 @@ public class ControllerObjectPost {
     }
 
     private void updateLikesLabel(String postId) {
-        int likeCount = postLikes.getLikeCount(postId);
+        int likeCount = postDBNeo4j.findTotalLikesByPostID(postId);
         likesLabel.setText(String.valueOf(likeCount));
     }
 
