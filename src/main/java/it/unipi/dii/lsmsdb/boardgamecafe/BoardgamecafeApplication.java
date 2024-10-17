@@ -5,11 +5,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostRepoMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepoMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
@@ -22,6 +19,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 //Spring Components
+import org.bson.Document;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -112,6 +110,8 @@ public class BoardgamecafeApplication {
     private PostDBMongo postDBMongo;
     @Autowired
     private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
+    @Autowired
+    private BoardgameDBMongo boardgameDBMongo;
 
     public static void main(String[] args)
     {
@@ -170,6 +170,17 @@ public class BoardgamecafeApplication {
             System.out.println(optionalPost);
         } else {
             System.out.println("Nessun post con più like trovato.");
+        }
+
+        // Test del metodo findTopRatedBoardgamesPerYear
+        System.out.println("\n- Top Rated Boardgames per Year -");
+        try {
+            Document topRatedBoardgames = boardgameDBMongo.
+                    findTopRatedBoardgamesPerYear(10, 5);  // Ad esempio, minimo 10 recensioni e top 5 risultati
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(topRatedBoardgames.toJson());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching top-rated boardgames: " + ex.getMessage());
         }
 
 
