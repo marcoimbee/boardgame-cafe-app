@@ -159,4 +159,39 @@ public class PostDBNeo4j {
         }
     }
 
+    public int findTotalLikesByPostID(String postId) {
+        try {
+            // Prima controlla nella cache
+            int likeCount = likedPostsCache.getLikeCount(postId);
+            if (likeCount > 0) {
+                return likeCount;
+            }
+
+            // Se non è presente nella cache, controlla il database Neo4j
+            int totalLikes = postRepoNeo4j.findPostLikesById(postId);
+
+            // Aggiorna la cache con il conteggio ottenuto dal DB
+            likedPostsCache.updateLikeCount(postId, totalLikes);
+
+            return totalLikes;
+
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            System.err.println("Error retrieving total likes for post " + postId + ": " + ex.getMessage());
+            return 0; // In caso di errore, restituisce 0
+        }
+    }
+
+    public PostModelNeo4j findPostWithMostLikes() {
+        PostModelNeo4j mostLikedPost = null;
+        try {
+            mostLikedPost = postRepoNeo4j.findMostLikedPost();
+        } catch (Exception ex) {
+            ex.printStackTrace(); // Gestisce eventuali eccezioni
+        }
+        return mostLikedPost;
+    }
+
+
+
 }
