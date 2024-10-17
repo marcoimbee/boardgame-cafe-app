@@ -6,12 +6,23 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
 public class BoardgameDBMongo {
@@ -113,6 +124,42 @@ public class BoardgameDBMongo {
         }
         return boardgames;
     }
+
+    public Document findTopRatedBoardgamesPerYear(int minReviews, int results) {
+        // Step 1: Scomponi il campo delle recensioni
+        UnwindOperation unwindOperation = unwind("reviews");
+
+        // (Stage_1) Step 2: Raggruppa per anno di rilascio e per ID del gioco
+        GroupOperation groupOperation = group("$releaseYear", "$_id")
+                .avg("$reviews.rating").as("avgRating")
+                .count().as("numReviews");
+
+        // (Stage_2) Step 3: Filtra solo i giochi con un numero minimo di recensioni
+        MatchOperation matchOperation = match(new Criteria("numReviews").gte(minReviews));
+
+        // (Stage_3) Step 4: Proietta i risultati per ottenere il nome del gioco, l'anno e il numero di recensioni
+        ProjectionOperation projectionOperation = project()
+                .andExpression("_id.releaseYear").as("year")
+                .andExpression("_id").as("boardgameId")
+                .andExclude("_id").andExpression("numReviews").as("reviews")
+                .and(ArithmeticOperators.Round.roundValueOf("avgRating").place(1)).as("rating");
+
+        // (Stage_4) Step 5: Ordina per punteggio medio e numero di recensioni in ordine decrescente
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "rating", "reviews"));
+
+        // Step 6: Limita i risultati a un certo numero (es. i top risultati)
+        LimitOperation limitOperation = limit(results);
+
+        // Step 7: Definisci l'aggregazione completa
+        Aggregation aggregation = newAggregation(unwindOperation, groupOperation, matchOperation, projectionOperation, sortOperation, limitOperation);
+
+        // Step 8: Esegui l'aggregazione sulla collezione di giochi da tavolo
+        AggregationResults<BoardgameModelMongo> result = mongoOperations.aggregate(aggregation, "boardgames", BoardgameModelMongo.class);
+
+        // Step 9: Restituisci i risultati grezzi
+        return result.getRawResults();
+    }
+
 
 
 }
