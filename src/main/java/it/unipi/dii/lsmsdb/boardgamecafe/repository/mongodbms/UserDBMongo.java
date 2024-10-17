@@ -7,11 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
+import java.util.*;
+
+import static com.mongodb.client.model.Aggregates.group;
 
 @Component
 public class UserDBMongo {
@@ -123,4 +121,45 @@ public class UserDBMongo {
         return result;
     }
 
+    // Show average age of users per country
+
+    public List<List> showUserAvgAgeByNationality() // Come deve essere il tipo di ritorno? Mi aspetto che sia una lista di "Nationality, AvgAge"
+    {
+        // Calcolo la proiezione dell'età, calcolata come differenza delle date [ birthday - oggi ]
+        ProjectionOperation computeAge = Aggregation.project()
+                .andExpression("{$dateDiff: {birthDate: '$dateOfBirth', today: '$$NOW', unit: 'year'}}")
+                .as("age");
+
+        GroupOperation groupByCountry = Aggregation.group("nationality") // Raggruppo per Nazionalità e mostro l'età
+                .avg("age").as("averageAge");
+
+        ProjectionOperation projectFields = Aggregation.project("averageAge")
+                .and("$_id").as("nationality");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                computeAge,
+                groupByCountry,
+                projectFields
+        );
+
+        AggregationResults<List> results = mongoOperations.aggregate(
+                aggregation, "users", List.class);
+
+        return results.getMappedResults();
+
+    }
+
+    // Show the countries from which the highest number of users comes from
+    public List<String> getCountriesWithHighestUsersCount(int howMany) {
+        GroupOperation groupByNationality = Aggregation.group("nationality").count().as("userCount");
+        SortOperation sortByUserCountDesc = sort(Sort.Direction.DESC, "userCount");
+        LimitOperation limitResults = limit(howMany);
+        ProjectionOperation projectNationalityOnly = project("nationality");
+
+        Aggregation aggregation = newAggregation(groupByNationality, sortByUserCountDesc, limitResults, projectNationalityOnly);
+
+        AggregationResults<String> results = mongoOperations.aggregate(aggregation, "users", String.class);
+
+        return results.getMappedResults();
+    }
 }
