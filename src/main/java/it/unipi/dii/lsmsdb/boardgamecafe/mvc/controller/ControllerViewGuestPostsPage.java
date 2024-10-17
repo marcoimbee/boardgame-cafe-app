@@ -2,9 +2,11 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -57,11 +59,14 @@ public class ControllerViewGuestPostsPage implements Initializable {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
+    private PostDBNeo4j PostDBNeo4j;
+    @Autowired
     private ControllerObjectPost controllerObjectPost;
     private final StageManager stageManager;
 
     //Post Variables
     private List<PostModelMongo> posts = new ArrayList<>();
+    private List<PostModelNeo4j> postsNeo4j = new ArrayList<>();
     private PostListener postListener;
 
     //Utils Variables
@@ -201,7 +206,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
 
     private List<PostModelMongo> getData(){
 
-        List<PostModelMongo> posts =
+            List<PostModelMongo> posts =
                 postDBMongo.findRecentPosts(LIMIT, skipCounter);
 
         prevNextButtonsCheck(posts);

@@ -41,6 +41,10 @@ public class LikedPostsCache {
     public int getLikeCount(String postId) { // Ottieni il conteggio totale dei like per un post
         return likeCounts.getOrDefault(postId, 0);
     }
+    // Imposta manualmente il conteggio dei like per un post
+    public void updateLikeCount(String postId, int likeCount) {
+        likeCounts.put(postId, likeCount);
+    }
 
     public void clearCache() { // Pulisce la cache (se necessario)
         likedPosts.clear();

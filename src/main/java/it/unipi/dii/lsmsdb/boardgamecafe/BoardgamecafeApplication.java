@@ -1,11 +1,16 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameRepoNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserRepoNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostRepoMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserRepoMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
@@ -27,7 +32,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.util.List;
+import java.util.Optional;
 
+
+/*
 // ############################## MAIN FOR GUI- BoardgamecafeApplication_Config ##############################
 @SpringBootApplication
 public class BoardgamecafeApplication extends Application{
@@ -71,38 +80,38 @@ public class BoardgamecafeApplication extends Application{
         return builder.run(args);
     }
 }
-
+*/
 
 // ****************************** MAIN NOT FOR GUI - SpringOnly_Config ******************************
 
-/*
-@SpringBootApplication  //extends Application
+@SpringBootApplication  //extends Application removed
 public class BoardgamecafeApplication {
 
     @Autowired
     Driver driver; //Used in version without Interface Repository
 
     @Autowired
-    private UserDBNeo4j userNeo4jDB;
-
+    private UserRepoMongo userRepoMongo;
     @Autowired
-    private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
+    private UserDBMongo userDBMongo;
     @Autowired
     private UserRepoNeo4j userRepositoryNeo4j;
     @Autowired
-    private UserRepoMongo mongoRepository;
+    private UserDBNeo4j userNeo4jDB;
     @Autowired
     private UserService serviceUser;
-    private ModelBean modelBean = new ModelBean();
-    private static final BoardgamecafeApplication singleton = new BoardgamecafeApplication();
-
-    public static BoardgamecafeApplication getInstance() {
-        return singleton;
-    }
-    public ModelBean getModelBean() {
-        return modelBean;
-    }
-
+    @Autowired
+    private PostService servicePost;
+    @Autowired
+    private PostRepoNeo4j postRepoNeo4j;
+    @Autowired
+    private PostDBNeo4j postDBNeo4j;
+    @Autowired
+    private PostRepoMongo postRepoMongo;
+    @Autowired
+    private PostDBMongo postDBMongo;
+    @Autowired
+    private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
 
     public static void main(String[] args)
     {
@@ -115,51 +124,87 @@ public class BoardgamecafeApplication {
     @EventListener(ApplicationReadyEvent.class)
     public void afterTheStart()
     {
-        // ------ Test Operations on BoardGameCafeDB ------
+            // ------ Test Operations on BoardGameCafeDB ------
 
-    String username = "whitekoala768";
-    String username2 = "johnny.test30";
-    String bordgameName ="Monopoly";
-    String idUser = "655f83770b0a94c33a977526";
-    String idUser2 = "865l9633f0l96v33a2569885";
-
-
-    UserModelMongo userMongo = serviceUser.createUser(username2, "giovanni_testemail@example.com",
-            "24681012","Giovanni","Test","male",
-            "IT","NotBanned",1974,06,11);
-
-    UserModelNeo4j userNeo4j = new UserModelNeo4j(userMongo.getId(), userMongo.getUsername());
-
-        System.out.println(" \n- New user added within MongoDB and Neo4j -\n");
-                serviceUser.insertUser(userMongo, userNeo4j);
-
-                //serviceUser.deleteUser(userMongo);
-                //System.out.println(" \n- The user" + username2 + " DELETED from both MongoDB and Neo4j dbms -\n");
+        //General variable used for hard-coded version (Into old test-code of this main)
+        String username = "whitekoala768";
+        String username2 = "johnny.test30";
+        String bordgameName ="Monopoly";
+        String idUser = "655f83770b0a94c33a977526";
+        String idUser2 = "865l9633f0l96v33a2569885";
 
 
-                // *************** MongoDB Operations Management ***************
+        // ************************** (Begin) New Test-Code Section **************************
 
-                //System.out.println(" \n- Shown below are all users within MongoDB -\n");
-                //mongoRepository.findAll().forEach(System.out::println);
+        System.out.println("\n-----------------------LOADING-DATA----------------------------");
 
-                System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
-                System.out.println("- Reference USERNAME: " + username2 + "\n");
-                System.out.println(mongoRepository.findByUsername(username2));
+        System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
+        System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
+        Optional<PostModelMongo> optionalPost = servicePost.showMostLikedPost();
+        if (optionalPost.isPresent()) {
+            // Estrai l'oggetto PostModelMongo dall'Optional container
+            PostModelMongo post = optionalPost.get();
+
+            // Così facendo posso accedere agli attributi dell'oggetto PostModelMongo
+            String bestPostId = post.getId();
+            String bestPostTitle = post.getTitle();
+            String bestPostAuthorName = post.getUsername();
+            List<CommentModelMongo> comments = post.getComments();
+            int numComment = 0;
+            int totalPostLikes = postDBNeo4j.findTotalLikesByPostID(bestPostId);
+
+            System.out.println("\n-- Main Infos Best-Post extracted from Optional:");
+            System.out.println("Post ID: " + bestPostId);
+            System.out.println("Post Title: " + bestPostTitle);
+            System.out.println("Post's Author Username: " + bestPostAuthorName);
+            System.out.println("Total Likes: " + totalPostLikes);
+            System.out.println("\nPost's Comments: ");
+            if (comments.isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Comments Added");
+            }
+            for (CommentModelMongo comment: comments) {
+                System.out.println("    " + " - "+ ++numComment +")"+" Comment's Author: " + comment.getUsername());
+                System.out.println("    " + "              Body: " + comment.getText());
+            }
+            System.out.println("\nFull 'Optional' Raw Data-Structure Object:");
+            System.out.println(optionalPost);
+        } else {
+            System.out.println("Nessun post con più like trovato.");
+        }
 
 
-                // *************** Neo4jDB Operations Management ***************
+        // ************************** (EndOf) New Test-Code Section **************************
 
 
-        //System.out.println(" \n- Shown below is one user and its followers list within Neo4jDB (By ID) -\n");
-        //try (var session = driver.session()){
-            //session.run("MATCH (u1:User {id: '655f83770b0a94c33a977526'})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2.username as username").list().forEach(r ->{
-                //System.out.println((r.get("username")));
-            //});
-        //}
+        //UserModelMongo userMongo =
+        //              serviceUser.createUser(username2, "giovanni_testemail@example.com",
+        //                                      "24681012","Giovanni","Test","male",
+        //                                      "IT","NotBanned",1974,06,11);
+
+        //UserModelNeo4j userNeo4j = new UserModelNeo4j(userMongo.getId(), userMongo.getUsername());
+
+        // System.out.println(" \n- New user added within MongoDB and Neo4j -\n");
+        //serviceUser.insertUser(userMongo, userNeo4j);
+
+        //serviceUser.deleteUser(userMongo);
+        //System.out.println(" \n- The user" + username2 + " DELETED from both MongoDB and Neo4j dbms -\n");
 
 
-        //for(UserNeo4j users: userRepositoryNeo4j.findAll())
-        //{
+        // *************** MongoDB Operations Management ***************
+
+        //System.out.println(" \n- Shown below are all users within MongoDB -\n");
+        //mongoRepository.findAll().forEach(System.out::println);
+
+        //System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
+        //System.out.println("- Reference USERNAME: " + username2 + "\n");
+        //System.out.println(mongoRepository.findByUsername(username2));
+
+
+        // *************** Neo4jDB Operations Management ***************
+
+
+            //for(UserNeo4j users: userRepositoryNeo4j.findAll())
+            //{
             //System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
 
             //System.out.println(" " + "# List of ' BOARDGAMES ' added: \n");
@@ -189,24 +234,6 @@ public class BoardgamecafeApplication {
                 //System.out.println("    " + " - Follower: " + follower.getUsername());
             //}
         //}
-
-                //UserNeo4j user = userRepositoryNeo4j.findByUsername(username);
-                //System.out.println(user);
-
-
-        //Direct Test of the method Inside Repository Interface
-        //System.out.println(userRepositoryNeo4j.findFollowersByUsername(username));
-        //System.out.println(userRepositoryNeo4j.findUsersByBoardgameName(bordgameName));
-        //System.out.println(boardgameRepositoryNeo4j.findBoardgamesByUsername(username));
-
-        //Indirect Test of the method Inside Repository Interface
-        //System.out.println(userNeo4jDB.getFollowing(username));
-
-
-        //System.out.println("\n- Shown below is a specifc user into Neo4jDB filtered out by username -");
-        //System.out.println("- Reference USERNAME: " + username2 + "\n");
-        //System.out.println(userRepositoryNeo4j.findByUsername(username2));
-
     }
-}
-*/
+
+}   //EOF Main SpringOnly Configuration
