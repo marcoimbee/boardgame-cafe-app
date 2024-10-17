@@ -176,7 +176,7 @@ public class BoardgamecafeApplication {
         System.out.println("\n- Countries With Most Users -");
         try {
             Document countriesMostUsers = userDBMongo.
-                    findCountriesWithMostUsers(10);  // Ad esempio, minimo 10 recensioni e top 5 risultati
+                    findCountriesWithMostUsers(10);  // valore per limitare i risultati
             System.out.println("\nResults from Aggregation:");
             System.out.println(countriesMostUsers.toJson());
         } catch (Exception ex) {
