@@ -1,6 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
@@ -144,5 +143,49 @@ public class PostService {
             return false; // Restituisce false in caso di errore
         }
     }
+
+    public Optional<PostModelMongo> showMostLikedPost() {
+        try {
+            // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
+            PostModelNeo4j mostLikedPost = postDBNeo4j.findPostWithMostLikes();
+
+            // Se il post con più like esiste, recupera da MongoDB lo stesso post utilizzando il suo ID
+            if (mostLikedPost != null) {
+                // Usa il metodo findById per ottenere il post dal database Mongo
+                return postDBMongo.findById(mostLikedPost.getId());
+            } else {
+                return Optional.empty(); // Restituisce un Optional vuoto se non ci sono post (meglio del null in questo caso)
+            }
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            logger.error("Error fetching most liked post: " + ex.getMessage());
+            return Optional.empty(); // Restituisce un Optional vuoto in caso di errore
+        }
+    }
+
+    /* *
+     * Workflow per metodo che ritornerà i post con più like, da mettere
+     * in un controller creato ad-hoc per visualizzarlo.
+     * */
+
+    /*Repos*/
+    //1) Scrivere un metodo 'findMostLikedPost' in postDBneo4j per ottenere il post con più likes
+    //2) Sfruttare il metodo 'findByID' in postDBMongo per ottenere il post tramite il relativo id
+
+    /*Services*/
+    //Scrivere un service 'showMostLikedPost' che tramite autowired di entrambi i precedenti elementi di repos
+    // permette di ottenere da neo4j il post con più likes ed il suo id, così da usarlo per ottenere
+    // il relativo post da mongo. (Fondamentale per l'oggetto da visualizzare in grafica
+    //                              perchè deve contenere tutte le info del post che stanno in Mongo)
+
+    /*Controller*/
+    //Implementare il tutto in una vista ad-hoc per visualizzare il post con più likes, ad esempio
+    //  inserendo nella schermata dei posti una sezione "Visualizza il post con più likes" oppure
+    // "Visualizza il post più Influente".
+
+    //N.B. Il criterio di scelta del best-post si basa sul numero di likes che un post ha ricevuto.
+    // Maggiore sarà il numero di likes, maggiore sarà l'indice di gradimento/influenza di quel post
+    // per essere scelto come tale.
+
 
 }
