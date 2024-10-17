@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 
+import org.bson.Document;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -12,6 +13,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
 public class UserDBMongo {
@@ -122,5 +131,33 @@ public class UserDBMongo {
         }
         return result;
     }
+
+    public Document findCountriesWithMostUsers(int number) {
+
+        // Step 1: Filtro i documenti per garantire che si tratti di utenti
+        MatchOperation matchOperation = match(new Criteria("_class").is("user"));
+
+        // Step 2: Raggruppa gli utenti per paese e conta quanti utenti ci sono per ciascun paese
+        GroupOperation groupOperation = group("nationality")
+                .count().as("numUsers");  // Conta il numero di utenti per paese
+
+        // Step 3: Ordina i paesi in base al numero di utenti in ordine decrescente
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numUsers"));
+
+        // Step 4: Limita i risultati al numero specificato
+        LimitOperation limitOperation = limit(number);
+
+        ProjectionOperation projectionOperation = project()
+                .andExpression("_id").as("nationality")  // Proietta l'id come paese
+                .andExpression("numUsers").as("numUsers");  // Proietta il numero di utenti
+
+        Aggregation aggregation = newAggregation(matchOperation, groupOperation, sortOperation, limitOperation, projectionOperation);
+
+        AggregationResults<UserDBMongo> result = mongoOperations
+                .aggregate(aggregation, "users", UserDBMongo.class);
+
+        return result.getRawResults();
+    }
+
 
 }
