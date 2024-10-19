@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static com.mongodb.client.model.Aggregates.group;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -132,30 +130,34 @@ public class UserDBMongo {
 
     // Show average age of users per country
 
-    public List<List> showUserAvgAgeByNationality() // Come deve essere il tipo di ritorno? Mi aspetto che sia una lista di "Nationality, AvgAge"
+    public Optional<Document> showUserAvgAgeByNationality()
     {
+        MatchOperation matchOperation = match(new Criteria("_class").is("user"));
+
         // Calcolo la proiezione dell'età, calcolata come differenza delle date [ birthday - oggi ]
         ProjectionOperation computeAge = Aggregation.project()
-                .andExpression("{$dateDiff: {birthDate: '$dateOfBirth', today: '$$NOW', unit: 'year'}}")
-                .as("age");
+                .andExpression("{$dateDiff: {startDate: '$dateOfBirth', endDate: '$$NOW', unit: 'year'}}")
+                .as("age")
+                .andExpression("nationality").as("nationality");
 
         GroupOperation groupByCountry = Aggregation.group("nationality") // Raggruppo per Nazionalità e mostro l'età
                 .avg("age").as("averageAge");
 
         ProjectionOperation projectFields = Aggregation.project("averageAge")
-                .and("$_id").as("nationality");
+                .andExpression("_id").as("nationality")
+                .andExpression("averageAge").as("averageAge")
+                .and(ArithmeticOperators.Round.roundValueOf("averageAge").place(1)).as("averageAge");
 
         Aggregation aggregation = Aggregation.newAggregation(
+                matchOperation,
                 computeAge,
                 groupByCountry,
                 projectFields
         );
 
-        AggregationResults<List> results = mongoOperations.aggregate(
-                aggregation, "users", List.class);
+        AggregationResults<UserModelMongo> results = mongoOperations.aggregate(aggregation, "users", UserModelMongo.class);
 
-        return results.getMappedResults();
-
+        return Optional.ofNullable(results != null ? results.getRawResults() : null);
     }
 
     // Show the countries from which the highest number of users comes from
@@ -171,14 +173,14 @@ public class UserDBMongo {
 
         return results.getMappedResults();
     }
+
     public Document findCountriesWithMostUsers(int number) {
 
         // Step 1: Filtro i documenti per garantire che si tratti di utenti
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
         // Step 2: Raggruppa gli utenti per paese e conta quanti utenti ci sono per ciascun paese
-        GroupOperation groupOperation = group("nationality")
-                .count().as("numUsers");  // Conta il numero di utenti per paese
+        GroupOperation groupOperation = group("nationality").count().as("numUsers");  // Conta il numero di utenti per paese
 
         // Step 3: Ordina i paesi in base al numero di utenti in ordine decrescente
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numUsers"));
@@ -232,6 +234,13 @@ public class UserDBMongo {
         AggregationResults<UserModelMongo> result = mongoOperations.aggregate(aggregation, "users", UserModelMongo.class);
 
         return result.getRawResults();
+    }
+
+    public List<String> showMostActiveCountries() // Show Most Active Countries
+    {
+
+
+        return null;
     }
 
 
