@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import javax.print.Doc;
 import java.util.*;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -182,5 +183,33 @@ public class PostDBMongo {
         AggregationResults<PostModelMongo> results = mongoOperations.aggregate(aggregation, "posts", PostModelMongo.class);
 
         return results.getMappedResults();
+    }
+
+    // Show the tag of Post that is the most commented. (admin)
+    public Optional<String> getMostCommentedTag() {
+        ProjectionOperation projectionOperation = Aggregation.project("tag")
+                .and(ArrayOperators.Size.lengthOfArray("comments")).as("commentCount");
+
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "commentCount"));
+
+        LimitOperation limitOperation = Aggregation.limit(1);
+
+        ProjectionOperation finalProjection = Aggregation.project("tag");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                projectionOperation,
+                sortOperation,
+                limitOperation,
+                finalProjection
+        );
+
+        AggregationResults<Document> result = mongoOperations.aggregate(aggregation, "posts", Document.class);
+
+        Document doc = result.getUniqueMappedResult();
+        if (doc != null) {
+            return Optional.ofNullable(doc.getString("tag"));
+        }
+
+        return Optional.empty();
     }
 }
