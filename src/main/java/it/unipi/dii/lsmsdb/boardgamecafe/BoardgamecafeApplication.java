@@ -20,6 +20,7 @@ import org.springframework.expression.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 
 /*
@@ -227,6 +228,18 @@ public class BoardgamecafeApplication {
         }
 
 
+
+        // Test del metodo showUserAvgAgeByNationality
+        System.out.println("\n- AVERAGE AGE FOR EACH COUNTRY -");
+        try {
+            Optional<Document> docAvgAgeByNationalityList = userDBMongo.showUserAvgAgeByNationality();
+            Document avgAgeByNationalityList = docAvgAgeByNationalityList.get();
+            System.out.println("\nResults: ");
+            System.out.println(avgAgeByNationalityList.toJson());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching showUserAvgAgeByNationality: " + ex.getMessage());
+        }
+        
 
 
         // ************************** (EndOf) New Test-Code Section **************************

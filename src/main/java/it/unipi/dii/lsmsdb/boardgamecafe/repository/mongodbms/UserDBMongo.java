@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import java.util.*;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -132,14 +134,59 @@ public class UserDBMongo {
         return result;
     }
 
+    // Show average age of users per country
+
+    public Optional<Document> showUserAvgAgeByNationality()
+    {
+        MatchOperation matchOperation = match(new Criteria("_class").is("user"));
+
+        // Calcolo la proiezione dell'età, calcolata come differenza delle date [ birthday - oggi ]
+        ProjectionOperation computeAge = Aggregation.project()
+                .andExpression("{$dateDiff: {startDate: '$dateOfBirth', endDate: '$$NOW', unit: 'year'}}")
+                .as("age")
+                .andExpression("nationality").as("nationality");
+
+        GroupOperation groupByCountry = Aggregation.group("nationality") // Raggruppo per Nazionalità e mostro l'età
+                .avg("age").as("averageAge");
+
+        ProjectionOperation projectFields = Aggregation.project("averageAge")
+                .andExpression("_id").as("nationality")
+                .andExpression("averageAge").as("averageAge")
+                .and(ArithmeticOperators.Round.roundValueOf("averageAge").place(1)).as("averageAge");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchOperation,
+                computeAge,
+                groupByCountry,
+                projectFields
+        );
+
+        AggregationResults<UserModelMongo> results = mongoOperations.aggregate(aggregation, "users", UserModelMongo.class);
+
+        return Optional.ofNullable(results != null ? results.getRawResults() : null);
+    }
+
+    // Show the countries from which the highest number of users comes from
+    public List<String> getCountriesWithHighestUsersCount(int howMany) {
+        GroupOperation groupByNationality = Aggregation.group("nationality").count().as("userCount");
+        SortOperation sortByUserCountDesc = sort(Sort.Direction.DESC, "userCount");
+        LimitOperation limitResults = limit(howMany);
+        ProjectionOperation projectNationalityOnly = project("nationality");
+
+        Aggregation aggregation = newAggregation(groupByNationality, sortByUserCountDesc, limitResults, projectNationalityOnly);
+
+        AggregationResults<String> results = mongoOperations.aggregate(aggregation, "users", String.class);
+
+        return results.getMappedResults();
+    }
+
     public Document findCountriesWithMostUsers(int number) {
 
         // Step 1: Filtro i documenti per garantire che si tratti di utenti
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
         // Step 2: Raggruppa gli utenti per paese e conta quanti utenti ci sono per ciascun paese
-        GroupOperation groupOperation = group("nationality")
-                .count().as("numUsers");  // Conta il numero di utenti per paese
+        GroupOperation groupOperation = group("nationality").count().as("numUsers");  // Conta il numero di utenti per paese
 
         // Step 3: Ordina i paesi in base al numero di utenti in ordine decrescente
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numUsers"));
@@ -195,6 +242,10 @@ public class UserDBMongo {
         return result.getRawResults();
     }
 
+    public List<String> showMostActiveCountries() // Show Most Active Countries
+    {
 
 
+        return null;
+    }
 }

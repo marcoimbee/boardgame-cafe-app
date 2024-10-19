@@ -216,6 +216,7 @@ public class UserService {
         }
         return removeUserReviews(user) && removeUserPosts(username) && removeUserComments(username);
     }
+
     public boolean deleteUser(UserModelMongo user) {
         String username = user.getUsername();
 
