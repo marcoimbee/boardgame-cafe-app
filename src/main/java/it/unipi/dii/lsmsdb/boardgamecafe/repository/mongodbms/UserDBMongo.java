@@ -159,5 +159,42 @@ public class UserDBMongo {
         return result.getRawResults();
     }
 
+    public Document findActiveUsersByReviews(Date startDate, Date endDate, int limtResults) {
+
+        // Step 1: Filtrare le recensioni pubblicate nell'intervallo temporale specificato
+        MatchOperation matchOperation = match(Criteria.where("reviews.dateOfReview")
+                .gte(startDate)
+                .lte(endDate));
+
+        // Step 2: Scomporre il campo delle recensioni
+        UnwindOperation unwindOperation = unwind("reviews");
+
+        // Step 3: Raggruppare per utente, contare le recensioni e calcolare il tempo tra le recensioni
+        GroupOperation groupOperation = group("username")
+                .count().as("reviewCount")  // Conta il numero di recensioni per utente
+                .avg("reviews.dateOfReview").as("averageTimeBetweenReviews"); // Media del tempo tra una recensione e l'altra
+
+        // Step 4: Proiettare i risultati includendo l'ID dell'utente, il numero di recensioni e il tempo medio
+        ProjectionOperation projectionOperation = project()
+                .andExpression("_id").as("username")
+                .andExpression("reviewCount").as("reviewCount")
+                .andExclude("_id").and("averageTimeBetweenReviews").as("avgReviewTime");
+
+        // Step 5: Ordinare per numero di recensioni e tempo medio tra le recensioni (frequenza)
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "reviewCount").
+                and(Sort.by(Sort.Direction.ASC, "avgReviewTime"))); // Più recensioni e minore tempo tra le recensioni
+
+        LimitOperation limitOperation = limit(limtResults);
+
+        // Step 6: Definire l'aggregazione completa
+        Aggregation aggregation = newAggregation(matchOperation, unwindOperation, groupOperation, projectionOperation, sortOperation, limitOperation);
+
+        // Step 7: Eseguire l'aggregazione e restituire i risultati
+        AggregationResults<UserModelMongo> result = mongoOperations.aggregate(aggregation, "users", UserModelMongo.class);
+
+        return result.getRawResults();
+    }
+
+
 
 }
