@@ -208,39 +208,4 @@ public class ReviewDBMongo {
         return true;
     }
 
-    // --- ToBeChanged ---
-    /*
-    public Document findTopPhonesByRating(int minReviews, int results) {
-        GroupOperation groupOperation = group("$phoneName").avg("$rating")
-                .as("avgRating").count().as("numReviews");
-        MatchOperation matchOperation = match(new Criteria("numReviews").gte(minReviews));
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("phoneName").andExclude("_id")
-                .andExpression("numReviews").as("reviews")
-                .and(ArithmeticOperators.Round.roundValueOf("avgRating").place(1)).as("rating");
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "rating", "reviews"));
-        LimitOperation limitOperation = limit(results);
-        Aggregation aggregation = newAggregation(groupOperation, matchOperation, projectionOperation,
-                sortOperation, limitOperation);
-        AggregationResults<ReviewModelMongo> result = mongoOperations
-                .aggregate(aggregation, "reviews", ReviewModelMongo.class);
-        return result.getRawResults();
-    }
-
-    public Document findMostActiveUsers(int results) {
-        GroupOperation groupOperation = group("$username").count().as("numReviews").
-                avg("$rating").as("ratingUser");
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numReviews"));
-        LimitOperation limitOperation = limit(results);
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("username")
-                .andExpression("numReviews").as("reviews").andExclude("_id")
-                .and(ArithmeticOperators.Round.roundValueOf("ratingUser").place(1)).as("rating");
-        Aggregation aggregation = newAggregation(groupOperation, sortOperation, limitOperation,
-                projectionOperation);
-        AggregationResults<ReviewModelMongo> result = mongoOperations
-                .aggregate(aggregation, "reviews", ReviewModelMongo.class);
-        return result.getRawResults();
-    }
-    */
 }

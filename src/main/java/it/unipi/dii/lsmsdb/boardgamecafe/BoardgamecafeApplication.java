@@ -1,22 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-
 //JavaFX Components
-import javafx.application.Application;
-import javafx.stage.Stage;
 
 //Spring Components
 import org.bson.Document;
@@ -27,11 +16,10 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.expression.ParseException;
 
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /*
@@ -137,7 +125,7 @@ public class BoardgamecafeApplication {
         // ************************** (Begin) New Test-Code Section **************************
 
         System.out.println("\n-----------------------LOADING-DATA----------------------------");
-
+/*
         System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
         System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
         Optional<PostModelMongo> optionalPost = servicePost.showMostLikedPost();
@@ -170,7 +158,7 @@ public class BoardgamecafeApplication {
             System.out.println(optionalPost);
         } else {
             System.out.println("Nessun post con più like trovato.");
-        }
+        }*/
 
         // Test del metodo findCountriesWithMostUsers
         System.out.println("\n- Countries With Most Users -");
@@ -187,12 +175,58 @@ public class BoardgamecafeApplication {
         System.out.println("\n- Top Rated Boardgames per Year -");
         try {
             Document topRatedBoardgames = boardgameDBMongo.
-                    findTopRatedBoardgamesPerYear(10, 5);  // Ad esempio, minimo 10 recensioni e top 5 risultati
+                    findTopRatedBoardgamesPerYear(10, 10);  // Ad esempio, minimo 10 recensioni e top 5 risultati
             System.out.println("\nResults from Aggregation:");
             System.out.println(topRatedBoardgames.toJson());
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgames: " + ex.getMessage());
         }
+
+        // Test del metodo findTopRatedBoardgame (Based on highest score in its reviews)
+        System.out.println("\n- Top Rated Boardgames by highest score in its reviews -");
+        try {
+            Document topRatedBoardgame = boardgameDBMongo.
+                    findTopRatedBoardgames(15,10);
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(topRatedBoardgame.toJson());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
+        }
+
+        // Test del metodo findTopPostsByBoardgameName
+        // Versione con raggruppamento per titolo - ToCheck
+        System.out.println("\n- Top Posts by Boardgame Name ordered by comments number -");
+        try {
+            Document topPostsTagBased = postDBMongo.
+                    findTopPostsByBoardgameName("Catan",20);
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(topPostsTagBased.toJson());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
+        }
+
+        // Test del metodo findActiveUsersByReviews (MostActiveUsers)
+        // Formato per le date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        System.out.println("\n- Most Active Users -");
+        try {
+            // Convertire le stringhe delle date in oggetti di tipo Date
+            Date startDate = dateFormat.parse("2022-01-01");
+            Date endDate = dateFormat.parse("2022-12-31");
+
+            Document activeUsers  = userDBMongo.
+                    findActiveUsersByReviews(startDate,endDate,10);
+
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(activeUsers .toJson());
+
+        } catch (ParseException ex) {
+            System.out.println("Error parsing dates: " + ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
+        }
+
+
 
 
         // ************************** (EndOf) New Test-Code Section **************************
