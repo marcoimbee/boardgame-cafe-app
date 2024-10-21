@@ -212,11 +212,10 @@ public class BoardgamecafeApplication {
         System.out.println("\n- Most Active Users -");
         try {
             // Convertire le stringhe delle date in oggetti di tipo Date
-            Date startDate = dateFormat.parse("2022-01-01");
+            Date startDate = dateFormat.parse("1990-01-01");
             Date endDate = dateFormat.parse("2022-12-31");
 
-            Document activeUsers  = userDBMongo.
-                    findActiveUsersByReviews(startDate,endDate,10);
+            Document activeUsers  = userDBMongo.findActiveUsersByReviews(startDate,endDate,10);
 
             System.out.println("\nResults from Aggregation:");
             System.out.println(activeUsers .toJson());
