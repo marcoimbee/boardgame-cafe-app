@@ -208,30 +208,8 @@ public class BoardgamecafeApplication {
 
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         // Formato per le date
-        /*
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println("\n- Most Active Users -");
-        try {
-            // Convertire le stringhe delle date in oggetti di tipo Date
-            Date startDate = dateFormat.parse("1990-01-01");
-            Date endDate = dateFormat.parse("2022-12-31");
-
-            Document activeUsers  = userDBMongo.
-                    findActiveUsersByReviews(startDate,endDate,10);
-
-            System.out.println("\nResults from Aggregation:");
-            System.out.println(activeUsers .toJson());
-
-        } catch (ParseException ex) {
-            System.out.println("Error parsing dates: " + ex.getMessage());
-        } catch (Exception ex) {
-            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
-        }*/
-
-        // Test del metodo findActiveUsersByReviews (MostActiveUsers)
-        // Formato per le date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println("\n- Most Active Users -");
+        System.out.println("\n- 1) Old - Most Active Users -");
         try {
             // Convertire le stringhe delle date in oggetti di tipo Date
             Date startDate = dateFormat.parse("1970-01-01");
@@ -245,7 +223,7 @@ public class BoardgamecafeApplication {
             }*/
 
             List<Document> activeUsers  = userDBMongo.
-                    findActiveUsersByReviews3(startDate,endDate,10);
+                    findActiveUsersByReviews2(startDate,endDate,10);
 
             System.out.println("\nResults from Aggregation:");
             System.out.println(activeUsers.toString());
@@ -255,6 +233,26 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
+
+        // Test del metodo findActiveUsersByReviews (MostActiveUsers)
+        System.out.println("\n- 2) New - Most Active Users -");
+        try {
+            // Convertire le stringhe delle date in oggetti di tipo Date
+            Date startDate = dateFormat.parse("1970-01-01");
+            Date endDate = dateFormat.parse("2022-12-31");
+
+            Document activeUsers  = userDBMongo.
+                    findActiveUsersByReviews3(startDate,endDate,10);
+
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(activeUsers.toJson());
+
+        } catch (ParseException ex) {
+            System.out.println("Error parsing dates: " + ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
+        }
+
 
 
 
