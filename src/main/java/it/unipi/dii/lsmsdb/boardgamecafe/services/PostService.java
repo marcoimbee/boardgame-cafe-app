@@ -165,30 +165,9 @@ public class PostService {
         }
     }
 
-    /* *
-     * Workflow per metodo che ritornerà i post con più like, da mettere
-     * in un controller creato ad-hoc per visualizzarlo.
-     * */
-
-    /*Repos*/
-    //1) Scrivere un metodo 'findMostLikedPost' in postDBneo4j per ottenere il post con più likes
-    //2) Sfruttare il metodo 'findByID' in postDBMongo per ottenere il post tramite il relativo id
-
-    /*Services*/
-    //Scrivere un service 'showMostLikedPost' che tramite autowired di entrambi i precedenti elementi di repos
-    // permette di ottenere da neo4j il post con più likes ed il suo id, così da usarlo per ottenere
-    // il relativo post da mongo. (Fondamentale per l'oggetto da visualizzare in grafica
-    //                              perchè deve contenere tutte le info del post che stanno in Mongo)
-
-    /*Controller*/
-    //Implementare il tutto in una vista ad-hoc per visualizzare il post con più likes, ad esempio
-    //  inserendo nella schermata dei posti una sezione "Visualizza il post con più likes" oppure
-    // "Visualizza il post più Influente".
-
-    //N.B. Il criterio di scelta del best-post si basa sul numero di likes che un post ha ricevuto.
-    // Maggiore sarà il numero di likes, maggiore sarà l'indice di gradimento/influenza di quel post
-    // per essere scelto come tale.
-
+    // ****** ****** ****** ****** ****** ****** ****** ****** ****** ****** ******
+    // ****** To be updated in return type, for methods on which is based as well ******
+    // ****** ****** ****** ****** ****** ****** ****** ****** ****** ****** ******
     public Optional<PostModelMongo> suggestPostLikedByFollowedUsers(String currnteUser, int limitResults) {
         try {
             // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
