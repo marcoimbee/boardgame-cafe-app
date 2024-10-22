@@ -20,6 +20,7 @@ import org.springframework.expression.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -209,16 +210,43 @@ public class BoardgamecafeApplication {
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         // Formato per le date
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println("\n- Most Active Users -");
+        System.out.println("\n- 1) Old - Most Active Users -");
         try {
             // Convertire le stringhe delle date in oggetti di tipo Date
-            Date startDate = dateFormat.parse("1990-01-01");
+            Date startDate = dateFormat.parse("1970-01-01");
             Date endDate = dateFormat.parse("2022-12-31");
+/*
+            List<String> activUsers = userDBMongo.findActiveUsersByReviews3(startDate, endDate, 100);
+            System.out.println("\nResults from Aggregation:");
+            for (String json : activUsers) {
+                System.out.println(json); // Stampa il documento in formato JSON
+                // Puoi anche parsare il JSON in un oggetto specifico se necessario
+            }*/
 
-            Document activeUsers  = userDBMongo.findActiveUsersByReviews(startDate,endDate,10);
+            List<Document> activeUsers  = userDBMongo.
+                    findActiveUsersByReviews2(startDate,endDate,10);
 
             System.out.println("\nResults from Aggregation:");
-            System.out.println(activeUsers .toJson());
+            System.out.println(activeUsers.toString());
+
+        } catch (ParseException ex) {
+            System.out.println("Error parsing dates: " + ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
+        }
+
+        // Test del metodo findActiveUsersByReviews (MostActiveUsers)
+        System.out.println("\n- 2) New - Most Active Users -");
+        try {
+            // Convertire le stringhe delle date in oggetti di tipo Date
+            Date startDate = dateFormat.parse("1970-01-01");
+            Date endDate = dateFormat.parse("2022-12-31");
+
+            Document activeUsers  = userDBMongo.
+                    findActiveUsersByReviews3(startDate,endDate,10);
+
+            System.out.println("\nResults from Aggregation:");
+            System.out.println(activeUsers.toJson());
 
         } catch (ParseException ex) {
             System.out.println("Error parsing dates: " + ex.getMessage());
@@ -227,18 +255,6 @@ public class BoardgamecafeApplication {
         }
 
 
-
-        // Test del metodo showUserAvgAgeByNationality
-        System.out.println("\n- AVERAGE AGE FOR EACH COUNTRY -");
-        try {
-            Optional<Document> docAvgAgeByNationalityList = userDBMongo.showUserAvgAgeByNationality();
-            Document avgAgeByNationalityList = docAvgAgeByNationalityList.get();
-            System.out.println("\nResults: ");
-            System.out.println(avgAgeByNationalityList.toJson());
-        } catch (Exception ex) {
-            System.out.println("Error while fetching showUserAvgAgeByNationality: " + ex.getMessage());
-        }
-        
 
 
         // ************************** (EndOf) New Test-Code Section **************************
