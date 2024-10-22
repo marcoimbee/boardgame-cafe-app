@@ -37,7 +37,7 @@
                   <Font name="System Bold" size="18.0" />
                </font>
             </Button>
-            <Button layoutX="133.0" layoutY="26.0" mnemonicParsing="false" style="-fx-background-color: trasparent;" />
+            <!-- <Button layoutX="133.0" layoutY="26.0" mnemonicParsing="false" style="-fx-background-color: trasparent;" /> -->
             <Text fill="#182e58" layoutX="228.0" layoutY="84.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome!" textAlignment="CENTER" wrappingWidth="223.97265625">
                <font>
                   <Font name="System Bold Italic" size="43.0" />

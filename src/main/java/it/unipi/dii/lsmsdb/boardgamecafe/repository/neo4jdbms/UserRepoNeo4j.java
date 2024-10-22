@@ -26,4 +26,10 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u1:User)-[a:ADDS]->(b:Boardgame {name: $boardgameName}) RETURN DISTINCT u1")
     List<UserModelNeo4j> findUsersByBoardgameName(@Param("boardgameName") String boardgamename);
 
+    @Query("MATCH (me:User {username: $username})-[:WRITES]->(myPost:Post)-[:REFERS_TO]->(myBGames:Boardgame)\n" +
+            "MATCH (u:User)-[:WRITES]->(p:Post)-[:REFERS_TO]->(bgame:Boardgame {boardgameName: myBGames.boardgameName})\n" +
+            "WHERE NOT (me)-[:FOLLOWS]->(u) AND me <> u\n" +
+            "RETURN DISTINCT u.username\n" +
+            "LIMIT 10")
+    List<String> usersByCommonBoardgamePosted(@Param("username") String username);
 }

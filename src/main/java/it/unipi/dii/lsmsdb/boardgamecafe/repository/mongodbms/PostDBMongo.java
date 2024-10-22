@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -7,10 +8,9 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.*;
