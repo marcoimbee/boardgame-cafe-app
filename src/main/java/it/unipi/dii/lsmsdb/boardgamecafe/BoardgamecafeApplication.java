@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
@@ -162,6 +164,7 @@ public class BoardgamecafeApplication {
             System.out.println("Nessun post con più like trovato.");
         }*/
 
+        /*
         // Test del metodo findCountriesWithMostUsers
         System.out.println("\n- Countries With Most Users -");
         try {
@@ -172,7 +175,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching countries: " + ex.getMessage());
         }
-
+        */
+        /*
         // Test del metodo findTopRatedBoardgamesPerYear
         System.out.println("\n- Top Rated Boardgames per Year -");
         try {
@@ -183,7 +187,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgames: " + ex.getMessage());
         }
-
+        */
+        /*
         // Test del metodo findTopRatedBoardgame (Based on highest score in its reviews)
         System.out.println("\n- Top Rated Boardgames by highest score in its reviews -");
         try {
@@ -194,7 +199,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-
+        */
+        /*
         // Test del metodo findTopPostsByBoardgameName
         // Versione con raggruppamento per titolo - ToCheck
         System.out.println("\n- Top Posts by Boardgame Name ordered by comments number -");
@@ -206,35 +212,11 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-
+        */
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         // Formato per le date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println("\n- 1) Old - Most Active Users -");
-        try {
-            // Convertire le stringhe delle date in oggetti di tipo Date
-            Date startDate = dateFormat.parse("1970-01-01");
-            Date endDate = dateFormat.parse("2022-12-31");
 /*
-            List<String> activUsers = userDBMongo.findActiveUsersByReviews3(startDate, endDate, 100);
-            System.out.println("\nResults from Aggregation:");
-            for (String json : activUsers) {
-                System.out.println(json); // Stampa il documento in formato JSON
-                // Puoi anche parsare il JSON in un oggetto specifico se necessario
-            }*/
-
-            List<Document> activeUsers  = userDBMongo.
-                    findActiveUsersByReviews2(startDate,endDate,10);
-
-            System.out.println("\nResults from Aggregation:");
-            System.out.println(activeUsers.toString());
-
-        } catch (ParseException ex) {
-            System.out.println("Error parsing dates: " + ex.getMessage());
-        } catch (Exception ex) {
-            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
-        }
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         System.out.println("\n- 2) New - Most Active Users -");
         try {
@@ -253,8 +235,15 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
+        */
 
-
+        List<UserModelMongo> mySuggestedUsers = serviceUser.suggestUsersByCommonBoardgamePosted("purpleladybug916");
+        if (mySuggestedUsers.isEmpty())
+            System.out.println("mySuggestedUsers vuota");
+        for(UserModelMongo suggestedUser : mySuggestedUsers)
+        {
+            System.out.println(suggestedUser.toString());
+        }
 
 
         // ************************** (EndOf) New Test-Code Section **************************
