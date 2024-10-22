@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -187,5 +189,26 @@ public class PostService {
     // Maggiore sarà il numero di likes, maggiore sarà l'indice di gradimento/influenza di quel post
     // per essere scelto come tale.
 
+    public Optional<PostModelMongo> suggestPostLikedByFollowedUsers(String currnteUser, int limitResults) {
+        try {
+            // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
+            List<PostModelNeo4j> likedPost = postDBNeo4j.getPostsLikedByFollowedUsers(currnteUser, limitResults);
 
+            // Se il post con più like esiste, recupera da MongoDB lo stesso post utilizzando il suo ID
+            if (likedPost.isEmpty()) {
+                // Usa il metodo findById per ottenere il post dal database Mongo
+                List<Optional <PostModelMongo>> postsMongo = new ArrayList<>();
+                for (PostModelNeo4j postNeo : likedPost){
+                    postsMongo.add(postDBMongo.findById(postNeo.getId()));
+                }
+                return postsMongo;
+            } else {
+                return Optional.empty(); // Restituisce un Optional vuoto se non ci sono post (meglio del null in questo caso)
+            }
+        } catch (Exception ex) {
+            // Log dell'eccezione
+            logger.error("Error fetching most liked post: " + ex.getMessage());
+            return Optional.empty(); // Restituisce un Optional vuoto in caso di errore
+        }
+    }
 }
