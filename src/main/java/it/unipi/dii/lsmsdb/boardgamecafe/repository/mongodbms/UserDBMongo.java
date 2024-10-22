@@ -433,21 +433,13 @@ public class UserDBMongo {
         Document calculateWeightedAverage = new Document("$project",
                 new Document("reviewCount", 1)
                         //.append("orderedReviewDates", 1)
-                        .append("dateDifferences", 1)
-                        .append("averageDateDifference", 1)
-                        .append("weightedAverage", new Document("$divide", Arrays.asList(
-                                new Document("$add", Arrays.asList(
-                                        new Document("$multiply", Arrays.asList("$averageDateDifference", 0.3)),
-                                        new Document("$multiply", Arrays.asList("$reviewCount", 0.7))
-                                )),
-                                1
-                        )))
-        );
+                        //.append("dateDifferences", 1)
+                        .append("averageDateDifference", 1));
 
         // Step 8: Ordinamento e limitazione dei risultati
         SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "reviewCount")
-                .and(Sort.by(Sort.Direction.ASC, "averageDateDifference"))
-                .and(Sort.by(Sort.Direction.DESC, "weightedAverage")));
+                .and(Sort.by(Sort.Direction.ASC, "averageDateDifference")));
+                //.and(Sort.by(Sort.Direction.DESC, "weightedAverage")));
 
         LimitOperation limitOperation = Aggregation.limit(limitResults);
 
