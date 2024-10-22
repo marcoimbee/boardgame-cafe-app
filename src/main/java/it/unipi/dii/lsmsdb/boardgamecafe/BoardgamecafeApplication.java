@@ -291,7 +291,6 @@ public class BoardgamecafeApplication {
             Optional<List<BoardgameModelNeo4j>> boardGamesList = boardgameDBNeo4j.getBoardgamesWithPostsByFollowedUsers(testUsername);
             System.out.println("\nResults: ");
             if (boardGamesList.isPresent()) {
-                System.out.println("PORCO IDDIO LADRO");
                 List<BoardgameModelNeo4j> boardgameList = boardGamesList.get();
                 boardgameList.forEach(boardgame -> {
                     System.out.println("Boardgame Name: " + boardgame.getBoardgameName());
