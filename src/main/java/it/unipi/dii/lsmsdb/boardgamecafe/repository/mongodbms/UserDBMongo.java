@@ -493,8 +493,8 @@ public class UserDBMongo {
 
         // Step 8: Ordinamento e limitazione dei risultati
         SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "reviewCount")
-                .and(Sort.by(Sort.Direction.ASC, "averageDateDifference"))
-                .and(Sort.by(Sort.Direction.DESC, "weightedAverage")));
+                .and(Sort.by(Sort.Direction.ASC, "averageDateDifference")));
+                //.and(Sort.by(Sort.Direction.DESC, "weightedAverage")));
 
         LimitOperation limitOperation = Aggregation.limit(limitResults);
 
@@ -518,9 +518,5 @@ public class UserDBMongo {
         // Step 10: Convertire i risultati in una lista di Document
         return results.getRawResults();
     }
-
-
-
-
 
 }
