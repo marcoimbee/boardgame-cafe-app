@@ -1,11 +1,23 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+
 //JavaFX Components
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 //Spring Components
 import org.bson.Document;
@@ -20,6 +32,8 @@ import org.springframework.expression.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.Optional;
 import java.util.List;
 
@@ -102,6 +116,8 @@ public class BoardgamecafeApplication {
     private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
+    @Autowired
+    private BoardgameDBNeo4j boardgameDBNeo4j;
 
     public static void main(String[] args)
     {
@@ -265,6 +281,28 @@ public class BoardgamecafeApplication {
             System.out.println(avgAgeByNationalityList.toJson());
         } catch (Exception ex) {
             System.out.println("Error while fetching showUserAvgAgeByNationality: " + ex.getMessage());
+        }
+
+
+        // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
+        System.out.println("\n- SUGGESTED BOARDGAMES ABOUT WHICH USERS YOU FOLLOW HAVE POSTED -");
+        String testUsername = "tinymeercat901";
+        try {
+            Optional<List<BoardgameModelNeo4j>> boardGamesList = boardgameDBNeo4j.getBoardgamesWithPostsByFollowedUsers(testUsername);
+            System.out.println("\nResults: ");
+            if (boardGamesList.isPresent()) {
+                System.out.println("PORCO IDDIO LADRO");
+                List<BoardgameModelNeo4j> boardgameList = boardGamesList.get();
+                boardgameList.forEach(boardgame -> {
+                    System.out.println("Boardgame Name: " + boardgame.getBoardgameName());
+                    System.out.println("Thumbnail: " + boardgame.getThumbnail());
+                    System.out.println("Year Published: " + boardgame.getYearPublished());
+                });
+            } else {
+                System.out.println("No boardgames found.");
+            }
+        } catch (Exception ex) {
+            System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
         }
 
 
