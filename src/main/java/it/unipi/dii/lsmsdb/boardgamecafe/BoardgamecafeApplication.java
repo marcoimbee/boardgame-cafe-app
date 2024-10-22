@@ -1,6 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
@@ -23,7 +22,6 @@ import org.springframework.expression.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 
 /*
@@ -213,19 +211,18 @@ public class BoardgamecafeApplication {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
         */
+
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         // Formato per le date
-/*
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        // Test del metodo findActiveUsersByReviews (MostActiveUsers)
-        System.out.println("\n- 2) New - Most Active Users -");
+        System.out.println("\n- Most Active Users -");
         try {
             // Convertire le stringhe delle date in oggetti di tipo Date
             Date startDate = dateFormat.parse("1970-01-01");
             Date endDate = dateFormat.parse("2022-12-31");
 
             Document activeUsers  = userDBMongo.
-                    findActiveUsersByReviews3(startDate,endDate,10);
+                    findActiveUsersByReviews(startDate,endDate,10);
 
             System.out.println("\nResults from Aggregation:");
             System.out.println(activeUsers.toJson());
@@ -235,9 +232,14 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-        */
 
-        List<UserModelMongo> mySuggestedUsers = serviceUser.suggestUsersByCommonBoardgamePosted("purpleladybug916");
+        System.out.println("\n\n");
+
+        // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
+        //Neo4j Related
+        List<UserModelMongo> mySuggestedUsers = serviceUser.
+                suggestUsersByCommonBoardgamePosted("purpleladybug916");
+
         if (mySuggestedUsers.isEmpty())
             System.out.println("mySuggestedUsers vuota");
         for(UserModelMongo suggestedUser : mySuggestedUsers)
