@@ -193,5 +193,14 @@ public class PostDBNeo4j {
     }
 
 
-
+    public List<PostModelNeo4j> getPostsLikedByFollowedUsers(String username, int limitResults) {
+        List<PostModelNeo4j> posts = new ArrayList<>();
+        try {
+            posts = postRepoNeo4j.findPostsLikedByFollowedUsers(username, limitResults);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return posts;
+    }
 }
