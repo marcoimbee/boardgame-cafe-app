@@ -86,10 +86,10 @@ public class BoardgameDBNeo4j {
     }
 
     // Suggerisci Boardgame su cui hanno fatto post utenti che segui
-    public List<String> getBoardgamesWithPostsByFollowedUsers(String username) {
+    public List<String> getBoardgamesWithPostsByFollowedUsers(String username, int limit) {
         List<String> boardgames = new ArrayList<>();
         try {
-            boardgames = boardgameRepoNeo4j.getBoardgamesWithPostsByFollowedUsers(username);
+            boardgames = boardgameRepoNeo4j.getBoardgamesWithPostsByFollowedUsers(username, limit);
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
         }
