@@ -241,9 +241,9 @@ public class UserService {
         return true;
     }
 
-    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username)
+    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username, int limit)
     {
-        List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username);
+        List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username, limit);
         List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
         for (String suggestedUsername : suggestedNeo4jUsers )
         {

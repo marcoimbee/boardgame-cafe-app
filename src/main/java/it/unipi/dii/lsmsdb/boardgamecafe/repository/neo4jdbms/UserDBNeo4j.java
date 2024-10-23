@@ -104,11 +104,11 @@ public class UserDBNeo4j {
         return following;
     }
 
-    public List<String> getUsersByCommonBoardgamePosted(String username)
+    public List<String> getUsersByCommonBoardgamePosted(String username, int limit)
     {
         List<String> suggestedUsers = new ArrayList<>();
         try {
-            return userNeo4jDB.usersByCommonBoardgamePosted(username);
+            return userNeo4jDB.usersByCommonBoardgamePosted(username, limit);
         } catch (Exception e) {
             e.printStackTrace();
         }
