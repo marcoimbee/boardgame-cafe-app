@@ -37,6 +37,7 @@ public class PostService {
     @Autowired
     CommentDBNeo4j commentDBNeo4j;
 
+    List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
     public boolean insertPost(PostModelMongo postModelMongo, UserModelNeo4j userModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
@@ -172,11 +173,25 @@ public class PostService {
 
         List<PostModelNeo4j> postsLikedByFollowedUsers = postDBNeo4j.
                 getPostsLikedByFollowedUsers(currnteUser, limitResults);
-        List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
 
         for (PostModelNeo4j postsLikedId : postsLikedByFollowedUsers )
         {
             Optional<PostModelMongo> postMongo = postDBMongo.findById(postsLikedId.getId());
+            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
+            postMongo.ifPresent(postModelMongo -> suggestedPostsMongo.add(postModelMongo));
+        }
+
+        return suggestedPostsMongo;
+    }
+
+    public List<PostModelMongo> suggestPostCommentedByFollowedUsers(String currnteUser, int limitResults) {
+
+        List<PostModelNeo4j> postsLikedByFollowedUsers = postDBNeo4j.
+                getPostsCommentedByFollowedUsers(currnteUser, limitResults);
+
+        for (PostModelNeo4j postsCommentedId : postsLikedByFollowedUsers )
+        {
+            Optional<PostModelMongo> postMongo = postDBMongo.findById(postsCommentedId.getId());
             // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
             postMongo.ifPresent(postModelMongo -> suggestedPostsMongo.add(postModelMongo));
         }
