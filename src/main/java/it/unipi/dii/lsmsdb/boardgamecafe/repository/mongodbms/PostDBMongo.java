@@ -8,9 +8,10 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -153,6 +154,68 @@ public class PostDBMongo {
         return posts;
     }
 
+    // Show all Posts with a particular Tag (Boardgame Name) and sort them by the highest number of comments
+    public List<PostModelMongo> findMostCommentedTaggedPosts(String tag) {
+
+        MatchOperation matchOperation = match(Criteria.where("tag").is(tag));
+
+        UnwindOperation unwindOperation = unwind("comments");
+
+        GroupOperation groupOperation = group("_id")
+                .count().as("numComments")
+                .first("title").as("title")
+                .first("text").as("text")
+                .first("username").as("username")
+                .first("tag").as("tag")
+                .first("timestamp").as("timestamp");
+
+        ProjectionOperation projectionOperation = project()
+                .and("_id").as("id")
+                .and("title").as("title")
+                .and("text").as("text")
+                .and("username").as("username")
+                .and("tag").as("tag")
+                .and("timestamp").as("timestamp")
+                .and("numComments").as("comments");
+
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "comments"))
+                .and(Sort.by(Sort.Direction.ASC, "username"));
+
+        Aggregation aggregation = Aggregation.newAggregation(matchOperation, unwindOperation, groupOperation, projectionOperation, sortOperation);
+
+        AggregationResults<PostModelMongo> results = mongoOperations.aggregate(aggregation, "posts", PostModelMongo.class);
+
+        return results.getMappedResults();
+    }
+
+    // Show the tag of Post that is the most commented. (admin)
+    public Optional<String> getMostCommentedTag() {
+        ProjectionOperation projectionOperation = Aggregation.project("tag")
+                .and(ArrayOperators.Size.lengthOfArray("comments")).as("commentCount");
+
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "commentCount"));
+
+        LimitOperation limitOperation = Aggregation.limit(1);
+
+        ProjectionOperation finalProjection = Aggregation.project("tag");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                projectionOperation,
+                sortOperation,
+                limitOperation,
+                finalProjection
+        );
+
+        AggregationResults<Document> result = mongoOperations.aggregate(aggregation, "posts", Document.class);
+
+        Document doc = result.getUniqueMappedResult();
+        if (doc != null) {
+            return Optional.ofNullable(doc.getString("tag"));
+        }
+
+        return Optional.empty();
+    }
+
     public Document findTopPostsByBoardgameName(String boardgameName, int limit) {
         // Step 1: Filtra i post che contengono il tag specificato
         MatchOperation matchTagOperation = match(new Criteria("tag").is(boardgameName));
@@ -188,7 +251,4 @@ public class PostDBMongo {
         // Step 9: Restituisci i risultati grezzi
         return result.getRawResults();
     }
-
-
-
 }
