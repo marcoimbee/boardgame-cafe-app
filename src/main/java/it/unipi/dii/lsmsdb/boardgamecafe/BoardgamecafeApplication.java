@@ -28,7 +28,9 @@ import org.bson.Document;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,8 +46,9 @@ import java.util.Optional;
 import java.util.List;
 
 
-/*
+
 // ############################## MAIN FOR GUI- BoardgamecafeApplication_Config ##############################
+/*
 @SpringBootApplication
 public class BoardgamecafeApplication extends Application{
 
@@ -91,7 +94,6 @@ public class BoardgamecafeApplication extends Application{
 */
 
 // ****************************** MAIN NOT FOR GUI - SpringOnly_Config ******************************
-
 @SpringBootApplication  //extends Application removed
 public class BoardgamecafeApplication {
 
@@ -274,13 +276,43 @@ public class BoardgamecafeApplication {
         System.out.println("\n\n");
 
         // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
+        System.out.println("************ Liked Post ************");
         //Neo4j Related
-        List<PostModelMongo> suggestedPosts = servicePost.
-                suggestPostLikedByFollowedUsers("happybutterfly415", 20);
+        List<PostModelMongo> suggestedLikedPosts = servicePost.
+                suggestPostLikedByFollowedUsers("happybutterfly415", 5);
 
-        if (suggestedPosts.isEmpty())
+        if (suggestedLikedPosts.isEmpty())
             System.out.println("SuggestedPosts List vuota");
-        for(PostModelMongo suggestedPost : suggestedPosts)
+        for(PostModelMongo suggestedPost : suggestedLikedPosts)
+        {
+            List<CommentModelMongo> comments = suggestedPost.getComments();
+            System.out.println("\n\n");
+            System.out.println("******* ToString *******: ");
+            System.out.println(suggestedPost);
+            System.out.println("************************");
+            System.out.println("Title: " + suggestedPost.getTitle());
+            System.out.println("Body: " + suggestedPost.getText());
+            System.out.println("\nPost's Comments: ");
+            if (comments.isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Comments Added");
+            }
+            for (CommentModelMongo comment: comments) {
+                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+                System.out.println("    " + "              Text: " + comment.getText());
+            }
+        }
+        System.out.println("\n\n");
+
+
+        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
+        System.out.println("************ Commented Post ************");
+        //Neo4j Related
+        List<PostModelMongo> suggestedCommentedPosts = servicePost.
+                suggestPostCommentedByFollowedUsers("happybutterfly415", 5);
+
+        if (suggestedCommentedPosts.isEmpty())
+            System.out.println("SuggestedPosts List vuota");
+        for(PostModelMongo suggestedPost : suggestedCommentedPosts)
         {
             List<CommentModelMongo> comments = suggestedPost.getComments();
             System.out.println("\n\n");
@@ -317,6 +349,7 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
         }
+
 
         // ************************** (EndOf) New Test-Code Section **************************
 
