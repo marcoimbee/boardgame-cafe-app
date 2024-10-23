@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
@@ -20,6 +22,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.expression.ParseException;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -246,6 +249,36 @@ public class BoardgamecafeApplication {
         {
             System.out.println(suggestedUser.toString());
         }
+
+        System.out.println("\n\n");
+
+        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
+        //Neo4j Related
+        List<PostModelMongo> suggestedPosts = servicePost.
+                suggestPostLikedByFollowedUsers("happybutterfly415", 20);
+
+        if (suggestedPosts.isEmpty())
+            System.out.println("SuggestedPosts List vuota");
+        for(PostModelMongo suggestedPost : suggestedPosts)
+        {
+            List<CommentModelMongo> comments = suggestedPost.getComments();
+            System.out.println("\n\n");
+            System.out.println("******* ToString *******: ");
+            System.out.println(suggestedPost);
+            System.out.println("************************");
+            System.out.println("Title: " + suggestedPost.getTitle());
+            System.out.println("Body: " + suggestedPost.getText());
+            System.out.println("\nPost's Comments: ");
+            if (comments.isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Comments Added");
+            }
+            for (CommentModelMongo comment: comments) {
+                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+                System.out.println("    " + "              Text: " + comment.getText());
+            }
+        }
+
+
 
 
         // ************************** (EndOf) New Test-Code Section **************************
