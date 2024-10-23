@@ -258,7 +258,7 @@ public class BoardgamecafeApplication {
         // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
         //Neo4j Related
         List<UserModelMongo> mySuggestedUsers = serviceUser.
-                suggestUsersByCommonBoardgamePosted("purpleladybug916");
+                suggestUsersByCommonBoardgamePosted("goldengoose951", 20);
 
         if (mySuggestedUsers.isEmpty())
             System.out.println("mySuggestedUsers vuota");
@@ -268,7 +268,7 @@ public class BoardgamecafeApplication {
         }
 
         System.out.println("\n\n");
-
+        /*
         // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
         //Neo4j Related
         List<PostModelMongo> suggestedPosts = servicePost.
@@ -316,6 +316,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
         }
+
+         */
 
         // ************************** (EndOf) New Test-Code Section **************************
 
