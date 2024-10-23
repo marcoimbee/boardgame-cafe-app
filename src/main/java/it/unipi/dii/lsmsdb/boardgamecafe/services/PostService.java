@@ -1,6 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
@@ -10,6 +12,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
+import javafx.geometry.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,29 +168,19 @@ public class PostService {
         }
     }
 
-    // ****** ****** ****** ****** ****** ****** ****** ****** ****** ****** ******
-    // ****** To be updated in return type, for methods on which is based as well ******
-    // ****** ****** ****** ****** ****** ****** ****** ****** ****** ****** ******
-    public Optional<PostModelMongo> suggestPostLikedByFollowedUsers(String currnteUser, int limitResults) {
-        try {
-            // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
-            List<PostModelNeo4j> likedPost = postDBNeo4j.getPostsLikedByFollowedUsers(currnteUser, limitResults);
+    public List<PostModelMongo> suggestPostLikedByFollowedUsers(String currnteUser, int limitResults) {
 
-            // Se il post con più like esiste, recupera da MongoDB lo stesso post utilizzando il suo ID
-            if (likedPost.isEmpty()) {
-                // Usa il metodo findById per ottenere il post dal database Mongo
-                List<Optional <PostModelMongo>> postsMongo = new ArrayList<>();
-                for (PostModelNeo4j postNeo : likedPost){
-                    postsMongo.add(postDBMongo.findById(postNeo.getId()));
-                }
-                return postsMongo;
-            } else {
-                return Optional.empty(); // Restituisce un Optional vuoto se non ci sono post (meglio del null in questo caso)
-            }
-        } catch (Exception ex) {
-            // Log dell'eccezione
-            logger.error("Error fetching most liked post: " + ex.getMessage());
-            return Optional.empty(); // Restituisce un Optional vuoto in caso di errore
+        List<PostModelNeo4j> postsLikedByFollowedUsers = postDBNeo4j.
+                getPostsLikedByFollowedUsers(currnteUser, limitResults);
+        List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
+
+        for (PostModelNeo4j postsLikedId : postsLikedByFollowedUsers )
+        {
+            Optional<PostModelMongo> postMongo = postDBMongo.findById(postsLikedId.getId());
+            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
+            postMongo.ifPresent(postModelMongo -> suggestedPostsMongo.add(postModelMongo));
         }
+
+        return suggestedPostsMongo;
     }
 }
