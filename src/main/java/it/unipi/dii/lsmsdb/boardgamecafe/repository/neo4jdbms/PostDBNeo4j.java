@@ -203,4 +203,15 @@ public class PostDBNeo4j {
         }
         return posts;
     }
+
+    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(String username, int limitResults) {
+        List<PostModelNeo4j> posts = new ArrayList<>();
+        try {
+            posts = postRepoNeo4j.findPostsCommentedByFollowedUsers(username, limitResults);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return posts;
+    }
 }
