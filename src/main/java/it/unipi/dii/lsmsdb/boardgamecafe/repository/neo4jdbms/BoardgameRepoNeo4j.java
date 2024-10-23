@@ -21,6 +21,7 @@ public interface BoardgameRepoNeo4j extends Neo4jRepository<BoardgameModelNeo4j,
     @Query("MATCH (b:Boardgame {boardgameName: $boardgameName}) RETURN b")
     Optional<BoardgameModelNeo4j> findByBoardgameName(@Param("boardgameName") String boardgameName);
 
-    @Query("MATCH (you:User)-[:FOLLOWS]->(otherUser:User)-[:WRITES]->(post:Post)-[:REFERS_TO]->(game:Boardgame) WHERE you.username = $username RETURN DISTINCT game")
+    @Query("MATCH (you:User)-[:FOLLOWS]->(otherUser:User)-[:WRITES]->(post:Post)-[:REFERS_TO]->(game:Boardgame)" +
+            "WHERE you.username = $username RETURN DISTINCT game")
     Optional<List<BoardgameModelNeo4j>> getBoardgamesWithPostsByFollowedUsers(@Param("username") String username);
 }
