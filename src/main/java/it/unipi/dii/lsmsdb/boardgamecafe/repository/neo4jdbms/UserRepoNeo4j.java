@@ -26,10 +26,11 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u1:User)-[a:ADDS]->(b:Boardgame {name: $boardgameName}) RETURN DISTINCT u1")
     List<UserModelNeo4j> findUsersByBoardgameName(@Param("boardgameName") String boardgamename);
 
-    @Query("MATCH (me:User {username: $username})-[:WRITES]->(myPost:Post)-[:REFERS_TO]->(myBGames:Boardgame)\n" +
-            "MATCH (u:User)-[:WRITES]->(p:Post)-[:REFERS_TO]->(bgame:Boardgame {boardgameName: myBGames.boardgameName})\n" +
-            "WHERE NOT (me)-[:FOLLOWS]->(u) AND me <> u\n" +
-            "RETURN DISTINCT u.username\n" +
-            "LIMIT 10")
-    List<String> usersByCommonBoardgamePosted(@Param("username") String username);
+    @Query("MATCH (me:User{username: $username})-[:WRITES]->(myPosts:Post)-[:REFERS_TO]->(myBGames:Boardgame) " +
+            "WITH me, COLLECT(DISTINCT myBGames.boardgameName) as myBGamesNames " +
+            "MATCH (notFriend:User)-[:WRITES]->(post:Post)-[:REFERS_TO]->(notFriendBgames:Boardgame) " +
+            "WHERE (notFriendBgames.boardgameName IN myBGamesNames) " +
+            "AND (NOT (me)-[:FOLLOWS]->(notFriend)) AND me <> notFriend " +
+            "RETURN notFriend.username LIMIT $limit")
+    List<String> usersByCommonBoardgamePosted(@Param("username") String username, @Param("limit") int limit);
 }
