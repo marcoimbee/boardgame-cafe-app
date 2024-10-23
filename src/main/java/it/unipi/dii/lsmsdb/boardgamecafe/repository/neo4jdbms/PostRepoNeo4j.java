@@ -51,4 +51,14 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
     List<PostModelNeo4j> findPostsLikedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
 
 
+    //Valutare se lasciare l'ordinamento in base ai likes (rallenta molto)
+    @Query("MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-[:WRITES]->(c:Comment)-[:REPLY]->(p:Post)\n" +
+            "OPTIONAL MATCH (p)<-[l:LIKES]-(:User)\n" + //permette di includere anche post che non hanno ricevuto "mi piace"
+            "WITH p.id AS id, COUNT(l) AS likes\n" +
+            "RETURN DISTINCT id, likes\n" +
+            "ORDER BY likes DESC\n" +
+            "LIMIT $limit")
+    List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
+
+
 }
