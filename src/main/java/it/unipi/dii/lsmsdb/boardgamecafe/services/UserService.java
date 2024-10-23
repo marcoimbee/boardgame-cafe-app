@@ -251,7 +251,6 @@ public class UserService {
             // If the suggestedMongoUser is found, then it's added to the suggestedMongoUsers list
             suggestedMongoUser.ifPresent(genericUserModelMongo -> suggestedMongoUsers.add((UserModelMongo) genericUserModelMongo));
         }
-
         return suggestedMongoUsers;
     }
 
