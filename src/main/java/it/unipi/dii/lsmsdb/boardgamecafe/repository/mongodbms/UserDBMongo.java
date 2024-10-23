@@ -251,9 +251,9 @@ public class UserDBMongo {
                 matchOperation,
                 groupOperation,
                 matchReviewCount,
-                new CustomAggregationOperation(sortReviewDates),  // Insrimento Document manuale per ordinamento
-                new CustomAggregationOperation(calculateDateDifferences),  // Insrimento Document manuale per differenze date
-                new CustomAggregationOperation(calculateAverageFrequency),  // Insrimento Document manuale per media differenze
+                new CustomAggregationOperation(sortReviewDates),  // Inserimento Document manuale per ordinamento
+                new CustomAggregationOperation(calculateDateDifferences),  // Inserimento Document manuale per differenze date
+                new CustomAggregationOperation(calculateAverageFrequency),  // Inserimento Document manuale per media differenze
                 sortOperation,
                 limitOperation
         );
