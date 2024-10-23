@@ -115,9 +115,9 @@ public class PostModelMongo {
                 ", username='" + username + '\'' +
                 ", title='" + title + '\'' +
                 ", tag='" + tag + '\'' +
-                ", text='" + text + '\'' +
+                //", text='" + text + '\'' +
                 ", timestamp=" + timestamp +
-                ", comments=" + comments +
+                //", comments=" + comments +
                 '}';
     }
 }
