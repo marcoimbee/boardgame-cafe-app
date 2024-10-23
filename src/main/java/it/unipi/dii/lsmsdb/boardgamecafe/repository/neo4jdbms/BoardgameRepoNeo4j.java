@@ -5,6 +5,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ public interface BoardgameRepoNeo4j extends Neo4jRepository<BoardgameModelNeo4j,
     @Query("MATCH (b:Boardgame {boardgameName: $boardgameName}) RETURN b")
     Optional<BoardgameModelNeo4j> findByBoardgameName(@Param("boardgameName") String boardgameName);
 
-    @Query("MATCH (you:User)-[:FOLLOWS]->(otherUser:User)-[:WRITES]->(post:Post)-[:REFERS_TO]->(game:Boardgame)" +
-            "WHERE you.username = $username RETURN DISTINCT game")
-    Optional<List<BoardgameModelNeo4j>> getBoardgamesWithPostsByFollowedUsers(@Param("username") String username);
+    @Query("MATCH (you:User {username: $username})-[:FOLLOWS]->(otherUser:User)-[:WRITES]->(post:Post)-[:REFERS_TO]->(game:Boardgame) " +
+            "RETURN DISTINCT game.id")
+    List<String> getBoardgamesWithPostsByFollowedUsers(@Param("username") String username);
 }

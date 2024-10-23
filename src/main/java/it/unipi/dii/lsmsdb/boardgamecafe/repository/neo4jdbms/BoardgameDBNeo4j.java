@@ -5,8 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
-import javax.swing.*;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,13 +85,13 @@ public class BoardgameDBNeo4j {
         return bg;
     }
 
-    // • Suggerisci Boardgame su cui hanno fatto post utenti che segui
-    public Optional<List<BoardgameModelNeo4j>> getBoardgamesWithPostsByFollowedUsers(String username) {
-        Optional<List<BoardgameModelNeo4j>> boardgames = Optional.empty();
+    // Suggerisci Boardgame su cui hanno fatto post utenti che segui
+    public List<String> getBoardgamesWithPostsByFollowedUsers(String username) {
+        List<String> boardgames = new ArrayList<>();
         try {
             boardgames = boardgameRepoNeo4j.getBoardgamesWithPostsByFollowedUsers(username);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
         }
 
         return boardgames;

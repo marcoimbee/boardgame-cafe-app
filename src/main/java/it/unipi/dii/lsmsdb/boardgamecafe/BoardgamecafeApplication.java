@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
@@ -10,6 +11,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
@@ -108,6 +110,8 @@ public class BoardgamecafeApplication {
     private UserService serviceUser;
     @Autowired
     private PostService servicePost;
+    @Autowired
+    private BoardgameService serviceBoardgame;
     @Autowired
     private PostRepoNeo4j postRepoNeo4j;
     @Autowired
@@ -299,19 +303,16 @@ public class BoardgamecafeApplication {
 
         // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
         System.out.println("\n- SUGGESTED BOARDGAMES ABOUT WHICH USERS YOU FOLLOW HAVE POSTED -");
-        String testUsername = "redkoala794";
+        String testUsername = "tinymeercat901";
         try {
-            Optional<List<BoardgameModelNeo4j>> boardGamesList = boardgameDBNeo4j.getBoardgamesWithPostsByFollowedUsers(testUsername);
             System.out.println("\nResults: ");
-            if (boardGamesList.isPresent()) {
-                List<BoardgameModelNeo4j> boardgameList = boardGamesList.get();
-                boardgameList.forEach(boardgame -> {
-                    System.out.println("Boardgame Name: " + boardgame.getBoardgameName());
-                    System.out.println("Thumbnail: " + boardgame.getThumbnail());
-                    System.out.println("Year Published: " + boardgame.getYearPublished());
-                });
+            List<BoardgameModelMongo> suggestedBoardgames = serviceBoardgame.suggestBoardgamesWithPostsByFollowedUsers(testUsername);
+            if (!suggestedBoardgames.isEmpty()) {
+                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
+                    System.out.println(boardgame.toString());
+                }
             } else {
-                System.out.println("No boardgames found.");
+                System.out.println("Empty result set");
             }
         } catch (Exception ex) {
             System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
