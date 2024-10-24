@@ -133,6 +133,7 @@ public class PostService {
             } else {
                 postDBNeo4j.removeLikePost(username, postId);
             }
+            // Aggiungere aggiornamento del like_count lato MongoDB
         } catch (Exception ex) {
             // Log dell'eccezione
             logger.error("Error liking or disliking post for user " + username + " on post " + postId + ": " + ex.getMessage());
