@@ -16,17 +16,19 @@ public class PostModelMongo {
     private String text;
     private String tag;
     private Date timestamp;
+    private int like_count;
     private List<CommentModelMongo> comments = new ArrayList<>();
 
     public PostModelMongo(String id, String username,
                           String title, String text,
-                          String tag, Date timestamp) {
+                          String tag, Date timestamp, int like_count) {
         this.id = id;
         this.username = username;
         this.title = title;
         this.text = text;
         this.tag = tag;
         this.timestamp = timestamp;
+        this.like_count = like_count;
     }
 
     public String getId(){
@@ -71,6 +73,10 @@ public class PostModelMongo {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
+
+    public int getLikeCount() { return this.like_count; }
+
+    public void setLikeCount(int like_count) {this.like_count = like_count;}
 
     // Comments Management
 
@@ -118,6 +124,7 @@ public class PostModelMongo {
                 //", text='" + text + '\'' +
                 ", timestamp=" + timestamp +
                 //", comments=" + comments +
+                "like_count=" + like_count +
                 '}';
     }
 }
