@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -270,11 +272,18 @@ public class UserDBMongo {
             long minAvgLikeCount,
             int limit
     ) {
-        MatchOperation matchOperation = match(Criteria.where("username").in(mostFollowedUsersUsernames));
+        LocalDate pastDate = LocalDate.now().minusDays(2000);  // Consider only posts which have been posted in [today - 60 days, today]
+        Date pastDateFullDate = Date.from(pastDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        MatchOperation matchOperationUsernames = match(Criteria.where("username").in(mostFollowedUsersUsernames));
+
+        MatchOperation matchOperationDate = match(Criteria.where("timestamp").gte(pastDateFullDate));
 
         GroupOperation groupByUsername = group("username")
+                .count().as("postCount")                            // LASCIARE?? BOOOOOOOH!!!
                 .avg("like_count").as("avgLikes");
 
+        MatchOperation matchPostCount = match(Criteria.where("postCount").gte(2));      // LASCIARE?? BOOOOOOOH!!!
         MatchOperation matchByMinAvgLikes = match(Criteria.where("avgLikes").gte(minAvgLikeCount));
 
         SortOperation sortByAvgLikesDesc = sort(Sort.by(Sort.Direction.DESC, "avgLikes"));
@@ -286,8 +295,10 @@ public class UserDBMongo {
                 .andExclude("_id");
 
         Aggregation aggregation = newAggregation(
-                matchOperation,
+                matchOperationUsernames,
+                matchOperationDate,
                 groupByUsername,
+                matchPostCount,
                 matchByMinAvgLikes,
                 sortByAvgLikesDesc,
                 limitOperation,
