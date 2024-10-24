@@ -285,4 +285,18 @@ public class UserService {
             return new ArrayList<>();
         }
     }
+
+    public List<UserModelMongo> suggestUsersByCommonLikedPosted(String username, int limit)
+    {
+        List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersBySameLikedPosts(username, limit);
+        List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
+        for (String suggestedUsername : suggestedNeo4jUsers )
+        {
+            Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername);
+            // If the suggestedMongoUser is found, then it's added to the suggestedMongoUsers list
+            suggestedMongoUser.ifPresent(genericUserModelMongo -> suggestedMongoUsers.add((UserModelMongo) genericUserModelMongo));
+        }
+        return suggestedMongoUsers;
+    }
+
 }

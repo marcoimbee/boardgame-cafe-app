@@ -41,4 +41,16 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "ORDER BY followersCount DESC " +
             "LIMIT $limit")
     List<String> findMostFollowedUsersUsernames(@Param("minFollowersCount") long minFollowersCount, @Param("limit") int limit);
+
+    @Query("MATCH(myPost:Post)<-[:LIKES]-(me:User{username: $username})\n" +
+            "WITH myPost, COLLECT(DISTINCT myPost.id) as myPostID, me\n" +
+            "MATCH (notFriend:User)-[:LIKES]->(p:Post)\n" +
+            "WHERE (p.id IN myPostID) AND (notFriend.username <> $username)\n" +
+            "AND NOT (me)-[:FOLLOWS]->(notFriend)\n" +
+            "WITH notFriend, COUNT(p) as sameLikedPosts\n" +
+            "RETURN notFriend.username\n" +
+            "ORDER BY sameLikedPosts DESC\n" +
+            "LIMIT $limit")
+    List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit);
+
 }
