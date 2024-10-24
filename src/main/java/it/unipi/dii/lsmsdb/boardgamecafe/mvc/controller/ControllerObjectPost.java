@@ -66,12 +66,14 @@ public class ControllerObjectPost {
         timestampLabel.setText(creationDate);
         commentsLabel.setText(commentsCounter);
 
-        updateLikesLabel(post.getId());
+        updateLikesLabel(post);
+
         //updateLikeButton(post.getUsername(), post.getId());
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
     }
 
     public void likeDislikePost(ActionEvent event) {
+        // Da sistemare l'aggiornamento dei like al post su cui viene premuto LIKE o DISLIKE
         String username = "CurrentUsername"; // Ottieni l'username attuale, ad esempio dal contesto dell'app
         String postId = "CurrentPostId"; // Ottieni l'ID del post attuale
 
@@ -79,13 +81,13 @@ public class ControllerObjectPost {
         postService.likeOrDislikePost(username, postId);
 
         // Aggiorna il conteggio dei like
-        updateLikesLabel(postId);
+        // updateLikesLabel(postId);
         //updateLikeButton(username, postId);
     }
 
-    private void updateLikesLabel(String postId) {
-        int likeCount = postDBNeo4j.findTotalLikesByPostID(postId);
-        likesLabel.setText(String.valueOf(likeCount));
+    private void updateLikesLabel(PostModelMongo post) {
+        //int likeCount = postDBNeo4j.findTotalLikesByPostID(postId);
+        likesLabel.setText(String.valueOf(post.getLikeCount()));
     }
 
     private void updateLikeButton(String usernameCurrUser, String postId) {
