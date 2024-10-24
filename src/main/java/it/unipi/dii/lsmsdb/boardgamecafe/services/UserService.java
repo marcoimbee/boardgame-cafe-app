@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
+import com.mongodb.DBObjectCodec;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
@@ -60,6 +61,7 @@ public class UserService {
         }
         return generatedPassword;
     }
+
     public String getSalt() {
         SecureRandom sr = new SecureRandom();
         byte[] salt = new byte[16];
@@ -241,8 +243,7 @@ public class UserService {
         return true;
     }
 
-    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username, int limit)
-    {
+    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username, int limit) {
         List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username, limit);
         List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
         for (String suggestedUsername : suggestedNeo4jUsers )
@@ -254,4 +255,34 @@ public class UserService {
         return suggestedMongoUsers;
     }
 
+    public List<UserModelMongo> suggestInfluencerUsers(
+            long minFollowersCount,
+            int mostFollowedUsersLimit,
+            long minAvgLikeCount,
+            int influencerUsersLimit)
+    {
+        try {
+            List<String> mostFollowedUsersUsernamesNeo = userNeo4jDB.getMostFollowedUsersUsernames(
+                    minFollowersCount,
+                    mostFollowedUsersLimit
+            );
+
+            List<String> mostFollowedUsersWithHighestAvgLikeCountIdsMongo = userMongoDB.findMostFollowedUsersWithMinAverageLikesCountUsernames(
+                    mostFollowedUsersUsernamesNeo,
+                    minAvgLikeCount,
+                    influencerUsersLimit
+            );
+
+            List<UserModelMongo> suggestedInfluencers = new ArrayList<>();
+            for (String influencerUsername : mostFollowedUsersWithHighestAvgLikeCountIdsMongo) {
+                Optional<GenericUserModelMongo> suggestedInfluencer = userMongoDB.findByUsername(influencerUsername);
+                suggestedInfluencer.ifPresent(genericUserModelMongo -> suggestedInfluencers.add((UserModelMongo) genericUserModelMongo));
+            }
+            return suggestedInfluencers;
+
+        } catch (Exception e) {
+            System.err.println("ERROR: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 }

@@ -152,8 +152,8 @@ public class BoardgamecafeApplication {
 
         // ************************** (Begin) New Test-Code Section **************************
 
-        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
-        System.out.println("\n\n");
+//        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
+//        System.out.println("\n\n");
 /*
         System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
         System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
@@ -359,7 +359,23 @@ public class BoardgamecafeApplication {
         }
         System.out.println("\n\n");
 
-
+        // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
+        System.out.println("\n- SUGGESTED INFLUENCER USERS -");
+        try {
+            System.out.println("\nResults: ");
+            List<UserModelMongo> suggestedInfluencers = serviceUser.
+                    suggestInfluencerUsers(10, 50, 10, 5);
+            if (!suggestedInfluencers.isEmpty()) {
+                for (UserModelMongo influencer: suggestedInfluencers) {
+                    System.out.println(influencer.toString());
+                }
+            } else {
+                System.out.println("Empty result set");
+            }
+        } catch (Exception ex) {
+            System.out.println("Error while executing suggestInfluencerUsers(): " + ex.getMessage());
+        }
+        System.out.println("\n\n");
 
 
         // ************************** (EndOf) New Test-Code Section **************************

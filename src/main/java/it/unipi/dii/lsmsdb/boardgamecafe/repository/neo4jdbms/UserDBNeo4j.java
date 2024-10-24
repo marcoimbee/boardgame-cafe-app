@@ -115,4 +115,13 @@ public class UserDBNeo4j {
         return suggestedUsers;
     }
 
+    public List<String> getMostFollowedUsersUsernames(long minFollowersCount, int limit) {
+        List<String> mostFollowedUsersUsernames = new ArrayList<>();
+        try {
+            return userNeo4jDB.findMostFollowedUsersUsernames(minFollowersCount, limit);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mostFollowedUsersUsernames;
+    }
 }
