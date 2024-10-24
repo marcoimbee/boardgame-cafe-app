@@ -93,6 +93,7 @@ public class BoardgamecafeApplication extends Application{
 }
 */
 
+
 // ****************************** MAIN NOT FOR GUI - SpringOnly_Config ******************************
 @SpringBootApplication  //extends Application removed
 public class BoardgamecafeApplication {
@@ -140,7 +141,7 @@ public class BoardgamecafeApplication {
     @EventListener(ApplicationReadyEvent.class)
     public void afterTheStart()
     {
-            // ------ Test Operations on BoardGameCafeDB ------
+        // ------ Test Operations on BoardGameCafeDB ------
 
         //General variable used for hard-coded version (Into old test-code of this main)
         String username = "whitekoala768";
@@ -238,7 +239,7 @@ public class BoardgamecafeApplication {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
         */
-
+        /*
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         System.out.println("************ MOST ACTIVE USERS (REVIEWS-BASED) ************");
         //MongoDB Related
@@ -262,8 +263,8 @@ public class BoardgamecafeApplication {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
         System.out.println("\n\n");
-
-
+        */
+        /*
         // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
         System.out.println("************ USERS WITH COMMON POSTS BASED ON BOARDGAMES  ************");
         //Neo4j Related
@@ -277,6 +278,17 @@ public class BoardgamecafeApplication {
         {
             System.out.println(suggestedUser.toString());
         }
+        System.out.println("\n\n");
+        */
+
+        System.out.println("************ USERS WHO LIKED SAME POSTS ORDERED BY MESURE OF LATTER ************");
+        System.out.println("\n");
+        List<UserModelMongo> mySuggestedUsers = serviceUser.
+                suggestUsersByCommonLikedPosted("blackelephant814", 5);
+        if (mySuggestedUsers.isEmpty())
+            System.out.println("mySuggestedUsers vuota");
+        for(UserModelMongo suggestedUser : mySuggestedUsers)
+            System.out.println(suggestedUser.toString());
         System.out.println("\n\n");
 
 
@@ -392,36 +404,36 @@ public class BoardgamecafeApplication {
         // *************** Neo4jDB Operations Management ***************
 
 
-            //for(UserNeo4j users: userRepositoryNeo4j.findAll())
-            //{
-            //System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
+        //for(UserNeo4j users: userRepositoryNeo4j.findAll())
+        //{
+        //System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
 
-            //System.out.println(" " + "# List of ' BOARDGAMES ' added: \n");
+        //System.out.println(" " + "# List of ' BOARDGAMES ' added: \n");
 
-            //if (users.getBoardgames().isEmpty()) {
-                //System.out.println("    " + " - Empty List: Not Any Boardgames Added");
-            //}
-            //for (BoardgameNeo4j boardgames: users.getBoardgames()) {
-                //System.out.println("    " + " - Boardgame: " + boardgames.getName());
-            //}
+        //if (users.getBoardgames().isEmpty()) {
+        //System.out.println("    " + " - Empty List: Not Any Boardgames Added");
+        //}
+        //for (BoardgameNeo4j boardgames: users.getBoardgames()) {
+        //System.out.println("    " + " - Boardgame: " + boardgames.getName());
+        //}
 
-            //System.out.println("\n " + "# List of ' FOLLOWERS ' users: \n");
+        //System.out.println("\n " + "# List of ' FOLLOWERS ' users: \n");
 
-            //if (users.getFollowers().isEmpty()) {
-                //System.out.println("    " + " - Empty List: Not Followed By Any Users");
-            //}
-            //for (UserNeo4j follower: users.getFollowers()) {
-                //System.out.println("    " + " - Follower: " + follower.getUsername());
-            //}
+        //if (users.getFollowers().isEmpty()) {
+        //System.out.println("    " + " - Empty List: Not Followed By Any Users");
+        //}
+        //for (UserNeo4j follower: users.getFollowers()) {
+        //System.out.println("    " + " - Follower: " + follower.getUsername());
+        //}
 
-            //System.out.println("\n " + "# List of ' FOLLOWING ' users: \n");
+        //System.out.println("\n " + "# List of ' FOLLOWING ' users: \n");
 
-            //if (users.getFollowedUsers().isEmpty()) {
-                //System.out.println("    " + " - Empty List: Not Following Any Users");
-            //}
-            //for (UserNeo4j follower: users.getFollowedUsers()) {
-                //System.out.println("    " + " - Follower: " + follower.getUsername());
-            //}
+        //if (users.getFollowedUsers().isEmpty()) {
+        //System.out.println("    " + " - Empty List: Not Following Any Users");
+        //}
+        //for (UserNeo4j follower: users.getFollowedUsers()) {
+        //System.out.println("    " + " - Follower: " + follower.getUsername());
+        //}
         //}
     }
 
