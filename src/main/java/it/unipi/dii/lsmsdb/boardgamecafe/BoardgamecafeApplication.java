@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
@@ -10,6 +11,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
@@ -26,7 +28,9 @@ import org.bson.Document;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,8 +46,9 @@ import java.util.Optional;
 import java.util.List;
 
 
-/*
+
 // ############################## MAIN FOR GUI- BoardgamecafeApplication_Config ##############################
+/*
 @SpringBootApplication
 public class BoardgamecafeApplication extends Application{
 
@@ -89,7 +94,6 @@ public class BoardgamecafeApplication extends Application{
 */
 
 // ****************************** MAIN NOT FOR GUI - SpringOnly_Config ******************************
-
 @SpringBootApplication  //extends Application removed
 public class BoardgamecafeApplication {
 
@@ -108,6 +112,8 @@ public class BoardgamecafeApplication {
     private UserService serviceUser;
     @Autowired
     private PostService servicePost;
+    @Autowired
+    private BoardgameService serviceBoardgame;
     @Autowired
     private PostRepoNeo4j postRepoNeo4j;
     @Autowired
@@ -146,7 +152,8 @@ public class BoardgamecafeApplication {
 
         // ************************** (Begin) New Test-Code Section **************************
 
-        System.out.println("\n-----------------------LOADING-DATA----------------------------");
+        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
+        System.out.println("\n\n");
 /*
         System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
         System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
@@ -233,9 +240,11 @@ public class BoardgamecafeApplication {
         */
 
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
+        System.out.println("************ MOST ACTIVE USERS (REVIEWS-BASED) ************");
+        //MongoDB Related
+        System.out.println("\n");
         // Formato per le date
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        System.out.println("\n- Most Active Users -");
         try {
             // Convertire le stringhe delle date in oggetti di tipo Date
             Date startDate = dateFormat.parse("1970-01-01");
@@ -244,7 +253,7 @@ public class BoardgamecafeApplication {
             Document activeUsers  = userDBMongo.
                     findActiveUsersByReviews(startDate,endDate,10);
 
-            System.out.println("\nResults from Aggregation:");
+            System.out.println("- Results from Aggregation:");
             System.out.println(activeUsers.toJson());
 
         } catch (ParseException ex) {
@@ -252,13 +261,15 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-
         System.out.println("\n\n");
 
+
         // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
+        System.out.println("************ USERS WITH COMMON POSTS BASED ON BOARDGAMES  ************");
         //Neo4j Related
+        System.out.println("\n");
         List<UserModelMongo> mySuggestedUsers = serviceUser.
-                suggestUsersByCommonBoardgamePosted("goldengoose951", 20);
+                suggestUsersByCommonBoardgamePosted("goldengoose951", 5);
 
         if (mySuggestedUsers.isEmpty())
             System.out.println("mySuggestedUsers vuota");
@@ -266,24 +277,26 @@ public class BoardgamecafeApplication {
         {
             System.out.println(suggestedUser.toString());
         }
-
         System.out.println("\n\n");
-        /*
-        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
-        //Neo4j Related
-        List<PostModelMongo> suggestedPosts = servicePost.
-                suggestPostLikedByFollowedUsers("happybutterfly415", 20);
 
-        if (suggestedPosts.isEmpty())
-            System.out.println("SuggestedPosts List vuota");
-        for(PostModelMongo suggestedPost : suggestedPosts)
+
+        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
+        System.out.println("************ LIKED POST RESULTS ************");
+        //Neo4j Related
+        System.out.println("\n");
+        List<PostModelMongo> suggestedLikedPosts = servicePost.
+                suggestPostLikedByFollowedUsers("happybutterfly415", 5);
+
+        if (suggestedLikedPosts.isEmpty())
+            System.out.println("SuggestedLikedPosts List vuota");
+        for(PostModelMongo likedPost : suggestedLikedPosts)
         {
-            List<CommentModelMongo> comments = suggestedPost.getComments();
-            System.out.println("\n\n");
+            List<CommentModelMongo> comments = likedPost.getComments();
+            //System.out.println("\n");
             System.out.println("******* ToString *******: ");
-            System.out.println(suggestedPost);
+            System.out.println(likedPost);
             System.out.println("************************");
-            System.out.println("Title: " + suggestedPost.getTitle());
+            /*System.out.println("Title: " + suggestedPost.getTitle());
             System.out.println("Body: " + suggestedPost.getText());
             System.out.println("\nPost's Comments: ");
             if (comments.isEmpty()) {
@@ -292,32 +305,62 @@ public class BoardgamecafeApplication {
             for (CommentModelMongo comment: comments) {
                 System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
                 System.out.println("    " + "              Text: " + comment.getText());
-            }
+            }*/
         }
-
         System.out.println("\n\n");
+
+
+        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
+        System.out.println("************ COMMENTED POST RESULTS ************");
+        //Neo4j Related
+        System.out.println("\n");
+        List<PostModelMongo> suggestedCommentedPosts = servicePost.
+                suggestPostCommentedByFollowedUsers("redkoala794", 5);
+
+        if (suggestedCommentedPosts.isEmpty())
+            System.out.println("SuggestedPostsCommented List vuota");
+        for(PostModelMongo commentedPost : suggestedCommentedPosts)
+        {
+            List<CommentModelMongo> comments = commentedPost.getComments();
+            //System.out.println("\n");
+            System.out.println("******* ToString *******: ");
+            System.out.println(commentedPost);
+            System.out.println("************************");
+            /*System.out.println("Title: " + suggestedPost.getTitle());
+            System.out.println("Body: " + suggestedPost.getText());
+            System.out.println("\nPost's Comments: ");
+            if (comments.isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Comments Added");
+            }
+            for (CommentModelMongo comment: comments) {
+                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+                System.out.println("    " + "              Text: " + comment.getText());
+            }*/
+        }
+        System.out.println("\n");
+
 
         // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
         System.out.println("\n- SUGGESTED BOARDGAMES ABOUT WHICH USERS YOU FOLLOW HAVE POSTED -");
         String testUsername = "redkoala794";
         try {
-            Optional<List<BoardgameModelNeo4j>> boardGamesList = boardgameDBNeo4j.getBoardgamesWithPostsByFollowedUsers(testUsername);
             System.out.println("\nResults: ");
-            if (boardGamesList.isPresent()) {
-                List<BoardgameModelNeo4j> boardgameList = boardGamesList.get();
-                boardgameList.forEach(boardgame -> {
-                    System.out.println("Boardgame Name: " + boardgame.getBoardgameName());
-                    System.out.println("Thumbnail: " + boardgame.getThumbnail());
-                    System.out.println("Year Published: " + boardgame.getYearPublished());
-                });
+            List<BoardgameModelMongo> suggestedBoardgames = serviceBoardgame.
+                    suggestBoardgamesWithPostsByFollowedUsers(testUsername);
+            if (!suggestedBoardgames.isEmpty()) {
+                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
+                    System.out.println(boardgame.toString());
+                }
             } else {
-                System.out.println("No boardgames found.");
+                System.out.println("Empty result set");
             }
         } catch (Exception ex) {
             System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
         }
+        System.out.println("\n\n");
 
-         */
+
+
 
         // ************************** (EndOf) New Test-Code Section **************************
 

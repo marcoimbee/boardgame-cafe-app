@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 
 @Component
 public class BoardgameService {
@@ -163,5 +166,30 @@ public class BoardgameService {
             return false;
         }
         return true;
+    }
+
+    public List<BoardgameModelMongo> suggestBoardgamesWithPostsByFollowedUsers(String username) {
+        try {
+            // Get suggested boardgames' Ids from Neo4J
+            List<String> suggestedBoardgamesId = boardgameNeo4jOp.
+                    getBoardgamesWithPostsByFollowedUsers(username, 10);
+            // Init empty list of BoardgameModelMongo objects
+            List<BoardgameModelMongo> suggestedMongoBoardgames = new ArrayList<>();
+            // For each returned Neo4J ID
+            for (String boardgameId: suggestedBoardgamesId) {
+                // Get Mongo object related to that ID
+                Optional<BoardgameModelMongo> suggestedMongoBoardgame = boardgameMongoOp.
+                        findBoardgameById(boardgameId);
+                // If an object is found in Mongo matching such ID
+                suggestedMongoBoardgame.ifPresent(
+                        // Add it to the List that'll be returned
+                        boardgameModelMongo -> suggestedMongoBoardgames.add(boardgameModelMongo)
+                );
+            }
+            return suggestedMongoBoardgames;
+        } catch (Exception e) {
+            logger.error("ERROR: " + e.getMessage());
+            return new ArrayList<>();       // Return empty list in case of exception
+        }
     }
 }

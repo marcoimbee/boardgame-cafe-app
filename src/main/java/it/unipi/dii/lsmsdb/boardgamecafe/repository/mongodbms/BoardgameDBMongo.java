@@ -193,7 +193,13 @@ public class BoardgameDBMongo {
     }
 
 
-
-
-
+    public Optional<BoardgameModelMongo> findBoardgameById(String boardgameId) {
+        Optional<BoardgameModelMongo> boardgame = Optional.empty();
+        try {
+            boardgame = boardgameRepoMongoOp.findById(boardgameId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return boardgame;
+    }
 }
