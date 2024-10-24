@@ -33,4 +33,12 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "AND (NOT (me)-[:FOLLOWS]->(notFriend)) AND me <> notFriend\n" +
             "RETURN notFriend.username LIMIT $limit")
     List<String> usersByCommonBoardgamePosted(@Param("username") String username, @Param("limit") int limit);
+
+    @Query("MATCH (u)<-[followRel:FOLLOWS]-(follower:User) " +
+            "WITH u, COUNT(DISTINCT followRel) AS followersCount " +
+            "WHERE followersCount >= $minFollowersCount " +
+            "RETURN u.username AS username " +
+            "ORDER BY followersCount DESC " +
+            "LIMIT $limit")
+    List<String> findMostFollowedUsersUsernames(@Param("minFollowersCount") long minFollowersCount, @Param("limit") int limit);
 }

@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -264,4 +265,39 @@ public class UserDBMongo {
         return results.getRawResults();
     }
 
+    public List<String> findMostFollowedUsersWithMinAverageLikesCountUsernames(
+            List<String> mostFollowedUsersUsernames,
+            long minAvgLikeCount,
+            int limit
+    ) {
+        MatchOperation matchOperation = match(Criteria.where("username").in(mostFollowedUsersUsernames));
+
+        GroupOperation groupByUsername = group("username")
+                .avg("like_count").as("avgLikes");
+
+        MatchOperation matchByMinAvgLikes = match(Criteria.where("avgLikes").gte(minAvgLikeCount));
+
+        SortOperation sortByAvgLikesDesc = sort(Sort.by(Sort.Direction.DESC, "avgLikes"));
+
+        LimitOperation limitOperation = limit(limit);
+
+        ProjectionOperation projectionOperation = project()
+                .and("_id").as("username")
+                .andExclude("_id");
+
+        Aggregation aggregation = newAggregation(
+                matchOperation,
+                groupByUsername,
+                matchByMinAvgLikes,
+                sortByAvgLikesDesc,
+                limitOperation,
+                projectionOperation
+        );
+
+        AggregationResults<Document> results = mongoOperations.aggregate(aggregation, "posts", Document.class);
+
+        return results.getMappedResults().stream()
+                .map(doc -> doc.getString("username"))
+                .collect(Collectors.toList());
+    }
 }
