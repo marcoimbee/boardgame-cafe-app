@@ -42,7 +42,8 @@ public class ReviewService {
                 logger.error("Error in adding the review to the collection of reviews");
                 return false;
             }
-            review = reviewMongoOp.findByUsernameAndBoardgameName(user.getUsername(), boardgame.getBoardgameName()).get();
+            review = reviewMongoOp.findByUsernameAndBoardgameName(user.getUsername(),
+                    boardgame.getBoardgameName()).get();
 
             if (!addReviewToUser(user, review)) {
                 logger.error("Error in adding the review to the collection of users");
