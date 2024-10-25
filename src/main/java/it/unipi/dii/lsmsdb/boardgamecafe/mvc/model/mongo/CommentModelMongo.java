@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +14,8 @@ public class CommentModelMongo {
     private String username;
     private String text;
     private Date timestamp;
+    @JsonIgnore
+    private String _class;
 
     public CommentModelMongo(String id, String post,
                              String username, String text,
