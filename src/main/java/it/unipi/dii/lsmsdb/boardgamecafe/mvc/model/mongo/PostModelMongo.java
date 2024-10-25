@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,10 +20,25 @@ public class PostModelMongo {
     private int like_count;
     private List<CommentModelMongo> comments = new ArrayList<>();
 
+    @JsonIgnore
+    private String _class;
+
+    public PostModelMongo() {}
     public PostModelMongo(String id, String username,
                           String title, String text,
                           String tag, Date timestamp, int like_count) {
         this.id = id;
+        this.username = username;
+        this.title = title;
+        this.text = text;
+        this.tag = tag;
+        this.timestamp = timestamp;
+        this.like_count = like_count;
+    }
+
+    public PostModelMongo(String username,
+                          String title, String text,
+                          String tag, Date timestamp, int like_count) {
         this.username = username;
         this.title = title;
         this.text = text;
