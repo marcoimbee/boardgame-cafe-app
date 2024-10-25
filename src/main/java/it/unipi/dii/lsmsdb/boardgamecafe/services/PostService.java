@@ -39,15 +39,24 @@ public class PostService {
 
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
-    public boolean insertPost(PostModelMongo postModelMongo, UserModelNeo4j userModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
-        try {
-            if (!postDBMongo.addPost(postModelMongo)) {
+    public boolean insertPost(PostModelMongo postModelMongo) { //, UserModelNeo4j userModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
+        try
+        {
+            PostModelMongo insertedPost = postDBMongo.addPost(postModelMongo);
+            if (insertedPost == null) {
                 logger.error("Error in adding post to collection in MongoDB");
                 return false;
             }
-            postModelMongo = postDBMongo.findByUsernameAndTimestamp(postModelMongo.getUsername(), postModelMongo.getTimestamp()).get();
+            System.out.println("Inserito commento id: " + insertedPost.getId());
 
-            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(postModelMongo.getId());
+            // postModelMongo = postDBMongo.findByUsernameAndTimestamp(postModelMongo.getUsername(), postModelMongo.getTimestamp()).get();
+/*
+            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId());
+            if (insertedPost.getTag().isEmpty())
+            {
+                // Se c'è il tag, devo creare la relazione [REFERSO TO] su neo4j
+            }
+            BoardgameModelNeo4j boardgameModelNeo4j = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
             if (boardgameModelNeo4j != null) {
                 postModelNeo4j.setTaggedGame(boardgameModelNeo4j);
             }
@@ -62,6 +71,7 @@ public class PostService {
             if (!addPostToUser(postModelNeo4j, userModelNeo4j)) {
                 deletePost(postModelMongo);
             }
+*/
         }
         catch (Exception ex) {
             ex.printStackTrace();
