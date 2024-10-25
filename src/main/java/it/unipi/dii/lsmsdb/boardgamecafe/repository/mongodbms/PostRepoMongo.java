@@ -1,25 +1,28 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import javafx.geometry.Pos;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
 public interface PostRepoMongo extends MongoRepository<PostModelMongo, String>{
     @Query("{username: $username}")
-    List<PostModelMongo> findByUsername(String username);
+    List<PostModelMongo> findByUsername(@Param("username") String username);
 
-    Optional<PostModelMongo> findByUsernameAndTimestamp(String username, Date timestamp);
+    @Query("{username: $username, timestamp:  $timestamp}")
+    Optional<PostModelMongo> findByUsernameAndTimestamp(@Param("username") String username, @Param("timestamp") Date timestamp);
 
     void deleteByTag(String bgName);
 
     void deleteByUsername(String username);
 
-    List<PostModelMongo> findByTag(String bgName);
+    @Query("{tag: $bgName}")
+    List<PostModelMongo> findByTag(@Param("tag") String bgName);
 }
