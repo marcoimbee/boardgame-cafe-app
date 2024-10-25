@@ -3,8 +3,10 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
+
 
 @Document("comments")
 public class CommentModelMongo {
@@ -17,10 +19,27 @@ public class CommentModelMongo {
     @JsonIgnore
     private String _class;
 
-    public CommentModelMongo(String id, String post,
-                             String username, String text,
+    @JsonIgnore
+    private String _class;          // Makes the model compatible with documents which present the '_class' attributes
+
+    public CommentModelMongo() {}
+
+    public CommentModelMongo(String id,
+                             String post,
+                             String username,
+                             String text,
                              Date timestamp) {
         this.id = id;
+        this.post = post;
+        this.username = username;
+        this.text = text;
+        this.timestamp = timestamp;
+    }
+
+    public CommentModelMongo(String post,
+                             String username,
+                             String text,
+                             Date timestamp) {
         this.post = post;
         this.username = username;
         this.text = text;

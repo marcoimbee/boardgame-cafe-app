@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 @Component
 public class UserDBNeo4j {
 
@@ -43,13 +44,14 @@ public class UserDBNeo4j {
                 oldUser.setLikedPosts(updated.getLikedPosts());
                 oldUser.setWrittenComments(updated.getWrittenComments());
                 userNeo4jDB.save(oldUser);
+                return true;
             }
+            return false;
         }
         catch (Exception ex) {
             ex.printStackTrace();
             return false;
         }
-        return true;
     }
 
     public boolean deleteUser(UserModelNeo4j user) {
