@@ -37,6 +37,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.expression.ParseException;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -431,6 +432,17 @@ public class BoardgamecafeApplication {
         }
         System.out.println("\n\n");
 
+
+
+        // ************************** Inizio Test Insert Post **************************
+
+        PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+        if (servicePost.insertPost(newPost))
+            System.out.println("Commento inserito");
+        else
+            System.out.println("Commento non inserito");
+
+        // ************************** Fine Test Insert Post **************************
 
 
 

@@ -31,15 +31,11 @@ public class PostDBMongo {
 
     public PostRepoMongo getPostMongo() {return postMongo;}
 
-    public boolean addPost(PostModelMongo post) {
-        try {
-            postMongo.save(post);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public PostModelMongo addPost(PostModelMongo post)
+    {
+        try { return postMongo.save(post); }
+        catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
 
     public boolean updatePost(String id, PostModelMongo updated) {
