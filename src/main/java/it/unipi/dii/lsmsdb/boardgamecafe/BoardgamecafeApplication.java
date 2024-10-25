@@ -37,6 +37,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.expression.ParseException;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -150,6 +151,24 @@ public class BoardgamecafeApplication {
         String idUser = "655f83770b0a94c33a977526";
         String idUser2 = "865l9633f0l96v33a2569885";
 
+
+        // ************************** Inizio Test Insert Post **************************
+
+        PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+        if (servicePost.insertPost(newPost))
+            System.out.println("Commento inserito");
+        else
+            System.out.println("Commento non inserito");
+
+
+
+
+
+
+
+
+
+        // ************************** Fine Test Insert Post **************************
 
 //        // ************************** (Begin) New Test-Code Section **************************
 //
@@ -484,7 +503,7 @@ public class BoardgamecafeApplication {
         }
         System.out.println("\n\n");
         */
-
+        /*
         System.out.println("************ USERS WHO LIKED SAME POSTS ORDERED BY MESURE OF LATTER ************");
         System.out.println("\n");
         List<UserModelMongo> mySuggestedUsers = serviceUser.
@@ -512,20 +531,21 @@ public class BoardgamecafeApplication {
             System.out.println("******* ToString *******: ");
             System.out.println(likedPost);
             System.out.println("************************");
-            /*System.out.println("Title: " + suggestedPost.getTitle());
-            System.out.println("Body: " + suggestedPost.getText());
-            System.out.println("\nPost's Comments: ");
-            if (comments.isEmpty()) {
-                System.out.println("    " + " - Empty List: Not Any Comments Added");
-            }
-            for (CommentModelMongo comment: comments) {
-                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
-                System.out.println("    " + "              Text: " + comment.getText());
-            }*/
+
+            //System.out.println("Title: " + suggestedPost.getTitle());
+            //System.out.println("Body: " + suggestedPost.getText());
+            //System.out.println("\nPost's Comments: ");
+            //if (comments.isEmpty()) {
+            //    System.out.println("    " + " - Empty List: Not Any Comments Added");
+            //}
+            //for (CommentModelMongo comment: comments) {
+            //    System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+            //    System.out.println("    " + "              Text: " + comment.getText());
+            //}
         }
         System.out.println("\n\n");
-
-
+        */
+        /*
         // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
         System.out.println("************ COMMENTED POST RESULTS ************");
         //Neo4j Related
@@ -542,20 +562,21 @@ public class BoardgamecafeApplication {
             System.out.println("******* ToString *******: ");
             System.out.println(commentedPost);
             System.out.println("************************");
-            /*System.out.println("Title: " + suggestedPost.getTitle());
-            System.out.println("Body: " + suggestedPost.getText());
-            System.out.println("\nPost's Comments: ");
-            if (comments.isEmpty()) {
-                System.out.println("    " + " - Empty List: Not Any Comments Added");
-            }
-            for (CommentModelMongo comment: comments) {
-                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
-                System.out.println("    " + "              Text: " + comment.getText());
-            }*/
+            //System.out.println("Title: " + suggestedPost.getTitle());
+            //System.out.println("Body: " + suggestedPost.getText());
+            //System.out.println("\nPost's Comments: ");
+            //if (comments.isEmpty()) {
+            //    System.out.println("    " + " - Empty List: Not Any Comments Added");
+            //}
+            //for (CommentModelMongo comment: comments) {
+            //    System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+            //    System.out.println("    " + "              Text: " + comment.getText());
+            //}
         }
         System.out.println("\n");
+        */
 
-
+        /*
         // Test del metodo suggestInfluencerUsers (NEO4J)
         System.out.println("\n- SUGGESTED INFLUENCER USERS -");
         try {
@@ -573,7 +594,7 @@ public class BoardgamecafeApplication {
             System.out.println("Error while executing suggestInfluencerUsers(): " + ex.getMessage());
         }
         System.out.println("\n\n");
-
+        */
 
         // ************************** (EndOf) New Test-Code Section **************************
 
