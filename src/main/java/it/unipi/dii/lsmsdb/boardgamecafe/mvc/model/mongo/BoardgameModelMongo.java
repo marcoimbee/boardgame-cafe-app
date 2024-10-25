@@ -48,6 +48,26 @@ public class BoardgameModelMongo {
         this.boardgamePublisherList = boardgamePublisherList;
     }
 
+    public BoardgameModelMongo(String boardgameName,
+                               String thumbnail, String image, String description,
+                               int yearPublished, int minPlayers, int maxPlayers,
+                               int playingTime, int minAge, List<String> boardgameCategoryList,
+                               List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
+
+        this.boardgameName = boardgameName;
+        this.thumbnail = thumbnail;
+        this.image = image;
+        this.description = description;
+        this.yearPublished = yearPublished;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
+        this.playingTime = playingTime;
+        this.minAge = minAge;
+        this.boardgameCategoryList = boardgameCategoryList;
+        this.boardgameDesignerList = boardgameDesignerList;
+        this.boardgamePublisherList = boardgamePublisherList;
+    }
+
     public String getId() {
         return id;
     }
