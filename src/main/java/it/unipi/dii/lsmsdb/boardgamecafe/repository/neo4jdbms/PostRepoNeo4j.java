@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
 public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
     @Query("MATCH (p:Post {id: $id}) DETACH DELETE p")
@@ -60,6 +61,4 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
             "ORDER BY likes DESC\n" +
             "LIMIT $limit")
     List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
-
-
 }

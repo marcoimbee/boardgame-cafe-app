@@ -12,12 +12,13 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepoMongo extends MongoRepository<PostModelMongo, String>{
-    @Query("{'username': ?0}") //To_Check
+    @Query("{username: $username}")
     List<PostModelMongo> findByUsername(String username);
 
     Optional<PostModelMongo> findByUsernameAndTimestamp(String username, Date timestamp);
 
     void deleteByTag(String bgName);
+
     void deleteByUsername(String username);
 
     List<PostModelMongo> findByTag(String bgName);

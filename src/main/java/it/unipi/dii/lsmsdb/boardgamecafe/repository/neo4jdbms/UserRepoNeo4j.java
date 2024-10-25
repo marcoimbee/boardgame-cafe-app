@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
 
+    @Query("MATCH (u: User {username: $username}) RETURN u")
     Optional<UserModelNeo4j> findByUsername(String username);
 
     @Query("MATCH (u:User {username: $username}) DETACH DELETE u, (u)-[r]-()")
