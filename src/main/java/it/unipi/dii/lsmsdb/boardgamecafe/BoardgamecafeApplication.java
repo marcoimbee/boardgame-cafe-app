@@ -153,9 +153,13 @@ public class BoardgamecafeApplication {
 
         // ************************** (Begin) New Test-Code Section **************************
 
-//        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
-//        System.out.println("\n\n");
-/*
+        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
+        System.out.println("\n\n");
+
+
+        // ************************** Queries Test-Code Section **************************
+        /*
+
         System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
         System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
         Optional<PostModelMongo> optionalPost = servicePost.showMostLikedPost();
@@ -188,9 +192,9 @@ public class BoardgamecafeApplication {
             System.out.println(optionalPost);
         } else {
             System.out.println("Nessun post con più like trovato.");
-        }*/
+        }
 
-        /*
+
         // Test del metodo findCountriesWithMostUsers
         System.out.println("\n- Countries With Most Users -");
         try {
@@ -201,8 +205,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching countries: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findTopRatedBoardgamesPerYear
         System.out.println("\n- Top Rated Boardgames per Year -");
         try {
@@ -213,8 +217,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgames: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findTopRatedBoardgame (Based on highest score in its reviews)
         System.out.println("\n- Top Rated Boardgames by highest score in its reviews -");
         try {
@@ -225,8 +229,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findTopPostsByBoardgameName
         // Versione con raggruppamento per titolo - ToCheck
         System.out.println("\n- Top Posts by Boardgame Name ordered by comments number -");
@@ -238,8 +242,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         System.out.println("************ MOST ACTIVE USERS (REVIEWS-BASED) ************");
         //MongoDB Related
@@ -263,8 +267,8 @@ public class BoardgamecafeApplication {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
         System.out.println("\n\n");
-        */
-        /*
+
+
         // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
         System.out.println("************ USERS WITH COMMON POSTS BASED ON BOARDGAMES  ************");
         //Neo4j Related
@@ -279,7 +283,7 @@ public class BoardgamecafeApplication {
             System.out.println(suggestedUser.toString());
         }
         System.out.println("\n\n");
-        */
+
 
         System.out.println("************ USERS WHO LIKED SAME POSTS ORDERED BY MESURE OF LATTER ************");
         System.out.println("\n");
@@ -317,7 +321,7 @@ public class BoardgamecafeApplication {
             for (CommentModelMongo comment: comments) {
                 System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
                 System.out.println("    " + "              Text: " + comment.getText());
-            }*/
+            }
         }
         System.out.println("\n\n");
 
@@ -347,7 +351,7 @@ public class BoardgamecafeApplication {
             for (CommentModelMongo comment: comments) {
                 System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
                 System.out.println("    " + "              Text: " + comment.getText());
-            }*/
+            }
         }
         System.out.println("\n");
 
@@ -387,70 +391,51 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while executing suggestInfluencerUsers(): " + ex.getMessage());
         }
+        System.out.println("\n\n");   */
+
+
+
+        // ########################## Services Test-Code Section ##########################
+
+
+        // Test del metodo insertBoardgame() - Da completare
+        System.out.println("************ BOARDGAME-SERVICE RESULTS ************");
+        String boardgameName = boardgameName;
+        String thumbnail = thumbnail;
+        String image = image;
+        String description = description;
+        int yearPublished = yearPublished;
+        int minPlayers = minPlayers;
+        int maxPlayers = maxPlayers;
+        int playingTime = playingTime;
+        int minAge = minAge;
+        List<String> boardgameCategoryList = boardgameCategoryList;
+        List<String> boardgameDesignerList = boardgameDesignerList;
+        List<String> boardgamePublisherList = boardgamePublisherList;
+
+        //Creazione Boardgame
+        BoardgameModelMongo boardgame = new BoardgameModelMongo()
+        try {
+            System.out.println("\nResults: ");
+            BoardgameModelMongo boardgame = serviceBoardgame.
+                    insertBoardgame(testUsername);
+            if (!suggestedBoardgames.isEmpty()) {
+                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
+                    System.out.println(boardgame.toString());
+                }
+            } else {
+                System.out.println("Empty result set");
+            }
+        } catch (Exception ex) {
+            System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
+        }
         System.out.println("\n\n");
 
 
+
+
+
         // ************************** (EndOf) New Test-Code Section **************************
-
-
-        //UserModelMongo userMongo =
-        //              serviceUser.createUser(username2, "giovanni_testemail@example.com",
-        //                                      "24681012","Giovanni","Test","male",
-        //                                      "IT","NotBanned",1974,06,11);
-
-        //UserModelNeo4j userNeo4j = new UserModelNeo4j(userMongo.getId(), userMongo.getUsername());
-
-        // System.out.println(" \n- New user added within MongoDB and Neo4j -\n");
-        //serviceUser.insertUser(userMongo, userNeo4j);
-
-        //serviceUser.deleteUser(userMongo);
-        //System.out.println(" \n- The user" + username2 + " DELETED from both MongoDB and Neo4j dbms -\n");
-
-
-        // *************** MongoDB Operations Management ***************
-
-        //System.out.println(" \n- Shown below are all users within MongoDB -\n");
-        //mongoRepository.findAll().forEach(System.out::println);
-
-        //System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
-        //System.out.println("- Reference USERNAME: " + username2 + "\n");
-        //System.out.println(mongoRepository.findByUsername(username2));
-
-
-        // *************** Neo4jDB Operations Management ***************
-
-
-        //for(UserNeo4j users: userRepositoryNeo4j.findAll())
-        //{
-        //System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
-
-        //System.out.println(" " + "# List of ' BOARDGAMES ' added: \n");
-
-        //if (users.getBoardgames().isEmpty()) {
-        //System.out.println("    " + " - Empty List: Not Any Boardgames Added");
-        //}
-        //for (BoardgameNeo4j boardgames: users.getBoardgames()) {
-        //System.out.println("    " + " - Boardgame: " + boardgames.getName());
-        //}
-
-        //System.out.println("\n " + "# List of ' FOLLOWERS ' users: \n");
-
-        //if (users.getFollowers().isEmpty()) {
-        //System.out.println("    " + " - Empty List: Not Followed By Any Users");
-        //}
-        //for (UserNeo4j follower: users.getFollowers()) {
-        //System.out.println("    " + " - Follower: " + follower.getUsername());
-        //}
-
-        //System.out.println("\n " + "# List of ' FOLLOWING ' users: \n");
-
-        //if (users.getFollowedUsers().isEmpty()) {
-        //System.out.println("    " + " - Empty List: Not Following Any Users");
-        //}
-        //for (UserNeo4j follower: users.getFollowedUsers()) {
-        //System.out.println("    " + " - Follower: " + follower.getUsername());
-        //}
-        //}
     }
 
 }   //EOF Main SpringOnly Configuration
