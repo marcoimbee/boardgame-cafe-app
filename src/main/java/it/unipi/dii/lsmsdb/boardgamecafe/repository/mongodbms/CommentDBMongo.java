@@ -10,30 +10,29 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+
 @Component
 public class CommentDBMongo {
-
-    public CommentDBMongo() {
-    }
 
     @Autowired
     private CommentRepoMongo commentMongo;
     @Autowired
     private MongoOperations mongoOperations;
 
+    public CommentDBMongo() {
+    }
+
     public CommentRepoMongo getCommentMongo() {
         return commentMongo;
     }
 
-    public boolean addComment(CommentModelMongo comment) {
+    public CommentModelMongo addComment(CommentModelMongo comment) {
         try {
-            commentMongo.save(comment);
+            return commentMongo.save(comment);
+        } catch (Exception e) {
+            System.out.println("[ERROR] addComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
+            return null;
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
     }
 
     public boolean updateComment(String id, CommentModelMongo updated) {
@@ -103,9 +102,10 @@ public class CommentDBMongo {
         Optional<CommentModelMongo> comment = Optional.empty();
         try {
             comment = commentMongo.findByUsernameAndPostAndTimestamp(username, post, timestamp);
+            System.out.println();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("[ERROR] findByUsernameAndPostAndTimestamp()@CommentDBMongo.java raised an exception: " + e.getMessage());
         }
         return comment;
     }
