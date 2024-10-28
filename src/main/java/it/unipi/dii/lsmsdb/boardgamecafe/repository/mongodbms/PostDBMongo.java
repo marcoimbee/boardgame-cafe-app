@@ -1,11 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,11 +32,15 @@ public class PostDBMongo {
 
     public PostRepoMongo getPostMongo() {return postMongo;}
 
-    public PostModelMongo addPost(PostModelMongo post)
-    {
-        try { return postMongo.save(post); }
-        catch (Exception e) { e.printStackTrace(); }
-        return null;
+    public boolean addPost(PostModelMongo post) {
+        try {
+            postMongo.save(post);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public boolean updatePost(String id, PostModelMongo updated) {
@@ -246,5 +251,21 @@ public class PostDBMongo {
 
         // Step 9: Restituisci i risultati grezzi
         return result.getRawResults();
+    }
+
+    //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
+    public void deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment)
+    {
+        Query query = new Query(Criteria.where("_id").is(post.getId()));
+        Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
+        Update update = new Update().pull("comments", matchCommentById);
+        mongoOperations.updateFirst(query, update, PostModelMongo.class);
+    }
+
+    public void addCommentInPostArray(PostModelMongo post, CommentModelMongo comment)
+    {
+        Query query = new Query(Criteria.where("_id").is(post.getId()));
+        Update update = new Update().push("comments", comment);
+        mongoOperations.updateFirst(query, update, PostModelMongo.class);
     }
 }
