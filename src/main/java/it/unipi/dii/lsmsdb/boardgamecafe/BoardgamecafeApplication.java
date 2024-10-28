@@ -443,8 +443,8 @@ public class BoardgamecafeApplication {
 
         PostModelMongo postTest = postDBMongo.findById("65a930a56448dd90156b31ff").get();
         String postId = postTest.getId();
-        String username_test = "author_test";
-        String body_test = " commento verifica caratteristiche save spring";
+        String username_test = "author_test_2";
+        String body_test = " commento verifica deleteComment method";
         Date timestamp = new Date();
         CommentModelMongo commentTest = new CommentModelMongo(
                 postId,
@@ -454,10 +454,13 @@ public class BoardgamecafeApplication {
         //Operazione che genera correttamente l'id del commento che spunterà poi nell'array dei commenti del post
         CommentModelMongo commentIntoCommentCollection = commentDBMongo.addComment(commentTest);
 
-        boolean serviceTest = serviceComment.addCommentToPost(
-                commentIntoCommentCollection, postTest);
+//        boolean serviceTest = serviceComment.addCommentToPost(
+//                commentIntoCommentCollection, postTest);
 
-        if(serviceTest)
+        boolean serviceTest2 = serviceComment.deleteComment(
+                commentTest, postTest);
+
+        if(serviceTest2)
         {
             System.out.println("\n- Status: OK! - Comment added and removed in post collection into mongo db");
         } else {

@@ -142,16 +142,10 @@ public class CommentService {
         return true;*/
     }
 
-    public boolean deleteComment(CommentModelMongo comment, boolean propagate) {
+
+    public boolean deleteComment(CommentModelMongo comment, PostModelMongo post) {
         try {
-            if (propagate) {
-                Optional<PostModelMongo> tmp = postMongo.findById(comment.getPost());
-                if (tmp.isPresent()) {
-                    PostModelMongo post = tmp.get();
-                    post.deleteCommentInPost(comment.getId());
-                    postMongo.updatePost(post.getId(), post);
-                }
-            }
+            postMongo.deleteCommentFromArrayInPost(post, comment);
             commentNeo4j.deleteAndDetachComment(comment.getId());   // Also remove relationships, no need to propagate to UserNeo4j or PostNeo4j
             commentMongo.deleteComment(comment);
         }
