@@ -405,8 +405,8 @@ public class BoardgamecafeApplication {
         // ########################## Services Test-Code Section ##########################
 
 
-        // Test del metodo insertBoardgame() - Da completare
-        /*
+        // Test del metodo insertBoardgame()
+
         System.out.println("************ BOARDGAME-SERVICE RESULTS ************");
         String boardgameName = "Monopoly24";
         String thumbnail = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
@@ -423,49 +423,49 @@ public class BoardgamecafeApplication {
         boardgameDesignerList.add("Elizabeth Magie");
         boardgameDesignerList.add("Charles Darrow");
         List<String> boardgamePublisherList = new ArrayList<>();
-        boardgamePublisherList.add("Hasbro");*/
+        boardgamePublisherList.add("Hasbro");
 
         //Creazione Boardgame
-        /*
         BoardgameModelMongo monopolyBoardgame = new
                 BoardgameModelMongo(boardgameName, thumbnail, image, description, yearPublished,
                 minPlayers, maxPlayers, playingTime, minAge, boardgameCategoryList, boardgameDesignerList, boardgamePublisherList);
 
         System.out.println("\nResult of the Boardgame insertion operation: ");
         boolean boardgameToBeInsert = serviceBoardgame.insertBoardgame(monopolyBoardgame);
+
         if (boardgameToBeInsert) {
-            System.out.println("The Boardgame has been correctly inserted into the MongoDB and Neo4j dbms.");
+            System.out.println("\n\nThe Boardgame has been correctly inserted into MongoDB and Neo4j dbms.");
         } else {
-            System.out.println("The Boardgame has NOT been correctly inserted into the MongoDB and Neo4j dbms.");
+            System.out.println("\n\nThe Boardgame has NOT been correctly inserted into the MongoDB and Neo4j dbms.");
         }
         System.out.println("\n\n");
-         */
 
-        PostModelMongo postTest = postDBMongo.findById("65a930a56448dd90156b31ff").get();
-        String postId = postTest.getId();
-        String username_test = "author_test_2";
-        String body_test = " commento verifica deleteComment method";
-        Date timestamp = new Date();
-        CommentModelMongo commentTest = new CommentModelMongo(
-                postId,
-                username_test,
-                body_test, timestamp);
-
-        //Operazione che genera correttamente l'id del commento che spunterà poi nell'array dei commenti del post
-        CommentModelMongo commentIntoCommentCollection = commentDBMongo.addComment(commentTest);
-
+//
+//        PostModelMongo postTest = postDBMongo.findById("65a930a56448dd90156b31ff").get();
+//        String postId = postTest.getId();
+//        String username_test = "author_test_2";
+//        String body_test = " commento verifica deleteComment method";
+//        Date timestamp = new Date();
+//        CommentModelMongo commentTest = new CommentModelMongo(
+//                postId,
+//                username_test,
+//                body_test, timestamp);
+//
+//        //Operazione che genera correttamente l'id del commento che spunterà poi nell'array dei commenti del post
+//        CommentModelMongo commentIntoCommentCollection = commentDBMongo.addComment(commentTest);
+//
 //        boolean serviceTest = serviceComment.addCommentToPost(
 //                commentIntoCommentCollection, postTest);
-
-        boolean serviceTest2 = serviceComment.deleteComment(
-                commentTest, postTest);
-
-        if(serviceTest2)
-        {
-            System.out.println("\n- Status: OK! - Comment added and removed in post collection into mongo db");
-        } else {
-            System.out.println("Error during adding comment in post both for neo4j and mongo db");
-        }
+//
+//        boolean serviceTest2 = serviceComment.deleteComment(
+//                commentTest, postTest);
+//
+//        if(serviceTest2)
+//        {
+//            System.out.println("\n- Status: OK! - Comment added and removed in post collection into mongo db");
+//        } else {
+//            System.out.println("Error during adding comment in post both for neo4j and mongo db");
+//        }
 
 
 
