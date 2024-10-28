@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
