@@ -12,6 +12,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 
@@ -25,6 +26,7 @@ import javafx.stage.Stage;
 
 //Spring Components
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -130,6 +132,10 @@ public class BoardgamecafeApplication {
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
     private BoardgameDBNeo4j boardgameDBNeo4j;
+    @Autowired
+    private CommentService serviceComment;
+    @Autowired
+    private CommentDBMongo commentDBMongo;
 
     public static void main(String[] args)
     {
@@ -400,49 +406,79 @@ public class BoardgamecafeApplication {
 
 
         // Test del metodo insertBoardgame() - Da completare
+        /*
         System.out.println("************ BOARDGAME-SERVICE RESULTS ************");
-        String boardgameName = boardgameName;
-        String thumbnail = thumbnail;
-        String image = image;
-        String description = description;
-        int yearPublished = yearPublished;
-        int minPlayers = minPlayers;
-        int maxPlayers = maxPlayers;
-        int playingTime = playingTime;
-        int minAge = minAge;
-        List<String> boardgameCategoryList = boardgameCategoryList;
-        List<String> boardgameDesignerList = boardgameDesignerList;
-        List<String> boardgamePublisherList = boardgamePublisherList;
+        String boardgameName = "Monopoly24";
+        String thumbnail = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
+        String image = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
+        String description = "This game takes its name from the economic concept of monopoly, or the domination of the market by a single seller";
+        int yearPublished = 2024;
+        int minPlayers = 2;
+        int maxPlayers = 6;
+        int playingTime = 5;
+        int minAge = 8;
+        List<String> boardgameCategoryList = new ArrayList<>();
+        boardgameCategoryList.add("Society");
+        List<String> boardgameDesignerList = new ArrayList<>();
+        boardgameDesignerList.add("Elizabeth Magie");
+        boardgameDesignerList.add("Charles Darrow");
+        List<String> boardgamePublisherList = new ArrayList<>();
+        boardgamePublisherList.add("Hasbro");*/
 
         //Creazione Boardgame
-        BoardgameModelMongo boardgame = new BoardgameModelMongo()
-        try {
-            System.out.println("\nResults: ");
-            BoardgameModelMongo boardgame = serviceBoardgame.
-                    insertBoardgame(testUsername);
-            if (!suggestedBoardgames.isEmpty()) {
-                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
-                    System.out.println(boardgame.toString());
-                }
-            } else {
-                System.out.println("Empty result set");
-            }
-        } catch (Exception ex) {
-            System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
+        /*
+        BoardgameModelMongo monopolyBoardgame = new
+                BoardgameModelMongo(boardgameName, thumbnail, image, description, yearPublished,
+                minPlayers, maxPlayers, playingTime, minAge, boardgameCategoryList, boardgameDesignerList, boardgamePublisherList);
+
+        System.out.println("\nResult of the Boardgame insertion operation: ");
+        boolean boardgameToBeInsert = serviceBoardgame.insertBoardgame(monopolyBoardgame);
+        if (boardgameToBeInsert) {
+            System.out.println("The Boardgame has been correctly inserted into the MongoDB and Neo4j dbms.");
+        } else {
+            System.out.println("The Boardgame has NOT been correctly inserted into the MongoDB and Neo4j dbms.");
         }
         System.out.println("\n\n");
+         */
+
+        PostModelMongo postTest = postDBMongo.findById("65a930a56448dd90156b31ff").get();
+        String postId = postTest.getId();
+        String username_test = "author_test";
+        String body_test = " commento verifica caratteristiche save spring";
+        Date timestamp = new Date();
+        CommentModelMongo commentTest = new CommentModelMongo(
+                postId,
+                username_test,
+                body_test, timestamp);
+
+        //Operazione che genera correttamente l'id del commento che spunterà poi nell'array dei commenti del post
+        CommentModelMongo commentIntoCommentCollection = commentDBMongo.addComment(commentTest);
+
+        boolean serviceTest = serviceComment.addCommentToPost(
+                commentIntoCommentCollection, postTest);
+
+        if(serviceTest)
+        {
+            System.out.println("\n- Status: OK! - Comment added and removed in post collection into mongo db");
+        } else {
+            System.out.println("Error during adding comment in post both for neo4j and mongo db");
+        }
+
+
 
 
 
         // ************************** Inizio Test Insert Post **************************
 
-        PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
-        if (servicePost.insertPost(newPost))
-            System.out.println("Commento inserito");
-        else
-            System.out.println("Commento non inserito");
+        //PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+        //if (servicePost.insertPost(newPost))
+        //    System.out.println("Commento inserito");
+        //else
+        //    System.out.println("Commento non inserito");
 
         // ************************** Fine Test Insert Post **************************
+
+
 
 
 
