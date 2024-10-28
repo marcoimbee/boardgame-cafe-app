@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,6 +16,8 @@ public class CommentModelMongo {
     private String username;
     private String text;
     private Date timestamp;
+    @JsonIgnore
+    private String _class;
 
     @JsonIgnore
     private String _class;          // Makes the model compatible with documents which present the '_class' attributes

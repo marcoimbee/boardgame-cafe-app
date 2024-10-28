@@ -152,233 +152,15 @@ public class BoardgamecafeApplication {
         String idUser2 = "865l9633f0l96v33a2569885";
 
 
-        // ************************** Inizio Test Insert Post **************************
+        // ************************** (Begin) New Test-Code Section **************************
 
-        PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
-        if (servicePost.insertPost(newPost))
-            System.out.println("Commento inserito");
-        else
-            System.out.println("Commento non inserito");
+        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
+        System.out.println("\n\n");
 
 
+        // ************************** Queries Test-Code Section **************************
+        /*
 
-
-
-
-
-
-
-        // ************************** Fine Test Insert Post **************************
-
-//        // ************************** (Begin) New Test-Code Section **************************
-//
-////        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
-////        System.out.println("\n\n");
-///*
-//        System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
-//        System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
-//        Optional<PostModelMongo> optionalPost = servicePost.showMostLikedPost();
-//        if (optionalPost.isPresent()) {
-//            // Estrai l'oggetto PostModelMongo dall'Optional container
-//            PostModelMongo post = optionalPost.get();
-//
-//            // Così facendo posso accedere agli attributi dell'oggetto PostModelMongo
-//            String bestPostId = post.getId();
-//            String bestPostTitle = post.getTitle();
-//            String bestPostAuthorName = post.getUsername();
-//            List<CommentModelMongo> comments = post.getComments();
-//            int numComment = 0;
-//            int totalPostLikes = postDBNeo4j.findTotalLikesByPostID(bestPostId);
-//
-//            System.out.println("\n-- Main Infos Best-Post extracted from Optional:");
-//            System.out.println("Post ID: " + bestPostId);
-//            System.out.println("Post Title: " + bestPostTitle);
-//            System.out.println("Post's Author Username: " + bestPostAuthorName);
-//            System.out.println("Total Likes: " + totalPostLikes);
-//            System.out.println("\nPost's Comments: ");
-//            if (comments.isEmpty()) {
-//                System.out.println("    " + " - Empty List: Not Any Comments Added");
-//            }
-//            for (CommentModelMongo comment: comments) {
-//                System.out.println("    " + " - "+ ++numComment +")"+" Comment's Author: " + comment.getUsername());
-//                System.out.println("    " + "              Body: " + comment.getText());
-//            }
-//            System.out.println("\nFull 'Optional' Raw Data-Structure Object:");
-//            System.out.println(optionalPost);
-//        } else {
-//            System.out.println("Nessun post con più like trovato.");
-//        }*/
-//
-//        /*
-//        // Test del metodo findCountriesWithMostUsers
-//        System.out.println("\n- Countries With Most Users -");
-//        try {
-//            Document countriesMostUsers = userDBMongo.
-//                    findCountriesWithMostUsers(10);  // valore per limitare i risultati
-//            System.out.println("\nResults from Aggregation:");
-//            System.out.println(countriesMostUsers.toJson());
-//        } catch (Exception ex) {
-//            System.out.println("Error while fetching countries: " + ex.getMessage());
-//        }
-//        */
-//        /*
-//        // Test del metodo findTopRatedBoardgamesPerYear
-//        System.out.println("\n- Top Rated Boardgames per Year -");
-//        try {
-//            Document topRatedBoardgames = boardgameDBMongo.
-//                    findTopRatedBoardgamesPerYear(10, 10);  // Ad esempio, minimo 10 recensioni e top 5 risultati
-//            System.out.println("\nResults from Aggregation:");
-//            System.out.println(topRatedBoardgames.toJson());
-//        } catch (Exception ex) {
-//            System.out.println("Error while fetching top-rated boardgames: " + ex.getMessage());
-//        }
-//        */
-//        /*
-//        // Test del metodo findTopRatedBoardgame (Based on highest score in its reviews)
-//        System.out.println("\n- Top Rated Boardgames by highest score in its reviews -");
-//        try {
-//            Document topRatedBoardgame = boardgameDBMongo.
-//                    findTopRatedBoardgames(15,10);
-//            System.out.println("\nResults from Aggregation:");
-//            System.out.println(topRatedBoardgame.toJson());
-//        } catch (Exception ex) {
-//            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
-//        }
-//        */
-//        /*
-//        // Test del metodo findTopPostsByBoardgameName
-//        // Versione con raggruppamento per titolo - ToCheck
-//        System.out.println("\n- Top Posts by Boardgame Name ordered by comments number -");
-//        try {
-//            Document topPostsTagBased = postDBMongo.
-//                    findTopPostsByBoardgameName("Catan",20);
-//            System.out.println("\nResults from Aggregation:");
-//            System.out.println(topPostsTagBased.toJson());
-//        } catch (Exception ex) {
-//            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
-//        }
-//        */
-//
-//        // Test del metodo findActiveUsersByReviews (MostActiveUsers)
-//        System.out.println("************ MOST ACTIVE USERS (REVIEWS-BASED) ************");
-//        //MongoDB Related
-//        System.out.println("\n");
-//        // Formato per le date
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//        try {
-//            // Convertire le stringhe delle date in oggetti di tipo Date
-//            Date startDate = dateFormat.parse("1970-01-01");
-//            Date endDate = dateFormat.parse("2022-12-31");
-//
-//            Document activeUsers  = userDBMongo.
-//                    findActiveUsersByReviews(startDate,endDate,10);
-//
-//            System.out.println("- Results from Aggregation:");
-//            System.out.println(activeUsers.toJson());
-//
-//        } catch (ParseException ex) {
-//            System.out.println("Error parsing dates: " + ex.getMessage());
-//        } catch (Exception ex) {
-//            System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
-//        }
-//        System.out.println("\n\n");
-//
-//
-//        // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
-//        System.out.println("************ USERS WITH COMMON POSTS BASED ON BOARDGAMES  ************");
-//        //Neo4j Related
-//        System.out.println("\n");
-//        List<UserModelMongo> mySuggestedUsers = serviceUser.
-//                suggestUsersByCommonBoardgamePosted("goldengoose951", 5);
-//
-//        if (mySuggestedUsers.isEmpty())
-//            System.out.println("mySuggestedUsers vuota");
-//        for(UserModelMongo suggestedUser : mySuggestedUsers)
-//        {
-//            System.out.println(suggestedUser.toString());
-//        }
-//        System.out.println("\n\n");
-//
-//
-//        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
-//        System.out.println("************ LIKED POST RESULTS ************");
-//        //Neo4j Related
-//        System.out.println("\n");
-//        List<PostModelMongo> suggestedLikedPosts = servicePost.
-//                suggestPostLikedByFollowedUsers("happybutterfly415", 5);
-//
-//        if (suggestedLikedPosts.isEmpty())
-//            System.out.println("SuggestedLikedPosts List vuota");
-//        for(PostModelMongo likedPost : suggestedLikedPosts)
-//        {
-//            List<CommentModelMongo> comments = likedPost.getComments();
-//            //System.out.println("\n");
-//            System.out.println("******* ToString *******: ");
-//            System.out.println(likedPost);
-//            System.out.println("************************");
-//            /*System.out.println("Title: " + suggestedPost.getTitle());
-//            System.out.println("Body: " + suggestedPost.getText());
-//            System.out.println("\nPost's Comments: ");
-//            if (comments.isEmpty()) {
-//                System.out.println("    " + " - Empty List: Not Any Comments Added");
-//            }
-//            for (CommentModelMongo comment: comments) {
-//                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
-//                System.out.println("    " + "              Text: " + comment.getText());
-//            }*/
-//        }
-//        System.out.println("\n\n");
-//
-//
-//        // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
-//        System.out.println("************ COMMENTED POST RESULTS ************");
-//        //Neo4j Related
-//        System.out.println("\n");
-//        List<PostModelMongo> suggestedCommentedPosts = servicePost.
-//                suggestPostCommentedByFollowedUsers("redkoala794", 5);
-//
-//        if (suggestedCommentedPosts.isEmpty())
-//            System.out.println("SuggestedPostsCommented List vuota");
-//        for(PostModelMongo commentedPost : suggestedCommentedPosts)
-//        {
-//            List<CommentModelMongo> comments = commentedPost.getComments();
-//            //System.out.println("\n");
-//            System.out.println("******* ToString *******: ");
-//            System.out.println(commentedPost);
-//            System.out.println("************************");
-//            /*System.out.println("Title: " + suggestedPost.getTitle());
-//            System.out.println("Body: " + suggestedPost.getText());
-//            System.out.println("\nPost's Comments: ");
-//            if (comments.isEmpty()) {
-//                System.out.println("    " + " - Empty List: Not Any Comments Added");
-//            }
-//            for (CommentModelMongo comment: comments) {
-//                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
-//                System.out.println("    " + "              Text: " + comment.getText());
-//            }*/
-//        }
-//        System.out.println("\n");
-//
-//
-//        // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
-//        System.out.println("\n- SUGGESTED BOARDGAMES ABOUT WHICH USERS YOU FOLLOW HAVE POSTED -");
-//        String testUsername = "redkoala794";
-//        try {
-//            System.out.println("\nResults: ");
-//            List<BoardgameModelMongo> suggestedBoardgames = serviceBoardgame.
-//                    suggestBoardgamesWithPostsByFollowedUsers(testUsername);
-//            if (!suggestedBoardgames.isEmpty()) {
-//                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
-//                    System.out.println(boardgame.toString());
-//                }
-//            } else {
-//                System.out.println("Empty result set");
-//            }
-//        } catch (Exception ex) {
-//            System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
-//        }
-//        System.out.println("\n\n");
-/*
         System.out.println("\n- Shown below is a specific post that has higher likes into BoardGameCafe App -");
         System.out.println("- Data obtained from MongoDB filtered thanks to Neo4jDB relationship info.-");
         Optional<PostModelMongo> optionalPost = servicePost.showMostLikedPost();
@@ -411,9 +193,9 @@ public class BoardgamecafeApplication {
             System.out.println(optionalPost);
         } else {
             System.out.println("Nessun post con più like trovato.");
-        }*/
+        }
 
-        /*
+
         // Test del metodo findCountriesWithMostUsers
         System.out.println("\n- Countries With Most Users -");
         try {
@@ -424,8 +206,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching countries: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findTopRatedBoardgamesPerYear
         System.out.println("\n- Top Rated Boardgames per Year -");
         try {
@@ -436,8 +218,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgames: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findTopRatedBoardgame (Based on highest score in its reviews)
         System.out.println("\n- Top Rated Boardgames by highest score in its reviews -");
         try {
@@ -448,8 +230,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findTopPostsByBoardgameName
         // Versione con raggruppamento per titolo - ToCheck
         System.out.println("\n- Top Posts by Boardgame Name ordered by comments number -");
@@ -461,8 +243,8 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
-        */
-        /*
+
+
         // Test del metodo findActiveUsersByReviews (MostActiveUsers)
         System.out.println("************ MOST ACTIVE USERS (REVIEWS-BASED) ************");
         //MongoDB Related
@@ -486,8 +268,8 @@ public class BoardgamecafeApplication {
             System.out.println("Error while fetching top-rated boardgame: " + ex.getMessage());
         }
         System.out.println("\n\n");
-        */
-        /*
+
+
         // Test del metodo suggestUsersByCommonBoardgamePosted (for New Users to follow)
         System.out.println("************ USERS WITH COMMON POSTS BASED ON BOARDGAMES  ************");
         //Neo4j Related
@@ -502,8 +284,8 @@ public class BoardgamecafeApplication {
             System.out.println(suggestedUser.toString());
         }
         System.out.println("\n\n");
-        */
-        /*
+
+
         System.out.println("************ USERS WHO LIKED SAME POSTS ORDERED BY MESURE OF LATTER ************");
         System.out.println("\n");
         List<UserModelMongo> mySuggestedUsers = serviceUser.
@@ -531,21 +313,20 @@ public class BoardgamecafeApplication {
             System.out.println("******* ToString *******: ");
             System.out.println(likedPost);
             System.out.println("************************");
-
-            //System.out.println("Title: " + suggestedPost.getTitle());
-            //System.out.println("Body: " + suggestedPost.getText());
-            //System.out.println("\nPost's Comments: ");
-            //if (comments.isEmpty()) {
-            //    System.out.println("    " + " - Empty List: Not Any Comments Added");
-            //}
-            //for (CommentModelMongo comment: comments) {
-            //    System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
-            //    System.out.println("    " + "              Text: " + comment.getText());
-            //}
+            /*System.out.println("Title: " + suggestedPost.getTitle());
+            System.out.println("Body: " + suggestedPost.getText());
+            System.out.println("\nPost's Comments: ");
+            if (comments.isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Comments Added");
+            }
+            for (CommentModelMongo comment: comments) {
+                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+                System.out.println("    " + "              Text: " + comment.getText());
+            }
         }
         System.out.println("\n\n");
-        */
-        /*
+
+
         // Test del metodo suggestPostLikedByFollowedUsers (for Posts to suggest)
         System.out.println("************ COMMENTED POST RESULTS ************");
         //Neo4j Related
@@ -562,27 +343,45 @@ public class BoardgamecafeApplication {
             System.out.println("******* ToString *******: ");
             System.out.println(commentedPost);
             System.out.println("************************");
-            //System.out.println("Title: " + suggestedPost.getTitle());
-            //System.out.println("Body: " + suggestedPost.getText());
-            //System.out.println("\nPost's Comments: ");
-            //if (comments.isEmpty()) {
-            //    System.out.println("    " + " - Empty List: Not Any Comments Added");
-            //}
-            //for (CommentModelMongo comment: comments) {
-            //    System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
-            //    System.out.println("    " + "              Text: " + comment.getText());
-            //}
+            /*System.out.println("Title: " + suggestedPost.getTitle());
+            System.out.println("Body: " + suggestedPost.getText());
+            System.out.println("\nPost's Comments: ");
+            if (comments.isEmpty()) {
+                System.out.println("    " + " - Empty List: Not Any Comments Added");
+            }
+            for (CommentModelMongo comment: comments) {
+                System.out.println("    " + " - " + " Comment's Author: " + comment.getUsername());
+                System.out.println("    " + "              Text: " + comment.getText());
+            }
         }
         System.out.println("\n");
-        */
 
-        /*
-        // Test del metodo suggestInfluencerUsers (NEO4J)
+
+        // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
+        System.out.println("\n- SUGGESTED BOARDGAMES ABOUT WHICH USERS YOU FOLLOW HAVE POSTED -");
+        String testUsername = "redkoala794";
+        try {
+            System.out.println("\nResults: ");
+            List<BoardgameModelMongo> suggestedBoardgames = serviceBoardgame.
+                    suggestBoardgamesWithPostsByFollowedUsers(testUsername);
+            if (!suggestedBoardgames.isEmpty()) {
+                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
+                    System.out.println(boardgame.toString());
+                }
+            } else {
+                System.out.println("Empty result set");
+            }
+        } catch (Exception ex) {
+            System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
+        }
+        System.out.println("\n\n");
+
+        // Test del metodo getBoardgamesWithPostsByFollowedUsers (NEO4J)
         System.out.println("\n- SUGGESTED INFLUENCER USERS -");
         try {
             System.out.println("\nResults: ");
             List<UserModelMongo> suggestedInfluencers = serviceUser.
-                    suggestInfluencerUsers(10, 100, 40, 100);
+                    suggestInfluencerUsers(10, 50, 10, 5);
             if (!suggestedInfluencers.isEmpty()) {
                 for (UserModelMongo influencer: suggestedInfluencers) {
                     System.out.println(influencer.toString());
@@ -593,70 +392,62 @@ public class BoardgamecafeApplication {
         } catch (Exception ex) {
             System.out.println("Error while executing suggestInfluencerUsers(): " + ex.getMessage());
         }
+        System.out.println("\n\n");   */
+
+
+
+        // ########################## Services Test-Code Section ##########################
+
+
+        // Test del metodo insertBoardgame() - Da completare
+        System.out.println("************ BOARDGAME-SERVICE RESULTS ************");
+        String boardgameName = boardgameName;
+        String thumbnail = thumbnail;
+        String image = image;
+        String description = description;
+        int yearPublished = yearPublished;
+        int minPlayers = minPlayers;
+        int maxPlayers = maxPlayers;
+        int playingTime = playingTime;
+        int minAge = minAge;
+        List<String> boardgameCategoryList = boardgameCategoryList;
+        List<String> boardgameDesignerList = boardgameDesignerList;
+        List<String> boardgamePublisherList = boardgamePublisherList;
+
+        //Creazione Boardgame
+        BoardgameModelMongo boardgame = new BoardgameModelMongo()
+        try {
+            System.out.println("\nResults: ");
+            BoardgameModelMongo boardgame = serviceBoardgame.
+                    insertBoardgame(testUsername);
+            if (!suggestedBoardgames.isEmpty()) {
+                for (BoardgameModelMongo boardgame: suggestedBoardgames) {
+                    System.out.println(boardgame.toString());
+                }
+            } else {
+                System.out.println("Empty result set");
+            }
+        } catch (Exception ex) {
+            System.out.println("Error while executing getBoardgamesWithPostsByFollowedUsers: " + ex.getMessage());
+        }
         System.out.println("\n\n");
-        */
+
+
+
+        // ************************** Inizio Test Insert Post **************************
+
+        PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+        if (servicePost.insertPost(newPost))
+            System.out.println("Commento inserito");
+        else
+            System.out.println("Commento non inserito");
+
+        // ************************** Fine Test Insert Post **************************
+
+
+
 
         // ************************** (EndOf) New Test-Code Section **************************
-
-
-        //UserModelMongo userMongo =
-        //              serviceUser.createUser(username2, "giovanni_testemail@example.com",
-        //                                      "24681012","Giovanni","Test","male",
-        //                                      "IT","NotBanned",1974,06,11);
-
-        //UserModelNeo4j userNeo4j = new UserModelNeo4j(userMongo.getId(), userMongo.getUsername());
-
-        // System.out.println(" \n- New user added within MongoDB and Neo4j -\n");
-        //serviceUser.insertUser(userMongo, userNeo4j);
-
-        //serviceUser.deleteUser(userMongo);
-        //System.out.println(" \n- The user" + username2 + " DELETED from both MongoDB and Neo4j dbms -\n");
-
-
-        // *************** MongoDB Operations Management ***************
-
-        //System.out.println(" \n- Shown below are all users within MongoDB -\n");
-        //mongoRepository.findAll().forEach(System.out::println);
-
-        //System.out.println("\n- Shown below is a specifc user into MongoDB filtered out by username -");
-        //System.out.println("- Reference USERNAME: " + username2 + "\n");
-        //System.out.println(mongoRepository.findByUsername(username2));
-
-
-        // *************** Neo4jDB Operations Management ***************
-
-
-        //for(UserNeo4j users: userRepositoryNeo4j.findAll())
-        //{
-        //System.out.println("\n***** The User @" + users.getUsername() + " has these infos: *****\n");
-
-        //System.out.println(" " + "# List of ' BOARDGAMES ' added: \n");
-
-        //if (users.getBoardgames().isEmpty()) {
-        //System.out.println("    " + " - Empty List: Not Any Boardgames Added");
-        //}
-        //for (BoardgameNeo4j boardgames: users.getBoardgames()) {
-        //System.out.println("    " + " - Boardgame: " + boardgames.getName());
-        //}
-
-        //System.out.println("\n " + "# List of ' FOLLOWERS ' users: \n");
-
-        //if (users.getFollowers().isEmpty()) {
-        //System.out.println("    " + " - Empty List: Not Followed By Any Users");
-        //}
-        //for (UserNeo4j follower: users.getFollowers()) {
-        //System.out.println("    " + " - Follower: " + follower.getUsername());
-        //}
-
-        //System.out.println("\n " + "# List of ' FOLLOWING ' users: \n");
-
-        //if (users.getFollowedUsers().isEmpty()) {
-        //System.out.println("    " + " - Empty List: Not Following Any Users");
-        //}
-        //for (UserNeo4j follower: users.getFollowedUsers()) {
-        //System.out.println("    " + " - Follower: " + follower.getUsername());
-        //}
-        //}
     }
 
 }   //EOF Main SpringOnly Configuration
