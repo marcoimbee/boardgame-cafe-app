@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,22 +40,44 @@ public class PostService {
 
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
+    @Transactional
     public boolean insertPost(PostModelMongo postModelMongo) { //, UserModelNeo4j userModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
         try
         {
+            String idAuthorPost = postModelMongo.getUsername();
+            Optional<UserModelNeo4j> authorPostOptional = userDBNeo4j.findByUsername(idAuthorPost);
+            if (authorPostOptional.isEmpty()) // Check if the user is OK
+                throw new RuntimeException("InsertPost Exception: Post not added. Your account is not found!");
+
             PostModelMongo insertedPost = postDBMongo.addPost(postModelMongo);
-            if (insertedPost == null) {
-                logger.error("Error in adding post to collection in MongoDB");
-                return false;
-            }
+            if (insertedPost == null)
+                throw new RuntimeException("InsertPost Exception: Error in adding post to collection in MongoDB");
             System.out.println("Inserito commento id: " + insertedPost.getId());
 
-            // postModelMongo = postDBMongo.findByUsernameAndTimestamp(postModelMongo.getUsername(), postModelMongo.getTimestamp()).get();
-/*
-            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId());
-            if (insertedPost.getTag().isEmpty())
+            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId()); // Creation of post node in neo
+            UserModelNeo4j authorPost = authorPostOptional.get();
+            if (!postModelMongo.getTag().isEmpty()) // if the game is referred to a boardGame, then it's necessary the creation of the "REFERRED TO" relationship
             {
-                // Se c'è il tag, devo creare la relazione [REFERSO TO] su neo4j
+                Optional<BoardgameModelNeo4j> referredBoardgameOptional = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
+                referredBoardgameOptional.ifPresent(referredBoardgames -> postModelNeo4j.setTaggedGame(referredBoardgames));
+                System.out.println("Il post è riferito al gioco: " + referredBoardgameOptional.get().boardgameName);
+            }
+            if (!postDBNeo4j.addPost(postModelNeo4j)) // The REFERES TO relationship is already added (if exists)
+            {
+                deletePost(insertedPost);
+                throw new RuntimeException("InsertPost Exception: Post not added in Neo44j");
+            }
+            if (!addPostToUser(postModelNeo4j, authorPost))
+            {
+                deletePost(insertedPost);
+                throw new RuntimeException("InsertPost Exception: Problem with relationhip creation");
+            }
+            /*
+            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId());
+            if (!insertedPost.getTag().isEmpty()) // Se c'è il tag, devo creare la relazione [REFERSO TO] su neo4j
+            {
+                UserModelNeo4j x = new UserModelNeo4j();
+                x.addWrittenPost();
             }
             BoardgameModelNeo4j boardgameModelNeo4j = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
             if (boardgameModelNeo4j != null) {
@@ -95,25 +118,42 @@ public class PostService {
         return true;
     }
 
-    public boolean deletePost(PostModelMongo postModelMongo) {
+    public boolean addPostToBoardgame(PostModelNeo4j postModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
         try {
+            postModelNeo4j.setTaggedGame(boardgameModelNeo4j);
+            if (!postDBNeo4j.updatePost(postModelNeo4j))
+            {
+                logger.error("Error in connecting post to user in Neo4j");
+                return false;
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean deletePost(PostModelMongo postModelMongo)
+    {
+        try
+        {
             // delete all comments
             if (!commentDBMongo.deleteByPost(postModelMongo.getId())) {
-                logger.error("Error in deleting comments of post in MongoDB");
+                System.out.println("Error in deleting comments of post in MongoDB");
                 return false;
             }
             if (!commentDBNeo4j.deleteByPost(postModelMongo.getId())) {
-                logger.error("Error in deleting comments of post in Neo4j");
+                System.out.println("Error in deleting comments of post in Neo4j");
                 return false;
             }
-
             // delete post
             if (!postDBNeo4j.deletePost(postModelMongo.getId())) {
-                logger.error("Error in deleting post in Neo4j");
+                System.out.println("Error in deleting post in Neo4j");
                 return false;
             }
             if (!postDBMongo.deletePost(postModelMongo)) {
-                logger.error("Error in deleting post in MongoDB");
+                System.out.println("Error in deleting post in MongoDB");
                 return false;
             }
         }
