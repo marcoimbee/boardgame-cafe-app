@@ -95,8 +95,10 @@ public class UserModelNeo4j {
         }
         return null;
     }
-    public void addWrittenPost(PostModelNeo4j post) {
+    public void addWrittenPost(PostModelNeo4j post)
+    {
         this.writtenPosts.add(0, post);
+        
     }
     public boolean deleteWrittenPost(String id) {
         PostModelNeo4j post = this.getPostWrittenByUser(id);
