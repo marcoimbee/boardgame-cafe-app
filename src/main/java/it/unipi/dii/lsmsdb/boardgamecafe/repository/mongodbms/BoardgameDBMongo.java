@@ -31,7 +31,7 @@ public class BoardgameDBMongo {
 
     public BoardgameDBMongo() {}
 
-    public boolean addBoardgame(BoardgameModelMongo boardgame) {
+    public boolean addBoardgameOld(BoardgameModelMongo boardgame) {
         boolean result = true;
         try {
             boardgameRepoMongoOp.save(boardgame);
@@ -40,6 +40,13 @@ public class BoardgameDBMongo {
             result = false;
         }
         return result;
+    }
+
+    public BoardgameModelMongo addBoardgame(BoardgameModelMongo boardgame)
+    {
+        try { return boardgameRepoMongoOp.save(boardgame); }
+        catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
 
     public boolean deleteBoardgame(BoardgameModelMongo boardgame) {

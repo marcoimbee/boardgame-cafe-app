@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
@@ -23,7 +24,7 @@ public class BoardgameDBNeo4j {
     }
 
 
-    public boolean addBoardgame(BoardgameModelNeo4j boardgameNeo4j) {
+    public boolean addBoardgameOld(BoardgameModelNeo4j boardgameNeo4j) {
         boolean result = true;
         try {
             boardgameRepoNeo4j.save(boardgameNeo4j);
@@ -32,6 +33,13 @@ public class BoardgameDBNeo4j {
             result = false;
         }
         return result;
+    }
+
+    public BoardgameModelNeo4j addBoardgame(BoardgameModelNeo4j boardgame)
+    {
+        try { return boardgameRepoNeo4j.save(boardgame); }
+        catch (Exception e) { e.printStackTrace(); }
+        return null;
     }
 
     public boolean deleteBoardgameDetach(String boardgameName) {

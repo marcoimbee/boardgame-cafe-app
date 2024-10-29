@@ -38,133 +38,81 @@ public class CommentService {
     @Transactional
     public boolean insertComment(CommentModelMongo comment, PostModelMongo post, UserModelNeo4j user) {
         try {
-
-            CommentModelMongo insertedCommentResult = commentMongo.addComment(comment);
+            CommentModelMongo insertedCommentResult = commentMongo.addComment(comment);         // Inserting the comment in MongoDB
             if (insertedCommentResult == null) {
-                throw new RuntimeException("Error while inserting the new comment into MongoDB.");
+                throw new RuntimeException("Error while inserting the new MongoDB comment.");
             }
 
-            if (!commentNeo4j.addComment(new CommentModelNeo4j(insertedCommentResult.getId()))) {
+            if (!commentNeo4j.addComment(new CommentModelNeo4j(insertedCommentResult.getId()))) {       // Inserting the comment in Neo4J
                 commentMongo.deleteComment(insertedCommentResult);
-                throw new RuntimeException("Error while inserting the new comment into Neo4J - MongoDB comment has been removed.");
+                throw new RuntimeException("Error while inserting the new Neo4J comment (MongoDB comment has been removed).");
             }
 
-            if (!addCommentToUser(new CommentModelNeo4j(insertedCommentResult.getId()), user) || !addCommentToPost(insertedCommentResult, post)) {
+            if (!addCommentRelationshipToNeo4jUser(new CommentModelNeo4j(insertedCommentResult.getId()), user)) {       // Creating the needed relationships in Neo4J
                 deleteComment(insertedCommentResult, post);
-                throw new RuntimeException("Error while creating relationships in Neo4J for new comment insertion.");
+                throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
+            }
+
+            if (!addCommentToMongoPostAndNeoPost(insertedCommentResult, post)) {        // Adding the comment to the post's comment list
+                deleteComment(insertedCommentResult, post);
+                throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
             }
         } catch (RuntimeException e) {
-            System.err.println("[ERROR] " + e.getMessage());
+            System.err.println("[ERROR] insertComment@CommentService.java raised an exception: " + e.getMessage());
             return false;
         }
 
         return true;
     }
 
-
-    public boolean addCommentToUser(CommentModelNeo4j comment, UserModelNeo4j user) {
+    private boolean addCommentRelationshipToNeo4jUser(CommentModelNeo4j comment, UserModelNeo4j user) {
         try {
             user.addWrittenComment(comment);
-            if(!userNeo4j.updateUser(user.getId(), user)) {
-                logger.error("Error in adding comment to user in Neo4j");
+            if(!userNeo4j.addUser(user)) {
                 return false;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("[ERROR] addCommentToUser()@CommentService.java generated an exception: " + e.getMessage());
             return false;
         }
         return true;
     }
 
-    @Transactional
-    public boolean addCommentToPost(CommentModelMongo comment, PostModelMongo post) {
+    private boolean addCommentToMongoPostAndNeoPost(CommentModelMongo comment, PostModelMongo post) {
 
-        //Aggiunta del commento dall'oggetto locale,
-        //quindi dalla lista di commenti che sta in model (add)
-        post.addComment(comment);
-        postMongo.addCommentInPostArray(post, comment);
-        //if (!postMongo.addPost(post)) {
-        /*if (!postMongo.addPost(post)) {
-            logger.error("Error in adding comment to post in MongoDB");
+        post.addComment(comment);           // Adding the comment to the local MongoDB post object
+
+        if (!postMongo.addCommentInPostArray(post, comment)) {             // Updating the actual document in MongoDB
+            return false;               // Aborting whole operation, this will make insertComment() fail and rollback
+        }
+
+        // Getting the Neo4j Optional related to the Post node on which the user has commented
+        Optional<PostModelNeo4j> commentedNeo4jPostOptional = postNeo4j.findById(post.getId());
+        if (commentedNeo4jPostOptional.isEmpty()) {
             return false;
-        }*/
+        }
 
-        System.out.println("- Post Aggiunto con nuovo commento in MongoDB");
-        System.out.println("\ncommentId del commento aggiunto al post:" + comment.getId());
-        System.out.println("commentId_into_post_list:" + post.getCommentInPost(comment.getId()).getId());
-
-        //Rimozione del commento dall'oggetto locale,
-        //quindi dalla lista di commenti che sta in model (remove)
-        //post.deleteCommentInPost(comment.getId());
-
-        System.out.println("\n- Il commento precedentemente aggiunto è stato appena rimosso dal post");
-
-        //invio del document aggiornato a mongo tramite addPost(post) [che fa uso di save()]
-        //che aggiornerà automaticamente l'array contenuto nel documento
-        //postMongo.addPost(post);
-        //postMongo.deleteCommentFromArrayInPost(post, comment);
-        System.out.println("\n*** Post Aggiornato in MongoDB senza il commento ***");
+        PostModelNeo4j commentedNeo4jPost = commentedNeo4jPostOptional.get();  // Obtaining the actual Neo4j post that's being commented
+        commentedNeo4jPost.addComment(new CommentModelNeo4j(comment.getId()));    // Adding the comment to the post
+        if (!postNeo4j.updatePost(commentedNeo4jPost)) {         // Finally updating the post in Neo4J
+            return false;           // Something goes wrong, we can return and insertComment() will take care of rolling back
+        }
 
         return true;
-
-            /*
-            Optional<PostModelNeo4j> postNeo4jByMongo = postNeo4j.findById(post.getId());
-            if (postNeo4jByMongo.isEmpty()) {
-                logger.error("Post not found in Neo4j");
-                //rimozione del commento dall'oggetto locale,
-                // quindi dalla lista di comenti che sta in model (remove)
-                post.deleteCommentInPost(comment.getId());
-                //invio del document aggiornato a mongo tramite
-                // addPost(post) [che fa uso di save()] invece che .updatePost(post.getId(), post)
-                if (!postMongo.addPost(post)) {
-                    logger.error("Error in removing comment from post in MongoDB");
-                }
-                return false;
-            }
-            return true;
-
-
-            PostModelNeo4j postModelNeo4j = tmp.get();
-            postModelNeo4j.addComment(new CommentModelNeo4j(comment.getId()));
-            if (!postNeo4j.updatePost(postModelNeo4j)) {
-                logger.error("Error in adding comment to post in Neo4j");
-                post.deleteCommentInPost(comment.getId());
-                if (!postMongo.updatePost(post.getId(), post)) {
-                    logger.error("Error in removing comment from post in MongoDB");
-                }
-                return false;
-            }
-        }
-        catch (Exception e) {
-            System.out.println("[ERROR] addCommentToPost()@CommentService.java generated an exception: " + e.getMessage());
-            return false;
-        }
-        return true;*/
     }
 
-
-    public boolean deleteComment(CommentModelMongo comment, PostModelMongo post) {
-        try {
-            postMongo.deleteCommentFromArrayInPost(post, comment);
-            commentNeo4j.deleteAndDetachComment(comment.getId());   // Also remove relationships, no need to propagate to UserNeo4j or PostNeo4j
-            commentMongo.deleteComment(comment);
-        }
-        catch (Exception e) {
-            System.out.println("[ERROR] deleteComment()@CommentService.java generated an exception: " + e.getMessage());
-            return false;
-        }
-        return true;
+    private void deleteComment(CommentModelMongo comment, PostModelMongo post) {
+        postMongo.deleteCommentFromArrayInPost(post, comment);
+        commentNeo4j.deleteAndDetachComment(comment.getId());   // Also remove relationships, no need to propagate to UserNeo4j or PostNeo4j
+        commentMongo.deleteComment(comment);
     }
 
     public String getCommentId(CommentModelMongo comment) {
-        Optional<CommentModelMongo> commentResult =
-                commentMongo.findByUsernameAndPostAndTimestamp(comment.getUsername(), comment.getPost(), comment.getTimestamp());
-        if (commentResult.isPresent()) {
-            return commentResult.get().getId();
-        } else {
-            logger.error("Comment not found");
-        }
-        return "";
+        Optional<CommentModelMongo> commentResult = commentMongo.findByUsernameAndPostAndTimestamp(
+                comment.getUsername(),
+                comment.getPost(),
+                comment.getTimestamp()
+        );
+        return commentResult.map(CommentModelMongo::getId).orElse(null);
     }
 }

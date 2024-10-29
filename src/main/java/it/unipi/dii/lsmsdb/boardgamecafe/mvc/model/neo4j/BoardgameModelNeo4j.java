@@ -1,7 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
+import org.springframework.data.annotation.Version;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+
+import java.util.List;
 
 @Node("Boardgame")
 public class BoardgameModelNeo4j {
@@ -12,7 +16,16 @@ public class BoardgameModelNeo4j {
     public String thumbnail;
     public int yearPublished;
 
-    public BoardgameModelNeo4j(){};
+    //To Avoid duplicates
+//    @Version
+//    private long version;
+
+    // Relazione in entrata dai nodi Post
+    @Relationship(type = "REFERS_TO", direction = Relationship.Direction.INCOMING)
+    private List<PostModelNeo4j> posts;
+
+    // Costruttori, getter e setter
+    public BoardgameModelNeo4j() {}
 
     public BoardgameModelNeo4j(String id, String boardgameName,
                                String thumbnail, int yearPublished) {
@@ -56,6 +69,9 @@ public class BoardgameModelNeo4j {
         this.yearPublished = yearPublished;
     }
 
+    public List<PostModelNeo4j> getPosts() { return posts; }
+    public void setPosts(List<PostModelNeo4j> posts) { this.posts = posts; }
+
     @Override
     public String toString() {
         return "BoardgameNeo4j{" +
@@ -63,6 +79,7 @@ public class BoardgameModelNeo4j {
                 ", name='" + boardgameName + '\'' +
                 ", image='" + thumbnail + '\'' +
                 ", yearpublished='" + yearPublished + '\'' +
+                ", posts=" + posts +
                 '}';
     }
 }
