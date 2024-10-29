@@ -38,6 +38,7 @@ public class CommentService {
     @Transactional
     public boolean insertComment(CommentModelMongo comment, PostModelMongo post, UserModelNeo4j user) {
         try {
+
             CommentModelMongo insertedCommentResult = commentMongo.addComment(comment);
             if (insertedCommentResult == null) {
                 throw new RuntimeException("Error while inserting the new comment into MongoDB.");
@@ -49,7 +50,7 @@ public class CommentService {
             }
 
             if (!addCommentToUser(new CommentModelNeo4j(insertedCommentResult.getId()), user) || !addCommentToPost(insertedCommentResult, post)) {
-                deleteComment(insertedCommentResult, false);
+                deleteComment(insertedCommentResult, post);
                 throw new RuntimeException("Error while creating relationships in Neo4J for new comment insertion.");
             }
         } catch (RuntimeException e) {
