@@ -6,6 +6,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.internal.bulk.UpdateRequest;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 public class PostDBMongo {
@@ -39,6 +41,17 @@ public class PostDBMongo {
     private MongoOperations mongoOperations;
 
     public PostRepoMongo getPostMongo() {return postMongo;}
+
+    public boolean addPostOld(PostModelMongo post) {
+        try {
+            postMongo.save(post);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     public PostModelMongo addPost(PostModelMongo post)
     {
@@ -54,7 +67,7 @@ public class PostDBMongo {
 
         return true;
     }
-    
+
     public boolean updatePost(String id, PostModelMongo updated)
     {
         /* Questo metodo viene invocato quando l'utente vuole modificare il post, ossia text oppure il Title.
@@ -275,18 +288,24 @@ public class PostDBMongo {
     }
 
     //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
-    public void deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment) {
+    public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment)
+    {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
         Update update = new Update().pull("comments", matchCommentById);
-        mongoOperations.updateFirst(query, update, PostModelMongo.class);
+        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
+
+        // Se almeno un documento è stato modificato, l'update è riuscito
+        return result.getModifiedCount() > 0;
     }
 
-    public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment) {
+    public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment)
+    {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Update update = new Update().push("comments", comment);
-        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);         // Returns the # of updated documents
+        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
 
-        return result.getModifiedCount() > 0;           // If this is 1, all good
+        // Se almeno un documento è stato modificato, l'update è riuscito
+        return result.getModifiedCount() > 0;
     }
 }
