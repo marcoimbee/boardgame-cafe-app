@@ -39,22 +39,44 @@ public class PostService {
 
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
+    @Transactional
     public boolean insertPost(PostModelMongo postModelMongo) { //, UserModelNeo4j userModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
         try
         {
+            String idAuthorPost = postModelMongo.getUsername();
+            Optional<UserModelNeo4j> authorPostOptional = userDBNeo4j.findByUsername(idAuthorPost);
+            if (authorPostOptional.isEmpty()) // Check if the user is OK
+                throw new RuntimeException("InsertPost Exception: Post not added. Your account is not found!");
+
             PostModelMongo insertedPost = postDBMongo.addPost(postModelMongo);
-            if (insertedPost == null) {
-                logger.error("Error in adding post to collection in MongoDB");
-                return false;
-            }
+            if (insertedPost == null)
+                throw new RuntimeException("InsertPost Exception: Error in adding post to collection in MongoDB");
             System.out.println("Inserito commento id: " + insertedPost.getId());
 
-            // postModelMongo = postDBMongo.findByUsernameAndTimestamp(postModelMongo.getUsername(), postModelMongo.getTimestamp()).get();
-/*
-            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId());
-            if (insertedPost.getTag().isEmpty())
+            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId()); // Creation of post node in neo
+            UserModelNeo4j authorPost = authorPostOptional.get();
+            if (!postModelMongo.getTag().isEmpty()) // if the game is referred to a boardGame, then it's necessary the creation of the "REFERRED TO" relationship
             {
-                // Se c'è il tag, devo creare la relazione [REFERSO TO] su neo4j
+                Optional<BoardgameModelNeo4j> referredBoardgameOptional = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
+                referredBoardgameOptional.ifPresent(referredBoardgames -> postModelNeo4j.setTaggedGame(referredBoardgames));
+                System.out.println("Il post è riferito al gioco: " + referredBoardgameOptional.get().boardgameName);
+            }
+            if (!postDBNeo4j.addPost(postModelNeo4j)) // The REFERES TO relationship is already added (if exists)
+            {
+                deletePost(insertedPost);
+                throw new RuntimeException("InsertPost Exception: Post not added in Neo44j");
+            }
+            if (!addPostToUser(postModelNeo4j, authorPost))
+            {
+                deletePost(insertedPost);
+                throw new RuntimeException("InsertPost Exception: Problem with relationhip creation");
+            }
+            /*
+            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId());
+            if (!insertedPost.getTag().isEmpty()) // Se c'è il tag, devo creare la relazione [REFERSO TO] su neo4j
+            {
+                UserModelNeo4j x = new UserModelNeo4j();
+                x.addWrittenPost();
             }
             BoardgameModelNeo4j boardgameModelNeo4j = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
             if (boardgameModelNeo4j != null) {
