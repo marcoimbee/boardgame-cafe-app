@@ -24,8 +24,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
 public class PostDBMongo {
-    public PostDBMongo() {
-    }
+
+    public PostDBMongo() {}
 
     @Autowired
     private PostRepoMongo postMongo;
@@ -37,8 +37,16 @@ public class PostDBMongo {
     public PostModelMongo addPost(PostModelMongo post)
     {
         try { return postMongo.save(post); }
-        catch (Exception e) { e.printStackTrace(); }
+        catch (Exception e) { System.err.println("[ERROR] addPost@PostDBMongo.java raised an exception: " + e.getMessage()); }
         return null;
+    }
+
+    public boolean deleteCommentFromPost(PostModelMongo post, CommentModelMongo comment) {
+        Criteria criteria = Criteria.where("_id").is(post.getId());
+        Update update = new Update().pull("comments", comment);
+        mongoOperations.updateFirst(query(criteria), update, PostModelMongo.class);
+
+        return true;
     }
 
     public boolean updatePost(String id, PostModelMongo updated)
@@ -261,19 +269,18 @@ public class PostDBMongo {
     }
 
     //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
-    public void deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment)
-    {
+    public void deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment) {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
         Update update = new Update().pull("comments", matchCommentById);
         mongoOperations.updateFirst(query, update, PostModelMongo.class);
     }
 
-    public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment)
-    {
+    public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment) {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Update update = new Update().push("comments", comment);
-        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
-        return result.getModifiedCount() > 0;
+        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);         // Returns the # of updated documents
+
+        return result.getModifiedCount() > 0;           // If this is 1, all good
     }
 }

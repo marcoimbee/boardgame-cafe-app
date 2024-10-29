@@ -1,8 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
@@ -12,7 +10,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-import javafx.geometry.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +38,8 @@ public class PostService {
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
     @Transactional
-    public boolean insertPost(PostModelMongo postModelMongo) { //, UserModelNeo4j userModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
+    public boolean insertPost(PostModelMongo postModelMongo)
+    {
         try
         {
             String idAuthorPost = postModelMongo.getUsername();
@@ -72,29 +70,6 @@ public class PostService {
                 deletePost(insertedPost);
                 throw new RuntimeException("InsertPost Exception: Problem with relationhip creation");
             }
-            /*
-            PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId());
-            if (!insertedPost.getTag().isEmpty()) // Se c'è il tag, devo creare la relazione [REFERSO TO] su neo4j
-            {
-                UserModelNeo4j x = new UserModelNeo4j();
-                x.addWrittenPost();
-            }
-            BoardgameModelNeo4j boardgameModelNeo4j = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
-            if (boardgameModelNeo4j != null) {
-                postModelNeo4j.setTaggedGame(boardgameModelNeo4j);
-            }
-            if (!postDBNeo4j.addPost(postModelNeo4j)) {
-                logger.error("Error in adding post to graph in Neo4j");
-                if (!postDBMongo.deletePost(postModelMongo)) {
-                    logger.error("Error in deleting post from collection in MongoDB");
-                }
-                return false;
-            }
-
-            if (!addPostToUser(postModelNeo4j, userModelNeo4j)) {
-                deletePost(postModelMongo);
-            }
-*/
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -103,26 +78,12 @@ public class PostService {
         return true;
     }
 
-    public boolean addPostToUser(PostModelNeo4j postModelNeo4j, UserModelNeo4j userModelNeo4j) {
+    private boolean addPostToUser(PostModelNeo4j postModelNeo4j, UserModelNeo4j userModelNeo4j)
+            // This methos is private beacuse is used only after the insetion-Post
+    {
         try {
             userModelNeo4j.addWrittenPost(postModelNeo4j);
             if (!userDBNeo4j.updateUser(userModelNeo4j.getId(), userModelNeo4j)) {
-                logger.error("Error in connecting post to user in Neo4j");
-                return false;
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    public boolean addPostToBoardgame(PostModelNeo4j postModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
-        try {
-            postModelNeo4j.setTaggedGame(boardgameModelNeo4j);
-            if (!postDBNeo4j.updatePost(postModelNeo4j))
-            {
                 logger.error("Error in connecting post to user in Neo4j");
                 return false;
             }
