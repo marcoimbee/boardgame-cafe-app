@@ -405,41 +405,65 @@ public class BoardgamecafeApplication {
         // ########################## Services Test-Code Section ##########################
 
 
-        // Test del metodo insertBoardgame() - Da completare
-        /*
-        System.out.println("************ BOARDGAME-SERVICE RESULTS ************");
-        String boardgameName = "Monopoly24";
-        String thumbnail = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
-        String image = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
-        String description = "This game takes its name from the economic concept of monopoly, or the domination of the market by a single seller";
-        int yearPublished = 2024;
-        int minPlayers = 2;
-        int maxPlayers = 6;
-        int playingTime = 5;
-        int minAge = 8;
-        List<String> boardgameCategoryList = new ArrayList<>();
-        boardgameCategoryList.add("Society");
-        List<String> boardgameDesignerList = new ArrayList<>();
-        boardgameDesignerList.add("Elizabeth Magie");
-        boardgameDesignerList.add("Charles Darrow");
-        List<String> boardgamePublisherList = new ArrayList<>();
-        boardgamePublisherList.add("Hasbro");*/
+        System.out.println("\n************ BOARDGAME-SERVICE RESULTS ************");
 
-        //Creazione Boardgame
-        /*
-        BoardgameModelMongo monopolyBoardgame = new
-                BoardgameModelMongo(boardgameName, thumbnail, image, description, yearPublished,
-                minPlayers, maxPlayers, playingTime, minAge, boardgameCategoryList, boardgameDesignerList, boardgamePublisherList);
+        // --- Test del metodo insertBoardgame() ---
+//        String boardgameName = "Monopoly24";
+//        String thumbnail = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
+//        String image = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
+//        String description = "This game takes its name from the economic concept of monopoly, or the domination of the market by a single seller";
+//        int yearPublished = 2024;
+//        int minPlayers = 2;
+//        int maxPlayers = 6;
+//        int playingTime = 5;
+//        int minAge = 8;
+//        List<String> boardgameCategoryList = new ArrayList<>();
+//        boardgameCategoryList.add("Society");
+//        List<String> boardgameDesignerList = new ArrayList<>();
+//        boardgameDesignerList.add("Elizabeth Magie");
+//        boardgameDesignerList.add("Charles Darrow");
+//        List<String> boardgamePublisherList = new ArrayList<>();
+//        boardgamePublisherList.add("Hasbro");
+//
+//        //Creazione Boardgame
+//        BoardgameModelMongo monopolyBoardgame = new
+//                BoardgameModelMongo(boardgameName, thumbnail, image, description, yearPublished,
+//                minPlayers, maxPlayers, playingTime, minAge, boardgameCategoryList, boardgameDesignerList, boardgamePublisherList);
+//
+//        System.out.println("\nResult of the Boardgame insertion operation: ");
+//        boolean boardgameToBeInsert = serviceBoardgame.insertBoardgame(monopolyBoardgame);
+//
+//        if (boardgameToBeInsert) {
+//            System.out.println("\n\nThe Operation has been correctly " +
+//                    "performed both for MongoDB and Neo4j dbms.");
+//        } else {
+//            System.out.println("\n\nThe Operation has NOT been correctly " +
+//                    "performed both for MongoDB and Neo4j dbms.");
+//        }
+//        System.out.println("\n\n");
 
-        System.out.println("\nResult of the Boardgame insertion operation: ");
-        boolean boardgameToBeInsert = serviceBoardgame.insertBoardgame(monopolyBoardgame);
-        if (boardgameToBeInsert) {
-            System.out.println("The Boardgame has been correctly inserted into the MongoDB and Neo4j dbms.");
+
+        // --- Test del metodo deleteBoardgame() ---
+        String monopolyBoardgameName = "Monopoly24";
+        Optional<BoardgameModelMongo> boardgameFromMongo = boardgameDBMongo.
+                                                           findBoardgameByName(monopolyBoardgameName);
+        if(boardgameFromMongo.isPresent()){
+            System.out.println("\nResult of the Boardgame Deletion operation: ");
+            BoardgameModelMongo boardgameToBeDeleted = boardgameFromMongo.get();
+
+            boolean deleteOpsResult = serviceBoardgame.deleteBoardgame(boardgameToBeDeleted);
+            if (deleteOpsResult) {
+                System.out.println("\n\nThe Operation has been correctly " +
+                                        "performed both for MongoDB and Neo4j dbms.");
+            } else {
+                System.out.println("\n\nThe Operation has NOT been correctly " +
+                                        "performed both for MongoDB and Neo4j dbms.");
+            }
         } else {
-            System.out.println("The Boardgame has NOT been correctly inserted into the MongoDB and Neo4j dbms.");
+            System.out.println("\nBoardgame not found!");
         }
         System.out.println("\n\n");
-         */
+
 
         // ************************** Inizio Test Delete comment **************************
         /*
@@ -475,11 +499,11 @@ public class BoardgamecafeApplication {
 
         // ************************** Inizio Test Insert Post **************************
 
-        PostModelMongo newPost = new PostModelMongo("whitelion758", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
-        if (servicePost.insertPost(newPost))
-            System.out.println("Commento inserito");
-        else
-            System.out.println("Commento non inserito");
+//        PostModelMongo newPost = new PostModelMongo("whitelion758", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+//        if (servicePost.insertPost(newPost))
+//            System.out.println("Commento inserito");
+//        else
+//            System.out.println("Commento non inserito");
 
         // ************************** Fine Test Insert Post **************************
 
