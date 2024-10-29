@@ -17,9 +17,6 @@ public class CommentModelMongo {
     private String text;
     private Date timestamp;
     @JsonIgnore
-    private String _class;
-
-    @JsonIgnore
     private String _class;          // Makes the model compatible with documents which present the '_class' attributes
 
     public CommentModelMongo() {}

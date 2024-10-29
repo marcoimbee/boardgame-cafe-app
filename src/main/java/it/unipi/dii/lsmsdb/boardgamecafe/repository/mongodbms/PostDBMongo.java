@@ -1,5 +1,9 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.result.UpdateResult;
+import com.mongodb.internal.bulk.UpdateRequest;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +23,11 @@ import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
 public class PostDBMongo {
+
     public PostDBMongo() {
     }
 
@@ -35,11 +41,18 @@ public class PostDBMongo {
     public boolean addPost(PostModelMongo post) {
         try {
             postMongo.save(post);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] addPost@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
+        return true;
+    }
+
+    public boolean deleteCommentFromPost(PostModelMongo post, CommentModelMongo comment) {
+        Criteria criteria = Criteria.where("_id").is(post.getId());
+        Update update = new Update().pull("comments", comment);
+        mongoOperations.updateFirst(query(criteria), update, PostModelMongo.class);
+
         return true;
     }
 
@@ -55,20 +68,20 @@ public class PostDBMongo {
                 post.setTimestamp(updated.getTimestamp());
                 post.setComments(updated.getComments());
                 postMongo.save(post);
+                return true;
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
-        return true;
+        catch (Exception e) {
+            System.err.println("[ERROR] updatePost@PostDBMongo.java raised an exception: " + e.getMessage());
+            return false;
+        }
     }
 
     public boolean deletePost(PostModelMongo post) {
         try {
             postMongo.delete(post);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -254,18 +267,18 @@ public class PostDBMongo {
     }
 
     //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
-    public void deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment)
-    {
+    public void deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment) {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
         Update update = new Update().pull("comments", matchCommentById);
         mongoOperations.updateFirst(query, update, PostModelMongo.class);
     }
 
-    public void addCommentInPostArray(PostModelMongo post, CommentModelMongo comment)
-    {
+    public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment) {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Update update = new Update().push("comments", comment);
-        mongoOperations.updateFirst(query, update, PostModelMongo.class);
+        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);         // Returns the # of updated documents
+
+        return result.getModifiedCount() > 0;           // If this is 1, all good
     }
 }
