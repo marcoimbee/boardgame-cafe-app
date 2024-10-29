@@ -16,10 +16,6 @@ public class BoardgameModelNeo4j {
     public String thumbnail;
     public int yearPublished;
 
-    //To Avoid duplicates
-//    @Version
-//    private long version;
-
     // Relazione in entrata dai nodi Post
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.INCOMING)
     private List<PostModelNeo4j> posts;
