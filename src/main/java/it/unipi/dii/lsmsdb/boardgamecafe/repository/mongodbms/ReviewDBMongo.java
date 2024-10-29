@@ -152,10 +152,10 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewByUsername(String id) {
+    public boolean deleteReviewByUsername(String username) {
         boolean result = true;
         try {
-            reviewMongo.deleteReviewByUsername(id);
+            reviewMongo.deleteReviewByUsername(username);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
@@ -163,10 +163,10 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewByBoardgameName(String id) {
+    public boolean deleteReviewByBoardgameName(String boardgameName) {
         boolean result = true;
         try {
-            reviewMongo.deleteReviewByBoardgameName(id);
+            reviewMongo.deleteReviewByBoardgameName(boardgameName);
         } catch (Exception e) {
             e.printStackTrace();
             result = false;
