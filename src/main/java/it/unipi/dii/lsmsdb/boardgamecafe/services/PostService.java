@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,21 +140,20 @@ public class PostService {
         {
             // delete all comments
             if (!commentDBMongo.deleteByPost(postModelMongo.getId())) {
-                logger.error("Error in deleting comments of post in MongoDB");
+                System.out.println("Error in deleting comments of post in MongoDB");
                 return false;
             }
             if (!commentDBNeo4j.deleteByPost(postModelMongo.getId())) {
-                logger.error("Error in deleting comments of post in Neo4j");
+                System.out.println("Error in deleting comments of post in Neo4j");
                 return false;
             }
-
             // delete post
             if (!postDBNeo4j.deletePost(postModelMongo.getId())) {
-                logger.error("Error in deleting post in Neo4j");
+                System.out.println("Error in deleting post in Neo4j");
                 return false;
             }
             if (!postDBMongo.deletePost(postModelMongo)) {
-                logger.error("Error in deleting post in MongoDB");
+                System.out.println("Error in deleting post in MongoDB");
                 return false;
             }
         }
