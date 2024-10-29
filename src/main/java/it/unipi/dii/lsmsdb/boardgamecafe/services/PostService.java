@@ -95,22 +95,6 @@ public class PostService {
         return true;
     }
 
-    public boolean addPostToBoardgame(PostModelNeo4j postModelNeo4j, BoardgameModelNeo4j boardgameModelNeo4j) {
-        try {
-            postModelNeo4j.setTaggedGame(boardgameModelNeo4j);
-            if (!postDBNeo4j.updatePost(postModelNeo4j))
-            {
-                logger.error("Error in connecting post to user in Neo4j");
-                return false;
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
     public boolean deletePost(PostModelMongo postModelMongo)
     {
         try
