@@ -126,7 +126,8 @@ public class UserService {
 
     private boolean removeUserReviews(UserModelMongo user) {
         for (ReviewModelMongo review : user.getReviews()) {
-            Optional<BoardgameModelMongo> boardgameResult = boardgameMongoOp.findBoardgameByName(review.getBoardgameName());
+            Optional<BoardgameModelMongo> boardgameResult = boardgameMongoOp.
+                    findBoardgameByName(review.getBoardgameName());
             if (boardgameResult.isPresent()) {
                 BoardgameModelMongo boardgame = boardgameResult.get();
                 boardgame.deleteReview(review.getId());
@@ -137,7 +138,7 @@ public class UserService {
             }
         }
 
-        if (!reviewMongoOp.deleteReviewByUsername(user.getId())) {
+        if (!reviewMongoOp.deleteReviewByUsername(user.getUsername())) {
             logger.error("Error in deleting reviews written by user in MongoDB");
             return false;
         }
