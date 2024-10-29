@@ -441,6 +441,8 @@ public class BoardgamecafeApplication {
         System.out.println("\n\n");
          */
 
+        // ************************** Inizio Test Delete comment **************************
+        /*
         PostModelMongo postTest = postDBMongo.findById("65a930a56448dd90156b31ff").get();
         String postId = postTest.getId();
         String username_test = "author_test_2";
@@ -466,18 +468,18 @@ public class BoardgamecafeApplication {
         } else {
             System.out.println("Error during adding comment in post both for neo4j and mongo db");
         }
-
-
+        */
+        // ************************** Fine Test Delete comment **************************
 
 
 
         // ************************** Inizio Test Insert Post **************************
 
-        //PostModelMongo newPost = new PostModelMongo("f.bruno", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
-        //if (servicePost.insertPost(newPost))
-        //    System.out.println("Commento inserito");
-        //else
-        //    System.out.println("Commento non inserito");
+        PostModelMongo newPost = new PostModelMongo("whitelion758", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+        if (servicePost.insertPost(newPost))
+            System.out.println("Commento inserito");
+        else
+            System.out.println("Commento non inserito");
 
         // ************************** Fine Test Insert Post **************************
 
