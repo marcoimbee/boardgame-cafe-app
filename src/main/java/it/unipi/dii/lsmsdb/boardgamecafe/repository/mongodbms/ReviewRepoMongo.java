@@ -16,11 +16,11 @@ public interface ReviewRepoMongo extends MongoRepository<ReviewModelMongo, Strin
 
     List<ReviewModelMongo> findByBoardgameName(String id);
 
-    void deleteReviewsByUsername(String id);
+    void deleteReviewsByUsername(String username);
 
-    void deleteReviewByBoardgameName(String id);
+    void deleteReviewByBoardgameName(String boardgameName);
 
-    void deleteReviewByUsername(String id);
+    void deleteReviewByUsername(String username);
 
     //DA ELIMINARE
     //List<ReviewModelMongo> findByTitleContainingOrBodyContainingOrderByDateOfReviewDesc(String word, String word1);

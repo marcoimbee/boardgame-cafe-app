@@ -125,7 +125,14 @@ public class PostService {
         return true;
     }
 
-    public String getPostId(PostModelMongo postModelMongo) {
+    /*
+        Da eliminare? Questa funzione ritorna il post, avendo solamente il timestamp ed username dell'autore.
+        Può essere davvero utile? Sembra di no, in quanto dovrei avere la lista in locale dei post che ho letto da
+        mongo, e quindi per ognuno di essi dovrei già avere l'id memorizzato.
+        Comunque, per il momento la lascio. -> 29/10/2024
+    public String getPostId(PostModelMongo postModelMongo)
+    {
+
         Optional<PostModelMongo> postResult =
                 postDBMongo.findByUsernameAndTimestamp(postModelMongo.getUsername(), postModelMongo.getTimestamp());
         if (postResult.isPresent()) {
@@ -136,8 +143,9 @@ public class PostService {
         }
         return "";
     }
-
-    public void likeOrDislikePost(String username, String postId) {
+    */
+    public void likeOrDislikePost(String username, String postId)
+    {
         try {
             if (postDBNeo4j.hasUserLikedPost(username, postId)) {
                 postDBNeo4j.addLikePost(username, postId);

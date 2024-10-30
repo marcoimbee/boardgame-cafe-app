@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 
@@ -46,6 +47,15 @@ public class BoardgameService {
     public boolean insertBoardgame(BoardgameModelMongo boardgameMongo) {
 
         try{
+            String boardgameNameUsed = boardgameMongo.getBoardgameName();
+            Optional<BoardgameModelMongo> boardgameNameToCompare = boardgameMongoOp.
+                                                                   findBoardgameByName(boardgameNameUsed);
+            // Check if the Boardgame already exists
+            if (boardgameNameToCompare.isPresent()) {
+                throw new RuntimeException("InsertBoardgame Exception: Boardgame not added.\n" +
+                                           "A Board-Game with this name already exists in the database. " +
+                                           "Change the name!");
+            }
             // Gestione MongoDB
             BoardgameModelMongo insertedBoardgameMongo = boardgameMongoOp.addBoardgame(boardgameMongo);
             if (insertedBoardgameMongo == null) {
@@ -79,76 +89,100 @@ public class BoardgameService {
         return true;
     }
 
+    @Transactional
     public boolean deleteBoardgame(BoardgameModelMongo boardgame) {
+
         String boardgameName = boardgame.getBoardgameName();
+
         try {
-            //--- Deleting reviews ---
-            if (!deleteBoardgameReviews(boardgame))
-                return false;
+            //--- Deleting reviews both from MongoDB and Neo4j ---
+            if (!deleteBoardgameReviews(boardgame)){
+                throw new RuntimeException("\nError while deleting the review from User list.");
+            }
 
-            //--- Deleting posts
-            if (!deleteBoardgamePosts(boardgameName))
-                return false;
+            //--- Deleting posts both from MongoDB and Neo4j ---
+            if (!deleteBoardgamePosts(boardgameName)){
+                throw new RuntimeException("\nError while deleting the post from Boardgame list.");
+            }
 
-            //--- Deleting From MONGO DB ---
+            //--- Deleting Boardgame From MONGO DB ---
             if (!boardgameMongoOp.deleteBoardgame(boardgame)) {
-                logger.error("Error in deleting the Board Game from MongoDB");
-                return false;
+                throw new RuntimeException("\nError while deleting the Boargame from MongoDB.");
             }
-            //--- Deleting From NEO4J DB ---
+            //--- Deleting Boardgame From NEO4J DB ---
             if (!boardgameNeo4jOp.deleteBoardgameDetach(boardgameName)) {
-                logger.error("Error in deleting the board game and its relationship from Neo4j");
-                return false;
+                throw new RuntimeException("\nError while deleting the Board Game from Neo4j.");
             }
+            System.out.println("\nBoardgame Deleted from MongoDB and Neo4j");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] " + e.getMessage());
+            return false;
         }
+
         return true;
     }
 
     private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
-        // Delete reviews in user collection
-        for (ReviewModelMongo review : boardgame.getReviews()) {
-            UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername()).get();
-            user.deleteReview(review.getId());
-            if (!userMongoOp.updateUser(user.getId(), user, "user")) {
-                logger.error("Error in deleting reviews about boardgame in user collection");
+
+        List<ReviewModelMongo> boardgameReviewsList = boardgame.getReviews();
+        if (boardgameReviewsList.isEmpty())
+        {
+            System.out.println("\nThere are no REVIEWS to eliminate for this boardgame");
+        } else {
+            // Delete reviews in user collection
+            for (ReviewModelMongo review : boardgameReviewsList) {
+                UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername()).get();
+                user.deleteReview(review.getId());
+                if (!userMongoOp.updateUser(user.getId(), user, "user")) {
+                    logger.error("Error in deleting reviews about boardgame in user collection");
+                    return false;
+                }
+            }
+
+            // delete reviews in their own collection
+            if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
+                logger.error("Error in deleting reviews about boardgame");
                 return false;
             }
-        }
-
-        // delete reviews in their own collection
-        if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
-            logger.error("Error in deleting reviews about boardgame");
-            return false;
+            System.out.println("\nReviews regarding the Boardgame elminated " +
+                                  "both from Mongo DB and Neo4j, also from its related Authors");
         }
         return true;
     }
 
     private boolean deleteBoardgamePosts(String boardgameName) {
+
         List<PostModelMongo> posts = postMongoOp.findByTag(boardgameName);
+        if (posts.isEmpty())
+        {
+            System.out.println("\nThere are no POSTS to eliminate for this boardgame");
+        } else {
 
-        // delete comments
-        for (PostModelMongo post: posts) {
-            if (!commentMongoOp.deleteByPost(post.getId())) {
-                logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+            // --- Delete Comments from their own mongo collection and from neo4j based on post ---
+            for (PostModelMongo post : posts) {
+                if (!commentMongoOp.deleteByPost(post.getId())) {
+                    logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+                    return false;
+                }
+                if (!commentNeo4jOp.deleteByPost(post.getId())) {
+                    logger.error("Error in deleting comments in posts about boardgame in Neo4j");
+                    return false;
+                }
+            }
+
+            // --- Delete Posts from Mongo DB ---
+            if (!postMongoOp.deleteByTag(boardgameName)) {
+                logger.error("Error in deleting posts about boardgame in MongoDB");
                 return false;
             }
-            if (!commentNeo4jOp.deleteByPost(post.getId())) {
-                logger.error("Error in deleting comments in posts about boardgame in Neo4j");
+            // --- Delete Posts from Neo4j and all its relationships ---
+            if (!postNeo4jOp.deleteByReferredBoardgame(boardgameName)) {
+                logger.error("Error in deleting posts about boardgame in Neo4j");
                 return false;
             }
-        }
-
-        // Delete posts
-        if (!postMongoOp.deleteByTag(boardgameName)) {
-            logger.error("Error in deleting posts about boardgame in MongoDB");
-            return false;
-        }
-        if (!postNeo4jOp.deleteByReferredBoardgame(boardgameName)) {
-            logger.error("Error in deleting posts about boardgame in Neo4j");
-            return false;
+            System.out.println("\nPosts and related Comments regarding the Boardgame" +
+                                  " elminated both from Mongo DB and Neo4j");
         }
         return true;
     }
