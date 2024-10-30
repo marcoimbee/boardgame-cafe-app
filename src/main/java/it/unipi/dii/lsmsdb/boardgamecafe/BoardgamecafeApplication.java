@@ -405,7 +405,7 @@ public class BoardgamecafeApplication {
         // ########################## Services Test-Code Section ##########################
 
 
-        System.out.println("\n************ BOARDGAME-SERVICE RESULTS ************");
+        //System.out.println("\n************ BOARDGAME-SERVICE RESULTS ************");
 
         // --- Test del metodo insertBoardgame() ---
 //        String boardgameName = "Monopoly24";
@@ -441,7 +441,7 @@ public class BoardgamecafeApplication {
 //                    "performed both for MongoDB and Neo4j dbms.");
 //        }
 //        System.out.println("\n\n");
-
+/*
 
         // --- Test del metodo deleteBoardgame() ---
         String monopolyBoardgameName = "Monopoly24";
@@ -463,7 +463,7 @@ public class BoardgamecafeApplication {
             System.out.println("\nBoardgame not found!");
         }
         System.out.println("\n\n");
-
+*/
 
         // ************************** Inizio Test Delete comment **************************
         /*
@@ -498,8 +498,8 @@ public class BoardgamecafeApplication {
 
 
         // ************************** Inizio Test Insert Post **************************
-
-//        PostModelMongo newPost = new PostModelMongo("whitelion758", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
+        // 67226b0f590d5d341be06c53
+//        PostModelMongo newPost = new PostModelMongo( "whitelion758", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
 //        if (servicePost.insertPost(newPost))
 //            System.out.println("Commento inserito");
 //        else
@@ -507,9 +507,14 @@ public class BoardgamecafeApplication {
 
         // ************************** Fine Test Insert Post **************************
 
+        // ************************** Inizio Test Like Post **************************
 
+        servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
+        servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
+        //servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
+        //servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
 
-
+        // ************************** Fine Test Like Post **************************
 
 
         // ************************** (EndOf) New Test-Code Section **************************
