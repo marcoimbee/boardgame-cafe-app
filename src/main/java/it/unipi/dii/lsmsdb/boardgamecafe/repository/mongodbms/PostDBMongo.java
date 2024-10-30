@@ -109,6 +109,22 @@ public class PostDBMongo {
         return true;
     }
 
+    public boolean updateLikeCount(String postId, boolean increment)
+    {
+        try
+        {
+            Query query = new Query(Criteria.where("_id").is(postId));
+            Update update = new Update().inc("like_count", ( (increment) ? 1 : -1 ));
+            UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
+            return (result.getMatchedCount() > 0);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Exception updateLikeCount(): " + e.getMessage());
+            return false;
+        }
+    }
+
     public Optional<PostModelMongo> findById(String id) {
         Optional<PostModelMongo> post = Optional.empty();
         try {
