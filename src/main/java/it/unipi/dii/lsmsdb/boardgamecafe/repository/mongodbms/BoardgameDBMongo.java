@@ -74,21 +74,24 @@ public class BoardgameDBMongo {
         try {
             Optional<BoardgameModelMongo> boardgame = boardgameRepoMongoOp.findById(id);
             if (boardgame.isPresent()) {
-                boardgame.get().setBoardgameName(newBoardgame.getBoardgameName());
-                boardgame.get().setThumbnail(newBoardgame.getThumbnail());
-                boardgame.get().setImage(newBoardgame.getImage());
-                boardgame.get().setDescription(newBoardgame.getDescription());
-                boardgame.get().setYearPublished(newBoardgame.getYearPublished());
-                boardgame.get().setMinPlayers(newBoardgame.getMinPlayers());
-                boardgame.get().setMaxPlayers(newBoardgame.getMaxPlayers());
-                boardgame.get().setPlayingTime(newBoardgame.getPlayingTime());
-                boardgame.get().setMinAge(newBoardgame.getMinAge());
-                boardgame.get().setBoardgameCategoryList(newBoardgame.getBoardgameCategoryList());
-                boardgame.get().setBoardgameDesignerList(newBoardgame.getBoardgameDesignerList());
-                boardgame.get().setBoardgamePublisherList(newBoardgame.getBoardgamePublisherList());
-                boardgame.get().setReviews(newBoardgame.getReviews());
 
-                boardgameRepoMongoOp.save(boardgame.get());
+                BoardgameModelMongo boardgameToBeUpdated = boardgame.get();
+
+                boardgameToBeUpdated.setBoardgameName(newBoardgame.getBoardgameName());
+                boardgameToBeUpdated.setThumbnail(newBoardgame.getThumbnail());
+                boardgameToBeUpdated.setImage(newBoardgame.getImage());
+                boardgameToBeUpdated.setDescription(newBoardgame.getDescription());
+                boardgameToBeUpdated.setYearPublished(newBoardgame.getYearPublished());
+                boardgameToBeUpdated.setMinPlayers(newBoardgame.getMinPlayers());
+                boardgameToBeUpdated.setMaxPlayers(newBoardgame.getMaxPlayers());
+                boardgameToBeUpdated.setPlayingTime(newBoardgame.getPlayingTime());
+                boardgameToBeUpdated.setMinAge(newBoardgame.getMinAge());
+                boardgameToBeUpdated.setBoardgameCategoryList(newBoardgame.getBoardgameCategoryList());
+                boardgameToBeUpdated.setBoardgameDesignerList(newBoardgame.getBoardgameDesignerList());
+                boardgameToBeUpdated.setBoardgamePublisherList(newBoardgame.getBoardgamePublisherList());
+                boardgameToBeUpdated.setReviews(newBoardgame.getReviews());
+
+                boardgameRepoMongoOp.save(boardgameToBeUpdated);
             }
         } catch (Exception e) {
             e.printStackTrace();
