@@ -187,32 +187,33 @@ public class BoardgameService {
         return true;
     }
 
+    @Transactional
     public boolean updateBoardgame(BoardgameModelMongo boardgameMongo) {
         try {
 
             String boardgameId = boardgameMongo.getId();
             String boardgameName = boardgameMongo.getBoardgameName();
-            String image = boardgameMongo.getImage();
+            String thumbnail = boardgameMongo.getThumbnail();
             int yearPublished = boardgameMongo.getYearPublished();
 
-            BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(boardgameId,
-                    boardgameName,
-                    image, yearPublished);
+            BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(
+                                                     boardgameId,
+                                                     boardgameName,
+                                                     thumbnail,
+                                                     yearPublished);
 
             //Gestione MongoDB
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
-                logger.error("Error in updating the Board Game in MongoDB");
-                return false;
+                throw new RuntimeException("\nError in updating the Board Game in MongoDB.");
             }
 
             //Gestione Neo4j (NEW)
             if(!boardgameNeo4jOp.updateBoardgameNeo4j(boardgameId, boardgameNeo4j)){
-                logger.error("Error in updating the Board Game on Neo4j");
-                return false;
+                throw new RuntimeException("\nError in updating the Board Game on Neo4j.");
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] " + e.getMessage());
             return false;
         }
         return true;
