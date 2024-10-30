@@ -115,12 +115,12 @@ public class PostDBNeo4j {
         return posts;
     }
 
-    public void addLikePost(String username, String postId) {
-        try {
-            if (!likedPostsCache.hasLiked(username, postId)) {
-                postRepoNeo4j.addLike(username, postId);
-                likedPostsCache.addLike(username, postId);
-            }
+    public void addLikePost(String username, String postId)
+    {
+        try
+        {
+            likedPostsCache.addInfoLike(postId, true); // AutoIncrement inside
+            postRepoNeo4j.addLike(username, postId); // Create the relationship on Neo
         } catch (Exception ex) {
             // Log dell'eccezione
             System.err.println("Error adding like from user " + username + " to post " + postId + ": " + ex.getMessage());
