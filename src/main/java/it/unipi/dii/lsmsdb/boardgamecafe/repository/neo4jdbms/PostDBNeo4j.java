@@ -127,12 +127,12 @@ public class PostDBNeo4j {
         }
     }
 
-    public void removeLikePost(String username, String postId) {
-        try {
-            if (likedPostsCache.hasLiked(username, postId)) {
-                postRepoNeo4j.removeLike(username, postId);
-                likedPostsCache.removeLike(username, postId);
-            }
+    public void removeLikePost(String username, String postId)
+    {
+        try
+        {
+            likedPostsCache.addInfoLike(postId, false);// AutoDecrement inside
+            postRepoNeo4j.removeLike(username, postId);
         } catch (Exception ex) {
             // Log dell'eccezione
             System.err.println("Error removing like from user " + username + " for post " + postId + ": " + ex.getMessage());
@@ -142,15 +142,19 @@ public class PostDBNeo4j {
     public boolean hasUserLikedPost(String username, String postId) {
         try {
             // Prima controlla la cache
-            if (likedPostsCache.hasLiked(username, postId)) {
+            int like_info = likedPostsCache.hasLiked(postId);
+            // If the infoLike is in cache, then returns immediately. Else, it's necessary ask to Neo
+            if (like_info == LikedPostsCache.LIKED) // info presente in cache. C'è il LIKE
                 return true;
+            else if (like_info == LikedPostsCache.NOT_LIKED) // info presente in cache. Non cè il LIKE
+                return false;
+            else // Se non è in cache, controlla il database Neo4j
+            {
+                boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
+                likedPostsCache.addInfoLike(postId, hasLiked);
+                return hasLiked;
             }
-            // Se non è in cache, controlla il database Neo4j
-            boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
-            if (hasLiked) {
-                likedPostsCache.addLike(username, postId); // Aggiorna la cache
-            }
-            return hasLiked;
+
 
         } catch (Exception ex) {
             // Log dell'eccezione
