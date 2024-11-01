@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import org.bson.Document;
@@ -57,6 +59,19 @@ public class BoardgameDBMongo {
             return false;
         }
         return true;
+    }
+
+    public boolean deleteReviewInBoardgameReviewsById(String boardgameName, String reviewId)
+    {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("boardgameName").is(boardgameName));
+
+        Update update = new Update();
+        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
+
+        UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
+
+        return (result.getModifiedCount() > 0);
     }
 
     public Optional<BoardgameModelMongo> findBoardgameByName(String boardgameName) {
