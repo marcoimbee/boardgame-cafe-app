@@ -114,28 +114,25 @@ public class ReviewService {
         return true;
     }
 
-    private boolean deleteReviewInUser(UserModelMongo user,
-                                       ReviewModelMongo selectedReview,
-                                       String reviewId) {
-        if (user == null) {
+    private boolean deleteReviewInBoardgame(ReviewModelMongo selectedReview) // Cancella sia da mongo che in locale
+    {
+        Optional<BoardgameModelMongo> boardgameResult =
+                boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
-            String username = selectedReview.getUsername();
-            if (username.equals("Deleted User")) {
+        if (boardgameResult.isEmpty())
+            throw new RuntimeException("deleteReviewInBoardgame Exception: The referred boardgame not exists in DB. Name: " + selectedReview.getBoardgameName());
+
+        BoardgameModelMongo referredBoardgame = boardgameResult.get();
+        if (boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) // Cancella da Mongo
+            if(referredBoardgame.deleteReview(selectedReview)) // Cancella da locale
                 return true;
-            }
-
-            Optional<GenericUserModelMongo> userResult =
-                    userMongoOp.findByUsername(username);
-
-            if (userResult.isEmpty()) {
+            else
+            {
+                System.out.println("deleteReviewInBoardgame Exception: The reviews was on Mongo but not in local");
                 return false;
             }
-
-            UserModelMongo newUser = (UserModelMongo) userResult.get();
-            return deleteUserReview(newUser, reviewId);
-
-        } else
-            return deleteUserReview(user, reviewId);
+        else
+            throw new RuntimeException("The referred boardgame ON MONGO doesn't have this review -> ******\n" + selectedReview + "\n******\n");
     }
 
     public boolean deleteUserReview(UserModelMongo user, String reviewId) {
