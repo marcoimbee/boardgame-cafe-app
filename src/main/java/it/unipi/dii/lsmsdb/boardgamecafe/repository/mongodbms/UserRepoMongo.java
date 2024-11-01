@@ -15,6 +15,7 @@ public interface UserRepoMongo extends MongoRepository<GenericUserModelMongo, St
     @Query("{'username': {$regex : ?0, $options: 'i'}, '_class': ?1}")
     List<GenericUserModelMongo> findByUsernameRegexAnd_class(String username, String classType);
 
-    @Query("{username: $username}")
     Optional<GenericUserModelMongo> findByUsername(String username);
+
+
 }

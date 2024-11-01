@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -34,27 +35,47 @@ public class ReviewService {
     private final static Logger logger = LoggerFactory.getLogger(ReviewService.class);
 
 
+    @Transactional
     public boolean insertReview(ReviewModelMongo review,
                                 BoardgameModelMongo boardgame,
                                 UserModelMongo user) {
         try {
-            if (!reviewMongoOp.addReview(review)) {
-                logger.error("Error in adding the review to the collection of reviews");
-                return false;
-            }
-            review = reviewMongoOp.findByUsernameAndBoardgameName(user.getUsername(),
-                    boardgame.getBoardgameName()).get();
+            String usernameCreatorReview = user.getUsername();
+            String boardgameToBeReviewdName = boardgame.getBoardgameName();
 
-            if (!addReviewToUser(user, review)) {
-                logger.error("Error in adding the review to the collection of users");
-                return false;
+            if (!reviewMongoOp.addReview(review)) {
+                throw new RuntimeException("\nError in adding the review to the collection of Reviews.");
             }
-            if (!addReviewToBoardgame(boardgame, review)) {
-                logger.error("Error in adding the review to the collection of boardgames");
-                return false;
+
+            //Recupero la review appena aggiunta alla collection Reviews considerando
+            // il gioco a cui fa riferimento l'utente che l'ha creata
+            Optional<ReviewModelMongo> reviewFromMongo = reviewMongoOp.
+                                       findByUsernameAndBoardgameName(usernameCreatorReview,
+                                                                      boardgameToBeReviewdName);
+
+            if(reviewFromMongo.isPresent()){
+
+                ReviewModelMongo newReview = reviewFromMongo.get();
+
+                if (!addReviewToUser(user, newReview)) {
+                    throw new RuntimeException("\nError in adding the review to the collection of Users. " +
+                            "Rollabck performed for review in Reviews Collection into MongoDB");
+                }
+                if (!addReviewToBoardgame(boardgame, newReview)) {
+                    throw new RuntimeException("\nError in adding the review to the collection of Boardgames. " +
+                            "Rollabck performed for review in Reviews Collection into MongoDB");
+                }
+                System.out.println("\nNew Review ID: " + newReview.getId());
+                System.out.println("\nReview inserted into MongoDB dbms for Users, Reviews and Boardgames collections.");
+
+            } else {
+                throw new RuntimeException("\nReview created by " + usernameCreatorReview +" " +
+                        "for te Boardgame -> " + boardgameToBeReviewdName + " not found!");
             }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] " + e.getMessage());
+            return false;
         }
         return true;
     }
@@ -62,9 +83,9 @@ public class ReviewService {
     private boolean addReviewToUser(UserModelMongo user, ReviewModelMongo review) {
 
         //checkLastReviewUser(user, false);
-        user.addReview(review);
+        user.addReview(review); //local object
 
-        if (!userMongoOp.updateUser(user.getId(), user, "user")) {
+        if (!userMongoOp.addReviewInUserArray(user, review)) {
             logger.error("Error in adding the review to the collection of users");
             if (!reviewMongoOp.deleteReviewById(review.getId())) {
                 logger.error("Error in deleting the review from the collection of reviews");
@@ -78,7 +99,7 @@ public class ReviewService {
         // checkLastReviewBoardgame(boardgame, false);
         boardgame.addReview(review);
 
-        if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame))  {
+        if (!boardgameMongoOp.addReviewInBoardgameArray(boardgame, review))  {
             logger.error("Error in adding the review to the collection of boardgames");
             if (!reviewMongoOp.deleteReviewById(review.getId())) {
                 logger.error("Error in deleting the review from the collection of reviews");

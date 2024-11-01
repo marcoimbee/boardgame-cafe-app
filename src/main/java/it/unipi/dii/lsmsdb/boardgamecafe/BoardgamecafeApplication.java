@@ -1,53 +1,32 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
-
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.*;
 
 //JavaFX Components
-import javafx.application.Application;
-import javafx.stage.Stage;
 
 //Spring Components
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.expression.ParseException;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import java.util.Optional;
-import java.util.Optional;
-import java.util.List;
-
 
 
 // ############################## MAIN FOR GUI- BoardgamecafeApplication_Config ##############################
@@ -136,6 +115,8 @@ public class BoardgamecafeApplication {
     private CommentService serviceComment;
     @Autowired
     private CommentDBMongo commentDBMongo;
+    @Autowired
+    private ReviewService serviceReview;
 
     public static void main(String[] args)
     {
@@ -414,7 +395,7 @@ public class BoardgamecafeApplication {
 //        String description = "This game takes its name from the economic concept of monopoly, or the domination of the market by a single seller";
 //        int yearPublished = 2024;
 //        int minPlayers = 2;
-//        int maxPlayers = 6;
+//        int maxPlayers = 6; //Da 6 a 8
 //        int playingTime = 5;
 //        int minAge = 8;
 //        List<String> boardgameCategoryList = new ArrayList<>();
@@ -451,8 +432,44 @@ public class BoardgamecafeApplication {
             System.out.println("\nResult of the Boardgame Deletion operation: ");
             BoardgameModelMongo boardgameToBeDeleted = boardgameFromMongo.get();
 
-            boolean deleteOpsResult = serviceBoardgame.deleteBoardgame(boardgameToBeDeleted);
-            if (deleteOpsResult) {
+
+        System.out.println("\n************ REVIEW-SERVICE RESULTS ************");
+
+
+        //Useful Variables for Review Creation
+        String existingBoardgameName = "Carcassonne";
+        String existingUsername = "tinymeercat901";
+        int rating = 4;
+        String body = "Gioco molto interessante, con i miei amici ci siamo divertiti molto. Consigliato!";
+        Date dateOfReview = new Date();
+
+        //Step_1) Ottenere un UTENTE a cui far creare la recensione così da aggiungerla
+        //        alla sua lista di recensioni come "nuova recensione".
+        Optional<GenericUserModelMongo> userFromMongo = userDBMongo.findByUsername(existingUsername);
+
+        //Step_2) Ottenere il BOARDGAME a cui associare la recensione cosi da aggiungerla
+        //        alla sua lista di recensioni come "nuova recensione".
+        Optional<BoardgameModelMongo> boardgameFromMongo_2 = boardgameDBMongo.
+                                                            findBoardgameByName(existingBoardgameName);
+
+        if(userFromMongo.isPresent() && boardgameFromMongo_2.isPresent()){
+            System.out.println("\nResult of the Review Insert operation: ");
+
+            UserModelMongo userCreatorReview = (UserModelMongo) userFromMongo.get();
+            BoardgameModelMongo boardgameToBeReviewed = boardgameFromMongo_2.get();
+
+            //Step_3) Creare La Recensione
+            ReviewModelMongo newReview = new ReviewModelMongo(
+                                              existingBoardgameName,
+                                              existingUsername,
+                                              rating, body,
+                                              dateOfReview);
+
+            //Step_4) Inserire la recensione in MongoDB
+            boolean insertOpsResult = serviceReview.insertReview(newReview,
+                                                                 boardgameToBeReviewed,
+                                                                 userCreatorReview);
+            if (insertOpsResult) {
                 System.out.println("\n\nThe Operation has been correctly " +
                                         "performed both for MongoDB and Neo4j dbms.");
             } else {
