@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -13,15 +15,15 @@ public class UserModelNeo4j {
     private String id;
     private String username;
 
-    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
+    //@Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     private List<UserModelNeo4j> followedUsers;
 
-    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "WRITES_POST", direction = Relationship.Direction.OUTGOING)
     private List<PostModelNeo4j> writtenPosts;
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<PostModelNeo4j> likedPosts;
 
-    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "WRITES_COMMENT", direction = Relationship.Direction.OUTGOING)
     private List<CommentModelNeo4j> writtenComments;
 
     public UserModelNeo4j() {}
