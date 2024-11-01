@@ -148,16 +148,16 @@ public class PostDBMongo {
     }
 
 
-    public Optional<PostModelMongo> findByUsernameAndTimestamp(String username, Date timestamp) {
-        Optional<PostModelMongo> post = Optional.empty();
-        try {
-            post = postMongo.findByUsernameAndTimestamp(username, timestamp);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return post;
-    }
+//    public Optional<PostModelMongo> findByUsernameAndTimestamp(String username, Date timestamp) {
+//        Optional<PostModelMongo> post = Optional.empty();
+//        try {
+//            post = postMongo.findByUsernameAndTimestamp(username, timestamp);
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return post;
+//    }
 
     public boolean deleteByTag(String bgName) {
         try {
