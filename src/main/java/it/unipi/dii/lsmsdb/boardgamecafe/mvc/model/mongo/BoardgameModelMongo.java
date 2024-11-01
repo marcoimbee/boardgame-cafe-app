@@ -1,7 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class BoardgameModelMongo {
     private List<String> boardgameCategoryList = new ArrayList<>();
     private List<String> boardgameDesignerList = new ArrayList<>();
     private List<String> boardgamePublisherList = new ArrayList<>();
-    private List<ReviewModelMongo> reviewMongo = new ArrayList<>();
+    private List<ReviewModelMongo> reviews = new ArrayList<>();
 
     public BoardgameModelMongo(){}
 
@@ -176,19 +175,19 @@ public class BoardgameModelMongo {
 
     // --- Reviews Management ---
     public List<ReviewModelMongo> getReviews() {
-        return reviewMongo;
+        return reviews;
     }
     public void setReviews(List<ReviewModelMongo> reviewMongo) {
-        this.reviewMongo = reviewMongo;
+        this.reviews = reviewMongo;
     }
 
     public void addReview (ReviewModelMongo reviewMongo) {
-        this.reviewMongo.add(0, reviewMongo);
+        this.reviews.add(0, reviewMongo);
     }
 
     public ReviewModelMongo getReviewInBoardgame(String id) {
-        if (!this.reviewMongo.isEmpty()) {
-            for (ReviewModelMongo reviewMongo : reviewMongo) {
+        if (!this.reviews.isEmpty()) {
+            for (ReviewModelMongo reviewMongo : reviews) {
                 if (reviewMongo.getId().equals(id)) {
                     return reviewMongo;
                 }
@@ -200,7 +199,7 @@ public class BoardgameModelMongo {
     public boolean deleteReview(String id) {
         ReviewModelMongo reviewMongo = this.getReviewInBoardgame(id);
         if (reviewMongo != null) {
-            this.reviewMongo.remove(reviewMongo);
+            this.reviews.remove(reviewMongo);
             return true;
         }
         return false;
@@ -222,7 +221,7 @@ public class BoardgameModelMongo {
                 ", boardgameCategoryList=" + boardgameCategoryList +
                 ", boardgameDesignerList=" + boardgameDesignerList +
                 ", boardgamePublisherList=" + boardgamePublisherList +
-                ", reviews=" + reviewMongo +
+                ", reviews=" + reviews +
                 '}';
     }
 }
