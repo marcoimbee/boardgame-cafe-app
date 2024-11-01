@@ -1,10 +1,13 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -310,5 +313,16 @@ public class UserDBMongo {
         return results.getMappedResults().stream()
                 .map(doc -> doc.getString("username"))
                 .collect(Collectors.toList());
+    }
+
+
+    public boolean addReviewInUserArray(UserModelMongo user, ReviewModelMongo newReview)
+    {
+        Query query = new Query(Criteria.where("_id").is(user.getId()));
+        Update update = new Update().push("reviews", newReview);
+        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
+
+        // Se almeno un documento è stato modificato, l'update è riuscito
+        return result.getModifiedCount() > 0;
     }
 }
