@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 
 import org.bson.Document;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -83,6 +86,19 @@ public class UserDBMongo {
             return false;
         }
         return true;
+    }
+
+    public boolean deleteReviewInUserReviewsById(String userId, String reviewId)
+    {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(userId)); // id dell'utente
+
+        Update update = new Update();
+        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId))); // id della review da rimuovere
+
+        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
+
+        return (result.getModifiedCount() > 0);
     }
 
     public boolean updateUser(String id,
