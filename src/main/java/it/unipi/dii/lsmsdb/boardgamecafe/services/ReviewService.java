@@ -185,15 +185,6 @@ public class ReviewService {
 //            return deleteUserReview(user, reviewId);
     }
 
-    public boolean deleteBoardgameReview(BoardgameModelMongo boardgame, String reviewId) {
-
-        if (boardgame.getReviewInBoardgame(reviewId) != null) {
-            //checkLastReviewBoardgame(boardgame, true);
-            boardgame.deleteReview(reviewId);
-            return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
-        }
-        return true;
-    }
     /*
         private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
 
