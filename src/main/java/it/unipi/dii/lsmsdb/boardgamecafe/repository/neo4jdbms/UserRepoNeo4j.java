@@ -59,4 +59,7 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "LIMIT $limit")
     List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit);
 
+    @Query("MATCH (u:User {username: $username})\n" +
+            "SET u.username = \"[Banned user]\"\n")
+    void setUsernameAsBanned(@Param("username") String username);
 }

@@ -22,9 +22,6 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 @Component
 public class UserDBMongo {
 
-
-    //private final static Logger logger = (Logger) LoggerFactory.getLogger(BoardgameModelMongo.class);
-
     @Autowired
     private UserRepoMongo userRepoMongo;
     @Autowired
@@ -35,34 +32,31 @@ public class UserDBMongo {
     }
 
     public boolean addUser(GenericUserModelMongo user) {
-        boolean result = true;
         try {
             userRepoMongo.save(user);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            return false;
         }
-        return result;
     }
 
     public boolean deleteUser(GenericUserModelMongo user) {
         try {
             userRepoMongo.delete(user);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-        return true;
     }
 
     public Optional<GenericUserModelMongo> findByUsername(String username) {
-        Optional<GenericUserModelMongo> user = Optional.empty();
         try {
-            user = userRepoMongo.findByUsername(username);
+            return userRepoMongo.findByUsername(username);
         } catch (Exception e) {
             e.printStackTrace();
+            return Optional.empty();
         }
-        return user;
     }
 
     public Optional<GenericUserModelMongo> findUserById(String id) {

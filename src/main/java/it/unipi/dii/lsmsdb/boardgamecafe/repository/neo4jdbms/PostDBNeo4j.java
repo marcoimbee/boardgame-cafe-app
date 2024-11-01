@@ -117,9 +117,9 @@ public class PostDBNeo4j {
 
     public void addLikePost(String username, String postId) {
         try {
-            if (!likedPostsCache.hasLiked(username, postId)) {
+            if (!likedPostsCache.hasLiked(postId)) {
                 postRepoNeo4j.addLike(username, postId);
-                likedPostsCache.addLike(username, postId);
+                likedPostsCache.addLike(postId);
             }
         } catch (Exception ex) {
             // Log dell'eccezione
@@ -129,9 +129,9 @@ public class PostDBNeo4j {
 
     public void removeLikePost(String username, String postId) {
         try {
-            if (likedPostsCache.hasLiked(username, postId)) {
+            if (likedPostsCache.hasLiked(postId)) {
                 postRepoNeo4j.removeLike(username, postId);
-                likedPostsCache.removeLike(username, postId);
+                likedPostsCache.removeLike(postId);
             }
         } catch (Exception ex) {
             // Log dell'eccezione
@@ -142,13 +142,13 @@ public class PostDBNeo4j {
     public boolean hasUserLikedPost(String username, String postId) {
         try {
             // Prima controlla la cache
-            if (likedPostsCache.hasLiked(username, postId)) {
+            if (likedPostsCache.hasLiked(postId)) {
                 return true;
             }
             // Se non è in cache, controlla il database Neo4j
             boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
             if (hasLiked) {
-                likedPostsCache.addLike(username, postId); // Aggiorna la cache
+                likedPostsCache.addLike(postId); // Aggiorna la cache
             }
             return hasLiked;
 

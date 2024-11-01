@@ -18,7 +18,7 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
     @Query("MATCH (p:Post)-[:REFERS_TO]->(b:Boardgame {boardgameName: $bgName}) DETACH DELETE p")
     void deleteByReferredBoardgame(@Param("bgName") String bgName);
 
-    @Query("MATCH (p:Post)<-[:WRITES]-(u:User {username: $username}) DETACH DELETE p")
+    @Query("MATCH (p:Post)<-[:WRITES_POST]-(u:User {username: $username}) DETACH DELETE p")
     void deleteByUsername(@Param("username") String username);
 
     @Query("MATCH (c:Comment {id: $id})-[:REPLY]->(p:Post) RETURN p")

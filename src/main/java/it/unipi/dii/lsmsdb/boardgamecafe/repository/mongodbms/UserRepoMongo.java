@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
 public interface UserRepoMongo extends MongoRepository<GenericUserModelMongo, String> {
 
     @Query("{'username': {$regex : ?0, $options: 'i'}, '_class': ?1}")
     List<GenericUserModelMongo> findByUsernameRegexAnd_class(String username, String classType);
 
-    @Query("{username: $username}")
+    @Query("{'username': ?0}")
     Optional<GenericUserModelMongo> findByUsername(String username);
 }

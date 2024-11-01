@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import org.bson.Document;
@@ -67,6 +69,32 @@ public class BoardgameDBMongo {
             e.printStackTrace();
         }
         return boardgame;
+    }
+
+    public boolean updateBoardgameReviewsAfterUserBanOrDeletion(String username, UserContentUpdateReason updateReason) {
+        try {
+            Query query = Query.query(Criteria.where("reviews.username").is(username));
+
+            Update update = new Update();
+            if (updateReason == UserContentUpdateReason.DELETED_USER) {
+                update.set("reviews.$.username", "[Deleted user]");
+            } else {
+                update.set("reviews.$.username", "[Banned user]")
+                        .set("reviews.$.text", "[Banned user]");
+            }
+
+            mongoOperations.updateMulti(
+                    query,
+                    update,
+                    BoardgameDBMongo.class,
+                    "boardgames"
+            );
+
+            return true;
+        } catch(Exception ex) {
+            System.err.println("[ERROR] updateBoardgameReviewsAfterUserBanOrDeletion@BoardgameDBMongo.java raised an exception: " + ex.getMessage());
+            return false;
+        }
     }
 
     public boolean updateBoardgameMongo(String id, BoardgameModelMongo newBoardgame) {

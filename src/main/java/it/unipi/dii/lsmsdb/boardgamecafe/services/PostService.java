@@ -40,8 +40,7 @@ public class PostService {
     @Transactional
     public boolean insertPost(PostModelMongo postModelMongo)
     {
-        try
-        {
+        try {
             String idAuthorPost = postModelMongo.getUsername();
             Optional<UserModelNeo4j> authorPostOptional = userDBNeo4j.findByUsername(idAuthorPost);
             if (authorPostOptional.isEmpty()) // Check if the user is OK
