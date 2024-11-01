@@ -146,7 +146,7 @@ public class PostService {
         try {
             if (postDBNeo4j.hasUserLikedPost(username, postId))
             {
-                System.out.println("PostService: Il post ha il Like. Rimuovo...");
+                // System.out.println("PostService: Il post ha il Like. Rimuovo...");
                 if (postDBMongo.updateLikeCount(postId, false))
                     postDBNeo4j.removeLikePost(username, postId);
                 else
@@ -154,7 +154,7 @@ public class PostService {
             }
             else
             {
-                System.out.println("PostService: Il post non ha il Like. Aggiungo...");
+                // System.out.println("PostService: Il post non ha il Like. Aggiungo...");
                 if (postDBMongo.updateLikeCount(postId, true))
                     postDBNeo4j.addLikePost(username, postId);
                 else
