@@ -215,23 +215,6 @@ public class ReviewService {
             }
         }
     */
-    public boolean deleteReviewInBoardgame(BoardgameModelMongo boardgame,
-                                           ReviewModelMongo selectedReview,
-                                           String reviewId){
-        if (boardgame == null)
-        {
-            Optional<BoardgameModelMongo> boardgameResult =
-                    boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
-
-            if (boardgameResult.isEmpty()) {
-                return false;
-            }
-            BoardgameModelMongo newBoardgame = boardgameResult.get();
-            return deleteBoardgameReview(newBoardgame ,reviewId);
-
-        } else
-            return deleteBoardgameReview(boardgame ,reviewId);
-    }
 
     private String getReviewId(ReviewModelMongo review) {
 
