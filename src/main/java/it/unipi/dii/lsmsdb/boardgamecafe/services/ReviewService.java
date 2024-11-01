@@ -284,6 +284,7 @@ public class ReviewService {
             }
             UserModelMongo user = (UserModelMongo) genericUser;
 
+            // Faccio prima ad eliminare la vecchia ed aggiungere quella modificatas
             if (user.deleteReview(selectedReview.getId())) {
                 user.addReview(selectedReview);
             }
