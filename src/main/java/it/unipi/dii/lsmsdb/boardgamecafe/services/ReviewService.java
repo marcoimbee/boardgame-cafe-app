@@ -66,7 +66,7 @@ public class ReviewService {
 
         if (!userMongoOp.updateUser(user.getId(), user, "user")) {
             logger.error("Error in adding the review to the collection of users");
-            if (!reviewMongoOp.deleteReview(review)) {
+            if (!reviewMongoOp.deleteReviewById(review.getId())) {
                 logger.error("Error in deleting the review from the collection of reviews");
             }
             return false;
@@ -80,7 +80,7 @@ public class ReviewService {
 
         if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame))  {
             logger.error("Error in adding the review to the collection of boardgames");
-            if (!reviewMongoOp.deleteReview(review)) {
+            if (!reviewMongoOp.deleteReviewById(review.getId())) {
                 logger.error("Error in deleting the review from the collection of reviews");
             }
             return false;
