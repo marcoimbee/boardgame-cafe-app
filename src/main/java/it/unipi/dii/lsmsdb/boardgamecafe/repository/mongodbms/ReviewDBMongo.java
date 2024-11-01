@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,18 +131,21 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewById(String id) {
-        boolean result = true;
-        try {
-            reviewMongo.deleteById(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
+    public boolean deleteReviewById(String reviewId)
+    {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(reviewId));
+
+        Update update = new Update();
+        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
+
+        UpdateResult result = mongoOperations.updateFirst(query, update, ReviewModelMongo.class);
+        return (result.getModifiedCount() > 0);
     }
 
-    public boolean deleteReview(ReviewModelMongo review) {
+    public boolean deleteReview(ReviewModelMongo review)
+    // Elimina la review dalla collection reviews
+    {
         boolean result = true;
         try {
             reviewMongo.delete(review);
@@ -152,7 +156,9 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewByUsername(String username) {
+    public boolean deleteReviewByUsername(String username)
+    // Elimina tutte le reviews di un utente. Invocata in fase di eliminazione di un utente
+    {
         boolean result = true;
         try {
             reviewMongo.deleteReviewByUsername(username);
@@ -163,7 +169,9 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewByBoardgameName(String boardgameName) {
+    public boolean deleteReviewByBoardgameName(String boardgameName)
+    // Elimina tutte le reviews di un boardgame. Invocata in fase di eliminazione del gioco
+    {
         boolean result = true;
         try {
             reviewMongo.deleteReviewByBoardgameName(boardgameName);
