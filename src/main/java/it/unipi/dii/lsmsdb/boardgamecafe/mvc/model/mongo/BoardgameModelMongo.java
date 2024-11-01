@@ -206,6 +206,15 @@ public class BoardgameModelMongo {
         return false;
     }
 
+    public boolean deleteReview(ReviewModelMongo review) {
+        if (this.reviewMongo.contains(review))
+        {
+            this.reviewMongo.remove(review);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Boardgame{" +
