@@ -88,27 +88,39 @@ public class ReviewService {
         return true;
     }
 
-    public boolean deleteReview(ReviewModelMongo selectedReview,
-                                BoardgameModelMongo boardgame,
-                                UserModelMongo user) {
-        try {
+    // Eliminare la review dalla collection REVIEWS -> USERS -> BOARDGAMES
+    public boolean deleteReview(ReviewModelMongo selectedReview, UserModelMongo loggedUser) //BoardgameModelMongo boardgame,
+    {
+        try
+        {
+            // Solamente l'utente che ha scritto la review può cancellarla. Da grafica dovrebbe già essere verificato,
+            // ma un controllo in più non fa male.
+            if (!selectedReview.getUsername().equals(loggedUser.getUsername()))
+                throw new RuntimeException("deleteReview(): You don't have the permission to delete this review");
 
             String reviewId = selectedReview.getId();
+            String boardgameName = selectedReview.getBoardgameName();
 
-            if (!deleteReviewInBoardgame(boardgame, selectedReview, reviewId)) {
-                logger.error("Error in deleting the review from the collection of boardgames");
-                return false;
+            if (boardgameName.isEmpty())
+                throw new RuntimeException("This review is not refered to a boardgame!");
+
+            if (!deleteReviewInBoardgame(selectedReview))
+                throw new RuntimeException("deleteReviewInBoardgame(): -> deleteReviewInBoardgame failed");
+
+            if (!deleteReviewInUser(loggedUser, selectedReview)) {
+                throw new RuntimeException("deleteReviewInUser(): -> deleteReviewInBoardgame failed");
+                //logger.error("Error in deleting the review from the collection of users");
             }
-            if (!deleteReviewInUser(user, selectedReview, reviewId)) {
-                logger.error("Error in deleting the review from the collection of users");
-                return false;
+            // cancellare la reviews nelle review dello user in locale
+
+            if (!reviewMongoOp.deleteReviewById(reviewId)) {
+                throw new RuntimeException("deleteReviewById(): -> deleteReviewInBoardgame failed");
             }
-            if (!reviewMongoOp.deleteReview(selectedReview)) {
-                logger.error("Error in deleting the review from the collection of reviews");
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        }
+        catch (RuntimeException e)
+        {
+            System.out.println("DeleteReview Exception: " + e.getMessage());
             return false;
         }
         return true;
