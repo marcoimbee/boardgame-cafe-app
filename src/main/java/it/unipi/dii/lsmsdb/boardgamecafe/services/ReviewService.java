@@ -135,14 +135,42 @@ public class ReviewService {
             throw new RuntimeException("The referred boardgame ON MONGO doesn't have this review -> ******\n" + selectedReview + "\n******\n");
     }
 
-    public boolean deleteUserReview(UserModelMongo user, String reviewId) {
-
-        if (user.getReviewInUser(reviewId) != null) {
-            //checkLastReviewUser(user, true);
-            user.deleteReview(reviewId);
-            return userMongoOp.updateUser(user.getId(), user, "user");
+    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) // Cancella sia da Mongo che in locale
+    {
+        if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId()))
+        {
+            if (user.deleteReview(selectedReview))
+                return true;
+            else
+            {
+                System.out.println("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| present in Mongo but non in local");
+                return false;
+            }
         }
-        return true;
+        throw new RuntimeException("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| not present in Mongo");
+//
+//        if (user.deleteReview(selectedReview))
+//            return userMongoOp.updateUser(user.getId(), user, "user");
+//        return false;
+//        if (user == null)
+//        {
+//            String username = selectedReview.getUsername();
+//            if (username.equals("Deleted User")) {
+//                return true;
+//            }
+//
+//            Optional<GenericUserModelMongo> userResult =
+//                    userMongoOp.findByUsername(username);
+//
+//            if (userResult.isEmpty()) {
+//                return false;
+//            }
+//
+//            UserModelMongo newUser = (UserModelMongo) userResult.get();
+//            return deleteUserReview(newUser, reviewId);
+//
+//        } else
+//            return deleteUserReview(user, reviewId);
     }
 
     public boolean deleteBoardgameReview(BoardgameModelMongo boardgame, String reviewId) {
