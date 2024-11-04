@@ -1,9 +1,10 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import org.bson.types.ObjectId;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class BoardgameDBMongo {
         query.addCriteria(Criteria.where("boardgameName").is(boardgameName));
 
         Update update = new Update();
-        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
+        update.pull("reviews", new BasicDBObject("_id", new ObjectId(reviewId)));
 
         UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
 
@@ -103,9 +104,9 @@ public class BoardgameDBMongo {
                 boardgameToBeUpdated.setMaxPlayers(newBoardgame.getMaxPlayers());
                 boardgameToBeUpdated.setPlayingTime(newBoardgame.getPlayingTime());
                 boardgameToBeUpdated.setMinAge(newBoardgame.getMinAge());
-                boardgameToBeUpdated.setBoardgameCategoryList(newBoardgame.getBoardgameCategoryList());
-                boardgameToBeUpdated.setBoardgameDesignerList(newBoardgame.getBoardgameDesignerList());
-                boardgameToBeUpdated.setBoardgamePublisherList(newBoardgame.getBoardgamePublisherList());
+                boardgameToBeUpdated.setBoardgameCategory(newBoardgame.getBoardgameCategory());
+                boardgameToBeUpdated.setBoardgameDesigner(newBoardgame.getBoardgameDesigner());
+                boardgameToBeUpdated.setBoardgamePublisher(newBoardgame.getBoardgamePublisher());
                 boardgameToBeUpdated.setReviews(newBoardgame.getReviews());
 
                 boardgameRepoMongoOp.save(boardgameToBeUpdated);
