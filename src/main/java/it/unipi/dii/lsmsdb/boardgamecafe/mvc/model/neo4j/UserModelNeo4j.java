@@ -1,7 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.EqualsAndHashCode;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
