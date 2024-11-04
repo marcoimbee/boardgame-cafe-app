@@ -15,8 +15,8 @@ import java.util.Optional;
 @Repository
 public interface BoardgameRepoMongo extends MongoRepository<BoardgameModelMongo, String> {
 
-    @Query("{boardgameName: $boardgameName}")
-    Optional<BoardgameModelMongo> findByBoardgameName(@Param("boardgameName") String boardgameName);
+    @Query("{'boardgameName': ?0}")
+    Optional<BoardgameModelMongo> findByBoardgameName(String boardgameName);
 
     Optional<BoardgameModelMongo> findById(String id);
 
