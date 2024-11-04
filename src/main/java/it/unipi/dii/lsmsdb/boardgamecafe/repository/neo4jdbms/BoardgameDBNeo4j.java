@@ -58,11 +58,14 @@ public class BoardgameDBNeo4j {
         try {
             Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4j.findById(id);
             if (boardgameNeo.isPresent()) {
-                boardgameNeo.get().setBoardgameName(newBoardgame.getBoardgameName());
-                boardgameNeo.get().setThumbnail(newBoardgame.getThumbnail());
-                boardgameNeo.get().setYearPublished(newBoardgame.getYearPublished());
 
-                boardgameRepoNeo4j.save(boardgameNeo.get());
+                BoardgameModelNeo4j boardgameToBeUpdated = boardgameNeo.get();
+
+                boardgameToBeUpdated.setBoardgameName(newBoardgame.getBoardgameName());
+                boardgameToBeUpdated.setThumbnail(newBoardgame.getThumbnail());
+                boardgameToBeUpdated.setYearPublished(newBoardgame.getYearPublished());
+
+                boardgameRepoNeo4j.save(boardgameToBeUpdated);
             }
         } catch (Exception e) {
             e.printStackTrace();

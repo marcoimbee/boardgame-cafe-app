@@ -33,6 +33,16 @@ public class ReviewModelMongo {
         this.dateOfReview = dateOfReview;
     }
 
+    public ReviewModelMongo(String boardgameName,
+                            String username, int rating,
+                            String body, Date dateOfReview) {
+        this.boardgameName = boardgameName;
+        this.username = username;
+        this.rating = rating;
+        this.body = body;
+        this.dateOfReview = dateOfReview;
+    }
+
     // - Metodi di accesso -
     public String getBoardgameName() {
         return boardgameName;
