@@ -109,6 +109,7 @@ public class ReviewService {
         return true;
     }
 
+    @Transactional
     // Eliminare la review dalla collection REVIEWS -> USERS -> BOARDGAMES
     public boolean deleteReview(ReviewModelMongo selectedReview, UserModelMongo loggedUser) //BoardgameModelMongo boardgame,
     {
@@ -134,7 +135,7 @@ public class ReviewService {
             }
             // cancellare la reviews nelle review dello user in locale
 
-            if (!reviewMongoOp.deleteReviewById(reviewId)) {
+            if (!reviewMongoOp.deleteReview(selectedReview)) {
                 throw new RuntimeException("deleteReviewById(): -> deleteReviewInBoardgame failed");
             }
 
@@ -157,7 +158,7 @@ public class ReviewService {
 
         BoardgameModelMongo referredBoardgame = boardgameResult.get();
         if (boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) // Cancella da Mongo
-            if(referredBoardgame.deleteReview(selectedReview)) // Cancella da locale
+            if(referredBoardgame.deleteReview(selectedReview.getId())) // Cancella da locale
                 return true;
             else
             {
@@ -172,7 +173,7 @@ public class ReviewService {
     {
         if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId()))
         {
-            if (user.deleteReview(selectedReview))
+            if (user.deleteReview(selectedReview.getId()))
                 return true;
             else
             {
