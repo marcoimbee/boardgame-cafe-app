@@ -184,7 +184,8 @@ public class ReviewService {
             }
         }
         throw new RuntimeException("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| not present in Mongo");
-//
+
+
 //        if (user.deleteReview(selectedReview))
 //            return userMongoOp.updateUser(user.getId(), user, "user");
 //        return false;
@@ -208,37 +209,6 @@ public class ReviewService {
 //        } else
 //            return deleteUserReview(user, reviewId);
     }
-
-    /*
-        private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
-
-            int numReviews = boardgame.getReviews().size();
-            if (numReviews == 50) {
-                if (isDelete) {
-                    List<ReviewModelMongo> oldReviews = reviewMongoOp.
-                                           findOldReviews(boardgame.getBoardgameName(), true);
-                    boardgame.getReviews().add(numReviews, oldReviews.get(0));
-                } else {
-                    boardgame.getReviews().remove(numReviews - 1);
-                }
-            }
-        }
-
-        private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
-
-            int numReviews = newUser.getReviews().size();
-            if (numReviews == 50) {
-                if (isDelete) {
-                    List<ReviewModelMongo> oldReviews =
-                            reviewMongoOp.findOldReviews(newUser.getUsername(), false);
-
-                    newUser.getReviews().add(numReviews, oldReviews.get(0));
-                } else {
-                    newUser.getReviews().remove(numReviews - 1);
-                }
-            }
-        }
-    */
 
     @Transactional
     public boolean updateReview(ReviewModelMongo selectedReview) {
