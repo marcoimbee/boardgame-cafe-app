@@ -10,6 +10,7 @@ import java.util.List;
 @Document(collection = "users")
 @TypeAlias("user")
 public class UserModelMongo extends GenericUserModelMongo {
+
     private String name;
     private String surname;
     private String gender;
@@ -19,11 +20,11 @@ public class UserModelMongo extends GenericUserModelMongo {
     private List<ReviewModelMongo> reviews = new ArrayList<>();
 
     public UserModelMongo(){};
-
-    public UserModelMongo(String id, String username, String passwordHash,
-                          String salt, String _class, String email,
+    public UserModelMongo(String id, String username, String email,
                           String name, String surname, String gender,
-                          Date dateOfBirth, String nationality, boolean banned) {
+                          Date dateOfBirth, String nationality, boolean banned,
+                          String salt, String passwordHash, String _class
+    ) {
 
         super(id, username, email, salt, passwordHash, _class);
         this.name = name;
@@ -33,6 +34,23 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.nationality = nationality;
         this.banned = banned;
     }
+
+    public UserModelMongo(String username, String email,
+                          String name, String surname, String gender,
+                          Date dateOfBirth, String nationality, boolean banned,
+                          String salt, String passwordHash, String _class
+                          ) {
+
+        super(username, email, salt, passwordHash, _class);
+        this.name = name;
+        this.surname = surname;
+        this.gender = gender;
+        this.dateOfBirth = dateOfBirth;
+        this.nationality = nationality;
+        this.banned = banned;
+    }
+
+
 
     public String getName() {
         return name;
@@ -119,8 +137,6 @@ public class UserModelMongo extends GenericUserModelMongo {
         return "UserModelMongo{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
-                ", salt='" + salt + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
@@ -128,9 +144,12 @@ public class UserModelMongo extends GenericUserModelMongo {
                 ", dateOfBirth=" + dateOfBirth +
                 ", nationality='" + nationality + '\'' +
                 ", banned=" + banned +
+                ", salt='" + salt + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 ", reviews=" + reviews +
                 '}';
     }
+
 
 
 }
