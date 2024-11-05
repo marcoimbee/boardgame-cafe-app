@@ -3,7 +3,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,7 @@ public class BoardgameDBMongo {
     }
 
     public boolean updateBoardgameMongo(String id, BoardgameModelMongo newBoardgame) {
-        boolean result = true;
+
         try {
             Optional<BoardgameModelMongo> boardgame = boardgameRepoMongoOp.findById(id);
             if (boardgame.isPresent()) {
@@ -90,18 +89,18 @@ public class BoardgameDBMongo {
                 boardgameToBeUpdated.setMaxPlayers(newBoardgame.getMaxPlayers());
                 boardgameToBeUpdated.setPlayingTime(newBoardgame.getPlayingTime());
                 boardgameToBeUpdated.setMinAge(newBoardgame.getMinAge());
-                boardgameToBeUpdated.setBoardgameCategoryList(newBoardgame.getBoardgameCategoryList());
-                boardgameToBeUpdated.setBoardgameDesignerList(newBoardgame.getBoardgameDesignerList());
-                boardgameToBeUpdated.setBoardgamePublisherList(newBoardgame.getBoardgamePublisherList());
+                boardgameToBeUpdated.setBoardgameCategory(newBoardgame.getBoardgameCategory());
+                boardgameToBeUpdated.setBoardgameDesigner(newBoardgame.getBoardgameDesigner());
+                boardgameToBeUpdated.setBoardgamePublisher(newBoardgame.getBoardgamePublisher());
                 boardgameToBeUpdated.setReviews(newBoardgame.getReviews());
 
-                boardgameRepoMongoOp.save(boardgameToBeUpdated);
+                this.addBoardgame(boardgameToBeUpdated); //Uso di save per aggiornare tutto il document
             }
         } catch (Exception e) {
             e.printStackTrace();
-            result = false;
+            return false;
         }
-        return result;
+        return true;
     }
 
     public List<BoardgameModelMongo> findRecentBoardgames(int limit, int skip) {
@@ -220,7 +219,7 @@ public class BoardgameDBMongo {
     public boolean addReviewInBoardgameArray(BoardgameModelMongo boardgame, ReviewModelMongo newReview)
     {
         Query query = new Query(Criteria.where("_id").is(boardgame.getId()));
-        Update update = new Update().push("reviews", newReview);
+        Update update = new Update().push("reviews",  newReview);
         UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
 
         // Se almeno un documento è stato modificato, l'update è riuscito
