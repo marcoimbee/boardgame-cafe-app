@@ -20,9 +20,9 @@ public class BoardgameModelMongo {
     private int maxPlayers;
     private int playingTime;
     private int minAge;
-    private List<String> boardgameCategoryList = new ArrayList<>();
-    private List<String> boardgameDesignerList = new ArrayList<>();
-    private List<String> boardgamePublisherList = new ArrayList<>();
+    private List<String> boardgameCategory = new ArrayList<>();
+    private List<String> boardgameDesigner = new ArrayList<>();
+    private List<String> boardgamePublisher = new ArrayList<>();
     private List<ReviewModelMongo> reviews = new ArrayList<>();
 
     public BoardgameModelMongo(){}
@@ -30,8 +30,8 @@ public class BoardgameModelMongo {
     public BoardgameModelMongo(String id, String boardgameName,
                                String thumbnail, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
-                               int playingTime, int minAge, List<String> boardgameCategoryList,
-                               List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
+                               int playingTime, int minAge, List<String> boardgameCategory,
+                               List<String> boardgameDesigner, List<String> boardgamePublisher) {
 
         this.id = id;
         this.boardgameName = boardgameName;
@@ -43,16 +43,16 @@ public class BoardgameModelMongo {
         this.maxPlayers = maxPlayers;
         this.playingTime = playingTime;
         this.minAge = minAge;
-        this.boardgameCategoryList = boardgameCategoryList;
-        this.boardgameDesignerList = boardgameDesignerList;
-        this.boardgamePublisherList = boardgamePublisherList;
+        this.boardgameCategory = boardgameCategory;
+        this.boardgameDesigner = boardgameDesigner;
+        this.boardgamePublisher = boardgamePublisher;
     }
 
     public BoardgameModelMongo(String boardgameName,
                                String thumbnail, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
-                               int playingTime, int minAge, List<String> boardgameCategoryList,
-                               List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
+                               int playingTime, int minAge, List<String> boardgameCategory,
+                               List<String> boardgameDesigner, List<String> boardgamePublisher) {
 
         this.boardgameName = boardgameName;
         this.thumbnail = thumbnail;
@@ -63,9 +63,9 @@ public class BoardgameModelMongo {
         this.maxPlayers = maxPlayers;
         this.playingTime = playingTime;
         this.minAge = minAge;
-        this.boardgameCategoryList = boardgameCategoryList;
-        this.boardgameDesignerList = boardgameDesignerList;
-        this.boardgamePublisherList = boardgamePublisherList;
+        this.boardgameCategory = boardgameCategory;
+        this.boardgameDesigner = boardgameDesigner;
+        this.boardgamePublisher = boardgamePublisher;
     }
 
     public String getId() {
@@ -148,28 +148,28 @@ public class BoardgameModelMongo {
         this.minAge = minAge;
     }
 
-    public List<String> getBoardgameCategoryList() {
-        return boardgameCategoryList;
+    public List<String> getBoardgameCategory() {
+        return boardgameCategory;
     }
 
-    public void setBoardgameCategoryList(List<String> boardgameCategoryList) {
-        this.boardgameCategoryList = boardgameCategoryList;
+    public void setBoardgameCategory(List<String> boardgameCategory) {
+        this.boardgameCategory = boardgameCategory;
     }
 
-    public List<String> getBoardgameDesignerList() {
-        return boardgameDesignerList;
+    public List<String> getBoardgameDesigner() {
+        return boardgameDesigner;
     }
 
-    public void setBoardgameDesignerList(List<String> boardgameDesignerList) {
-        this.boardgameDesignerList = boardgameDesignerList;
+    public void setBoardgameDesigner(List<String> boardgameDesigner) {
+        this.boardgameDesigner = boardgameDesigner;
     }
 
-    public List<String> getBoardgamePublisherList() {
-        return boardgamePublisherList;
+    public List<String> getBoardgamePublisher() {
+        return boardgamePublisher;
     }
 
-    public void setBoardgamePublisherList(List<String> boardgamePublisherList) {
-        this.boardgamePublisherList = boardgamePublisherList;
+    public void setBoardgamePublisher(List<String> boardgamePublisher) {
+        this.boardgamePublisher = boardgamePublisher;
     }
 
 
@@ -218,9 +218,9 @@ public class BoardgameModelMongo {
                 ", maxPlayers=" + maxPlayers +
                 ", playingTime=" + playingTime +
                 ", minAge=" + minAge +
-                ", boardgameCategoryList=" + boardgameCategoryList +
-                ", boardgameDesignerList=" + boardgameDesignerList +
-                ", boardgamePublisherList=" + boardgamePublisherList +
+                ", boardgameCategoryList=" + boardgameCategory +
+                ", boardgameDesignerList=" + boardgameDesigner +
+                ", boardgamePublisherList=" + boardgamePublisher +
                 ", reviews=" + reviews +
                 '}';
     }
