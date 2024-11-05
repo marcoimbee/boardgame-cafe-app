@@ -116,7 +116,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
     }
 
     public void onClickSearch() {
-        String text = this.textFieldSearch.getText();
+        java.lang.String text = this.textFieldSearch.getText();
 
         stageManager.showInfoMessage("Info Text", text);
     }
