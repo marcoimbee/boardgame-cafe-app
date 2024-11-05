@@ -11,7 +11,7 @@ public class CommentModelNeo4j {
     @Id
     private String id;
 
-    @Relationship(type = "WRITES", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "WRITES_COMMENT", direction = Relationship.Direction.INCOMING)
     private UserModelNeo4j author;
     @Relationship(type = "REPLY", direction = Relationship.Direction.OUTGOING)
     private PostModelNeo4j postCommented;
