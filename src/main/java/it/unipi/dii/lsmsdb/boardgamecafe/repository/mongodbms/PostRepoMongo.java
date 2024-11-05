@@ -13,8 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepoMongo extends MongoRepository<PostModelMongo, String>{
-    @Query("{username: $username}")
-    List<PostModelMongo> findByUsername(@Param("username") String username);
+    List<PostModelMongo> findByUsername(String username);
 
 //    @Query("{username: $username, timestamp:  $timestamp}")
 //    Optional<PostModelMongo> findByUsernameAndTimestamp(@Param("username") String username, @Param("timestamp") Date timestamp);

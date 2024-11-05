@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.client.result.DeleteResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -16,6 +17,6 @@ public interface CommentRepoMongo extends MongoRepository<CommentModelMongo, Str
     List<CommentModelMongo> findByUsername(String username);
     Optional<CommentModelMongo> findByUsernameAndPostAndTimestamp(String username, String post, Date timestamp);
 
-    void deleteByPost(String post);
+    long deleteByPost(String post);
     void deleteByUsername(String username);
 }

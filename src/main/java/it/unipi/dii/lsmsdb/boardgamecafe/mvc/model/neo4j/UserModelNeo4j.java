@@ -53,9 +53,11 @@ public class UserModelNeo4j {
     public List<UserModelNeo4j> getFollowedUsers() {
         return followedUsers;
     }
+
     public void setFollowedUsers(List<UserModelNeo4j> followedUsers) {
         this.followedUsers = followedUsers;
     }
+
     public UserModelNeo4j getFollowedUser(String id) {
         if (!this.followedUsers.isEmpty()) {
             for (UserModelNeo4j user : followedUsers) {
@@ -66,9 +68,11 @@ public class UserModelNeo4j {
         }
         return null;
     }
+
     public void addFollowedUser(UserModelNeo4j user) {
         this.followedUsers.add(0, user);
     }
+
     public boolean deleteFollowedUser(String id) {
         UserModelNeo4j user = this.getFollowedUser(id);
         if (user != null) {
@@ -104,9 +108,11 @@ public class UserModelNeo4j {
         } else { return null;}
         return posts;
     }
+
     public void setWrittenPosts(List<PostModelNeo4j> writtenPosts) {
         this.writtenPosts = writtenPosts;
     }
+
     public PostModelNeo4j getPostWrittenByUser(String id) {
         if (!this.writtenPosts.isEmpty()) {
             for (PostModelNeo4j post : writtenPosts) {
@@ -121,6 +127,7 @@ public class UserModelNeo4j {
     {
         this.writtenPosts.add(0, post);
     }
+
     public boolean deleteWrittenPost(String id) {
         PostModelNeo4j post = this.getPostWrittenByUser(id);
         if (post != null) {
@@ -134,9 +141,11 @@ public class UserModelNeo4j {
     public List<PostModelNeo4j> getLikedPosts() {
         return likedPosts;
     }
+
     public void setLikedPosts(List<PostModelNeo4j> likedPosts) {
         this.likedPosts = likedPosts;
     }
+
     public PostModelNeo4j getPostLikedByUser(String id) {
         if (!this.likedPosts.isEmpty()) {
             for (PostModelNeo4j post : likedPosts) {
@@ -147,9 +156,11 @@ public class UserModelNeo4j {
         }
         return null;
     }
+
     public void addLikedPost(PostModelNeo4j post) {
         this.likedPosts.add(0, post);
     }
+
     public boolean deleteLikedPost(String id) {
         PostModelNeo4j post = this.getPostLikedByUser(id);
         if (post != null) {
@@ -163,9 +174,11 @@ public class UserModelNeo4j {
     public List<CommentModelNeo4j> getWrittenComments() {
         return writtenComments;
     }
+
     public void setWrittenComments(List<CommentModelNeo4j> comments) {
         this.writtenComments = comments;
     }
+
     public CommentModelNeo4j getCommentWrittenByUser(String id) {
         if (!this.writtenComments.isEmpty()) {
             for (CommentModelNeo4j comment : writtenComments) {
@@ -176,9 +189,11 @@ public class UserModelNeo4j {
         }
         return null;
     }
+
     public void addWrittenComment(CommentModelNeo4j comment) {
         this.writtenComments.add(0, comment);
     }
+
     public boolean deleteWrittenComment(String id) {
         CommentModelNeo4j comment = this.getCommentWrittenByUser(id);
         if (comment != null) {

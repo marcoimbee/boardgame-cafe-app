@@ -24,14 +24,13 @@ public class UserDBNeo4j {
     }
 
     public boolean addUser(UserModelNeo4j user) {
-        boolean result = true;
         try {
-            userNeo4jDB.save(user); //L'equivalente di MERGE
+            userNeo4jDB.save(user);     // Same as performing a MERGE operation
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            result = false;
+            return false;
         }
-        return result;
     }
 
     public boolean updateUser(String id, UserModelNeo4j updated) {
@@ -154,5 +153,25 @@ public class UserDBNeo4j {
             ex.printStackTrace();
         }
         return user;
+    }
+
+    public boolean setUserAsBanned(String username) {
+        try {
+            userNeo4jDB.setUsernameAsBanned(username);
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean restoreUserNodeAfterUnban(String userId, String username) {
+        try {
+            userNeo4jDB.restoreUserUsername(userId, userId);
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 }
