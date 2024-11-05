@@ -117,6 +117,10 @@ public class BoardgamecafeApplication {
     private CommentDBMongo commentDBMongo;
     @Autowired
     private ReviewService serviceReview;
+    @Autowired
+    private ReviewDBMongo reviewDBMongoOps;
+    @Autowired
+    private ReviewRepoMongo reviewRepoMongoOps;
 
     public static void main(String[] args)
     {
@@ -131,12 +135,12 @@ public class BoardgamecafeApplication {
     {
         // ------ Test Operations on BoardGameCafeDB ------
 
-        //General variable used for hard-coded version (Into old test-code of this main)
-        String username = "whitekoala768";
-        String username2 = "johnny.test30";
-        String bordgameName ="Monopoly";
-        String idUser = "655f83770b0a94c33a977526";
-        String idUser2 = "865l9633f0l96v33a2569885";
+//        //General variable used for hard-coded version (Into old test-code of this main)
+//        String username = "whitekoala768";
+//        String username2 = "johnny.test30";
+//        String bordgameName ="Monopoly";
+//        String idUser = "655f83770b0a94c33a977526";
+//        String idUser2 = "865l9633f0l96v33a2569885";
 
 
         // ************************** (Begin) New Test-Code Section **************************
@@ -386,30 +390,32 @@ public class BoardgamecafeApplication {
         // ########################## Services Test-Code Section ##########################
 
 
-        System.out.println("\n************ BOARDGAME-SERVICE RESULTS ************");
-
-        // --- Test del metodo insertBoardgame() ---
+//        System.out.println("\n************ BOARDGAME-SERVICE RESULTS ************");
+//
+//        // --- Test del metodo insertBoardgame() ---
 //        String boardgameName = "Monopoly24";
 //        String thumbnail = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
 //        String image = "https://c7.alamy.com/compit/bf9pym/gioco-di-monopoli-bf9pym.jpg";
 //        String description = "This game takes its name from the economic concept of monopoly, or the domination of the market by a single seller";
-//        int yearPublished = 2024;
+//        int yearPublished = 2024; //da 2024 a 2025
 //        int minPlayers = 2;
 //        int maxPlayers = 6; //Da 6 a 8
 //        int playingTime = 5;
 //        int minAge = 8;
 //        List<String> boardgameCategoryList = new ArrayList<>();
 //        boardgameCategoryList.add("Society");
+//        //boardgameCategoryList.add("Strategy"); //Nuova categoria
 //        List<String> boardgameDesignerList = new ArrayList<>();
 //        boardgameDesignerList.add("Elizabeth Magie");
 //        boardgameDesignerList.add("Charles Darrow");
 //        List<String> boardgamePublisherList = new ArrayList<>();
 //        boardgamePublisherList.add("Hasbro");
-//
-//        //Creazione Boardgame
+
+        //Creazione Boardgame
 //        BoardgameModelMongo monopolyBoardgame = new
 //                BoardgameModelMongo(boardgameName, thumbnail, image, description, yearPublished,
 //                minPlayers, maxPlayers, playingTime, minAge, boardgameCategoryList, boardgameDesignerList, boardgamePublisherList);
+
 //
 //        System.out.println("\nResult of the Boardgame insertion operation: ");
 //        boolean boardgameToBeInsert = serviceBoardgame.insertBoardgame(monopolyBoardgame);
@@ -424,62 +430,151 @@ public class BoardgamecafeApplication {
 //        System.out.println("\n\n");
 
 
-        // --- Test del metodo deleteBoardgame() ---
-        String monopolyBoardgameName = "Monopoly24";
-        Optional<BoardgameModelMongo> boardgameFromMongo = boardgameDBMongo.
-                                                           findBoardgameByName(monopolyBoardgameName);
-        if(boardgameFromMongo.isPresent()){
-            System.out.println("\nResult of the Boardgame Deletion operation: ");
-            BoardgameModelMongo boardgameToBeDeleted = boardgameFromMongo.get();
+//        // --- Test del metodo deleteBoardgame() ---
+//        String monopolyBoardgameName = "Monopoly24";
+//        String monopolyBoardgameId = "6722642d74e0a46fa1a7307b";
+//        Optional<BoardgameModelMongo> boardgameFromMongo = boardgameDBMongo.
+//                                                           findBoardgameById(monopolyBoardgameId);
+//        if(boardgameFromMongo.isPresent()){
+//            System.out.println("\nResult of the Boardgame Deletion operation: ");
+//            BoardgameModelMongo boardgameToBeDeleted = boardgameFromMongo.get();
+//
+//            boolean deleteOpsResult = serviceBoardgame.deleteBoardgame(boardgameToBeDeleted);
+//            if (deleteOpsResult) {
+//                System.out.println("\n\nThe Operation has been correctly " +
+//                                        "performed both for MongoDB and Neo4j dbms.");
+//            } else {
+//                System.out.println("\n\nThe Operation has NOT been correctly " +
+//                                        "performed both for MongoDB and Neo4j dbms.");
+//            }
+//        } else {
+//            System.out.println("\nBoardgame not found!");
+//        }
+//        System.out.println("\n\n");
+
+//
+//        // --- Test del metodo updateBoardgame() ---
+//        if(boardgameFromMongo.isPresent()){
+//            System.out.println("\nResult of the Boardgame Update operation: ");
+//            BoardgameModelMongo boardgameToBeUpdated = boardgameFromMongo.get();
+//            String boardgameToBeUpdatedId = boardgameToBeUpdated.getId();
+//
+//            BoardgameModelMongo monopolyBoardgameUpdate = new
+//                    BoardgameModelMongo(boardgameToBeUpdatedId, boardgameName, thumbnail,
+//                    image, description, yearPublished, minPlayers, maxPlayers, playingTime,
+//                    minAge, boardgameCategoryList, boardgameDesignerList, boardgamePublisherList);
+//
+//            boolean updateOpsResult = serviceBoardgame.updateBoardgame(monopolyBoardgameUpdate);
+//            if (updateOpsResult) {
+//                System.out.println("\n\nThe Operation has been correctly " +
+//                        "performed both for MongoDB and Neo4j dbms.");
+//            } else {
+//                System.out.println("\n\nThe Operation has NOT been correctly " +
+//                        "performed both for MongoDB and Neo4j dbms.");
+//            }
+//        } else {
+//            System.out.println("\nBoardgame not found!");
+//        }
+//        System.out.println("\n\n");
 
 
         System.out.println("\n************ REVIEW-SERVICE RESULTS ************");
 
 
         //Useful Variables for Review Creation
-        String existingBoardgameName = "Carcassonne";
+        String existingBoardgameName = "7 Wonders";
         String existingUsername = "tinymeercat901";
         int rating = 4;
-        String body = "Gioco molto interessante, con i miei amici ci siamo divertiti molto. Consigliato!";
+        String body = "Gioco molto interessante (Modifica) -, con i miei amici ci siamo divertiti molto. Consigliato!";
         Date dateOfReview = new Date();
 
-        //Step_1) Ottenere un UTENTE a cui far creare la recensione così da aggiungerla
-        //        alla sua lista di recensioni come "nuova recensione".
-        Optional<GenericUserModelMongo> userFromMongo = userDBMongo.findByUsername(existingUsername);
+//        //Step_1) Ottenere un UTENTE a cui far creare la recensione così da aggiungerla
+//        //        alla sua lista di recensioni come "nuova recensione".
+//        Optional<GenericUserModelMongo> userFromMongo = userDBMongo.findByUsername(existingUsername);
+//
+//        //Step_2) Ottenere il BOARDGAME a cui associare la recensione cosi da aggiungerla
+//        //        alla sua lista di recensioni come "nuova recensione".
+//        Optional<BoardgameModelMongo> boardgameFromMongo_2 = boardgameDBMongo.
+//                                                            findBoardgameByName(existingBoardgameName);
+//
+//        // - Test del metodo insertReview()
+//        if(userFromMongo.isPresent() && boardgameFromMongo_2.isPresent()){
+//            System.out.println("\nResult of the Review Insert operation: ");
+//
+//            UserModelMongo userCreatorReview = (UserModelMongo) userFromMongo.get();
+//            BoardgameModelMongo boardgameToBeReviewed = boardgameFromMongo_2.get();
+//
+//            //Step_3) Creare La Recensione
+//            ReviewModelMongo newReview = new ReviewModelMongo(
+//                                              existingBoardgameName,
+//                                              existingUsername,
+//                                              rating, body,
+//                                              dateOfReview);
+//
+//            //Step_4) Inserire la recensione in MongoDB
+//            boolean insertOpsResult = serviceReview.insertReview(newReview,
+//                                                                 boardgameToBeReviewed,
+//                                                                 userCreatorReview);
+//            if (insertOpsResult) {
+//                System.out.println("\n\nThe Operation has been correctly " +
+//                        "performed both for MongoDB and Neo4j dbms.");
+//            } else {
+//                System.out.println("\n\nThe Operation has NOT been correctly " +
+//                        "performed both for MongoDB and Neo4j dbms.");
+//            }
+//        } else {
+//            System.out.println("\n User Creator or Boardgame to be reviewd not found!");
+//        }
+//        System.out.println("\n\n");
 
-        //Step_2) Ottenere il BOARDGAME a cui associare la recensione cosi da aggiungerla
-        //        alla sua lista di recensioni come "nuova recensione".
-        Optional<BoardgameModelMongo> boardgameFromMongo_2 = boardgameDBMongo.
-                                                            findBoardgameByName(existingBoardgameName);
 
-        if(userFromMongo.isPresent() && boardgameFromMongo_2.isPresent()){
-            System.out.println("\nResult of the Review Insert operation: ");
+        // --- Test del metodo updateReview() ---
+        String reviewToBeModifiedID = "6728f31c52e70a2f2b00a093";
 
-            UserModelMongo userCreatorReview = (UserModelMongo) userFromMongo.get();
-            BoardgameModelMongo boardgameToBeReviewed = boardgameFromMongo_2.get();
+        System.out.println("\nResult of the Review Update operation: ");
 
-            //Step_3) Creare La Recensione
-            ReviewModelMongo newReview = new ReviewModelMongo(
-                                              existingBoardgameName,
-                                              existingUsername,
-                                              rating, body,
-                                              dateOfReview);
+        ReviewModelMongo reviewUpdate = new ReviewModelMongo(
+                                            reviewToBeModifiedID,
+                                            existingBoardgameName,
+                                            existingUsername,
+                                            rating, body,
+                                            dateOfReview);
 
-            //Step_4) Inserire la recensione in MongoDB
-            boolean insertOpsResult = serviceReview.insertReview(newReview,
-                                                                 boardgameToBeReviewed,
-                                                                 userCreatorReview);
-            if (insertOpsResult) {
-                System.out.println("\n\nThe Operation has been correctly " +
-                                        "performed both for MongoDB and Neo4j dbms.");
-            } else {
-                System.out.println("\n\nThe Operation has NOT been correctly " +
-                                        "performed both for MongoDB and Neo4j dbms.");
-            }
+        boolean updateOpsResult = serviceReview.updateReview(reviewUpdate);
+        if (updateOpsResult) {
+            System.out.println("\n\nThe Operation has been correctly " +
+                    "performed both for MongoDB and Neo4j dbms.");
         } else {
-            System.out.println("\nBoardgame not found!");
+            System.out.println("\n\nThe Operation has NOT been correctly " +
+                    "performed both for MongoDB and Neo4j dbms.");
         }
-        System.out.println("\n\n");
+
+
+
+
+//        //- Test del metodo getWrittenPosts che dovrebbe ritornare un risultato basato sulle relazioni in neo4j -
+//        //TO-BE-FIXED
+//        Optional<UserModelNeo4j> userFromNeo4j = userNeo4jDB.findByUsername("whitelion758");
+//        if (userFromNeo4j.isPresent()){
+//            UserModelNeo4j userTest = userFromNeo4j.get();
+//
+//            List<PostModelNeo4j> writtenPosts = userTest.getWrittenPosts();
+//
+//            if (writtenPosts.isEmpty()){
+//                System.out.println("\nLista Posts Vuota");
+//            }
+//            for (PostModelNeo4j post: writtenPosts) {
+//
+//                System.out.println(post);
+//            }
+//
+//            //System.out.println(userTest);
+//
+//        } else {
+//            System.out.println("\nError: User Not found into neo4j db");
+//        }
+
+
 
 
         // ************************** Inizio Test Delete comment **************************
