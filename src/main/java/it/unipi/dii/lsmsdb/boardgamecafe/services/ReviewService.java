@@ -50,8 +50,9 @@ public class ReviewService {
             //Recupero la review appena aggiunta alla collection Reviews considerando
             // il gioco a cui fa riferimento l'utente che l'ha creata
             Optional<ReviewModelMongo> reviewFromMongo = reviewMongoOp.
-                                       findByUsernameAndBoardgameName(usernameCreatorReview,
-                                                                      boardgameToBeReviewdName);
+                                       findByUsernameAndBoardgameName(
+                                               usernameCreatorReview,
+                                               boardgameToBeReviewdName);
 
             if(reviewFromMongo.isPresent()){
 
@@ -96,6 +97,7 @@ public class ReviewService {
     }
 
     public boolean addReviewToBoardgame(BoardgameModelMongo boardgame, ReviewModelMongo review) {
+
         // checkLastReviewBoardgame(boardgame, false);
         boardgame.addReview(review);
 
@@ -178,36 +180,7 @@ public class ReviewService {
         }
         return true;
     }
-    /*
-        private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
 
-            int numReviews = boardgame.getReviews().size();
-            if (numReviews == 50) {
-                if (isDelete) {
-                    List<ReviewModelMongo> oldReviews = reviewMongoOp.
-                                           findOldReviews(boardgame.getBoardgameName(), true);
-                    boardgame.getReviews().add(numReviews, oldReviews.get(0));
-                } else {
-                    boardgame.getReviews().remove(numReviews - 1);
-                }
-            }
-        }
-
-        private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
-
-            int numReviews = newUser.getReviews().size();
-            if (numReviews == 50) {
-                if (isDelete) {
-                    List<ReviewModelMongo> oldReviews =
-                            reviewMongoOp.findOldReviews(newUser.getUsername(), false);
-
-                    newUser.getReviews().add(numReviews, oldReviews.get(0));
-                } else {
-                    newUser.getReviews().remove(numReviews - 1);
-                }
-            }
-        }
-    */
     public boolean deleteReviewInBoardgame(BoardgameModelMongo boardgame,
                                            ReviewModelMongo selectedReview,
                                            String reviewId){
@@ -226,6 +199,157 @@ public class ReviewService {
             return deleteBoardgameReview(boardgame ,reviewId);
     }
 
+    @Transactional
+    public boolean updateReview(ReviewModelMongo selectedReview) {
+        try {
+            if (!reviewMongoOp.updateReview(selectedReview.getId(), selectedReview)) {
+                throw new RuntimeException("\nError in updating the review in the collection of reviews");
+            }
+            if (!updateReviewInUser(selectedReview)) {
+                throw new RuntimeException("\nError in updating the review in the collection of users");
+            }
+            if (!updateReviewInBoardgame(selectedReview)) {
+                throw new RuntimeException("\nError in updating the review in the collection of Board Games");
+            }
+        } catch (Exception e) {
+            System.err.println("[ERROR] " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean updateReviewInBoardgame(ReviewModelMongo selectedReview) {
+
+        Optional<BoardgameModelMongo> boardgameResult =
+                boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
+
+        if (boardgameResult.isPresent()) {
+            BoardgameModelMongo boardgame = boardgameResult.get();
+
+            //Local object state management
+            if (boardgame.deleteReview(selectedReview.getId())) {
+                boardgame.addReview(selectedReview);
+            }
+
+            return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
+
+            //******************************************************************************************
+            // Valutare l'uso di questa variante, potrebbe non essere necessario fare delete/add nell'array
+            // dell'oggetto locale dato che si andrebbe ad agire direttamente su MongoDB
+
+//            //delete implementata da fra - pullare
+//            if (!boardgameMongoOp.deleteReviewInBoardgameArray(boardgame, selectedReview)) {
+//
+//                return boardgameMongoOp.addReviewInBoardgameArray(boardgame, selectedReview);
+//            }
+            //******************************************************************************************
+        }
+        System.out.println("\nError: There is not present a bordgame with the name: " +
+                              boardgameResult.get().getBoardgameName());
+        return false;
+    }
+
+    public boolean updateReviewInUser(ReviewModelMongo selectedReview) {
+        Optional<GenericUserModelMongo> userResult =
+                userMongoOp.findByUsername(selectedReview.getUsername());
+
+        if (userResult.isPresent()) {
+            GenericUserModelMongo genericUser = userResult.get();
+            String _classValue = genericUser.get_class();
+
+            if (!_classValue.equals("user")) {
+                logger.error("Error: selected user is not a common user");
+                return false;
+            }
+            UserModelMongo user = (UserModelMongo) genericUser;
+
+            //Local object state management
+            if (user.deleteReview(selectedReview.getId())) {
+                user.addReview(selectedReview);
+            }
+            return userMongoOp.updateUser(user.getId(), user, "user");
+
+            //******************************************************************************************
+            // Valutare l'uso di questa variante, potrebbe non essere necessario fare delete/add nell'array
+            // dell'oggetto locale dato che si andrebbe ad agire direttamente su MongoDB
+
+//            //delete implementata da fra - pullare
+//            if (!userMongoOp.deleteReviewInUserArray(user, selectedReview)) {
+//
+//                return userMongoOp.addReviewInUserArray(user, selectedReview);
+//            }
+            //******************************************************************************************
+        }
+        System.out.println("\nError: There is not present a User with the username: " +
+                              userResult.get().getUsername());
+        return false;
+    }
+
+
+    // BEGIN - ************************* To_Check *************************
+
+    // Valutare l'uso di questi 2 metodi: utili per la gestione automatica della numerosità delle
+    // reviews all'interno dell'array di user e boardgame - potrebbe tornare utile anche per la grafica
+    private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
+
+        int numReviews = boardgame.getReviews().size();
+        if (numReviews == 50) {
+            if (isDelete) {
+                List<ReviewModelMongo> oldReviews = reviewMongoOp.
+                        findOldReviews(boardgame.getBoardgameName(), true);
+                boardgame.getReviews().add(numReviews, oldReviews.get(0));
+            } else {
+                boardgame.getReviews().remove(numReviews - 1);
+            }
+        }
+    }
+
+    private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
+
+        int numReviews = newUser.getReviews().size();
+        if (numReviews == 50) {
+            if (isDelete) {
+                List<ReviewModelMongo> oldReviews =
+                        reviewMongoOp.findOldReviews(newUser.getUsername(), false);
+
+                newUser.getReviews().add(numReviews, oldReviews.get(0));
+            } else {
+                newUser.getReviews().remove(numReviews - 1);
+            }
+        }
+    }
+    // END - ************************* To_Check *************************
+
+
+
+//    //TO_CHECK -> GUI
+//    public ReviewModelMongo getSelectedReview(int counterPages, int tableIndex,
+//                                              UserModelMongo user, BoardgameModelMongo boardagme,
+//                                              List<ReviewModelMongo> reviews) {
+//        boolean isEmbedded = true;
+//        int index;
+//
+//        ReviewModelMongo review;
+//        if (counterPages > 4) {
+//            index = tableIndex + (counterPages * 10 - 50);
+//            review = reviews.get(index);
+//            isEmbedded = false;
+//        } else {
+//            index = tableIndex + (counterPages * 10);
+//            if (boardagme == null) {
+//                review = user.getReviews().get(index);
+//            } else {
+//                review = boardagme.getReviews().get(index);
+//            }
+//        }
+//        if (review == null) {
+//            logger.error("Review null, not found ");
+//            return null;
+//        }
+//        BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.IS_EMBEDDED, isEmbedded);
+//        return review;
+//    }
+
     private String getReviewId(ReviewModelMongo review) {
 
         Optional<ReviewModelMongo> reviewResult =
@@ -238,89 +362,4 @@ public class ReviewService {
         }
         return "";
     }
-    /*
-        public ReviewModelMongo getSelectedReview(int counterPages, int tableIndex,
-                                                  UserModelMongo user, BoardgameModelMongo boardagme,
-                                                  List<ReviewModelMongo> reviews) {
-            boolean isEmbedded = true;
-            int index;
-
-            ReviewModelMongo review;
-            if (counterPages > 4) {
-                index = tableIndex + (counterPages * 10 - 50);
-                review = reviews.get(index);
-                isEmbedded = false;
-            } else {
-                index = tableIndex + (counterPages * 10);
-                if (boardagme == null) {
-                    review = user.getReviews().get(index);
-                } else {
-                    review = boardagme.getReviews().get(index);
-                }
-            }
-            if (review == null) {
-                logger.error("Review null, not found ");
-                return null;
-            }
-            BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.IS_EMBEDDED, isEmbedded);
-            return review;
-        }
-    */
-    private boolean updateReviewInBoardgame(ReviewModelMongo selectedReview) {
-
-        Optional<BoardgameModelMongo> boardgameResult =
-                boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
-
-        if (boardgameResult.isPresent()) {
-            BoardgameModelMongo boardgame = boardgameResult.get();
-
-            if (boardgame.deleteReview(selectedReview.getId())) {
-                boardgame.addReview(selectedReview);
-            }
-            return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
-        }
-        return false;
-    }
-
-    public boolean updateReviewInUser(ReviewModelMongo selectedReview) {
-        Optional<GenericUserModelMongo> userResult =
-                userMongoOp.findByUsername(selectedReview.getUsername());
-
-        if (userResult.isPresent()) {
-            GenericUserModelMongo genericUser = userResult.get();
-            if (genericUser.get_class() != "user") {
-                logger.error("Error: selected user is not a common user");
-                return false;
-            }
-            UserModelMongo user = (UserModelMongo) genericUser;
-
-            if (user.deleteReview(selectedReview.getId())) {
-                user.addReview(selectedReview);
-            }
-            return userMongoOp.updateUser(user.getId(), user, "user");
-        }
-        return false;
-    }
-
-    public boolean updateReview(ReviewModelMongo selectedReview) {
-        try {
-            if (!reviewMongoOp.updateReview(selectedReview.getId(), selectedReview)) {
-                logger.error("Error in updating the review in the collection of reviews");
-                return false;
-            }
-            if (!updateReviewInUser(selectedReview)) {
-                logger.error("Error in updating the review in the collection of users");
-                return false;
-            }
-            if (!updateReviewInBoardgame(selectedReview)) {
-                logger.error("Error in updating the review in the collection of Board Games");
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
 }
