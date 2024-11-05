@@ -4,6 +4,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,12 +16,12 @@ public class UserModelNeo4j {
 
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     private List<UserModelNeo4j> followedUsers;
-
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
+    private List<UserModelNeo4j> followerUsers;
     @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
     private List<PostModelNeo4j> writtenPosts;
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<PostModelNeo4j> likedPosts;
-
     @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
     private List<CommentModelNeo4j> writtenComments;
 
@@ -77,10 +78,31 @@ public class UserModelNeo4j {
         return false;
     }
 
+    public List<UserModelNeo4j> getFollowerUsers() {
+        return followerUsers;
+    }
+
+    public void setFollowerUsers(List<UserModelNeo4j> followerUsers) {
+        this.followerUsers = followerUsers;
+    }
+
 
     /////////////////////////////////////////// WRITTEN POSTS FUNCTIONS
     public List<PostModelNeo4j> getWrittenPosts() {
-        return writtenPosts;
+        return this.writtenPosts;
+    }
+
+    //To_Check and eventually to be delete
+    public List<PostModelNeo4j> newGetWrittenPosts(String username) {
+        List<PostModelNeo4j> posts = new ArrayList<>();
+        if (!this.writtenPosts.isEmpty()) {
+            for (PostModelNeo4j post : this.writtenPosts) {
+                if (post.getAuthor().equals(username)) {
+                    posts.add(post);
+                }
+            }
+        } else { return null;}
+        return posts;
     }
     public void setWrittenPosts(List<PostModelNeo4j> writtenPosts) {
         this.writtenPosts = writtenPosts;
