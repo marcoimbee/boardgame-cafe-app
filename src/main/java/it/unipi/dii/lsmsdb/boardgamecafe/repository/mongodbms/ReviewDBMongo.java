@@ -111,23 +111,24 @@ public class ReviewDBMongo {
 
     public boolean updateReview(String id, ReviewModelMongo newReview) {
 
-        boolean result = true;
         try {
             Optional<ReviewModelMongo> review = reviewMongo.findById(id);
             if (review.isPresent()) {
-                review.get().setUsername(newReview.getUsername());
-                review.get().setBoardgameName(newReview.getBoardgameName());
-                review.get().setRating(newReview.getRating());
-                review.get().setBody(newReview.getBody());
-                review.get().setDateOfReview(newReview.getDateOfReview());
+                ReviewModelMongo reviewToBeUpdated = review.get();
 
-                reviewMongo.save(review.get());
+                reviewToBeUpdated.setUsername(newReview.getUsername());
+                reviewToBeUpdated.setBoardgameName(newReview.getBoardgameName());
+                reviewToBeUpdated.setRating(newReview.getRating());
+                reviewToBeUpdated.setBody(newReview.getBody());
+                reviewToBeUpdated.setDateOfReview(newReview.getDateOfReview());
+
+                this.addReview(reviewToBeUpdated); //Uso di save per aggiornare tutto il documento
             }
         } catch (Exception e) {
             e.printStackTrace();
-            result = false;
+            return false;
         }
-        return result;
+        return true;
     }
 
     public boolean deleteReviewById(String id) {
@@ -186,6 +187,8 @@ public class ReviewDBMongo {
             query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
             query.skip(50);
             reviews = mongoOperations.find(query, ReviewModelMongo.class);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
