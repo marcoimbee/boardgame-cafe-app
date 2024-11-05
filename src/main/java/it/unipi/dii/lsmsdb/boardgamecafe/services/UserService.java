@@ -42,7 +42,6 @@ public class UserService {
     @Autowired
     private BoardgameDBMongo boardgameMongoOp;
 
-    private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public String getHashedPassword(String passwordToHash, String salt) {
         String generatedPassword = null;
@@ -200,7 +199,6 @@ public class UserService {
             if (!postNeo4jOp.deleteByUsername(username)) {      // Neo4J post nodes deletion
                 return false;
             }
-        }
 
             return true;
         } catch (Exception ex) {

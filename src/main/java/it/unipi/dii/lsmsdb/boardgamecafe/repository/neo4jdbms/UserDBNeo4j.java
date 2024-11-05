@@ -156,17 +156,6 @@ public class UserDBNeo4j {
         return user;
     }
 
-    public Optional<UserModelNeo4j> findById(String id) {
-        Optional<UserModelNeo4j> user = Optional.empty();
-        try {
-            user = userNeo4jDB.findById(id);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return user;
-    }
-
     public boolean setUserAsBanned(String username) {
         try {
             userNeo4jDB.setUsernameAsBanned(username);
