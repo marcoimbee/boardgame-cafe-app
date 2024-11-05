@@ -1,39 +1,31 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import com.mongodb.client.result.UpdateResult;
-import com.mongodb.internal.bulk.UpdateRequest;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
-import com.mongodb.internal.bulk.UpdateRequest;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.*;
-import org.springframework.data.mongodb.core.query.Criteria;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.query.Query.query;
-import static org.springframework.data.mongodb.core.query.Query.query;
+
 
 @Component
 public class PostDBMongo {
 
-    public PostDBMongo() {
-    }
+    public PostDBMongo() {}
 
     @Autowired
     private PostRepoMongo postMongo;
@@ -323,5 +315,51 @@ public class PostDBMongo {
 
         // Se almeno un documento è stato modificato, l'update è riuscito
         return result.getModifiedCount() > 0;
+    }
+
+    public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModelMongo> userComments) {
+        try {
+            if (updateReason == UserContentUpdateReason.BANNED_USER || updateReason == UserContentUpdateReason.DELETED_USER) {
+                Query query = Query.query(Criteria.where("comments.username").is(username));
+
+                Update update = new Update();
+                if (updateReason == UserContentUpdateReason.DELETED_USER) {
+                    update.set("comments.$.username", "[Deleted user]");
+                } else {
+                    update.set("comments.$.username", "[Banned user]")
+                            .set("comments.$.text", "[Banned user]");
+                }
+
+                mongoOperations.updateMulti(
+                        query,
+                        update,
+                        PostDBMongo.class,
+                        "posts"
+                );
+            }
+
+            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+                for (CommentModelMongo comment : userComments) {
+                    ObjectId commentObjectId = new ObjectId(comment.getId());
+                    Query query = Query.query(Criteria.where("comments._id").is(commentObjectId));
+
+                    Update update = new Update();
+                    update.set("comments.$.username", comment.getUsername())
+                            .set("comments.$.text", comment.getText());
+
+                    mongoOperations.updateFirst(
+                            query,
+                            update,
+                            PostDBMongo.class,
+                            "posts"
+                    );
+                }
+            }
+
+            return true;
+        } catch(Exception ex) {
+            System.err.println("[ERROR] exception: " + ex.getMessage());
+            return false;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -68,17 +69,11 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "LIMIT $limit")
     List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit);
 
-//    @Query("MATCH (u:User {id: $id}) " +
-//            "OPTIONAL MATCH (u)-[:FOLLOWS]->(f:User) " + // Utenti seguiti
-//            "OPTIONAL MATCH (f)<-[:FOLLOWS](u) " + // Utenti che seguono l'utente corrente
-//            "OPTIONAL MATCH (u)-[:WRITES_POST]->(wp:Post) " +
-//            "OPTIONAL MATCH (u)-[:LIKES]->(lp:Post) " +
-//            "OPTIONAL MATCH (u)-[:WRITES_COMMENT]->(wc:Comment) " +
-//            "RETURN u, " +
-//            "collect(f) as followedUsers, " +
-//            "collect(wp) as writtenPosts, " +
-//            "collect(lp) as likedPosts, " +
-//            "collect(wc) as writtenComments, " +
-//            "collect(f) as followers")
-//    UserModelNeo4j findUserById(@Param("id") String id);
+    @Query("MATCH (u:User {username: $username})\n" +
+            "SET u.username = \"[Banned user]\"\n")
+    void setUsernameAsBanned(@Param("username") String username);
+
+    @Query("MATCH (u:User {id: $userId}) " +
+            "SET u.username = $username")
+    void restoreUserUsername(@Param("userId") String userId, @Param("username") String username);
 }

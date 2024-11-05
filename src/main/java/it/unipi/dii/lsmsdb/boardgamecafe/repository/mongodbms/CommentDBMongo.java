@@ -1,12 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -109,32 +105,28 @@ public class CommentDBMongo {
             System.out.println();
         }
         catch (Exception e) {
-            System.out.println("[ERROR] findByUsernameAndPostAndTimestamp()@CommentDBMongo.java raised an exception: " + e.getMessage());
+            e.printStackTrace();
         }
         return comment;
     }
 
     public boolean deleteByPost(String postId) {
         try {
-            commentMongo.deleteByPost(postId);
-        }
-        catch (Exception ex) {
+            long result = commentMongo.deleteByPost(postId);
+            return true;
+        } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         }
-        return true;
     }
 
     public boolean deleteByUsername(String username) {
         try {
             commentMongo.deleteByUsername(username);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         }
         return true;
     }
-
-
 }

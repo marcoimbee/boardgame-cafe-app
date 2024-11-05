@@ -3,7 +3,11 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
+import org.bson.types.ObjectId;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import org.bson.types.ObjectId;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -85,6 +89,52 @@ public class BoardgameDBMongo {
             e.printStackTrace();
         }
         return boardgame;
+    }
+
+    public boolean updateBoardgameReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<ReviewModelMongo> userReviews) {
+        try {
+            if (updateReason == UserContentUpdateReason.DELETED_USER || updateReason == UserContentUpdateReason.BANNED_USER) {
+                Query query = Query.query(Criteria.where("reviews.username").is(username));
+
+                Update update = new Update();
+                if (updateReason == UserContentUpdateReason.DELETED_USER) {
+                    update.set("reviews.$.username", "[Deleted user]");
+                } else {
+                    update.set("reviews.$.username", "[Banned user]")
+                            .set("reviews.$.body", "[Banned user]");
+                }
+
+                mongoOperations.updateMulti(
+                        query,
+                        update,
+                        BoardgameDBMongo.class,
+                        "boardgames"
+                );
+            }
+
+            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+                for (ReviewModelMongo review : userReviews) {
+                    ObjectId reviewObjectId = new ObjectId(review.getId());
+                    Query query = Query.query(Criteria.where("reviews._id").is(reviewObjectId));
+
+                    Update update = new Update();
+                    update.set("reviews.$.username", review.getUsername())
+                            .set("reviews.$.body", review.getBody());
+
+                    mongoOperations.updateFirst(
+                            query,
+                            update,
+                            BoardgameDBMongo.class,
+                            "boardgames"
+                    );
+                }
+            }
+
+            return true;
+        } catch(Exception ex) {
+            System.err.println("[ERROR] updateBoardgameReviewsAfterUserBanOrDeletion@BoardgameDBMongo.java raised an exception: " + ex.getMessage());
+            return false;
+        }
     }
 
     public boolean updateBoardgameMongo(String id, BoardgameModelMongo newBoardgame) {
