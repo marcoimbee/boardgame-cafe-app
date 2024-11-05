@@ -18,10 +18,10 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, java.lang
     @Query("MATCH (p:Post)-[:REFERS_TO]->(b:Boardgame {boardgameName: $bgName}) DETACH DELETE p")
     void deleteByReferredBoardgame(@Param("bgName") java.lang.String bgName);
 
-    @Query("MATCH (p:Post)<-[:WRITES]-(u:User {username: $username}) DETACH DELETE p")
+    @Query("MATCH (p:Post)<-[:WRITES_POST]-(u:User {username: $username}) DETACH DELETE p")
     void deleteByUsername(@Param("username") java.lang.String username);
 
-    @Query("MATCH (p:Post)<-[:WRITES]-(u:User {username: $username}) RETURN DISTINCT p")
+    @Query("MATCH (p:Post)<-[:WRITES_POST]-(u:User {username: $username}) RETURN DISTINCT p")
     List<PostModelNeo4j> findByAuthorName(@Param("username") java.lang.String username);
 
     //To_evaluate usage
@@ -57,7 +57,7 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, java.lang
 
 
     //Valutare se lasciare l'ordinamento in base ai likes (rallenta molto)
-    @Query("MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-[:WRITES]->(c:Comment)-[:REPLY]->(p:Post)\n" +
+    @Query("MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-[:WRITES_COMMENT]->(c:Comment)-[:REPLY]->(p:Post)\n" +
             "OPTIONAL MATCH (p)<-[l:LIKES]-(:User)\n" + //permette di includere anche post che non hanno ricevuto "mi piace"
             "WHERE NOT EXISTS{ MATCH (u)-[:WRITES]->(c)-[:REPLY]->(p) }\n" +
             "WITH p.id AS id, COUNT(l) AS likes\n" +
