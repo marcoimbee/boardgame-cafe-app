@@ -1,10 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe;
 //Internal Packages
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
@@ -521,26 +518,26 @@ public class BoardgamecafeApplication {
 //        System.out.println("\n\n");
 
 
-        // --- Test del metodo updateReview() ---
-        String reviewToBeModifiedID = "6728f31c52e70a2f2b00a093";
-
-        System.out.println("\nResult of the Review Update operation: ");
-
-        ReviewModelMongo reviewUpdate = new ReviewModelMongo(
-                                            reviewToBeModifiedID,
-                                            existingBoardgameName,
-                                            existingUsername,
-                                            rating, body,
-                                            dateOfReview);
-
-        boolean updateOpsResult = serviceReview.updateReview(reviewUpdate);
-        if (updateOpsResult) {
-            System.out.println("\n\nThe Operation has been correctly " +
-                    "performed both for MongoDB and Neo4j dbms.");
-        } else {
-            System.out.println("\n\nThe Operation has NOT been correctly " +
-                    "performed both for MongoDB and Neo4j dbms.");
-        }
+//        // --- Test del metodo updateReview() ---
+//        String reviewToBeModifiedID = "6728f31c52e70a2f2b00a093";
+//
+//        System.out.println("\nResult of the Review Update operation: ");
+//
+//        ReviewModelMongo reviewUpdate = new ReviewModelMongo(
+//                                            reviewToBeModifiedID,
+//                                            existingBoardgameName,
+//                                            existingUsername,
+//                                            rating, body,
+//                                            dateOfReview);
+//
+//        boolean updateOpsResult = serviceReview.updateReview(reviewUpdate);
+//        if (updateOpsResult) {
+//            System.out.println("\n\nThe Operation has been correctly " +
+//                    "performed both for MongoDB and Neo4j dbms.");
+//        } else {
+//            System.out.println("\n\nThe Operation has NOT been correctly " +
+//                    "performed both for MongoDB and Neo4j dbms.");
+//        }
 
 
 
@@ -604,11 +601,17 @@ public class BoardgamecafeApplication {
 
         // ************************** Inizio Test Insert Post **************************
         // 67226b0f590d5d341be06c53
-//        PostModelMongo newPost = new PostModelMongo( "whitelion758", "Carino ma...", "Bello ma noioso, non so se ci giocherei ancora","Carcassonne", new Date() , 0);
-//        if (servicePost.insertPost(newPost))
-//            System.out.println("Commento inserito");
+//        PostModelMongo newPost = new PostModelMongo( "67226b0f590d5d341be06c53", "whitelion758", "Stu pe ndo!", "Gaetano mi ha detto che viviamo nel ghetto...","Carcassonne", new Date() , 0);
+//        if (servicePost.deletePost(newPost))
+//            System.out.println("DEL OK");
 //        else
-//            System.out.println("Commento non inserito");
+//            System.out.println("DEL NO");
+
+//        newPost = servicePost.insertPost(newPost);
+//        if (newPost != null)
+//            System.out.println("Post inserito");
+//        else
+//            System.out.println("Post non inserito");
 
         // ************************** Fine Test Insert Post **************************
 
