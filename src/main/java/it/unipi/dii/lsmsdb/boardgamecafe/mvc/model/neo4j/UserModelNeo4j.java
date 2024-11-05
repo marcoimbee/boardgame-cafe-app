@@ -18,11 +18,11 @@ public class UserModelNeo4j {
     private List<UserModelNeo4j> followedUsers;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
     private List<UserModelNeo4j> followerUsers;
-    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "WRITES_POST", direction = Relationship.Direction.OUTGOING)
     private List<PostModelNeo4j> writtenPosts;
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<PostModelNeo4j> likedPosts;
-    @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "WRITES_COMMENT", direction = Relationship.Direction.OUTGOING)
     private List<CommentModelNeo4j> writtenComments;
 
     public UserModelNeo4j() {}
@@ -120,7 +120,6 @@ public class UserModelNeo4j {
     public void addWrittenPost(PostModelNeo4j post)
     {
         this.writtenPosts.add(0, post);
-        
     }
     public boolean deleteWrittenPost(String id) {
         PostModelNeo4j post = this.getPostWrittenByUser(id);
