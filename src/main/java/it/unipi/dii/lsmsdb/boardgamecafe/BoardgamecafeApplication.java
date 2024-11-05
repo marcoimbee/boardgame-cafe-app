@@ -6,6 +6,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.*;
@@ -13,10 +15,14 @@ import it.unipi.dii.lsmsdb.boardgamecafe.services.*;
 //JavaFX Components
 
 //Spring Components
+import javafx.application.Application;
+import javafx.stage.Stage;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,9 +34,9 @@ import java.util.Optional;
 
 
 // ############################## MAIN FOR GUI- BoardgamecafeApplication_Config ##############################
-/*
+
 @SpringBootApplication
-public class BoardgamecafeApplication extends Application{
+public class BoardgamecafeApplication extends Application {
 
     protected ConfigurableApplicationContext springContext;
     protected StageManager stageManager;
@@ -63,80 +69,84 @@ public class BoardgamecafeApplication extends Application{
         return builder.run(args);
     }
 }
-*/
 
 
-// ****************************** MAIN NOT FOR GUI - SpringOnly_Config ******************************
-@SpringBootApplication  //extends Application removed
-public class BoardgamecafeApplication {
-
-    @Autowired
-    Driver driver; //Used in version without Interface Repository
-
-    @Autowired
-    private UserRepoMongo userRepoMongo;
-    @Autowired
-    private UserDBMongo userDBMongo;
-    @Autowired
-    private UserRepoNeo4j userRepositoryNeo4j;
-    @Autowired
-    private UserDBNeo4j userNeo4jDB;
-    @Autowired
-    private UserService serviceUser;
-    @Autowired
-    private PostService servicePost;
-    @Autowired
-    private BoardgameService serviceBoardgame;
-    @Autowired
-    private PostRepoNeo4j postRepoNeo4j;
-    @Autowired
-    private PostDBNeo4j postDBNeo4j;
-    @Autowired
-    private PostRepoMongo postRepoMongo;
-    @Autowired
-    private PostDBMongo postDBMongo;
-    @Autowired
-    private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
-    @Autowired
-    private BoardgameDBMongo boardgameDBMongo;
-    @Autowired
-    private BoardgameDBNeo4j boardgameDBNeo4j;
-    @Autowired
-    private CommentService serviceComment;
-    @Autowired
-    private CommentDBMongo commentDBMongo;
-    @Autowired
-    private ReviewService serviceReview;
-    @Autowired
-    private ReviewDBMongo reviewDBMongoOps;
-    @Autowired
-    private ReviewRepoMongo reviewRepoMongoOps;
-
-    public static void main(String[] args)
-    {
-        SpringApplication.
-                run(BoardgamecafeApplication.class, args);
-    }
-
-    //Annotation @EventListner: indicates to Spring that the
-    //afterTheStart() method should be executed after the application has started.
-    @EventListener(ApplicationReadyEvent.class)
-    public void afterTheStart()
-    {
-        // ------ Test Operations on BoardGameCafeDB ------
-
-//        //General variable used for hard-coded version (Into old test-code of this main)
-//        String username = "whitekoala768";
-//        String username2 = "johnny.test30";
-//        String bordgameName ="Monopoly";
-//        String idUser = "655f83770b0a94c33a977526";
-//        String idUser2 = "865l9633f0l96v33a2569885";
 
 
-        // ************************** (Begin) New Test-Code Section **************************
 
-        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
-        System.out.println("\n\n");
+//
+//
+//// ****************************** MAIN NOT FOR GUI - SpringOnly_Config ******************************
+//@SpringBootApplication  //extends Application removed
+//public class BoardgamecafeApplication {
+//
+//    @Autowired
+//    Driver driver; //Used in version without Interface Repository
+//
+//    @Autowired
+//    private UserRepoMongo userRepoMongo;
+//    @Autowired
+//    private UserDBMongo userDBMongo;
+//    @Autowired
+//    private UserRepoNeo4j userRepositoryNeo4j;
+//    @Autowired
+//    private UserDBNeo4j userNeo4jDB;
+//    @Autowired
+//    private UserService serviceUser;
+//    @Autowired
+//    private PostService servicePost;
+//    @Autowired
+//    private BoardgameService serviceBoardgame;
+//    @Autowired
+//    private PostRepoNeo4j postRepoNeo4j;
+//    @Autowired
+//    private PostDBNeo4j postDBNeo4j;
+//    @Autowired
+//    private PostRepoMongo postRepoMongo;
+//    @Autowired
+//    private PostDBMongo postDBMongo;
+//    @Autowired
+//    private BoardgameRepoNeo4j boardgameRepositoryNeo4j;
+//    @Autowired
+//    private BoardgameDBMongo boardgameDBMongo;
+//    @Autowired
+//    private BoardgameDBNeo4j boardgameDBNeo4j;
+//    @Autowired
+//    private CommentService serviceComment;
+//    @Autowired
+//    private CommentDBMongo commentDBMongo;
+//    @Autowired
+//    private ReviewService serviceReview;
+//    @Autowired
+//    private ReviewDBMongo reviewDBMongoOps;
+//    @Autowired
+//    private ReviewRepoMongo reviewRepoMongoOps;
+//
+//    public static void main(String[] args)
+//    {
+//        SpringApplication.
+//                run(BoardgamecafeApplication.class, args);
+//    }
+//
+//    //Annotation @EventListner: indicates to Spring that the
+//    //afterTheStart() method should be executed after the application has started.
+//    @EventListener(ApplicationReadyEvent.class)
+//    public void afterTheStart()
+//    {
+//        // ------ Test Operations on BoardGameCafeDB ------
+//
+////        //General variable used for hard-coded version (Into old test-code of this main)
+////        String username = "whitekoala768";
+////        String username2 = "johnny.test30";
+////        String bordgameName ="Monopoly";
+////        String idUser = "655f83770b0a94c33a977526";
+////        String idUser2 = "865l9633f0l96v33a2569885";
+//
+//
+//        // ************************** (Begin) New Test-Code Section **************************
+//
+//        System.out.println("\n\n-----------------------LOADING-DATA----------------------------");
+//        System.out.println("\n\n");
 
 
         // ************************** Queries Test-Code Section **************************
@@ -468,15 +478,15 @@ public class BoardgamecafeApplication {
 //        System.out.println("\n\n");
 
 
-        System.out.println("\n************ REVIEW-SERVICE RESULTS ************");
-
-
-        //Useful Variables for Review Creation
-        String existingBoardgameName = "7 Wonders";
-        String existingUsername = "tinymeercat901";
-        int rating = 4;
-        String body = "Gioco molto interessante (Modifica) -, con i miei amici ci siamo divertiti molto. Consigliato!";
-        Date dateOfReview = new Date();
+//        System.out.println("\n************ REVIEW-SERVICE RESULTS ************");
+//
+//
+//        //Useful Variables for Review Creation
+//        String existingBoardgameName = "7 Wonders";
+//        String existingUsername = "tinymeercat901";
+//        int rating = 4;
+//        String body = "Gioco molto interessante (Modifica) -, con i miei amici ci siamo divertiti molto. Consigliato!";
+//        Date dateOfReview = new Date();
 
 //        //Step_1) Ottenere un UTENTE a cui far creare la recensione così da aggiungerla
 //        //        alla sua lista di recensioni come "nuova recensione".
@@ -680,6 +690,6 @@ public class BoardgamecafeApplication {
 //        System.out.println("Eliminazione OK");
 
         // ************************** (EndOf) New Test-Code Section **************************
-    }
+    //}
 
-}   //EOF Main SpringOnly Configuration
+//}   //EOF Main SpringOnly Configuration
