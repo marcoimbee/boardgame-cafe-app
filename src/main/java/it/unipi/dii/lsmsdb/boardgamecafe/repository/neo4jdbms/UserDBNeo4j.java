@@ -85,6 +85,18 @@ public class UserDBNeo4j {
         return user;
     }
 
+    //To_Check
+    public Optional<UserModelNeo4j> getByUsernameWithComments(String username) {
+        Optional<UserModelNeo4j> user = Optional.empty();
+        try {
+            user = userNeo4jDB.findByNameWithComments(username);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return user;
+    }
+
     public List<UserModelNeo4j> getFollowers(String username) {
         List<UserModelNeo4j> followers = new ArrayList<>();
         try {
