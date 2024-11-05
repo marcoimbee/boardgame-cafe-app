@@ -1,6 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
-import org.springframework.data.annotation.Version;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -20,7 +19,6 @@ public class BoardgameModelNeo4j {
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.INCOMING)
     private List<PostModelNeo4j> posts;
 
-    // Costruttori, getter e setter
     public BoardgameModelNeo4j() {}
 
     public BoardgameModelNeo4j(String id, String boardgameName,
