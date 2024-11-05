@@ -29,6 +29,16 @@ public abstract class GenericUserModelMongo {
         this._class = _class;
     }
 
+    protected GenericUserModelMongo(String username, String email,
+                                    String salt, String passwordHash,
+                                    String _class) {
+        this.username = username;
+        this.email = email;
+        this.salt = salt;
+        this.passwordHash = passwordHash;
+        this._class = _class;
+    }
+
     public String getId() {
         return id;
     }
