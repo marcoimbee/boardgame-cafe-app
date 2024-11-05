@@ -179,30 +179,6 @@ public class ReviewService {
             }
         }
         throw new RuntimeException("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| not present in Mongo");
-
-
-//        if (user.deleteReview(selectedReview))
-//            return userMongoOp.updateUser(user.getId(), user, "user");
-//        return false;
-//        if (user == null)
-//        {
-//            String username = selectedReview.getUsername();
-//            if (username.equals("Deleted User")) {
-//                return true;
-//            }
-//
-//            Optional<GenericUserModelMongo> userResult =
-//                    userMongoOp.findByUsername(username);
-//
-//            if (userResult.isEmpty()) {
-//                return false;
-//            }
-//
-//            UserModelMongo newUser = (UserModelMongo) userResult.get();
-//            return deleteUserReview(newUser, reviewId);
-//
-//        } else
-//            return deleteUserReview(user, reviewId);
     }
 
     @Transactional
