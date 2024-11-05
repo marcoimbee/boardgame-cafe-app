@@ -95,31 +95,28 @@ public class PostService {
         return true;
     }
 
+    @Transactional
     public boolean deletePost(PostModelMongo postModelMongo)
     {
         try
         {
             // delete all comments
             if (!commentDBMongo.deleteByPost(postModelMongo.getId())) {
-                System.out.println("Error in deleting comments of post in MongoDB");
-                return false;
+                throw new RuntimeException("Error in deleting comments of post in MongoDB");
             }
             if (!commentDBNeo4j.deleteByPost(postModelMongo.getId())) {
-                System.out.println("Error in deleting comments of post in Neo4j");
-                return false;
+                throw new RuntimeException("Error in deleting comments of post in Neo4j");
             }
             // delete post
             if (!postDBNeo4j.deletePost(postModelMongo.getId())) {
-                System.out.println("Error in deleting post in Neo4j");
-                return false;
+                throw new RuntimeException("Error in deleting post in Neo4j");
             }
             if (!postDBMongo.deletePost(postModelMongo)) {
-                System.out.println("Error in deleting post in MongoDB");
-                return false;
+                throw new RuntimeException("Error in deleting post in MongoDB");
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("Exception deletePost(): " + ex.getMessage());
             return false;
         }
         return true;
@@ -147,15 +144,25 @@ public class PostService {
     public void likeOrDislikePost(String username, String postId)
     {
         try {
-            if (postDBNeo4j.hasUserLikedPost(username, postId)) {
-                postDBNeo4j.addLikePost(username, postId);
-            } else {
-                postDBNeo4j.removeLikePost(username, postId);
+            if (postDBNeo4j.hasUserLikedPost(username, postId))
+            {
+                // System.out.println("PostService: Il post ha il Like. Rimuovo...");
+                if (postDBMongo.updateLikeCount(postId, false))
+                    postDBNeo4j.removeLikePost(username, postId);
+                else
+                    throw new RuntimeException("Problem with Mongo removing like count");
             }
-            // Aggiungere aggiornamento del like_count lato MongoDB
+            else
+            {
+                // System.out.println("PostService: Il post non ha il Like. Aggiungo...");
+                if (postDBMongo.updateLikeCount(postId, true))
+                    postDBNeo4j.addLikePost(username, postId);
+                else
+                    throw new RuntimeException("Problem with Mongo adding like count");
+            }
         } catch (Exception ex) {
             // Log dell'eccezione
-            logger.error("Error liking or disliking post for user " + username + " on post " + postId + ": " + ex.getMessage());
+            System.out.println("Error liking or disliking post for user " + username + " on post " + postId + ": " + ex.getMessage());
         }
     }
 

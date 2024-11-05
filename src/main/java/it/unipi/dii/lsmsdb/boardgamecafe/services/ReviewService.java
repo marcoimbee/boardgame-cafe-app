@@ -111,93 +111,134 @@ public class ReviewService {
         return true;
     }
 
-    public boolean deleteReview(ReviewModelMongo selectedReview,
-                                BoardgameModelMongo boardgame,
-                                UserModelMongo user) {
-        try {
+    @Transactional
+    // Eliminare la review dalla collection REVIEWS -> USERS -> BOARDGAMES
+    public boolean deleteReview(ReviewModelMongo selectedReview, UserModelMongo loggedUser) //BoardgameModelMongo boardgame,
+    {
+        try
+        {
+            // Solamente l'utente che ha scritto la review può cancellarla. Da grafica dovrebbe già essere verificato,
+            // ma un controllo in più non fa male.
+            if (!selectedReview.getUsername().equals(loggedUser.getUsername()))
+                throw new RuntimeException("deleteReview(): You don't have the permission to delete this review");
 
             String reviewId = selectedReview.getId();
+            String boardgameName = selectedReview.getBoardgameName();
 
-            if (!deleteReviewInBoardgame(boardgame, selectedReview, reviewId)) {
-                logger.error("Error in deleting the review from the collection of boardgames");
-                return false;
+            if (boardgameName.isEmpty())
+                throw new RuntimeException("This review is not refered to a boardgame!");
+
+            if (!deleteReviewInBoardgame(selectedReview))
+                throw new RuntimeException("deleteReviewInBoardgame(): -> deleteReviewInBoardgame failed");
+
+            if (!deleteReviewInUser(loggedUser, selectedReview)) {
+                throw new RuntimeException("deleteReviewInUser(): -> deleteReviewInBoardgame failed");
+                //logger.error("Error in deleting the review from the collection of users");
             }
-            if (!deleteReviewInUser(user, selectedReview, reviewId)) {
-                logger.error("Error in deleting the review from the collection of users");
-                return false;
-            }
+            // cancellare la reviews nelle review dello user in locale
+
             if (!reviewMongoOp.deleteReview(selectedReview)) {
-                logger.error("Error in deleting the review from the collection of reviews");
-                return false;
+                throw new RuntimeException("deleteReviewById(): -> deleteReviewInBoardgame failed");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        }
+        catch (RuntimeException e)
+        {
+            System.out.println("DeleteReview Exception: " + e.getMessage());
             return false;
         }
         return true;
     }
 
-    private boolean deleteReviewInUser(UserModelMongo user,
-                                       ReviewModelMongo selectedReview,
-                                       String reviewId) {
-        if (user == null) {
+    private boolean deleteReviewInBoardgame(ReviewModelMongo selectedReview) // Cancella sia da mongo che in locale
+    {
+        Optional<BoardgameModelMongo> boardgameResult =
+                boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
-            String username = selectedReview.getUsername();
-            if (username.equals("Deleted User")) {
+        if (boardgameResult.isEmpty())
+            throw new RuntimeException("deleteReviewInBoardgame Exception: The referred boardgame not exists in DB. Name: " + selectedReview.getBoardgameName());
+
+        BoardgameModelMongo referredBoardgame = boardgameResult.get();
+        if (boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) // Cancella da Mongo
+            if(referredBoardgame.deleteReview(selectedReview.getId())) // Cancella da locale
                 return true;
-            }
-
-            Optional<GenericUserModelMongo> userResult =
-                    userMongoOp.findByUsername(username);
-
-            if (userResult.isEmpty()) {
+            else
+            {
+                System.out.println("deleteReviewInBoardgame Exception: The reviews was on Mongo but not in local");
                 return false;
             }
-
-            UserModelMongo newUser = (UserModelMongo) userResult.get();
-            return deleteUserReview(newUser, reviewId);
-
-        } else
-            return deleteUserReview(user, reviewId);
+        else
+            throw new RuntimeException("The referred boardgame ON MONGO doesn't have this review -> ******\n" + selectedReview + "\n******\n");
     }
 
-    public boolean deleteUserReview(UserModelMongo user, String reviewId) {
-
-        if (user.getReviewInUser(reviewId) != null) {
-            //checkLastReviewUser(user, true);
-            user.deleteReview(reviewId);
-            return userMongoOp.updateUser(user.getId(), user, "user");
-        }
-        return true;
-    }
-
-    public boolean deleteBoardgameReview(BoardgameModelMongo boardgame, String reviewId) {
-
-        if (boardgame.getReviewInBoardgame(reviewId) != null) {
-            //checkLastReviewBoardgame(boardgame, true);
-            boardgame.deleteReview(reviewId);
-            return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
-        }
-        return true;
-    }
-
-    public boolean deleteReviewInBoardgame(BoardgameModelMongo boardgame,
-                                           ReviewModelMongo selectedReview,
-                                           String reviewId){
-        if (boardgame == null)
+    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) // Cancella sia da Mongo che in locale
+    {
+        if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId()))
         {
-            Optional<BoardgameModelMongo> boardgameResult =
-                    boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
-
-            if (boardgameResult.isEmpty()) {
+            if (user.deleteReview(selectedReview.getId()))
+                return true;
+            else
+            {
+                System.out.println("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| present in Mongo but non in local");
                 return false;
             }
-            BoardgameModelMongo newBoardgame = boardgameResult.get();
-            return deleteBoardgameReview(newBoardgame ,reviewId);
-
-        } else
-            return deleteBoardgameReview(boardgame ,reviewId);
+        }
+        throw new RuntimeException("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| not present in Mongo");
+//
+//        if (user.deleteReview(selectedReview))
+//            return userMongoOp.updateUser(user.getId(), user, "user");
+//        return false;
+//        if (user == null)
+//        {
+//            String username = selectedReview.getUsername();
+//            if (username.equals("Deleted User")) {
+//                return true;
+//            }
+//
+//            Optional<GenericUserModelMongo> userResult =
+//                    userMongoOp.findByUsername(username);
+//
+//            if (userResult.isEmpty()) {
+//                return false;
+//            }
+//
+//            UserModelMongo newUser = (UserModelMongo) userResult.get();
+//            return deleteUserReview(newUser, reviewId);
+//
+//        } else
+//            return deleteUserReview(user, reviewId);
     }
+
+    /*
+        private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
+
+            int numReviews = boardgame.getReviews().size();
+            if (numReviews == 50) {
+                if (isDelete) {
+                    List<ReviewModelMongo> oldReviews = reviewMongoOp.
+                                           findOldReviews(boardgame.getBoardgameName(), true);
+                    boardgame.getReviews().add(numReviews, oldReviews.get(0));
+                } else {
+                    boardgame.getReviews().remove(numReviews - 1);
+                }
+            }
+        }
+
+        private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
+
+            int numReviews = newUser.getReviews().size();
+            if (numReviews == 50) {
+                if (isDelete) {
+                    List<ReviewModelMongo> oldReviews =
+                            reviewMongoOp.findOldReviews(newUser.getUsername(), false);
+
+                    newUser.getReviews().add(numReviews, oldReviews.get(0));
+                } else {
+                    newUser.getReviews().remove(numReviews - 1);
+                }
+            }
+        }
+    */
 
     @Transactional
     public boolean updateReview(ReviewModelMongo selectedReview) {

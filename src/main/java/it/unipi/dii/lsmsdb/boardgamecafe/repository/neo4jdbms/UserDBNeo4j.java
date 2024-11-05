@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
@@ -142,5 +143,16 @@ public class UserDBNeo4j {
             e.printStackTrace();
         }
         return mostFollowedUsersUsernames;
+    }
+
+    public Optional<UserModelNeo4j> findById(String id) {
+        Optional<UserModelNeo4j> user = Optional.empty();
+        try {
+            user = userNeo4jDB.findById(id);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return user;
     }
 }

@@ -112,20 +112,27 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.reviews.add(0, review);
     }
 
-    public ReviewModelMongo getReviewInUser(String id) {
-        if (!this.reviews.isEmpty()) {
-            for (ReviewModelMongo review : reviews) {
-                if (review.getId().equals(id)) {
-                    return review;
-                }
-            }
-        }
+    public ReviewModelMongo getReviewInUser(String id)
+    {
+        for (ReviewModelMongo review : reviews)
+            if (review.getId().equals(id))
+                return review;
         return null;
     }
 
     public boolean deleteReview(String id) {
         ReviewModelMongo review = this.getReviewInUser(id);
         if (review != null) {
+            reviews.remove(review);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteReview(ReviewModelMongo review)
+    {
+        if (this.reviews.contains(review))
+        {
             reviews.remove(review);
             return true;
         }
