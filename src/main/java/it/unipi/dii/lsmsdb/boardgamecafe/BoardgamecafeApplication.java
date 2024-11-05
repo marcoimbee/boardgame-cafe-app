@@ -622,67 +622,67 @@ public class BoardgamecafeApplication {
 
         // ************************** Inizio Test Like Post **************************
 
-        servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
-        servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
+//        servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
+//        servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
         //servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
         //servicePost.likeOrDislikePost("whitelion758", "67226b0f590d5d341be06c53");
 
         // ************************** Fine Test Like Post **************************
 
-        Optional<UserModelNeo4j> me = userNeo4jDB.findById("65a92ef66448dd901569533d"); //userNeo4jDB.findByUsername("whitelion758").get();
-        if (me.isEmpty())
-        {
-            System.out.println("User vuoto");
-            return;
-        }
-        System.out.println("Nome utente -> " + me.get().getUsername());
-        //PostModelNeo4j x = me.getPostWrittenByUser(me.getUsername());
-        //System.out.println("ID: " + x.getId());
+//        Optional<UserModelNeo4j> me = userNeo4jDB.findById("65a92ef66448dd901569533d"); //userNeo4jDB.findByUsername("whitelion758").get();
+//        if (me.isEmpty())
+//        {
+//            System.out.println("User vuoto");
+//            return;
+//        }
+//        System.out.println("Nome utente -> " + me.get().getUsername());
+//        //PostModelNeo4j x = me.getPostWrittenByUser(me.getUsername());
+//        //System.out.println("ID: " + x.getId());
+//
+//        List<PostModelNeo4j> writtenPost = me.get().getWrittenPosts();
+//        if (writtenPost.isEmpty())
+//            System.out.println("writtenPost vuoto");
+//
+//        List <UserModelNeo4j> followed = me.get().getFollowedUsers();
+//        if (followed.isEmpty())
+//            System.out.println("followed vuoto");
+//
+//        List <CommentModelNeo4j> comments_ = me.get().getWrittenComments();
+//        if (comments_.isEmpty())
+//            System.out.println("comments vuoto");
+//
+//
+//        for (PostModelNeo4j post : writtenPost)
+//        {
+//            System.out.println("Post: " + post.getId());
+//        }
 
-        List<PostModelNeo4j> writtenPost = me.get().getWrittenPosts();
-        if (writtenPost.isEmpty())
-            System.out.println("writtenPost vuoto");
+//        // TO DO: Esegui il test dell'aggiunta ed eliminazione di una review
+//        Optional<BoardgameModelMongo> bOptional = boardgameDBMongo.findBoardgameByName("Monopoly");
+//        Optional<GenericUserModelMongo> uOptional = userDBMongo.findByUsername("smallsnake417");
+//        ReviewModelMongo r = new ReviewModelMongo("Monopoly", "smallsnake417", 2, "Bello si, ma i soldi non sono veri!", new Date());
+//        //Optional<ReviewModelMongo> rOptional = serviceReview.find
 
-        List <UserModelNeo4j> followed = me.get().getFollowedUsers();
-        if (followed.isEmpty())
-            System.out.println("followed vuoto");
+//        if (uOptional.isEmpty() || bOptional.isEmpty())
+//        {
+//            System.out.println("fallito");
+//            return;
+//        }
+//        BoardgameModelMongo b = bOptional.get();
+//        UserModelMongo u = (UserModelMongo)uOptional.get();
+//
+//        if (!serviceReview.insertReview(r, b, u))
+//        {
+//            System.out.println("Inserimento fallito");
+//            return;
+//        }
 
-        List <CommentModelNeo4j> comments_ = me.get().getWrittenComments();
-        if (comments_.isEmpty())
-            System.out.println("comments vuoto");
-
-
-        for (PostModelNeo4j post : writtenPost)
-        {
-            System.out.println("Post: " + post.getId());
-        }
-
-        // TO DO: Esegui il test dell'aggiunta ed eliminazione di una review
-        Optional<BoardgameModelMongo> bOptional = boardgameDBMongo.findBoardgameByName("Monopoly");
-        Optional<GenericUserModelMongo> uOptional = userDBMongo.findByUsername("smallsnake417");
-        ReviewModelMongo r = new ReviewModelMongo("Monopoly", "smallsnake417", 2, "Bello si, ma i soldi non sono veri!", new Date());
-        //Optional<ReviewModelMongo> rOptional = serviceReview.find
-
-        if (uOptional.isEmpty() || bOptional.isEmpty())
-        {
-            System.out.println("fallito");
-            return;
-        }
-        BoardgameModelMongo b = bOptional.get();
-        UserModelMongo u = (UserModelMongo)uOptional.get();
-
-        if (!serviceReview.insertReview(r, b, u))
-        {
-            System.out.println("Inserimento fallito");
-            return;
-        }
-
-        if (!serviceReview.deleteReview(r, u))
-        {
-            System.out.println("Cancellazione fallita");
-            return;
-        }
-        System.out.println("Eliminazione OK");
+//        if (!serviceReview.deleteReview(r, u))
+//        {
+//            System.out.println("Cancellazione fallita");
+//            return;
+//        }
+//        System.out.println("Eliminazione OK");
 
         // ************************** (EndOf) New Test-Code Section **************************
     }
