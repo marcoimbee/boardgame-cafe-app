@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
+import ch.qos.logback.classic.net.LoggingEventPreSerializationTransformer;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
@@ -206,28 +207,36 @@ public class UserService {
         }
     }
 
-    private boolean updateUserCommentsAfterBanOrDeletion(String username, UserContentUpdateReason updateReason) {
+    private boolean updateUserCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
         try {
             // Updating MongoDB posts where the user had commented
-            if(!postMongoOp.updatePostCommentsAfterUserBanOrDeletion(username, updateReason)) {
-                throw new Exception("Failed to update posts after the user's ban/deletion");
+            List<CommentModelMongo> userComments = new ArrayList<>();   // Will be unused and empty in case updateReason is DELETED_USER or BANNED_USER
+            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+                userComments = commentMongoOp.findByUsername(username); // These are needed only if they have to be restored because of an unbanning operation
+            }
+            if(!postMongoOp.updatePostCommentsAfterAdminAction(username, updateReason, userComments)) {
+                throw new Exception("Failed to update posts after the user's ban/deletion/unban");
             }
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] removeUserComments@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] updateUserCommentsAfterAdminAction@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
 
-    private boolean updateUserReviewsAfterBanOrDeletion(String username, UserContentUpdateReason updateReason) {
+    private boolean updateUserReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
         try {
             // Updating MongoDB boardgames the user had reviewed
-            if(!boardgameMongoOp.updateBoardgameReviewsAfterUserBanOrDeletion(username, updateReason)) {
-                throw new Exception("Failed to update boardgames after the user's ban/deletion");
+            List<ReviewModelMongo> userReviews = new ArrayList<>();
+            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+                userReviews = reviewMongoOp.findReviewByUsername(username);     // These are needed only if they have to be restored because of an unbanning operation
+            }
+            if(!boardgameMongoOp.updateBoardgameReviewsAfterAdminAction(username, updateReason, userReviews)) {
+                throw new Exception("Failed to update boardgames after the user's ban/deletion/unban");
             }
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] updateUserReviewsAfterBanOrDeletion@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] updateUserReviewsAfterAdminAction@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
@@ -274,7 +283,7 @@ public class UserService {
             if (!deleteUserComments(username)) {
                 throw new Exception("Failed to delete user comments");
             }
-            if (!updateUserCommentsAfterBanOrDeletion(username, UserContentUpdateReason.DELETED_USER)) {
+            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
                 throw new Exception("Failed to update deleted user comments");
             }
 
@@ -282,7 +291,7 @@ public class UserService {
             if (!deleteUserReviews(user)) {
                 throw new Exception("Failed to delete user reviews");
             }
-            if (!updateUserReviewsAfterBanOrDeletion(username, UserContentUpdateReason.DELETED_USER)) {
+            if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
                 throw new Exception("Failed to update deleted user reviews");
             }
 
@@ -394,18 +403,19 @@ public class UserService {
         try {
             String username = user.getUsername();
 
+            // Setting MongoDB 'banned' flag to true
             user.setBanned(true);
             if (!userMongoDB.updateUser(user.getId(), user, "user")) {
                 throw new Exception("Failed to set 'banned' MongoDB flag");
             }
 
             // Comments management - update of comments under posts
-            if (!updateUserCommentsAfterBanOrDeletion(username, UserContentUpdateReason.BANNED_USER)) {
+            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.BANNED_USER)) {
                 throw new Exception("Failed to update banned user comments");
             }
 
             // Reviews management - update of reviews under boardgames
-            if (!updateUserReviewsAfterBanOrDeletion(username, UserContentUpdateReason.BANNED_USER)) {
+            if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.BANNED_USER)) {
                 throw new Exception("Failed to update banned user reviews");
             }
 
@@ -417,6 +427,43 @@ public class UserService {
             return true;
         } catch (Exception ex) {
             System.err.println("[ERROR] banUser@UserService.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean unbanUser(UserModelMongo user) {
+        try {
+            if (user.isBanned()) {
+                String userId = user.getId();
+                String username = user.getUsername();
+
+                // Setting MongoDB 'banned' flag to false - MongoDB
+                user.setBanned(false);
+                if (!userMongoDB.updateUser(userId, user, "user")) {
+                    throw new Exception("Failed to unset 'banned' MongoDB flag");
+                }
+
+                // Comments management - restoring user comments under posts
+                if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
+                    throw new Exception("Failed to restore user comments");
+                }
+
+                // Reviews management - restoring user reviews under boardgames
+                if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
+                    throw new Exception("Failed to restore user reviews");
+                }
+
+
+                // Restoring username - Neo4J node
+                if (!userNeo4jDB.restoreUserNodeAfterUnban(userId, username)) {
+                    throw new Exception("Failed to restore user node in Neo4J");
+                }
+            }
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] unbanUser@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }

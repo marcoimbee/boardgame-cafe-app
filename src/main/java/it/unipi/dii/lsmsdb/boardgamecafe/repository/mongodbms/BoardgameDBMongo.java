@@ -2,9 +2,11 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import org.bson.types.ObjectId;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,24 +76,44 @@ public class BoardgameDBMongo {
         return boardgame;
     }
 
-    public boolean updateBoardgameReviewsAfterUserBanOrDeletion(String username, UserContentUpdateReason updateReason) {
+    public boolean updateBoardgameReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<ReviewModelMongo> userReviews) {
         try {
-            Query query = Query.query(Criteria.where("reviews.username").is(username));
+            if (updateReason == UserContentUpdateReason.DELETED_USER || updateReason == UserContentUpdateReason.BANNED_USER) {
+                Query query = Query.query(Criteria.where("reviews.username").is(username));
 
-            Update update = new Update();
-            if (updateReason == UserContentUpdateReason.DELETED_USER) {
-                update.set("reviews.$.username", "[Deleted user]");
-            } else {
-                update.set("reviews.$.username", "[Banned user]")
-                        .set("reviews.$.text", "[Banned user]");
+                Update update = new Update();
+                if (updateReason == UserContentUpdateReason.DELETED_USER) {
+                    update.set("reviews.$.username", "[Deleted user]");
+                } else {
+                    update.set("reviews.$.username", "[Banned user]")
+                            .set("reviews.$.body", "[Banned user]");
+                }
+
+                mongoOperations.updateMulti(
+                        query,
+                        update,
+                        BoardgameDBMongo.class,
+                        "boardgames"
+                );
             }
 
-            mongoOperations.updateMulti(
-                    query,
-                    update,
-                    BoardgameDBMongo.class,
-                    "boardgames"
-            );
+            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+                for (ReviewModelMongo review : userReviews) {
+                    ObjectId reviewObjectId = new ObjectId(review.getId());
+                    Query query = Query.query(Criteria.where("reviews._id").is(reviewObjectId));
+
+                    Update update = new Update();
+                    update.set("reviews.$.username", review.getUsername())
+                            .set("reviews.$.body", review.getBody());
+
+                    mongoOperations.updateFirst(
+                            query,
+                            update,
+                            BoardgameDBMongo.class,
+                            "boardgames"
+                    );
+                }
+            }
 
             return true;
         } catch(Exception ex) {

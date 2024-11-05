@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,11 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
+
+    @Query("MATCH (p:Post {id: $id}) RETURN p")
+    @NotNull
+    Optional<PostModelNeo4j> findById(@Param("id") @NotNull String id);
+
     @Query("MATCH (p:Post {id: $id}) DETACH DELETE p")
     void deleteAndDetach(@Param("id") String id);
 

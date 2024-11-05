@@ -1,9 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -11,6 +13,7 @@ import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -298,24 +301,44 @@ public class PostDBMongo {
         return result.getModifiedCount() > 0;
     }
 
-    public boolean updatePostCommentsAfterUserBanOrDeletion(String username, UserContentUpdateReason updateReason) {
+    public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModelMongo> userComments) {
         try {
-            Query query = Query.query(Criteria.where("comments.username").is(username));
+            if (updateReason == UserContentUpdateReason.BANNED_USER || updateReason == UserContentUpdateReason.DELETED_USER) {
+                Query query = Query.query(Criteria.where("comments.username").is(username));
 
-            Update update = new Update();
-            if (updateReason == UserContentUpdateReason.DELETED_USER) {
-                update.set("comments.$.username", "[Deleted user]");
-            } else {
-                update.set("comments.$.username", "[Banned user]")
-                        .set("comments.$.text", "[Banned user]");
+                Update update = new Update();
+                if (updateReason == UserContentUpdateReason.DELETED_USER) {
+                    update.set("comments.$.username", "[Deleted user]");
+                } else {
+                    update.set("comments.$.username", "[Banned user]")
+                            .set("comments.$.text", "[Banned user]");
+                }
+
+                mongoOperations.updateMulti(
+                        query,
+                        update,
+                        PostDBMongo.class,
+                        "posts"
+                );
             }
 
-            mongoOperations.updateMulti(
-                    query,
-                    update,
-                    PostDBMongo.class,
-                    "posts"
-            );
+            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+                for (CommentModelMongo comment : userComments) {
+                    ObjectId commentObjectId = new ObjectId(comment.getId());
+                    Query query = Query.query(Criteria.where("comments._id").is(commentObjectId));
+
+                    Update update = new Update();
+                    update.set("comments.$.username", comment.getUsername())
+                            .set("comments.$.text", comment.getText());
+
+                    mongoOperations.updateFirst(
+                            query,
+                            update,
+                            PostDBMongo.class,
+                            "posts"
+                    );
+                }
+            }
 
             return true;
         } catch(Exception ex) {

@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -17,7 +18,7 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u: User {id: $id}) RETURN u")
     Optional<UserModelNeo4j> findById(@Param("id") @NotNull String id);
 
-    @Query("MATCH (u: User {username: $username}) RETURN u")
+    @Query("MATCH (u:User {username: $username}) RETURN u")
     Optional<UserModelNeo4j> findByUsername(@Param("username") String username);
 
     @Query("MATCH (u:User {username: $username}) DETACH DELETE u, (u)-[r]-()")
@@ -62,4 +63,8 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u:User {username: $username})\n" +
             "SET u.username = \"[Banned user]\"\n")
     void setUsernameAsBanned(@Param("username") String username);
+
+    @Query("MATCH (u:User {id: $userId}) " +
+            "SET u.username = $username")
+    void restoreUserUsername(@Param("userId") String userId, @Param("username") String username);
 }

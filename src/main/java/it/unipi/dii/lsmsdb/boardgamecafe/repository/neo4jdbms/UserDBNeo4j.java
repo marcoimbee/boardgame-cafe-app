@@ -4,6 +4,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,7 @@ public class UserDBNeo4j {
         return true;
     }
 
+    @Transactional
     public Optional<UserModelNeo4j> findByUsername(String username) {
         Optional<UserModelNeo4j> user = Optional.empty();
         try {
@@ -132,19 +134,29 @@ public class UserDBNeo4j {
     }
 
     public Optional<UserModelNeo4j> findById(String id) {
-        Optional<UserModelNeo4j> post = Optional.empty();
+        Optional<UserModelNeo4j> user = Optional.empty();
         try {
-            post = userNeo4jDB.findById(id);
+            user = userNeo4jDB.findById(id);
         }
         catch (Exception ex) {
             ex.printStackTrace();
         }
-        return post;
+        return user;
     }
 
     public boolean setUserAsBanned(String username) {
         try {
             userNeo4jDB.setUsernameAsBanned(username);
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean restoreUserNodeAfterUnban(String userId, String username) {
+        try {
+            userNeo4jDB.restoreUserUsername(userId, userId);
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
