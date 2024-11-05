@@ -4,6 +4,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,16 +16,16 @@ public class UserModelNeo4j {
     private String username;
 
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
-    private List<UserModelNeo4j> followedUsers;
+    private List<UserModelNeo4j> followedUsers = new ArrayList<>();
 
     @Relationship(type = "WRITES_POST", direction = Relationship.Direction.OUTGOING)
-    public List<PostModelNeo4j> writtenPosts;
+    public List<PostModelNeo4j> writtenPosts = new ArrayList<>();
 
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
-    private List<PostModelNeo4j> likedPosts;
+    private List<PostModelNeo4j> likedPosts = new ArrayList<>();
 
     @Relationship(type = "WRITES", direction = Relationship.Direction.OUTGOING)
-    private List<CommentModelNeo4j> writtenComments;
+    private List<CommentModelNeo4j> writtenComments = new ArrayList<>();
 
     public UserModelNeo4j() {}
 
@@ -180,9 +181,7 @@ public class UserModelNeo4j {
 
     @Override
     public String toString() {
-        return "UserNeo4j{" +
-                "id='" + id + '\'' +
-                ", username='" + username + '\'' +
-                '}';
+        return "id: '" + id + "', " +
+                "username: '" + username;
     }
 }

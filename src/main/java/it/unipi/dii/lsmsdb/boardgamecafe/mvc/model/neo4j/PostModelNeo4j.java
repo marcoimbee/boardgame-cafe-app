@@ -68,8 +68,8 @@ public class PostModelNeo4j {
 
     @Override
     public String toString() {
-        return "PostNeo4j{" +
-                "id='" + id +
-                "'}";
+        return "id: '" + id + "', " +
+                "comments: '" + comments + "', " +
+                "tagged game: " + taggedGame;
     }
 }
