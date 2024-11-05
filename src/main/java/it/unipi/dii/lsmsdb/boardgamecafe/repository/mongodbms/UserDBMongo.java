@@ -104,14 +104,13 @@ public class UserDBMongo {
                     administrator.setPasswordHashed(newGenericUser.getPasswordHashed());
                     administrator.setSalt(newGenericUser.getSalt());
 
-                    this.addUser(administrator);
+                    this.addUser(administrator);    //Uso di save per aggiornare tutto il document
                 } else {
                     UserModelMongo user = (UserModelMongo) genericUser.get();
                     UserModelMongo newUser = (UserModelMongo) newGenericUser;
 
+
                     user.setUsername(newUser.getUsername());
-                    user.setPasswordHashed(newUser.getPasswordHashed());
-                    user.setSalt(newUser.getSalt());
                     user.setEmail(newUser.getEmail());
                     user.setName(newUser.getName());
                     user.setSurname(newUser.getSurname());
@@ -119,9 +118,11 @@ public class UserDBMongo {
                     user.setDateOfBirth(newUser.getDateOfBirth());
                     user.setNationality(newUser.getNationality());
                     user.setBanned(newUser.isBanned());
+                    user.setSalt(newUser.getSalt());
+                    user.setPasswordHashed(newUser.getPasswordHashed());
                     user.setReviews(newUser.getReviews());
 
-                    userRepoMongo.save(user);
+                    userRepoMongo.save(user); //Uso di save per aggiornare tutto il documento
                 }
             }
         } catch (Exception e) {
