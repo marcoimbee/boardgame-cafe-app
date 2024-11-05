@@ -38,19 +38,19 @@ public class PostService {
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
     @Transactional
-    public boolean insertPost(PostModelMongo postModelMongo)
+    public PostModelMongo insertPost(PostModelMongo postModelMongo)
     {
         try
         {
-            String idAuthorPost = postModelMongo.getUsername();
-            Optional<UserModelNeo4j> authorPostOptional = userDBNeo4j.findByUsername(idAuthorPost);
+            String usernameAuthorPost = postModelMongo.getUsername();
+            Optional<UserModelNeo4j> authorPostOptional = userDBNeo4j.findByUsername(usernameAuthorPost);
             if (authorPostOptional.isEmpty()) // Check if the user is OK
                 throw new RuntimeException("InsertPost Exception: Post not added. Your account is not found!");
 
             PostModelMongo insertedPost = postDBMongo.addPost(postModelMongo);
             if (insertedPost == null)
                 throw new RuntimeException("InsertPost Exception: Error in adding post to collection in MongoDB");
-            System.out.println("Inserito commento id: " + insertedPost.getId());
+            System.out.println("Inserito post id: " + insertedPost.getId());
 
             PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId()); // Creation of post node in neo
             UserModelNeo4j authorPost = authorPostOptional.get();
@@ -70,12 +70,15 @@ public class PostService {
                 deletePost(insertedPost);
                 throw new RuntimeException("InsertPost Exception: Problem with relationhip creation");
             }
+            System.out.println(authorPostOptional.get().getWrittenPosts());
+
+
+            return insertedPost;
         }
         catch (Exception ex) {
             ex.printStackTrace();
-            return false;
+            return null;
         }
-        return true;
     }
 
     private boolean addPostToUser(PostModelNeo4j postModelNeo4j, UserModelNeo4j userModelNeo4j)
