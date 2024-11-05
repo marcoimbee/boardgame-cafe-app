@@ -37,14 +37,6 @@ public class BoardgamecafeApplication extends Application{
 
     protected ConfigurableApplicationContext springContext;
     protected StageManager stageManager;
-    private ModelBean modelBean = new ModelBean();
-    private static final BoardgamecafeApplication singleton = new BoardgamecafeApplication();
-    public static BoardgamecafeApplication getInstance() {
-        return singleton;
-    }
-    public ModelBean getModelBean() {
-        return modelBean;
-    }
 
     public static void main(String[] args) {
         Application.launch(args);
