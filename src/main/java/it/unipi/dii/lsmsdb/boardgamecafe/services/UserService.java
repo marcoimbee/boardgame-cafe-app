@@ -1,8 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-import com.mongodb.DBObjectCodec;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
@@ -19,7 +17,6 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import org.neo4j.cypherdsl.core.Use;
 import java.util.*;
 
 @Component
@@ -76,7 +73,7 @@ public class UserService {
         String salt = this.getSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        return new AdminModelMongo(null, username, email, salt, hashedPassword, "admin");
+        return new AdminModelMongo(username, email, salt, hashedPassword, "admin");
     }
 
     public boolean insertAdmin(AdminModelMongo admin) {
@@ -96,10 +93,9 @@ public class UserService {
         String salt = this.getSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        return new UserModelMongo(null, username,hashedPassword,
-                salt, "user",email, name, surname,
-                gender,dateOfBirth,
-                nationality, false);
+        return new UserModelMongo(username,email,name, surname,
+                gender,dateOfBirth, nationality, false,
+                salt, hashedPassword, "user");
     }
 
     public boolean insertUser(UserModelMongo user) {
@@ -300,4 +296,7 @@ public class UserService {
         return suggestedMongoUsers;
     }
 
+    //TODO: Aggiungere metodo updateUser -> deve essere funzionale sia per l'ADMIN che per lo standard USER
+    //Metodo di riferimento: updateUser(String id, GenericUserModelMongo newGenericUser, String userType) in UserDBMongo Class
+    //Utile per: Aggiornamento profilo utente
 }
