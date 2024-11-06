@@ -155,7 +155,7 @@ public class ControllerViewSignUp implements Initializable {
         }
 
         //ToDo:
-//        stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered");
+//        stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered into Boardgame-Cafè App!");
 //        stageManager.closeStageButton(this.buttonFinish);
     }
 
@@ -218,6 +218,7 @@ public class ControllerViewSignUp implements Initializable {
 
     public void onClickAdminSignUp(ActionEvent actionEvent)
     {
+        //ToDo
         stageManager.closeStageButton(this.buttonAdminSignUp);
         //stageManager.showWindow(FxmlView.ADMINSIGNUP);
     }
