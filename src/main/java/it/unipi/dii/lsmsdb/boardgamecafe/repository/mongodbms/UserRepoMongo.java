@@ -17,4 +17,7 @@ public interface UserRepoMongo extends MongoRepository<GenericUserModelMongo, St
     List<GenericUserModelMongo> findByUsernameRegexAnd_class(String username, String classType);
 
     Optional<GenericUserModelMongo> findByUsername(String username);
+
+    Optional<GenericUserModelMongo> findByEmail(String email);
+
 }

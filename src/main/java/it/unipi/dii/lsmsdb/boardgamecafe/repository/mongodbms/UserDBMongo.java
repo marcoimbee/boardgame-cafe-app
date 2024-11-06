@@ -64,6 +64,15 @@ public class UserDBMongo {
         }
     }
 
+    public Optional<GenericUserModelMongo> findByEmail(String username) {
+        try {
+            return userRepoMongo.findByEmail(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
     public Optional<GenericUserModelMongo> findUserById(String id) {
         Optional<GenericUserModelMongo> user = Optional.empty();
         try {

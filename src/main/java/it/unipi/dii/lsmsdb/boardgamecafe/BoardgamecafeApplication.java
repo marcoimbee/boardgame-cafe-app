@@ -140,6 +140,7 @@ public class BoardgamecafeApplication extends Application {
 ////        String bordgameName ="Monopoly";
 ////        String idUser = "655f83770b0a94c33a977526";
 ////        String idUser2 = "865l9633f0l96v33a2569885";
+//          String email = "noah.lavoie@example.com"
 //
 //
 //        // ************************** (Begin) New Test-Code Section **************************
