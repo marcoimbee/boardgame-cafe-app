@@ -39,12 +39,12 @@ public class ControllerViewLogin implements Initializable {
     }
     public void onClickLogin(ActionEvent actionEvent)
     {
-        stageManager.closeStage(this.cancelButton);
+        stageManager.closeStageButton(this.cancelButton);
         stageManager.showWindow(FxmlView.USERPOFILEPAGE);
     }
     public void onClickCancelButton(ActionEvent actionEvent)
     {
-        stageManager.closeStage(this.cancelButton);
+        stageManager.closeStageButton(this.cancelButton);
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
     }
 

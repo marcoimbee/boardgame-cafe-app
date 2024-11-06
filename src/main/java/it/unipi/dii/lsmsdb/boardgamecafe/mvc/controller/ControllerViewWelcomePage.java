@@ -33,7 +33,7 @@ public class ControllerViewWelcomePage {
 
     public void onClickLogIn(ActionEvent event) {
         stageManager.showWindow(FxmlView.LOGIN);
-        stageManager.closeStage(this.logInButton);
+        stageManager.closeStageButton(this.logInButton);
     }
 
     public void onClickSignUpWPage(ActionEvent event) {
@@ -42,12 +42,12 @@ public class ControllerViewWelcomePage {
 
     public void onClickGuestUser(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.GUESTPOSTS);
-        stageManager.closeStage(this.guestUserButton);
+        stageManager.closeStageButton(this.guestUserButton);
     }
 
     public void onClickQuitAppButton(ActionEvent actionEvent)
     {
-        stageManager.closeStage(this.quitAppButton);
+        stageManager.closeStageButton(this.quitAppButton);
         Platform.exit();
         System.exit(0);
     }

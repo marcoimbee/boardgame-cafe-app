@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.view;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.config.SpringFXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,6 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -95,24 +100,38 @@ public class StageManager {
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
-        window.setMinWidth(300);
-        window.setMinHeight(150);
+        window.setMinWidth(650);
+        window.setMinHeight(200);
         window.setOnCloseRequest(e -> window.close());
+
         Label label = new Label();
         label.setText(message);
+        // Imposta il font e il colore del testo
+        label.setFont(Font.font("Georgia Pro Cond Black", FontWeight.BOLD, FontPosture.REGULAR, 16));
+        label.setTextFill(Color.rgb(24,46,88));
+        label.setAlignment(Pos.CENTER); // Centra il testo del messaggio
+
         Button closeButton = new Button("Close");
         closeButton.setOnAction(e -> window.close());
+
         VBox vBox = new VBox(10);
         vBox.getChildren().addAll(label, closeButton);
         vBox.setAlignment(Pos.CENTER);
+
         Scene scene = new Scene(vBox);
         window.setScene(scene);
         window.show();
     }
 
-    public void closeStage(Button button) {
+    public void closeStageButton(Button button) {
 
         Stage stage = (Stage) button.getScene().getWindow();
+        stage.close();
+    }
+
+    public void closeStageMouseEvent(MouseEvent click) {
+
+        Stage stage = (Stage) ((Node) click.getSource()).getScene().getWindow();
         stage.close();
     }
 

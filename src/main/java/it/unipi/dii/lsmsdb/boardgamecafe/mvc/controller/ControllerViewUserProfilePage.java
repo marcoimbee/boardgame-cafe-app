@@ -54,12 +54,12 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     public void onClickBoardgamePosts(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
-        stageManager.closeStage(this.boardgamePostsButton);
+        stageManager.closeStageButton(this.boardgamePostsButton);
     }
 
     public void onClickBoardgamesColletcion() {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
-        stageManager.closeStage(this.boardgamesCollectionButton);
+        stageManager.closeStageButton(this.boardgamesCollectionButton);
     }
 
     public void onClickYourProfile(ActionEvent actionEvent) {
@@ -78,7 +78,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     public void onClickLogout(ActionEvent actionEvent)
     {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStage(this.logoutButton);
+        stageManager.closeStageButton(this.logoutButton);
     }
 
     public void onClickSearchUserButton(ActionEvent event) {
