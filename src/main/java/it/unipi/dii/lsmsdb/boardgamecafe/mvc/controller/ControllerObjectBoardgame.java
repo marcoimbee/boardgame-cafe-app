@@ -15,6 +15,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,6 +25,8 @@ public class ControllerObjectBoardgame {
     @FXML
     protected Label boardgameName;
 
+    private BoardgameModelMongo boardgame;
+
     private BoardgameListener boardgameListener;
 
     public ControllerObjectBoardgame() {}
@@ -32,7 +35,10 @@ public class ControllerObjectBoardgame {
     // scaricamento multiplo di una stessa immagine dal server
     private static final Map<String, Image> imageCache = new ConcurrentHashMap<>();
 
-    public void setData(BoardgameModelMongo boardgame) {
+    public void setData(BoardgameModelMongo boardgame, BoardgameListener listener) {
+
+        this.boardgame = boardgame;
+        this.boardgameListener = listener;
 
         String imageBoardgameURL = boardgame.getImage(); // URL dell'immagine
         String nameBoardgameResource = boardgame.getBoardgameName();
@@ -81,13 +87,9 @@ public class ControllerObjectBoardgame {
         return byteArrayOutputStream.toByteArray();
     }
 
-    /*
-    public void setData(BoardgameModelMongo boardgame){
-        String imageBoardgameResource = boardgame.getImage();
-        String nameBoardgameResource = boardgame.getBoardgameName();
-        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imageBoardgameResource)));
-        boardgameName.setText(nameBoardgameResource);
-        imageSrc.setImage(image);
-    }*/
+    @FXML
+    void mouseClick(MouseEvent mouseEvent) {
+        boardgameListener.onClickBoardgameListener(mouseEvent, boardgame);
+    }
 
 }

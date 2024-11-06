@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -28,7 +29,7 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u:User {username: $username}) DETACH DELETE u, (u)-[r]-()")
     void deleteAndDetachUserByUsername(@Param("username") String username);
 
-    @Query("MATCH (u:User{username: $username})-[:WRITES]->(c:Comment) RETURN u, collect(c) as comments")
+    @Query("MATCH (u:User{username: $username})-[:WRITES_COMMENT]->(c:Comment) RETURN u, collect(c) as comments")
     Optional<UserModelNeo4j> findByNameWithComments(@Param("username") String username);
     @Query("MATCH (u1:User {username: $userName})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2")
     List<UserModelNeo4j> findFollowersByUsername(@Param("userName") String username);
@@ -39,9 +40,9 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u1:User)-[a:ADDS]->(b:Boardgame {name: $boardgameName}) RETURN DISTINCT u1")
     List<UserModelNeo4j> findUsersByBoardgameName(@Param("boardgameName") String boardgamename);
 
-    @Query("MATCH (me:User{username: $username})-[:WRITES]->(myPosts:Post)-[:REFERS_TO]->(myBGames:Boardgame)\n" +
+    @Query("MATCH (me:User{username: $username})-[:WRITES_POST]->(myPosts:Post)-[:REFERS_TO]->(myBGames:Boardgame)\n" +
             "WITH me, COLLECT(DISTINCT myBGames.boardgameName) as myBGamesNames\n" +
-            "MATCH (notFriend:User)-[:WRITES]->(post:Post)-[:REFERS_TO]->(notFriendBgames:Boardgame)\n" +
+            "MATCH (notFriend:User)-[:WRITES_POST]->(post:Post)-[:REFERS_TO]->(notFriendBgames:Boardgame)\n" +
             "WHERE (notFriendBgames.boardgameName IN myBGamesNames)\n" +
             "AND (NOT (me)-[:FOLLOWS]->(notFriend)) AND me <> notFriend\n" +
             "RETURN notFriend.username LIMIT $limit")

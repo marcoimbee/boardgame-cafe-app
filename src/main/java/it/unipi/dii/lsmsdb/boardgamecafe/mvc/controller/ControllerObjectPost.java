@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
@@ -8,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,16 +38,24 @@ public class ControllerObjectPost {
 
     private static final Map<String, String> commentCache = new HashMap<>();
 
+    private PostModelMongo post;
+
+    private PostListener postListener;
     @Autowired
     private PostService postService; // Iniezione del servizio
-
     @Autowired
     private PostDBNeo4j postDBNeo4j;
+
+
 
     public ControllerObjectPost() {
     }
 
-    public void setData(PostModelMongo post) {
+    public void setData(PostModelMongo post, PostListener listener) {
+
+        this.post = post;
+        this.postListener = listener;
+
         this.likeButton.setDisable(true);
         this.commentButton.setDisable(true);
         this.removeButton.setDisable(true);
@@ -104,5 +114,10 @@ public class ControllerObjectPost {
 
     public void commentPost(ActionEvent event) {
         // Implementazione per commentare il post
+    }
+
+    @FXML
+    void mouseClick(MouseEvent mouseEvent) {
+        postListener.onClickPostListener(mouseEvent, post);
     }
 }

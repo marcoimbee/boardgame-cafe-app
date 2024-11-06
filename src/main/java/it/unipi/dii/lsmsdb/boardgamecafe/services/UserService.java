@@ -17,6 +17,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import org.neo4j.cypherdsl.core.Use;
 import java.util.*;
 
 
@@ -39,6 +40,7 @@ public class UserService {
     private CommentDBNeo4j commentNeo4jOp;
     @Autowired
     private BoardgameDBMongo boardgameMongoOp;
+
 
     public String getHashedPassword(String passwordToHash, String salt) {
         String generatedPassword = null;
@@ -73,7 +75,7 @@ public class UserService {
         String salt = this.generateSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        return new AdminModelMongo(null, username, email, salt, hashedPassword, "admin");
+        return new AdminModelMongo(username, email, salt, hashedPassword, "admin");
     }
 
     @Transactional

@@ -32,7 +32,6 @@ public class UserModelNeo4j {
         this.username = username;
     }
 
-    // Metodi setter/getter
     public String getId() {
         return id;
     }
@@ -123,9 +122,10 @@ public class UserModelNeo4j {
         }
         return null;
     }
-    public void addWrittenPost(PostModelNeo4j post)
-    {
-        this.writtenPosts.add(0, post);
+
+    public void addWrittenPost(PostModelNeo4j post) {
+        this.writtenPosts.add(post);
+
     }
 
     public boolean deleteWrittenPost(String id) {

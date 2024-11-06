@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -65,6 +66,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     //Post Variables
     private List<PostModelMongo> posts = new ArrayList<>();
+
     private PostListener postListener;
 
     //Utils Variables
@@ -106,7 +108,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickBoardgamesColletcion(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
-        stageManager.closeStage(this.boardgamesCollectionButton);
+        stageManager.closeStageButton(this.boardgamesCollectionButton);
     }
 
     public void onClickSearch() {
@@ -214,7 +216,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         rowGridPane = 0;
         setGridPaneColumnAndRow();
 
-        //CREATE FOR EACH BOARDGAME AN ITEM (ObjectPosts)
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            // Logica per mostrare i dettagli del post usando StageManager
+            stageManager.switchScene(FxmlView.USERPOFILEPAGE);
+            stageManager.closeStageMouseEvent(mouseEvent);
+        };
+
+        //CREATE FOR EACH POST AN ITEM (ObjectPosts)
         try {
             for (PostModelMongo post : posts) { // iterando lista di posts
 
@@ -223,7 +231,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectPost.setData(post);
+                controllerObjectPost.setData(post, postListener);
 
                 //choice number of column
                 if (columnGridPane == 1) {
@@ -252,12 +260,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickLogout(ActionEvent event) {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStage(this.logoutButton);
+        stageManager.closeStageButton(this.logoutButton);
     }
 
     public void onClickYourProfile(ActionEvent event) {
         stageManager.showWindow(FxmlView.USERPOFILEPAGE);
-        stageManager.closeStage(this.logoutButton);
+        stageManager.closeStageButton(this.logoutButton);
     }
 
     public void onClickAccountDetails(ActionEvent event) {

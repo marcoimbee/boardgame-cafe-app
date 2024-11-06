@@ -1,7 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 //import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
@@ -44,14 +42,14 @@ public class ControllerViewSignUp implements Initializable {
     }
     public void onClickCancel(ActionEvent event)
     {
-        stageManager.closeStage(this.cancelButton);
+        stageManager.closeStageButton(this.cancelButton);
     }
 
     public void onClickFinish(ActionEvent event)
     {
         //DoStuff - toDo
         stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered");
-        stageManager.closeStage(this.finishButton);
+        stageManager.closeStageButton(this.finishButton);
 
         /* ***
         try {

@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -12,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -102,7 +104,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
 
     public void onClickBoardgamePosts(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.GUESTPOSTS);
-        stageManager.closeStage(this.boardgamePostsButton);
+        stageManager.closeStageButton(this.boardgamePostsButton);
     }
 
     public void onClickSignUp(ActionEvent actionEvent) {
@@ -123,7 +125,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
     public void onClickReturnWelcomePage(ActionEvent actionEvent)
     {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStage(this.returnWPageButton);
+        stageManager.closeStageButton(this.returnWPageButton);
     }
 
     /*public void onClickImageBoardgame(MouseEvent event) {
@@ -229,6 +231,15 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         rowGridPane = 0;
         setGridPaneColumnAndRow();
 
+        boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
+            String title = "Content Access Permissions";
+            String message = "" +
+                    "\t\t\tCurious To View The Content Of This Boardgame?\n" +
+                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
+
+            stageManager.showInfoMessage(title, message);
+        };
+
         //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
         try {
             for (BoardgameModelMongo boardgame : boardgames) { // iterando lista di boardgames
@@ -238,7 +249,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectBoardgame.setData(boardgame);
+                controllerObjectBoardgame.setData(boardgame, boardgameListener);
 
                 //choice number of column
                 if (columnGridPane == 4) {
@@ -266,6 +277,6 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
 
     public void onClickLogin(ActionEvent event) {
         stageManager.showWindow(FxmlView.LOGIN);
-        stageManager.closeStage(this.loginButton);
+        stageManager.closeStageButton(this.loginButton);
     }
 }

@@ -16,7 +16,7 @@ public interface CommentRepoNeo4j extends Neo4jRepository<CommentModelNeo4j, Str
     void deleteAndDetach(@Param("id") String id);
     @Query("MATCH (c:Comment)-[]-(p:Post {id: $postId}) DETACH DELETE c")
     void deleteByPost(@Param("postId") String postId);
-    @Query("MATCH (c:Comment)<-[:WRITES]-(u:User {username: $username}) DETACH DELETE c")
+    @Query("MATCH (c:Comment)<-[:WRITES_COMMENT]-(u:User {username: $username}) DETACH DELETE c")
     void deleteByUsername(@Param("username") String username);
     @NotNull
     @Query("MATCH (c: Comment {id: $id}) RETURN c")

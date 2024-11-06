@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="186.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
+<AnchorPane onMouseClicked="#mouseClick" prefHeight="186.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
    <children>
       <Label fx:id="name111" alignment="TOP_LEFT" layoutX="14.0" layoutY="8.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
          <font>
@@ -50,7 +50,7 @@
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <TextArea fx:id="textTitleLabel" editable="false" layoutX="14.0" layoutY="45.0" prefHeight="83.0" prefWidth="541.0" wrapText="true">
+      <TextArea fx:id="textTitleLabel" editable="false" layoutX="14.0" layoutY="45.0" onMouseClicked="#mouseClick" prefHeight="83.0" prefWidth="541.0" wrapText="true">
          <font>
             <Font size="16.0" />
          </font>

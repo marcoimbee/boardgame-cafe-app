@@ -15,7 +15,7 @@ public class PostModelNeo4j {
     private List<CommentModelNeo4j> comments;
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.OUTGOING)
     private BoardgameModelNeo4j taggedGame;
-    @Relationship(type = "WRITES", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "WRITES_POST", direction = Relationship.Direction.INCOMING)
     private UserModelNeo4j author;
     @Relationship(type = "LIKES", direction = Relationship.Direction.INCOMING)
     private UserModelNeo4j likes;
