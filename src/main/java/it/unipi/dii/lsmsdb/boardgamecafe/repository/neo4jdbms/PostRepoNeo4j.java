@@ -19,35 +19,35 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
     Optional<PostModelNeo4j> findById(@Param("id") @NotNull String id);
 
     @Query("MATCH (p:Post {id: $id}) DETACH DELETE p")
-    void deleteAndDetach(@Param("id") java.lang.String id);
+    void deleteAndDetach(@Param("id") String id);
 
     @Query("MATCH (p:Post)-[:REFERS_TO]->(b:Boardgame {boardgameName: $bgName}) DETACH DELETE p")
-    void deleteByReferredBoardgame(@Param("bgName") java.lang.String bgName);
+    void deleteByReferredBoardgame(@Param("bgName") String bgName);
 
     @Query("MATCH (p:Post)<-[:WRITES_POST]-(u:User {username: $username}) DETACH DELETE p")
-    void deleteByUsername(@Param("username") java.lang.String username);
+    void deleteByUsername(@Param("username") String username);
 
     @Query("MATCH (p:Post)<-[:WRITES_POST]-(u:User {username: $username}) RETURN DISTINCT p")
-    List<PostModelNeo4j> findByAuthorName(@Param("username") java.lang.String username);
+    List<PostModelNeo4j> findByAuthorName(@Param("username") String username);
 
     //To_evaluate usage
     @Query("MATCH (c:Comment {id: $id})-[:REPLY]->(p:Post) RETURN p")
-    Optional<PostModelNeo4j> findFromCommentId(@Param("id") java.lang.String commentId);
+    Optional<PostModelNeo4j> findFromCommentId(@Param("id") String commentId);
 
     @Query("MATCH (p:Post)-[:REFERS_TO]->(b:Boardgame {boardgameName: $bgn}) RETURN p")
-    List<PostModelNeo4j> findFromReferredBoardgame(@Param("bgn") java.lang.String boardgameName);
+    List<PostModelNeo4j> findFromReferredBoardgame(@Param("bgn") String boardgameName);
 
     @Query("MATCH (u:User {username: $username}), (p:Post {id: $postId}) MERGE (u)-[:LIKES]->(p)")
-    void addLike(@Param("username") java.lang.String username, @Param("postId") java.lang.String postId);
+    void addLike(@Param("username") String username, @Param("postId") String postId);
 
     @Query("MATCH (u:User {username: $username})-[r:LIKES]->(p:Post {id: $postId}) DELETE r")
-    void removeLike(@Param("username") java.lang.String username, @Param("postId") java.lang.String postId);
+    void removeLike(@Param("username") String username, @Param("postId") String postId);
 
     @Query("MATCH (u:User {username: $username})-[:LIKES]->(p:Post {id: $postId}) RETURN COUNT(p) > 0")
-    boolean hasLiked(@Param("username") java.lang.String username, @Param("postId") java.lang.String postId);
+    boolean hasLiked(@Param("username") String username, @Param("postId") String postId);
 
     @Query("MATCH (p:Post {id: $postId})<-[:LIKES]-(:User) RETURN COUNT(*)")
-    int findPostLikesById(@Param("postId") java.lang.String postId);
+    int findPostLikesById(@Param("postId") String postId);
 
     @Query("MATCH (p:Post)<-[:LIKES]-(:User) RETURN p, COUNT(*) AS likeCount ORDER BY likeCount DESC LIMIT 1")
     PostModelNeo4j findMostLikedPost();
@@ -59,7 +59,7 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
             "RETURN DISTINCT id, likes\n" +
             "ORDER BY likes desc\n" +
             "LIMIT $limit")
-    List<PostModelNeo4j> findPostsLikedByFollowedUsers(@Param("username") java.lang.String username, @Param("limit") int limitResults);
+    List<PostModelNeo4j> findPostsLikedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
 
 
     //Valutare se lasciare l'ordinamento in base ai likes (rallenta molto)
@@ -70,5 +70,5 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
             "RETURN DISTINCT id, likes\n" +
             "ORDER BY likes DESC\n" +
             "LIMIT $limit")
-    List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") java.lang.String username, @Param("limit") int limitResults);
+    List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
 }

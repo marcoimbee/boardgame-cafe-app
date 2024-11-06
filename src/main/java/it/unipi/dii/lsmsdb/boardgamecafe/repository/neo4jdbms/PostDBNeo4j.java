@@ -50,7 +50,7 @@ public class PostDBNeo4j {
         return true;
     }
 
-    public List<PostModelNeo4j> findPostsByAuthorName(java.lang.String authorName) {
+    public List<PostModelNeo4j> findPostsByAuthorName(String authorName) {
 
         List<PostModelNeo4j> posts = new ArrayList<>();
         try {
@@ -63,7 +63,7 @@ public class PostDBNeo4j {
 
 
 
-    public boolean deletePost(java.lang.String id) {
+    public boolean deletePost(String id) {
         try {
             postRepoNeo4j.deleteAndDetach(id);
         }
@@ -74,7 +74,7 @@ public class PostDBNeo4j {
         return true;
     }
 
-    public boolean deleteByReferredBoardgame(java.lang.String bgName) {
+    public boolean deleteByReferredBoardgame(String bgName) {
         try {
             postRepoNeo4j.deleteByReferredBoardgame(bgName);
         }
@@ -85,7 +85,7 @@ public class PostDBNeo4j {
         return true;
     }
 
-    public boolean deleteByUsername(java.lang.String username) {
+    public boolean deleteByUsername(String username) {
         try {
             postRepoNeo4j.deleteByUsername(username);
         }
@@ -96,7 +96,7 @@ public class PostDBNeo4j {
         return true;
     }
 
-    public Optional<PostModelNeo4j> findById(java.lang.String id) {
+    public Optional<PostModelNeo4j> findById(String id) {
         Optional<PostModelNeo4j> post = Optional.empty();
         try {
             post = postRepoNeo4j.findById(id);
@@ -106,7 +106,7 @@ public class PostDBNeo4j {
         }
         return post;
     }
-    public Optional<PostModelNeo4j> findFromCommentId(java.lang.String commentId) {
+    public Optional<PostModelNeo4j> findFromCommentId(String commentId) {
         Optional<PostModelNeo4j> post = Optional.empty();
         try {
             post = postRepoNeo4j.findFromCommentId(commentId);
@@ -117,7 +117,7 @@ public class PostDBNeo4j {
         return post;
     }
 
-    public List<PostModelNeo4j> findFromReferredBoardgame(java.lang.String boardgameName) {
+    public List<PostModelNeo4j> findFromReferredBoardgame(String boardgameName) {
         List<PostModelNeo4j> posts = new ArrayList<>();
         try {
             posts = postRepoNeo4j.findFromReferredBoardgame(boardgameName);
@@ -176,7 +176,7 @@ public class PostDBNeo4j {
         }
     }
 
-    public int findTotalLikesByPostID(java.lang.String postId) {
+    public int findTotalLikesByPostID(String postId) {
         try {
             // Prima controlla nella cache
             int likeCount = likedPostsCache.getLikeCount(postId);
@@ -210,7 +210,7 @@ public class PostDBNeo4j {
     }
 
 
-    public List<PostModelNeo4j> getPostsLikedByFollowedUsers(java.lang.String username, int limitResults) {
+    public List<PostModelNeo4j> getPostsLikedByFollowedUsers(String username, int limitResults) {
         List<PostModelNeo4j> posts = new ArrayList<>();
         try {
             posts = postRepoNeo4j.findPostsLikedByFollowedUsers(username, limitResults);
@@ -221,7 +221,7 @@ public class PostDBNeo4j {
         return posts;
     }
 
-    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(java.lang.String username, int limitResults) {
+    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(String username, int limitResults) {
         List<PostModelNeo4j> posts = new ArrayList<>();
         try {
             posts = postRepoNeo4j.findPostsCommentedByFollowedUsers(username, limitResults);
