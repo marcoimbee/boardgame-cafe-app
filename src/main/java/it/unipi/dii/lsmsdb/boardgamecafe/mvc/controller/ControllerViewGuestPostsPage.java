@@ -231,7 +231,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
             String title = "Content Access Permissions";
             String message = "" +
                     "\t\t\tCurious To View The Content Of This Post?\n" +
-                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side, To Do This And More.";
+                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
 
             stageManager.showInfoMessage(title, message);
         };
