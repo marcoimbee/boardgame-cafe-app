@@ -1,9 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import javafx.scene.input.MouseEvent;
+import org.springframework.stereotype.Component;
+
 
 public interface PostListener {
 
-    public void onClickListener(javafx.scene.input.MouseEvent mouseEvent, PostModelMongo post);
+    public void onClickPostListener(MouseEvent mouseEvent, PostModelMongo post);
 }
