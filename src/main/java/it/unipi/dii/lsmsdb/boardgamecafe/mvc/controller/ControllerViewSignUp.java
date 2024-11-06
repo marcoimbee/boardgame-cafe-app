@@ -230,15 +230,13 @@ public class ControllerViewSignUp implements Initializable {
         //se username già presente: messaggio di errore.
         Optional<GenericUserModelMongo> user = userDBMongo.
                                                findByUsername(this.textFieldUsername.getText());
-        if (user.isPresent()) {
 
-            return "already_used";
-        }
+        if (user.isPresent()) { return "already_used"; }
         return this.textFieldUsername.getText();
     }
 
     private void initComboBox() {
-        this.comboBoxGender.getItems().addAll("male","female", "not specified");
+        this.comboBoxGender.getItems().addAll("Male","Female", "Other");
         this.comboBoxNationality.getItems().addAll("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica",
                 "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas",
                 "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan",
