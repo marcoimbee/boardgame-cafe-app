@@ -16,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -67,6 +68,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
     //Post Variables
     private List<PostModelMongo> posts = new ArrayList<>();
     private List<PostModelNeo4j> postsNeo4j = new ArrayList<>();
+
     private PostListener postListener;
 
     //Utils Variables
@@ -108,7 +110,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
 
     public void onClickBoardgamesColletcion(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.GUESTBOARDGAMES);
-        stageManager.closeStage(this.boardgamesCollectionButton);
+        stageManager.closeStageButton(this.boardgamesCollectionButton);
     }
 
     public void onClickSignUp(ActionEvent actionEvent) {
@@ -127,7 +129,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
 
     public void onClickReturnWelcomePage(ActionEvent actionEvent)
     {
-        stageManager.closeStage(this.returnWPageButton);
+        stageManager.closeStageButton(this.returnWPageButton);
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
     }
     @FXML
@@ -225,7 +227,16 @@ public class ControllerViewGuestPostsPage implements Initializable {
         rowGridPane = 0;
         setGridPaneColumnAndRow();
 
-        //CREATE FOR EACH BOARDGAME AN ITEM (ObjectPosts)
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            String title = "Content Access Permissions";
+            String message = "" +
+                    "\t\t\tCurious To View The Content Of This Post?\n" +
+                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side, To Do This And More.";
+
+            stageManager.showInfoMessage(title, message);
+        };
+
+        //CREATE FOR EACH POST AN ITEM (ObjectPosts)
         try {
             for (PostModelMongo post : posts) { // iterando lista di posts
 
@@ -234,7 +245,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectPost.setData(post);
+                controllerObjectPost.setData(post, postListener);
 
                 //choice number of column
                 if (columnGridPane == 1) {
@@ -269,6 +280,6 @@ public class ControllerViewGuestPostsPage implements Initializable {
 
     public void onClickLogin(ActionEvent event) {
         stageManager.showWindow(FxmlView.LOGIN);
-        stageManager.closeStage(this.loginButton);
+        stageManager.closeStageButton(this.loginButton);
     }
 }
