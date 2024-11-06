@@ -80,18 +80,6 @@ public class ControllerViewSignUp implements Initializable {
     }
 
 
-    public void onClickCancel(ActionEvent actionEvent)
-    {
-        stageManager.closeStageButton(this.buttonCancel);
-    }
-
-    public void onClickAdminSignUp(ActionEvent actionEvent)
-    {
-        stageManager.closeStageButton(this.buttonAdminSignUp);
-        //stageManager.showWindow(FxmlView.ADMINSIGNUP);
-    }
-
-
     public void onClickFinish(ActionEvent event) {
         String firstName = this.textFieldFirstName.getText();
         String lastName = this.textFieldLastName.getText();
@@ -104,43 +92,34 @@ public class ControllerViewSignUp implements Initializable {
         String repeatedPassword = this.textFieldRepeatPassword.getText();
 
         if (firstName.isEmpty()) {
-            labelFirstName.setText("First name is missing.");
-        } else
-        {
+            labelFirstName.setText("First Name is missing.");
+        } else {
             labelFirstName.setText("");
         }
-
         if (lastName.isEmpty()) {
-            labelLastName.setText("Last name is missing.");
-        } else
-        {
+            labelLastName.setText("Last Name is missing.");
+        } else {
             labelLastName.setText("");
         }
-
         if (country == null) {
             labelNationality.setText("Country is missing.");
-        } else
-        {
+        } else {
             labelNationality.setText("");
         }
-
         if (gender == null) {
             labelGender.setText("Gender is missing.");
-        } else
-        {
+        } else {
             labelGender.setText("");
         }
-
         // Date of birth converter for service
         if (dateOfBirth == null) {
-            labelDate.setText("Date of birth is missing.");
+            labelDate.setText("Date of Birth is missing.");
         } else {
             labelDate.setText("");
             int year = dateOfBirth.getYear();
             int month = dateOfBirth.getMonthValue();
             int day = dateOfBirth.getDayOfMonth();
         }
-
         if (email.isEmpty()) {
             labelEmail.setText("E-mail is missing.");
         } else if (email.equals("user_banned")) {
@@ -149,12 +128,10 @@ public class ControllerViewSignUp implements Initializable {
             labelEmail.setText("E-mail already used.");
         } else if (!validateEmail(email)) {
             labelEmail.setText("E-mail not valid.");
-            email = null;
         } else
         {
             labelEmail.setText("");
         }
-
         if (username.isEmpty()) {
             labelUsername.setText("Username is missing.");
         } else if (username.equals("already_used")){
@@ -162,7 +139,6 @@ public class ControllerViewSignUp implements Initializable {
         } else {
             labelUsername.setText("");
         }
-
         // Password management
         if (password.isEmpty()) {
             labelPassword.setText("Password is missing.");
@@ -172,7 +148,7 @@ public class ControllerViewSignUp implements Initializable {
             labelRepeatedPassword.setText("Repeat the password.");
         } else if (!password.equals(repeatedPassword)) {
             labelPassword.setText("");
-            labelRepeatedPassword.setText("Passwords do not match.");
+            labelRepeatedPassword.setText("The two passwords above do not match.");
         } else {
             labelPassword.setText("");
             labelRepeatedPassword.setText("");
@@ -193,7 +169,7 @@ public class ControllerViewSignUp implements Initializable {
         LocalDate currentDate = LocalDate.now();
 
         if (selectedDate == null) {
-            labelDate.setText("Date of birth is missing.");
+            labelDate.setText("Date of Birth is missing.");
         } else if (selectedDate.isAfter(currentDate)) {
             labelDate.setText("Were you born in the future?");
         } else {
@@ -233,6 +209,17 @@ public class ControllerViewSignUp implements Initializable {
 
         if (user.isPresent()) { return "already_used"; }
         return this.textFieldUsername.getText();
+    }
+
+    public void onClickCancel(ActionEvent actionEvent)
+    {
+        stageManager.closeStageButton(this.buttonCancel);
+    }
+
+    public void onClickAdminSignUp(ActionEvent actionEvent)
+    {
+        stageManager.closeStageButton(this.buttonAdminSignUp);
+        //stageManager.showWindow(FxmlView.ADMINSIGNUP);
     }
 
     private void initComboBox() {
