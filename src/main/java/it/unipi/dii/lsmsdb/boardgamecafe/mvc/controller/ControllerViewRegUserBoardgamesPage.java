@@ -231,6 +231,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
 
                 AnchorPane anchorPane = new AnchorPane();
+                anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
                 anchorPane.getChildren().add(loadViewItem);
 
                 controllerObjectBoardgame.setData(boardgame, boardgameListener);

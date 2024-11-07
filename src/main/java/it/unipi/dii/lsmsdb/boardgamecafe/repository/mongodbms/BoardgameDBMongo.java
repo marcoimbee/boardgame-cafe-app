@@ -6,7 +6,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import org.bson.types.ObjectId;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import org.bson.types.ObjectId;
 import org.slf4j.LoggerFactory;
@@ -138,7 +137,6 @@ public class BoardgameDBMongo {
     }
 
     public boolean updateBoardgameMongo(String id, BoardgameModelMongo newBoardgame) {
-
         try {
             Optional<BoardgameModelMongo> boardgame = boardgameRepoMongoOp.findById(id);
             if (boardgame.isPresent()) {
@@ -284,7 +282,7 @@ public class BoardgameDBMongo {
     public boolean addReviewInBoardgameArray(BoardgameModelMongo boardgame, ReviewModelMongo newReview)
     {
         Query query = new Query(Criteria.where("_id").is(boardgame.getId()));
-        Update update = new Update().push("reviews",  newReview);
+        Update update = new Update().push("reviews", newReview);
         UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
 
         // Se almeno un documento è stato modificato, l'update è riuscito

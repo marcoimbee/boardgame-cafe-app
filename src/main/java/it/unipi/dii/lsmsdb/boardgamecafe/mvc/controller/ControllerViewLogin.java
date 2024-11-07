@@ -1,6 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import javafx.event.ActionEvent;
@@ -18,6 +20,9 @@ import java.util.ResourceBundle;
 
 @Component
 public class ControllerViewLogin implements Initializable {
+
+    @Autowired
+    ModelBean modelBean;
 
     @FXML
     private Button cancelButton;
@@ -39,6 +44,7 @@ public class ControllerViewLogin implements Initializable {
     }
     public void onClickLogin(ActionEvent actionEvent)
     {
+        //modelBean.putBean(Costants.CURRENT_USER, new UserModelMongo());
         stageManager.closeStageButton(this.cancelButton);
         stageManager.showWindow(FxmlView.USERPOFILEPAGE);
     }

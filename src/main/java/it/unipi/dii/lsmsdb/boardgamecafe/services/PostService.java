@@ -70,9 +70,6 @@ public class PostService {
                 deletePost(insertedPost);
                 throw new RuntimeException("InsertPost Exception: Problem with relationhip creation");
             }
-            System.out.println(authorPostOptional.get().getWrittenPosts());
-
-
             return insertedPost;
         }
         catch (Exception ex) {

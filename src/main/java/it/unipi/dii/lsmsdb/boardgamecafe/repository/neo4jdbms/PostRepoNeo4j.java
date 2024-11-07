@@ -1,7 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
-
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import org.jetbrains.annotations.NotNull;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;

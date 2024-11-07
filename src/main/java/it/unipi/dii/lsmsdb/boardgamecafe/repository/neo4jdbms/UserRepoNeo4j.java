@@ -29,10 +29,8 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u:User {username: $username}) DETACH DELETE u, (u)-[r]-()")
     void deleteAndDetachUserByUsername(@Param("username") String username);
 
-    //To_Check: dosen't works
     @Query("MATCH (u:User{username: $username})-[:WRITES_COMMENT]->(c:Comment) RETURN u, collect(c) as comments")
     Optional<UserModelNeo4j> findByNameWithComments(@Param("username") String username);
-
     @Query("MATCH (u1:User {username: $userName})<-[:FOLLOWS]-(u2:User) RETURN DISTINCT u2")
     List<UserModelNeo4j> findFollowersByUsername(@Param("userName") String username);
 

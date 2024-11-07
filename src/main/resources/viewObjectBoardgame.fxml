@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -9,18 +10,21 @@
 
 <AnchorPane onMouseClicked="#mouseClick" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
    <children>
-      <VBox alignment="CENTER" prefHeight="239.0" prefWidth="189.0">
+      <VBox fx:id="vbox" alignment="CENTER" prefHeight="268.0" prefWidth="187.0">
          <children>
-            <ImageView fx:id="imageSrc" fitHeight="221.0" fitWidth="164.0" onMouseClicked="#mouseClick" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bgameImage" fitHeight="221.0" fitWidth="164.0" onMouseEntered="#onMouseEnteredOnImageBoardgame" onMouseExited="#onMouseExitedFromImageBoardgame" onMouseMoved="#onMoudeMovedOnImageBoardgame" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../../../../image_sample.jpg" />
                </image></ImageView>
+            <Label fx:id="lblBoardgameName" alignment="CENTER" prefHeight="47.0" text="Board-Game Name">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+               <tooltip>
+                  <Tooltip fx:id="tooltipBoardgameText" height="180.0" maxHeight="180.0" maxWidth="150.0" minHeight="180.0" minWidth="150.0" prefHeight="180.0" prefWidth="150.0" width="150.0" wrapText="true" x="0.0" y="0.0" />
+               </tooltip>
+            </Label>
          </children>
       </VBox>
-      <Label fx:id="boardgameName" alignment="CENTER" layoutX="11.0" layoutY="239.0" onMouseClicked="#mouseClick" prefHeight="21.0" prefWidth="168.0" text="Board-Game Name">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-      </Label>
    </children>
 </AnchorPane>

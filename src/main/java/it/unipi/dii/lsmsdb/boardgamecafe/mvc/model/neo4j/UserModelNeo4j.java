@@ -125,7 +125,7 @@ public class UserModelNeo4j {
 
     public void addWrittenPost(PostModelNeo4j post) {
         this.writtenPosts.add(post);
-        
+
     }
 
     public boolean deleteWrittenPost(String id) {
@@ -211,3 +211,4 @@ public class UserModelNeo4j {
                 '}';
     }
 }
+
