@@ -170,7 +170,7 @@ public class BoardgameDBMongo {
         List<BoardgameModelMongo> boardgames = null;
         try {
             Query query = new Query();
-            query.with(Sort.by(Sort.Direction.DESC, "yearPublished"));
+            query.with(Sort.by(Sort.Order.desc("yearPublished"), Sort.Order.asc("_id")));
             query.skip(skip).limit(limit);
             boardgames = mongoOperations.find(query, BoardgameModelMongo.class);
         } catch (Exception e) {
