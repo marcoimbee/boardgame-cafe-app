@@ -107,15 +107,32 @@ public class UserDBNeo4j {
         return followers;
     }
 
-
     public List<UserModelNeo4j> getFollowing(String username) {
-        List<UserModelNeo4j> following = new ArrayList<>();
+        List<UserModelNeo4j> followers = new ArrayList<>();
         try {
             return userNeo4jDB.findFollowingByUsername(username);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return following;
+        return followers;
+    }
+
+    public int getCountFollowing(String username) {
+        try {
+            return userNeo4jDB.countFollowingByUsername(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int getCountFollowers(String username) {
+        try {
+            return userNeo4jDB.countFollowersByUsername(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public List<String> getUsersByCommonBoardgamePosted(String username, int limit)
