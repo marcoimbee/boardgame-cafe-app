@@ -37,6 +37,12 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u1:User {username: $userName})-[:FOLLOWS]->(u2:User) RETURN DISTINCT u2")
     List<UserModelNeo4j> findFollowingByUsername(@Param("userName") String username);
 
+    @Query("MATCH (:User {username: $userName})<-[:FOLLOWS]-(follower:User) RETURN COUNT(DISTINCT follower)")
+    int countFollowersByUsername(@Param("userName") String username);
+
+    @Query("MATCH (:User {username: $userName})-[:FOLLOWS]->(followed:User) RETURN COUNT(DISTINCT followed)")
+    int countFollowingByUsername(@Param("userName") String username);
+
     @Query("MATCH (u1:User)-[a:ADDS]->(b:Boardgame {name: $boardgameName}) RETURN DISTINCT u1")
     List<UserModelNeo4j> findUsersByBoardgameName(@Param("boardgameName") String boardgamename);
 
