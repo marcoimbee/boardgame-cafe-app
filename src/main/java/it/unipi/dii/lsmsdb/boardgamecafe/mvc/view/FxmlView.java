@@ -70,7 +70,7 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewRegUserBoardgamesPage.fxml";
         }
-    }, USERPOFILEPAGE {
+    }, USERPROFILEPAGE {
         @Override
         public String getTitle() {
             return "User HomePage - BoardGameCafè App";
