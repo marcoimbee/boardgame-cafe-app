@@ -113,9 +113,11 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
 
     public void onClickSearch() {
 
-        String text = this.textFieldSearch.getText();
+        String title = "Content Access Permissions";
+        String message = "" +
+                "To Search For Specific Boardgame You Need To Be a Registered User.\n";
 
-        stageManager.showInfoMessage("Info Text", text);
+        stageManager.showInfoMessage(title, message);
     }
 
     public void onClickClearField() {
@@ -127,15 +129,6 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.returnWPageButton);
     }
-
-    /*public void onClickImageBoardgame(MouseEvent event) {
-        int imageIndex = stageManager.getElemIndexGridPane(event);
-        imageIndex--;
-        BoardgameModelMongo boardgame = this.boardgames.get((18*counterPages)+imageIndex);
-        BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.SELECTED_BOARDGAME, boardgame);
-        stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
-    }*/
-
 
     @FXML
     void onClickNext() {

@@ -117,10 +117,12 @@ public class ControllerViewGuestPostsPage implements Initializable {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 
-    public void onClickSearch() {
-        String text = this.textFieldSearch.getText();
+    public void onClickSearch(ActionEvent e) {
+        String title = "Content Access Permissions";
+        String message = "" +
+                "To Search For Specific Boardgame You Need To Be a Registered User.\n";
 
-        stageManager.showInfoMessage("Info Text", text);
+        stageManager.showInfoMessage(title, message);
     }
 
     public void onClickClearField() {
