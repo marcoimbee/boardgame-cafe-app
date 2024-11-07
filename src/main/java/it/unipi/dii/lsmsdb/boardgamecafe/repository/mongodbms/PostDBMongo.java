@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,6 +135,20 @@ public class PostDBMongo {
             posts = postMongo.findByUsername(username);
         }
         catch (Exception e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
+    public List<PostModelMongo> findRecentPostsByUsername(String username, int limit, int skip) {
+        List<PostModelMongo> posts = null;
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("username").is(username));
+            query.with(Sort.by(Sort.Direction.DESC, "timestamp"));
+            query.skip(skip).limit(limit);
+            posts = mongoOperations.find(query, PostModelMongo.class);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return posts;
