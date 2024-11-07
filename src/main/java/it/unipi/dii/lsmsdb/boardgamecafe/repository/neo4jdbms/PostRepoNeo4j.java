@@ -57,8 +57,11 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
             "WITH p.id as id, COUNT(l) as likes\n" +
             "RETURN DISTINCT id, likes\n" +
             "ORDER BY likes desc\n" +
+            "SKIP $skipCounter\n" +
             "LIMIT $limit")
-    List<PostModelNeo4j> findPostsLikedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
+    List<PostModelNeo4j> findPostsLikedByFollowedUsers(@Param("username") String username,
+                                                       @Param("limit") int limitResults,
+                                                       @Param("skipCounter") int skipCounter);
 
 
     //Valutare se lasciare l'ordinamento in base ai likes (rallenta molto)
@@ -68,6 +71,21 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
             "WITH p.id AS id, COUNT(l) AS likes\n" +
             "RETURN DISTINCT id, likes\n" +
             "ORDER BY likes DESC\n" +
+            "SKIP $skipCounter\n" +
             "LIMIT $limit")
-    List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") String username, @Param("limit") int limitResults);
+    List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") String username,
+                                                           @Param("limit") int limitResults,
+                                                           @Param("skipCounter") int skipCounter);
+
+    @Query("MATCH (currentUser:User {username: $username})-[:FOLLOWS]->(followedUser:User)-[:WRITES_POST]->(post:Post)\n" +
+            "OPTIONAL MATCH (post)-[:LIKES]->(likedBy:User)\n" +
+            "WITH post, COUNT(likedBy) AS likeCount\n" +
+            "RETURN post\n" +
+            "ORDER BY likeCount DESC\n" +
+            "SKIP $skipCounter\n" +
+            "LIMIT $limit")
+    List<PostModelNeo4j> findPostsCreatedByFollowedUsers(@Param("username") String username,
+                                                         @Param("limit") int limitResults,
+                                                         @Param("skipCounter") int skipCounter);
+
 }

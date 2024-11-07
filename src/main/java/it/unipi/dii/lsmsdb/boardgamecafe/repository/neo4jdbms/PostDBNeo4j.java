@@ -210,10 +210,10 @@ public class PostDBNeo4j {
     }
 
 
-    public List<PostModelNeo4j> getPostsLikedByFollowedUsers(String username, int limitResults) {
+    public List<PostModelNeo4j> getPostsLikedByFollowedUsers(String username, int limitResults, int skipCounter) {
         List<PostModelNeo4j> posts = new ArrayList<>();
         try {
-            posts = postRepoNeo4j.findPostsLikedByFollowedUsers(username, limitResults);
+            posts = postRepoNeo4j.findPostsLikedByFollowedUsers(username, limitResults, skipCounter);
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -221,10 +221,21 @@ public class PostDBNeo4j {
         return posts;
     }
 
-    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(String username, int limitResults) {
+    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(String username, int limitResults, int skipCounter) {
         List<PostModelNeo4j> posts = new ArrayList<>();
         try {
-            posts = postRepoNeo4j.findPostsCommentedByFollowedUsers(username, limitResults);
+            posts = postRepoNeo4j.findPostsCommentedByFollowedUsers(username, limitResults, skipCounter);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return posts;
+    }
+
+    public List<PostModelNeo4j> getPostsByFollowedUsers(String username, int limitResults, int skipCounter) {
+        List<PostModelNeo4j> posts = new ArrayList<>();
+        try {
+            posts = postRepoNeo4j.findPostsCreatedByFollowedUsers(username, limitResults, skipCounter);
         }
         catch (Exception ex) {
             ex.printStackTrace();

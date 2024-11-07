@@ -195,35 +195,51 @@ public class PostService {
         }
     }
 
-    public List<PostModelMongo> suggestPostLikedByFollowedUsers(String currnteUser, int limitResults) {
-
+    public List<PostModelMongo> suggestPostLikedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
+        // skipCounter needed for incremental post displaying
         List<PostModelNeo4j> postsLikedByFollowedUsers = postDBNeo4j.
-                getPostsLikedByFollowedUsers(currnteUser, limitResults);
+                getPostsLikedByFollowedUsers(currentUser, limitResults, skipCounter);
         List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
 
-        for (PostModelNeo4j postsLikedId : postsLikedByFollowedUsers )
+        for (PostModelNeo4j postsLikedId : postsLikedByFollowedUsers)
         {
             Optional<PostModelMongo> postMongo = postDBMongo.findById(postsLikedId.getId());
             // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
-            postMongo.ifPresent(postModelMongo -> suggestedPostsMongo.add(postModelMongo));
+            postMongo.ifPresent(suggestedPostsMongo::add);
         }
 
         return suggestedPostsMongo;
     }
 
-    public List<PostModelMongo> suggestPostCommentedByFollowedUsers(String currnteUser, int limitResults) {
-
+    public List<PostModelMongo> suggestPostCommentedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
+        // skipCounter needed for incremental post displaying
         List<PostModelNeo4j> postsCommentedByFollowedUsers = postDBNeo4j.
-                getPostsCommentedByFollowedUsers(currnteUser, limitResults);
+                getPostsCommentedByFollowedUsers(currentUser, limitResults, skipCounter);
         List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
 
-        for (PostModelNeo4j postsCommentedId : postsCommentedByFollowedUsers )
+        for (PostModelNeo4j postsCommentedId : postsCommentedByFollowedUsers)
         {
             Optional<PostModelMongo> postMongo = postDBMongo.findById(postsCommentedId.getId());
             // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
-            postMongo.ifPresent(postModelMongo -> suggestedPostsMongo.add(postModelMongo));
+            postMongo.ifPresent(suggestedPostsMongo::add);
         }
 
         return suggestedPostsMongo;
+    }
+
+    public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitresults, int skipCounter) {
+        // skipCounter needed for incremental post displaying
+        List<PostModelNeo4j> postsByFollowedUsers = postDBNeo4j.
+                getPostsByFollowedUsers(currentUser, limitresults, skipCounter);
+        List<PostModelMongo> retrievedPostsMongo = new ArrayList<>();
+
+        for (PostModelNeo4j postByFollowedUser : postsByFollowedUsers)
+        {
+            Optional<PostModelMongo> postMongo = postDBMongo.findById(postByFollowedUser.getId());
+            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
+            postMongo.ifPresent(retrievedPostsMongo::add);
+        }
+
+        return retrievedPostsMongo;
     }
 }
