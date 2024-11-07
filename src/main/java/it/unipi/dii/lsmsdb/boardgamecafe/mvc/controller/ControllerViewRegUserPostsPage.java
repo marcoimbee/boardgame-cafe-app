@@ -87,6 +87,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         this.boardgamePostsButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
@@ -218,7 +219,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
             // Logica per mostrare i dettagli del post usando StageManager
-            stageManager.switchScene(FxmlView.USERPOFILEPAGE);
+            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
             stageManager.closeStageMouseEvent(mouseEvent);
         };
 
@@ -264,7 +265,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickYourProfile(ActionEvent event) {
-        stageManager.showWindow(FxmlView.USERPOFILEPAGE);
+        stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
 
