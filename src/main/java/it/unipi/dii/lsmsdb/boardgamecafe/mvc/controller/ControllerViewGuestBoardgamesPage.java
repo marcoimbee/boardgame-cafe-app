@@ -249,7 +249,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectBoardgame.setData(boardgame, boardgameListener);
+                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
 
                 //choice number of column
                 if (columnGridPane == 4) {
