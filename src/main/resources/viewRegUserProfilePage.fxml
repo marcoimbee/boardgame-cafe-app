@@ -137,42 +137,42 @@
                      </graphic>
                   </Button>
                   <Separator blendMode="SRC_ATOP" layoutX="834.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="3.0" />
-                  <Label fx:id="name111" alignment="TOP_LEFT" layoutX="220.0" layoutY="73.0" prefHeight="21.0" prefWidth="83.0" text="First Name: " textFill="#182e58">
+                  <Label fx:id="name111" alignment="TOP_LEFT" layoutX="220.0" layoutY="68.0" prefHeight="21.0" prefWidth="83.0" text="First Name: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="firstNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="73.0" prefHeight="18.0" prefWidth="119.0" text="Francesco" textFill="#182e58">
+                  <Label fx:id="firstNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="68.0" prefHeight="18.0" prefWidth="119.0" text="Francesco" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name1111" alignment="TOP_LEFT" layoutX="220.0" layoutY="99.0" prefHeight="21.0" prefWidth="83.0" text="Last Name: " textFill="#182e58">
+                  <Label fx:id="name1111" alignment="TOP_LEFT" layoutX="220.0" layoutY="94.0" prefHeight="21.0" prefWidth="83.0" text="Last Name: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="lastNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="99.0" prefHeight="18.0" prefWidth="127.0" text="Imbelli Cai" textFill="#182e58">
+                  <Label fx:id="lastNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="94.0" prefHeight="18.0" prefWidth="127.0" text="Imbelli Cai" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name11111" alignment="TOP_LEFT" layoutX="220.0" layoutY="125.0" prefHeight="21.0" prefWidth="83.0" text="Nationality:" textFill="#182e58">
+                  <Label fx:id="name11111" alignment="TOP_LEFT" layoutX="220.0" layoutY="120.0" prefHeight="21.0" prefWidth="83.0" text="Nationality:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="nationalityLabel" alignment="TOP_LEFT" layoutX="303.0" layoutY="125.0" prefHeight="18.0" prefWidth="81.0" text="Italy" textFill="#182e58">
+                  <Label fx:id="nationalityLabel" alignment="TOP_LEFT" layoutX="303.0" layoutY="120.0" prefHeight="18.0" prefWidth="81.0" text="Italy" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name11111121" alignment="TOP_LEFT" layoutX="435.0" layoutY="95.0" prefHeight="21.0" prefWidth="42.0" text="posts" textFill="#182e58">
+                  <Label fx:id="name11111121" alignment="TOP_LEFT" layoutX="434.0" layoutY="95.0" prefHeight="21.0" prefWidth="42.0" text="posts" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="counterPostsLabel" alignment="TOP_LEFT" layoutX="443.0" layoutY="75.0" text="1000" textFill="#182e58">
+                  <Label fx:id="counterPostsLabel" alignment="TOP_LEFT" layoutX="442.0" layoutY="75.0" text="1000" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="17.0" />
                      </font>
