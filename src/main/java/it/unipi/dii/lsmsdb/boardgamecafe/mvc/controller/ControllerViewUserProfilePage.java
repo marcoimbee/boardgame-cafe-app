@@ -128,7 +128,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.nextButton.setDisable(true);
         resetPage();
 
-        Optional<GenericUserModelMongo> user = userMongoOp.findByUsername("blackfish414");
+        Optional<GenericUserModelMongo> user = userMongoOp.findByUsername("lazyladybug603");
         if (user.isPresent()){
             UserModelMongo regUser = (UserModelMongo) user.get();
             totalFollowerUsers = userDBNeo.getCountFollowers(regUser.getUsername());
@@ -220,7 +220,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         skipCounter += SKIP;
 
         //retrieve boardgames
-        postsUser.addAll(getData(usernameLabel.toString()));
+        postsUser.addAll(getData(this.usernameLabel.getText()));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -236,7 +236,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        postsUser.addAll(getData(usernameLabel.toString()));
+        postsUser.addAll(getData(this.usernameLabel.getText()));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -287,7 +287,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private List<PostModelMongo> getData(String username){
 
         List<PostModelMongo> posts =
-                postDBMongo.findByUsername(username);
+                postDBMongo.findRecentPostsByUsername(username,LIMIT, skipCounter);
 
         prevNextButtonsCheck(posts);
         return posts;
@@ -341,7 +341,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 gridPane.setPrefHeight(400);
                 gridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                 //GridPane.setMargin(anchorPane, new Insets(25));
-                GridPane.setMargin(anchorPane, new Insets(12,5,12,130));
+                GridPane.setMargin(anchorPane, new Insets(11,5,11,130));
 
             }
         } catch (Exception e) {
