@@ -2,7 +2,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -220,7 +219,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
             // Logica per mostrare i dettagli del post usando StageManager
-            stageManager.switchScene(FxmlView.USERPOFILEPAGE);
+            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
             stageManager.closeStageMouseEvent(mouseEvent);
         };
 
@@ -265,7 +264,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     }
 
     public void onClickYourProfile(ActionEvent event) {
-        stageManager.showWindow(FxmlView.USERPOFILEPAGE);
+        stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
 
