@@ -62,7 +62,7 @@
          <children>
             <AnchorPane prefHeight="718.0" prefWidth="946.0">
                <children>
-                  <Button fx:id="editProfileButton" layoutX="522.0" layoutY="150.0" mnemonicParsing="false" onAction="#onClickEditProfileButton" prefHeight="30.0" prefWidth="150.0" style="-fx-background-color: #182E58;" text="  Edit Profile" textFill="WHITESMOKE">
+                  <Button fx:id="editProfileButton" layoutX="502.0" layoutY="140.0" mnemonicParsing="false" onAction="#onClickEditProfileButton" prefHeight="30.0" prefWidth="150.0" style="-fx-background-color: #182E58;" text="  Edit Profile" textFill="WHITESMOKE">
                      <graphic>
                         <FontAwesomeIconView fill="WHITE" glyphName="EDIT" size="14" />
                      </graphic>
@@ -92,39 +92,29 @@
                   <Separator blendMode="SRC_ATOP" layoutY="237.0" prefHeight="5.0" prefWidth="835.0" />
                   <Separator blendMode="SRC_ATOP" layoutX="414.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="6.0" />
                   <Separator blendMode="SRC_ATOP" layoutY="201.0" prefHeight="9.0" prefWidth="835.0" />
-                  <VBox layoutX="73.0" layoutY="52.0" prefHeight="99.0" prefWidth="104.0">
+                  <VBox layoutX="79.0" layoutY="53.0" prefHeight="99.0" prefWidth="104.0">
                      <children>
                         <ImageView fx:id="profileImage" fitHeight="97.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
                      </children>
                   </VBox>
-                  <Label fx:id="name111111" alignment="TOP_LEFT" layoutX="609.0" layoutY="96.0" prefHeight="21.0" prefWidth="63.0" text="follower" textFill="#182e58">
+                  <Label fx:id="name111111" alignment="TOP_LEFT" layoutX="578.0" layoutY="96.0" prefHeight="21.0" prefWidth="63.0" text="follower" textFill="#182e58">
                      <font>
-                        <Font name="Calibri Bold Italic" size="16.0" />
+                        <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="followerLabel" alignment="TOP_LEFT" layoutX="626.0" layoutY="75.0" text="1000" textFill="#182e58">
+                  <Label fx:id="followerLabel" alignment="TOP_LEFT" layoutX="597.0" layoutY="75.0" text="1000" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="17.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="name1111111" alignment="TOP_LEFT" layoutX="58.0" layoutY="164.0" prefHeight="21.0" prefWidth="83.0" text="Username:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name1111111" alignment="TOP_LEFT" layoutX="52.0" layoutY="163.0" prefHeight="21.0" prefWidth="83.0" text="Username:" textFill="#182e58">
-                     <font>
-                        <Font name="Calibri Bold" size="16.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="usernameLabel" alignment="TOP_LEFT" layoutX="128.0" layoutY="163.0" prefHeight="23.0" prefWidth="148.0" text="f.imbellicai" textFill="#182e58">
+                  <Label fx:id="usernameLabel" alignment="TOP_LEFT" layoutX="134.0" layoutY="164.0" prefHeight="23.0" prefWidth="148.0" text="f.imbellicai" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="name1111112" alignment="TOP_LEFT" layoutX="693.0" layoutY="96.0" prefHeight="21.0" prefWidth="67.0" text="following" textFill="#182e58">
-                     <font>
-                        <Font name="Calibri Bold Italic" size="16.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="followingLabel" alignment="TOP_LEFT" layoutX="711.0" layoutY="75.0" text="1000" textFill="#182e58">
-                     <font>
-                        <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
                   <Button fx:id="yourPostsButton" layoutX="1.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickPostsButton" prefHeight="30.0" prefWidth="411.0" style="-fx-background-color: #ffffff;" text="Posts" textFill="#182e58">
@@ -147,54 +137,64 @@
                      </graphic>
                   </Button>
                   <Separator blendMode="SRC_ATOP" layoutX="834.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="3.0" />
-                  <Label fx:id="name111" alignment="TOP_LEFT" layoutX="212.0" layoutY="74.0" prefHeight="21.0" prefWidth="83.0" text="First Name: " textFill="#182e58">
+                  <Label fx:id="name111" alignment="TOP_LEFT" layoutX="220.0" layoutY="73.0" prefHeight="21.0" prefWidth="83.0" text="First Name: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="firstNameLabel" alignment="TOP_LEFT" layoutX="293.0" layoutY="74.0" prefHeight="18.0" prefWidth="119.0" text="Francesco" textFill="#182e58">
+                  <Label fx:id="firstNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="73.0" prefHeight="18.0" prefWidth="119.0" text="Francesco" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name1111" alignment="TOP_LEFT" layoutX="212.0" layoutY="100.0" prefHeight="21.0" prefWidth="83.0" text="Last Name: " textFill="#182e58">
+                  <Label fx:id="name1111" alignment="TOP_LEFT" layoutX="220.0" layoutY="99.0" prefHeight="21.0" prefWidth="83.0" text="Last Name: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="lastNameLabel" alignment="TOP_LEFT" layoutX="293.0" layoutY="100.0" prefHeight="18.0" prefWidth="127.0" text="Imbelli Cai" textFill="#182e58">
+                  <Label fx:id="lastNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="99.0" prefHeight="18.0" prefWidth="127.0" text="Imbelli Cai" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name11111" alignment="TOP_LEFT" layoutX="212.0" layoutY="126.0" prefHeight="21.0" prefWidth="83.0" text="Nationality:" textFill="#182e58">
+                  <Label fx:id="name11111" alignment="TOP_LEFT" layoutX="220.0" layoutY="125.0" prefHeight="21.0" prefWidth="83.0" text="Nationality:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="nationalityLabel" alignment="TOP_LEFT" layoutX="295.0" layoutY="126.0" prefHeight="18.0" prefWidth="81.0" text="Italy" textFill="#182e58">
+                  <Label fx:id="nationalityLabel" alignment="TOP_LEFT" layoutX="303.0" layoutY="125.0" prefHeight="18.0" prefWidth="81.0" text="Italy" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name11111121" alignment="TOP_LEFT" layoutX="451.0" layoutY="95.0" prefHeight="21.0" prefWidth="42.0" text="posts" textFill="#182e58">
+                  <Label fx:id="name11111121" alignment="TOP_LEFT" layoutX="435.0" layoutY="95.0" prefHeight="21.0" prefWidth="42.0" text="posts" textFill="#182e58">
                      <font>
-                        <Font name="Calibri Bold Italic" size="16.0" />
+                        <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="counterPostsLabel" alignment="TOP_LEFT" layoutX="458.0" layoutY="75.0" text="1000" textFill="#182e58">
+                  <Label fx:id="counterPostsLabel" alignment="TOP_LEFT" layoutX="443.0" layoutY="75.0" text="1000" textFill="#182e58">
                      <font>
-                        <Font name="Calibri Bold" size="16.0" />
+                        <Font name="Calibri Bold" size="17.0" />
                      </font>
                   </Label>
-                  <Label fx:id="name111111211" alignment="TOP_LEFT" layoutX="524.0" layoutY="96.0" prefHeight="21.0" prefWidth="55.0" text="reviews" textFill="#182e58">
+                  <Label fx:id="name111111211" alignment="TOP_LEFT" layoutX="498.0" layoutY="96.0" prefHeight="22.0" prefWidth="63.0" text="reviews" textFill="#182e58">
                      <font>
-                        <Font name="Calibri Bold Italic" size="16.0" />
+                        <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="counterReviewsLabel" alignment="TOP_LEFT" layoutX="540.0" layoutY="75.0" text="1000" textFill="#182e58">
+                  <Label fx:id="counterReviewsLabel" alignment="TOP_LEFT" layoutX="516.0" layoutY="75.0" text="1000" textFill="#182e58">
                      <font>
-                        <Font name="Calibri Bold" size="16.0" />
+                        <Font name="Calibri Bold" size="17.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="name1111112" alignment="TOP_LEFT" layoutX="658.0" layoutY="96.0" prefHeight="22.0" prefWidth="78.0" text="following" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="followingLabel" alignment="TOP_LEFT" layoutX="683.0" layoutY="75.0" text="1000" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="17.0" />
                      </font>
                   </Label>
                </children>
