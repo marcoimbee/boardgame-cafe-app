@@ -133,6 +133,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             onSelectChoiceBoxOption();
         });
 
+
         onSelectChoiceBoxOption();        // Show posts by followed users by default
     }
 
@@ -214,11 +215,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private List<PostModelMongo> getData(){
         List<PostModelMongo> posts = switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);        // TODO: change this. implement new in post service
+                    postService.findPostsByFollowedUsers("brownswan589", LIMIT, skipCounter);        // TODO: change this. implement new in post service
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers("brownswan589", LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers("brownswan589", LIMIT, skipCounter);
         };
 
         prevNextButtonsCheck(posts.size());
