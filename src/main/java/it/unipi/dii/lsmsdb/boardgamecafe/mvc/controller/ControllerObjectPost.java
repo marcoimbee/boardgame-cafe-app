@@ -35,6 +35,8 @@ public class ControllerObjectPost {
     protected Label likesLabel;
     @FXML
     protected TextArea textTitleLabel;
+    @FXML
+    protected Label tagBoardgameLabel;
 
     private static final Map<String, String> commentCache = new HashMap<>();
 
@@ -72,9 +74,14 @@ public class ControllerObjectPost {
             commentCache.put(post.getId(), commentsCounter);
         }
 
-        authorLabel.setText(post.getUsername());
-        timestampLabel.setText(creationDate);
-        commentsLabel.setText(commentsCounter);
+        this.authorLabel.setText(post.getUsername());
+        this.timestampLabel.setText(creationDate);
+        this.commentsLabel.setText(commentsCounter);
+        if (post.getTag() == null) {
+            this.tagBoardgameLabel.setText("[ No Reference ]");
+        } else {
+            this.tagBoardgameLabel.setText(post.getTag());
+        }
 
         updateLikesLabel(post);
 

@@ -8,19 +8,19 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane onMouseClicked="#mouseClick" prefHeight="196.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
+<AnchorPane onMouseClicked="#mouseClick" prefHeight="208.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
    <children>
-      <Label fx:id="name111" alignment="TOP_LEFT" layoutX="36.0" layoutY="12.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
+      <Label fx:id="name111" alignment="TOP_LEFT" layoutX="37.0" layoutY="12.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="name1111" alignment="BASELINE_LEFT" layoutX="102.0" layoutY="156.0" prefHeight="25.0" prefWidth="40.0" text="Likes:" textFill="WHITE">
+      <Label fx:id="name1111" alignment="BASELINE_LEFT" layoutX="102.0" layoutY="168.0" prefHeight="25.0" prefWidth="40.0" text="Likes:" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Button fx:id="removeButton" layoutX="463.0" layoutY="153.0" mnemonicParsing="false" onAction="#removePost" prefHeight="30.0" prefWidth="95.0" style="-fx-background-color: #ffffff;" text="Remove" textFill="#182e58">
+      <Button fx:id="removeButton" layoutX="463.0" layoutY="165.0" mnemonicParsing="false" onAction="#removePost" prefHeight="30.0" prefWidth="95.0" style="-fx-background-color: #ffffff;" text="Remove" textFill="#182e58">
          <graphic>
             <FontAwesomeIconView fill="#182e58" glyphName="TRASH" size="14" />
          </graphic>
@@ -33,9 +33,9 @@
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Separator layoutX="14.0" layoutY="40.0" prefHeight="3.0" prefWidth="541.0" />
-      <Separator layoutX="15.0" layoutY="144.0" prefHeight="3.0" prefWidth="541.0" />
-      <Label fx:id="authorLabel" alignment="TOP_LEFT" layoutX="113.0" layoutY="12.0" prefHeight="25.0" prefWidth="158.0" text="Alberto" textFill="WHITE">
+      <Separator layoutX="14.0" layoutY="64.0" prefHeight="3.0" prefWidth="541.0" />
+      <Separator layoutX="15.0" layoutY="154.0" prefHeight="3.0" prefWidth="541.0" />
+      <Label fx:id="authorLabel" alignment="TOP_LEFT" layoutX="115.0" layoutY="12.0" prefHeight="19.0" prefWidth="174.0" text="Marco" textFill="WHITE">
          <font>
             <Font name="Calibri Bold Italic" size="16.0" />
          </font>
@@ -45,17 +45,17 @@
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="likesLabel" alignment="BASELINE_LEFT" layoutX="142.0" layoutY="156.0" prefHeight="25.0" prefWidth="35.0" text="10" textFill="WHITE">
+      <Label fx:id="likesLabel" alignment="BASELINE_LEFT" layoutX="142.0" layoutY="168.0" prefHeight="25.0" prefWidth="35.0" text="10" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <TextArea fx:id="textTitleLabel" editable="false" layoutX="14.0" layoutY="51.0" onMouseClicked="#mouseClick" prefHeight="83.0" prefWidth="541.0" wrapText="true">
+      <TextArea fx:id="textTitleLabel" editable="false" layoutX="14.0" layoutY="72.0" onMouseClicked="#mouseClick" prefHeight="75.0" prefWidth="541.0" wrapText="true">
          <font>
             <Font size="16.0" />
          </font>
       </TextArea>
-      <Button fx:id="likeButton" layoutX="15.0" layoutY="153.0" mnemonicParsing="false" onAction="#likeDislikePost" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Like" textFill="#182e58">
+      <Button fx:id="likeButton" layoutX="15.0" layoutY="165.0" mnemonicParsing="false" onAction="#likeDislikePost" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Like" textFill="#182e58">
          <graphic>
             <FontAwesomeIconView fill="#182e58" glyphName="THUMBS_UP" size="14" />
          </graphic>
@@ -63,22 +63,33 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
-      <Button fx:id="commentButton" layoutX="187.0" layoutY="153.0" mnemonicParsing="false" onAction="#commentPost" prefHeight="30.0" prefWidth="35.0" style="-fx-background-color: #ffffff;" textFill="#182e58">
+      <Button fx:id="commentButton" layoutX="187.0" layoutY="165.0" mnemonicParsing="false" onAction="#commentPost" prefHeight="30.0" prefWidth="35.0" style="-fx-background-color: #ffffff;" textFill="#182e58">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
-      <FontAwesomeIconView fill="#182e58" glyphName="COMMENT" layoutX="197.0" layoutY="173.0" size="15" wrappingWidth="16.0" />
-      <Label fx:id="name11111" alignment="BASELINE_LEFT" layoutX="230.0" layoutY="156.0" prefHeight="25.0" prefWidth="78.0" text="Comments:" textFill="WHITE">
+      <FontAwesomeIconView fill="#182e58" glyphName="COMMENT" layoutX="197.0" layoutY="185.0" size="15" wrappingWidth="16.0" />
+      <Label fx:id="name11111" alignment="BASELINE_LEFT" layoutX="230.0" layoutY="168.0" prefHeight="25.0" prefWidth="78.0" text="Comments:" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="commentsLabel" alignment="BASELINE_LEFT" layoutX="308.0" layoutY="156.0" prefHeight="25.0" prefWidth="40.0" text="28" textFill="WHITE">
+      <Label fx:id="commentsLabel" alignment="BASELINE_LEFT" layoutX="308.0" layoutY="168.0" prefHeight="25.0" prefWidth="40.0" text="28" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="USER" layoutX="17.0" layoutY="27.0" size="19" />
+      <Label fx:id="name1112" alignment="TOP_LEFT" layoutX="37.0" layoutY="37.0" prefHeight="19.0" prefWidth="166.0" text="Referred to Boardgame:" textFill="WHITE">
+         <font>
+            <Font name="Calibri Bold" size="16.0" />
+         </font>
+      </Label>
+      <Label fx:id="tagBoardgameLabel" alignment="TOP_LEFT" layoutX="204.0" layoutY="37.0" prefHeight="19.0" prefWidth="344.0" text="Monopoly" textFill="WHITE">
+         <font>
+            <Font name="Calibri Bold Italic" size="16.0" />
+         </font>
+      </Label>
+      <FontAwesomeIconView fill="#182e58" glyphName="PLAY" layoutX="19.0" layoutY="51.0" size="15" />
    </children>
 </AnchorPane>
