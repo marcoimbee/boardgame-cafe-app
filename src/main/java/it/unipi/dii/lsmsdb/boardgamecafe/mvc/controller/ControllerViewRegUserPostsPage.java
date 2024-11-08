@@ -124,7 +124,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
         // Choice box init
-        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getFirst());      // Default choice box string
+        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
         whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
@@ -137,7 +137,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
-        if (choiceBoxValue.equals(whatPostsToShowList.getFirst())) {
+        if (choiceBoxValue.equals(whatPostsToShowList.get(0))) {
             currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
         }
 
