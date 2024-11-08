@@ -75,6 +75,21 @@ public class ReviewDBMongo {
         return reviews;
     }
 
+    public List<ReviewModelMongo> findRecentReviewsByUsername(String username, int limit, int skip) {
+        List<ReviewModelMongo> reviews = null;
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("username").is(username));
+            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview")); // Ordinamento per data
+            query.skip(skip).limit(limit); // Paginazione
+            reviews = mongoOperations.find(query, ReviewModelMongo.class); // Ricerca nella collection delle recensioni
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return reviews;
+    }
+
+
     public List<ReviewModelMongo> findReviewByBoardgameName(String boardgameName) {
         List<ReviewModelMongo> reviews = null;
         try {
