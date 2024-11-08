@@ -8,36 +8,36 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="363.0" prefWidth="565.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectReview">
+<AnchorPane prefHeight="291.0" prefWidth="565.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectReview">
    <children>
-      <Label fx:id="name111" alignment="TOP_LEFT" layoutX="15.0" layoutY="12.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
+      <Label fx:id="name111" alignment="TOP_LEFT" layoutX="44.0" layoutY="17.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="name1211" alignment="TOP_RIGHT" layoutX="293.0" layoutY="11.0" prefHeight="33.0" prefWidth="40.0" text="Date:" textFill="WHITE">
+      <Label fx:id="name1211" alignment="TOP_RIGHT" layoutX="297.0" layoutY="16.0" prefHeight="33.0" prefWidth="40.0" text="Date:" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Separator layoutX="12.0" layoutY="102.0" prefHeight="3.0" prefWidth="541.0" />
-      <Separator layoutX="13.0" layoutY="308.0" prefHeight="3.0" prefWidth="541.0" />
-      <Label fx:id="authorLabel" alignment="TOP_LEFT" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="182.0" text="Francesco" textFill="WHITE">
+      <Separator layoutX="11.0" layoutY="105.0" prefHeight="9.0" prefWidth="541.0" />
+      <Separator layoutX="13.0" layoutY="238.0" prefHeight="3.0" prefWidth="541.0" />
+      <Label fx:id="authorLabel" alignment="TOP_LEFT" layoutX="119.0" layoutY="17.0" prefHeight="25.0" prefWidth="173.0" text="Francesco" textFill="WHITE">
          <font>
             <Font name="Calibri Bold Italic" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="dateOfReviewLabel" alignment="TOP_LEFT" layoutX="338.0" layoutY="11.0" prefHeight="25.0" prefWidth="217.0" text="21/01/2022" textFill="WHITE">
+      <Label fx:id="dateOfReviewLabel" alignment="TOP_LEFT" layoutX="342.0" layoutY="16.0" prefHeight="25.0" prefWidth="207.0" text="21/01/2022" textFill="WHITE">
          <font>
-            <Font name="Calibri Bold Italic" size="16.0" />
+            <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <TextArea fx:id="bodyTextLabel" editable="false" layoutX="12.0" layoutY="113.0" prefHeight="185.0" prefWidth="541.0" wrapText="true">
+      <TextArea fx:id="bodyTextLabel" editable="false" layoutX="11.0" layoutY="117.0" prefHeight="114.0" prefWidth="541.0" wrapText="true">
          <font>
             <Font size="16.0" />
          </font>
       </TextArea>
-      <Button fx:id="deleteButton" layoutX="456.0" layoutY="319.0" mnemonicParsing="false" onAction="#onClickDeleteButton" prefHeight="30.0" prefWidth="95.0" style="-fx-background-color: #ffffff;" text="Delete" textFill="#182e58">
+      <Button fx:id="deleteButton" layoutX="316.0" layoutY="250.0" mnemonicParsing="false" onAction="#onClickDeleteButton" prefHeight="30.0" prefWidth="88.0" style="-fx-background-color: #ffffff;" text="Delete" textFill="#182e58">
          <graphic>
             <FontAwesomeIconView fill="#182e58" glyphName="TRASH" size="14" />
          </graphic>
@@ -45,7 +45,7 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
-      <Button fx:id="editButton" layoutX="14.0" layoutY="320.0" mnemonicParsing="false" onAction="#onClickEditButton" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Edit" textFill="#182e58">
+      <Button fx:id="editButton" layoutX="165.0" layoutY="251.0" mnemonicParsing="false" onAction="#onClickEditButton" prefHeight="30.0" prefWidth="76.0" style="-fx-background-color: #ffffff;" text="Edit" textFill="#182e58">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -53,25 +53,35 @@
             <FontAwesomeIconView fill="#182e58" glyphName="EDIT" size="14" />
          </graphic>
       </Button>
-      <Label fx:id="name11112" alignment="BASELINE_LEFT" layoutX="15.0" layoutY="71.0" prefHeight="25.0" prefWidth="49.0" text="Rating:" textFill="WHITE">
+      <Label fx:id="name11112" alignment="BASELINE_LEFT" layoutX="45.0" layoutY="73.0" prefHeight="25.0" prefWidth="49.0" text="Rating:" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="ratingLabel" alignment="BASELINE_LEFT" layoutX="69.0" layoutY="71.0" prefHeight="25.0" prefWidth="40.0" text="5" textFill="WHITE">
-         <font>
-            <Font name="Calibri Bold Italic" size="16.0" />
-         </font>
-      </Label>
-      <Label fx:id="titleBoardgameTag" alignment="BASELINE_LEFT" layoutX="15.0" layoutY="41.0" prefHeight="25.0" prefWidth="162.0" text="Referred to Boardgame:" textFill="WHITE">
+      <Label fx:id="ratingLabel" alignment="BASELINE_LEFT" layoutX="97.0" layoutY="73.0" prefHeight="25.0" prefWidth="24.0" text="5" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="tagLabel" alignment="BASELINE_LEFT" layoutX="181.0" layoutY="42.0" prefHeight="25.0" prefWidth="240.0" text="Monopoly" textFill="WHITE">
+      <Label fx:id="titleBoardgameTag" alignment="BASELINE_LEFT" layoutX="44.0" layoutY="44.0" prefHeight="25.0" prefWidth="162.0" text="Referred to Boardgame:" textFill="WHITE">
+         <font>
+            <Font name="Calibri Bold" size="16.0" />
+         </font>
+      </Label>
+      <Label fx:id="tagBoardgameLabel" alignment="BASELINE_LEFT" layoutX="211.0" layoutY="44.0" prefHeight="25.0" prefWidth="338.0" text="Monopoly" textFill="WHITE">
          <font>
             <Font name="Calibri Bold Italic" size="16.0" />
          </font>
       </Label>
+      <Separator layoutX="11.0" layoutY="13.0" orientation="VERTICAL" prefHeight="96.0" prefWidth="0.0" />
+      <Separator layoutX="45.0" layoutY="36.0" prefHeight="3.0" prefWidth="504.0" />
+      <Separator layoutX="45.0" layoutY="64.0" prefHeight="9.0" prefWidth="158.0" />
+      <Separator layoutX="45.0" layoutY="93.0" prefHeight="9.0" prefWidth="46.0" />
+      <FontAwesomeIconView fill="#182e58" glyphName="STAR" layoutX="22.0" layoutY="94.0" size="17" />
+      <FontAwesomeIconView fill="#182e58" glyphName="USER" layoutX="23.0" layoutY="33.0" size="18" />
+      <FontAwesomeIconView fill="#182e58" glyphName="PLAY" layoutX="24.0" layoutY="63.0" size="15" />
+      <Separator layoutX="290.0" layoutY="12.0" orientation="VERTICAL" prefHeight="25.0" prefWidth="0.0" />
+      <Separator layoutX="11.0" layoutY="8.0" prefHeight="9.0" prefWidth="541.0" />
+      <Separator layoutX="549.0" layoutY="11.0" orientation="VERTICAL" prefHeight="98.0" prefWidth="0.0" />
    </children>
 </AnchorPane>
