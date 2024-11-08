@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -20,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import org.springframework.stereotype.Component;
 
 import javax.tools.Tool;
@@ -46,11 +48,10 @@ public class ControllerObjectBoardgame implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        //Tooltip.install(bgameImage, tooltipBoardgameText);
         tooltipBoardgameText.hide();
     }
 
-    public void setData(BoardgameModelMongo boardgame, BoardgameListener listener) {
+    public void setData(BoardgameModelMongo boardgame, BoardgameListener listener, AnchorPane anchorPane) {
 
         this.boardgame = boardgame;
         this.boardgameListener = listener;
@@ -61,26 +62,42 @@ public class ControllerObjectBoardgame implements Initializable {
         Image image = getImageFromCache(imageBoardgameURL); // Tenta di recuperare l'immagine dalla cache
 
         if (image == null) { // Se l'immagine non è nella cache
-            try {
-                URI uri = new URI(imageBoardgameURL); // Create a URI object from the URL string
-                URL url = uri.toURL(); // Convert the URI to a URL object using toURL()
+            Task<Image> imageDownloadTask = new Task<>() {
+                @Override
+                protected Image call() throws Exception {
+                    URI uri = new URI(imageBoardgameURL); // Crea URI
+                    URL url = uri.toURL(); // Converti a URL
+                    URLConnection connection = url.openConnection();
+                    connection.setRequestProperty("User-Agent", "JavaFX Application");
 
-                URLConnection connection = url.openConnection();
-                connection.setRequestProperty("User-Agent", "JavaFX Application");
-                InputStream inputStream = connection.getInputStream();
-                byte[] imageBytes = readFullInputStream(inputStream);
+                    try (InputStream inputStream = connection.getInputStream()) {
+                        byte[] imageBytes = readFullInputStream(inputStream);
+                        Image downloadedImage = new Image(new ByteArrayInputStream(imageBytes));
+                        addImageToCache(imageBoardgameURL, downloadedImage); // Cache l'immagine scaricata
+                        return downloadedImage;
+                    }
+                }
+            };
+            imageDownloadTask.setOnSucceeded(e -> {
+                Image downloadedImage = imageDownloadTask.getValue();
+                ImageView bgameImage =((ImageView)anchorPane.lookup("#bgameImage"));
+                bgameImage.setImage(downloadedImage);
+                bgameImage.setAccessibleText(boardgame.getDescription());
+                ((Label)anchorPane.lookup("#lblBoardgameName")).setText(nameBoardgameResource);
+            });
+            imageDownloadTask.setOnFailed(e -> System.out.println("Eccezione Download image -> " + imageDownloadTask.getException().getMessage()) );
 
-                image = new Image(new ByteArrayInputStream(imageBytes)); // Crea l'oggetto Image
-                addImageToCache(imageBoardgameURL, image); // Aggiungi l'immagine alla cache
-
-            } catch (URISyntaxException | IOException e) { // Handle both URISyntaxException and IOException
-                e.printStackTrace();
-            }
+            Thread imageDownloadThread = new Thread(imageDownloadTask);
+            imageDownloadThread.setDaemon(true); // Rende il thread secondario
+            imageDownloadThread.start();
         }
-        bgameImage.setAccessibleText(boardgame.getDescription());
-        Image selectedImage = image;
-        lblBoardgameName.setText(nameBoardgameResource);
-        bgameImage.setImage(selectedImage);
+        else {
+            bgameImage.setImage(getImageFromCache(imageBoardgameURL));
+            lblBoardgameName.setText(nameBoardgameResource);
+            bgameImage.setAccessibleText(boardgame.getDescription());
+        }
+
+
     }
 
     private Image getImageFromCache(String imageURL) {
@@ -115,7 +132,7 @@ public class ControllerObjectBoardgame implements Initializable {
         tooltipBoardgameText.hide();
     }
 
-    public void onMoudeMovedOnImageBoardgame(MouseEvent event)
+    public void onMouseMovedOnImageBoardgame(MouseEvent event)
     {
         tooltipBoardgameText.setShowDelay(javafx.util.Duration.ZERO); // Mostra subito la tooltip
         tooltipBoardgameText.show(bgameImage, event.getScreenX() + 10, event.getScreenY() + 10); // Offset di 10px

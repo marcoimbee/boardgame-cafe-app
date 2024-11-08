@@ -8,6 +8,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -26,8 +27,10 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 @Component
 public class ControllerViewRegUserBoardgamesPage implements Initializable {
@@ -201,21 +204,32 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         List<BoardgameModelMongo> boardgames =
                 boardgameDBMongo.findRecentBoardgames(LIMIT, skipCounter);
 
+        /* francesco: DEBUG
+        System.out.println("----------------------- Giochi: " + boardgames.size());
+        List<BoardgameModelMongo> boardgameUnique = boardgames.stream().distinct().collect(Collectors.toList());
+
+        System.out.println("----------------------- Giochi Unique: " + boardgameUnique.size());
+        */
+
         prevNextButtonsCheck(boardgames);
         return boardgames;
     }
 
+    /* francesco: non utilizzata
     void setGridPaneColumnAndRow(){
 
         columnGridPane = 0;
         rowGridPane = 1;
     }
+    */
+
+
     @FXML
     void fillGridPane() {
 
         columnGridPane = 0;
-        rowGridPane = 0;
-        setGridPaneColumnAndRow();
+        rowGridPane = 1;
+        //setGridPaneColumnAndRow();
 
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
             // Logica per mostrare i dettagli del post usando StageManager
@@ -225,6 +239,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
         try {
+            System.out.println("Dimensone boradgamesList: " + boardgames.size());
             for (BoardgameModelMongo boardgame : boardgames) { // iterando lista di boardgames
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
@@ -233,7 +248,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectBoardgame.setData(boardgame, boardgameListener);
+                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
 
                 //choice number of column
                 if (columnGridPane == 4) {
@@ -258,6 +273,17 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             e.printStackTrace();
         }
     }
+/*
+    public static void updateGridPane()
+    {
+        for (Node:
+             ) {
+            
+        }boardgameGridPane.getChildren();
+    }
+*/
+
+
     public void onClickLogout(ActionEvent event) {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.logoutButton);

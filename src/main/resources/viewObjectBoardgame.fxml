@@ -8,11 +8,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane onMouseClicked="#mouseClick" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
+<AnchorPane onMouseClicked="#mouseClick" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
    <children>
       <VBox fx:id="vbox" alignment="CENTER" prefHeight="268.0" prefWidth="187.0">
          <children>
-            <ImageView fx:id="bgameImage" fitHeight="221.0" fitWidth="164.0" onMouseEntered="#onMouseEnteredOnImageBoardgame" onMouseExited="#onMouseExitedFromImageBoardgame" onMouseMoved="#onMoudeMovedOnImageBoardgame" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bgameImage" fitHeight="221.0" fitWidth="164.0" onMouseEntered="#onMouseEnteredOnImageBoardgame" onMouseExited="#onMouseExitedFromImageBoardgame" onMouseMoved="#onMouseMovedOnImageBoardgame" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../../../../image_sample.jpg" />
                </image></ImageView>
