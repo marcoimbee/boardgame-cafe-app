@@ -1,0 +1,11 @@
+.choice-box {
+    -fx-background-color:  #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+}
+
+.choice-box > .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
