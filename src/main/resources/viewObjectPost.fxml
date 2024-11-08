@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane onMouseClicked="#mouseClick" prefHeight="196.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
+<AnchorPane onMouseClicked="#mouseClick" prefHeight="196.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
    <children>
       <Label fx:id="name111" alignment="TOP_LEFT" layoutX="36.0" layoutY="12.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
          <font>
