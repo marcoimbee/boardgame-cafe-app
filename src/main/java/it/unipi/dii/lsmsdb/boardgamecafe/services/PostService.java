@@ -227,10 +227,10 @@ public class PostService {
         return suggestedPostsMongo;
     }
 
-    public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitresults, int skipCounter) {
+    public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
         // skipCounter needed for incremental post displaying
         List<PostModelNeo4j> postsByFollowedUsers = postDBNeo4j.
-                getPostsByFollowedUsers(currentUser, limitresults, skipCounter);
+                getPostsByFollowedUsers(currentUser, limitResults, skipCounter);
         List<PostModelMongo> retrievedPostsMongo = new ArrayList<>();
 
         for (PostModelNeo4j postByFollowedUser : postsByFollowedUsers)

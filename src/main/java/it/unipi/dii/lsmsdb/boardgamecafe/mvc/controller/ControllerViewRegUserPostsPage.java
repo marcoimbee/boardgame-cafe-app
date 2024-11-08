@@ -7,8 +7,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
-import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -88,8 +86,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     //Post Variables
     private List<PostModelMongo> posts = new ArrayList<>();
 
-    private PostListener postListener;
-
     //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
@@ -106,6 +102,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     };
     private static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
 
+    private final static int CACHED_POSTS_LIMIT = LIMIT * 10;
+
+    private static int currentPage;
+    private static List<Integer> visitedPages;
+    private static boolean visualizedLastPost;      // Keeps track of whether the user has reached the las reachable page or not;
+
     @Autowired
     @Lazy
     public ControllerViewRegUserPostsPage(StageManager stageManager) {
@@ -115,11 +117,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @Override
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
+        visitedPages = new ArrayList<>();
 
         this.boardgamePostsButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
-        resetPage();
 
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
@@ -132,7 +134,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             updateCurrentlyShowing(newValue);
             onSelectChoiceBoxOption();
         });
-
 
         onSelectChoiceBoxOption();        // Show posts by followed users by default
     }
@@ -152,9 +153,20 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onSelectChoiceBoxOption() {
-        posts.clear();                      // Remove old posts
-        posts.addAll(getData());            // Add new posts
+        resetPageVars();
+        List<PostModelMongo> retrievedPosts = getData();
+        posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
+        prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
+    }
+
+    private void resetPageVars() {
+        skipCounter = 0;
+        posts.clear();
+        currentPage = 0;
+        visitedPages.clear();
+        visitedPages.add(0);
+        visualizedLastPost = false;
     }
 
     public void onClickBoardgamesCollection(ActionEvent actionEvent) {
@@ -174,101 +186,72 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     @FXML
     void onClickNext() {
-        //clear variables
         postGridPane.getChildren().clear();
-        posts.clear();
 
-        //update the skipcounter
-        skipCounter += SKIP;
+        List<PostModelMongo> retrievedPosts = new ArrayList<>();
+        currentPage++;
+        if (!visitedPages.contains(currentPage)) {
+            // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
+            skipCounter += SKIP;
+            retrievedPosts = getData();        // Fetching new posts
+            posts.addAll(retrievedPosts);            // Adding fetched posts to the post list
+            visitedPages.add(currentPage);
+        } else {
+            skipCounter += SKIP;
+        }
 
-        //retrieve boardgames
-        posts.addAll(getData());
-        //put all boardgames in the Pane
+        prevNextButtonsCheck(retrievedPosts.size());
+
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
     @FXML
     void onClickPrevious() {
-        //clear variables
         postGridPane.getChildren().clear();
-        posts.clear();
 
-        //update the skipcounter
-        skipCounter -= SKIP;
+        if (currentPage > 0) {
+            currentPage--;
+            skipCounter -= SKIP;
+        }
 
-        //retrieve boardgames
-        posts.addAll(getData());
-        //put all boardgames in the Pane
+        prevNextButtonsCheck(0);
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
-    void resetPage() {
-        //clear variables
-        postGridPane.getChildren().clear();
-        posts.clear();
-        skipCounter = 0;
-        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
-    }
+    void prevNextButtonsCheck(int retrievedPostsSize) {
+        previousButton.setDisable(currentPage == 0);
 
-    private List<PostModelMongo> getData(){
-        List<PostModelMongo> posts = switch (currentlyShowing) {        // Decide what type of posts need to be fetched
-            case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("brownswan589", LIMIT, skipCounter);        // TODO: change this. implement new in post service
-            case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("brownswan589", LIMIT, skipCounter);
-            case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("brownswan589", LIMIT, skipCounter);
-        };
+        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
 
-        prevNextButtonsCheck(posts.size());
-
-        return posts;
-    }
-
-    void prevNextButtonsCheck(int fetchedPostsCount) {
-        if (fetchedPostsCount > 0) {                    // Fetched some posts
-            if (fetchedPostsCount < LIMIT) {            // Fetched posts number is less than those displayable on page
-                if (skipCounter == 0) {                 // We are in the first page - disable both buttons
-                    previousButton.setDisable(true);
-                    nextButton.setDisable(true);
-                } else {                                // We are not in the first page - enable going to previous page but disable next page
-                    previousButton.setDisable(false);
-                    nextButton.setDisable(true);
-                }
-            } else {                // Fetched a number of posts greater than those displayable on screen
-                if (skipCounter == 0){                  // We are in the first page - enable going to next page but disable going back
-                    previousButton.setDisable(true);
-                    nextButton.setDisable(false);
-                } else {                                // We are not in the first page - enable everything
-                    previousButton.setDisable(false);
-                    nextButton.setDisable(false);
-                }
-            }
+        if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
+            nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
         } else {
-            if(skipCounter == 0) {   // No results fetched and in first page - disable both buttons
-                previousButton.setDisable(true);
-                nextButton.setDisable(true);
-            } else {         // No results fetched and not in first page - disable next button but can to previous page
-                previousButton.setDisable(false);
-                nextButton.setDisable(true);
-            }
+            boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
+            nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
         }
     }
 
-    void setGridPaneColumnAndRow(){
-        columnGridPane = 0;
-        rowGridPane = 1;
+    private List<PostModelMongo> getData(){
+        System.out.println("[INFO] New data has been fetched");
+        return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
+            case POSTS_BY_FOLLOWED_USERS ->
+                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+            case POSTS_LIKED_BY_FOLLOWED_USERS ->
+                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+            case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
+                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+        };
     }
 
     @FXML
     void fillGridPane() {
         columnGridPane = 0;
-        rowGridPane = 0;
-        setGridPaneColumnAndRow();
+        rowGridPane = 1;
 
-        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+        // Logica per mostrare i dettagli del post usando StageManager
+        PostListener postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
             // Logica per mostrare i dettagli del post usando StageManager
             stageManager.switchScene(FxmlView.USERPROFILEPAGE);
             stageManager.closeStageMouseEvent(mouseEvent);
@@ -279,8 +262,19 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         try {
             if (posts.isEmpty()) {
                 stageManager.showInfoMessage("INFO", "No posts to show!");
-            } else {            //CREATE FOR EACH POST AN ITEM (ObjectPosts)
-                for (PostModelMongo post : posts) { // iterando lista di posts
+            } else {
+                // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
+                int startPost = skipCounter;
+                int endPost = skipCounter + LIMIT - 1;
+                if (endPost > posts.size()) {
+                    endPost = posts.size() - 1;
+                    visualizedLastPost = true;
+                }
+
+                System.out.println("[DEBUG] [startPost, endPost]: [" + startPost + ", " + endPost + "]");
+
+                for (int i = startPost; i <= endPost; i++) {
+                    PostModelMongo post = posts.get(i);
 
                     Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
 
