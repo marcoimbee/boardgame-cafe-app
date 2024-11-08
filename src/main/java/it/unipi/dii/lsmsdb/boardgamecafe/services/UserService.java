@@ -146,27 +146,6 @@ public class UserService {
             if (!reviewMongoOp.deleteReviewByUsername(user.getUsername())) {
                 throw new Exception("Failed to delete the user's reviews from their collection");
             }
-
-            // Deleting each review from the boardgame they refer to
-            /*
-            List<ReviewModelMongo> userReviews = user.getReviews();
-            System.out.println("[DEBUG] #reviews by " + user.getUsername() + ": " + userReviews.size());
-            if (!userReviews.isEmpty()) {           // If the list is empty, nothing to be done
-                for (ReviewModelMongo review : userReviews) {
-                    System.out.println("[DEBUG] review: " + review);
-                    Optional<BoardgameModelMongo> reviewedBoardgameOptional = boardgameMongoOp.findBoardgameByName(review.getBoardgameName());
-                    if (reviewedBoardgameOptional.isPresent()) {
-                        BoardgameModelMongo reviewedBoardgame = reviewedBoardgameOptional.get();
-                        System.out.println("[DEBUG] refers to this boardgame: " + reviewedBoardgame);
-                        reviewedBoardgame.deleteReview(review.getId());
-                        if (!boardgameMongoOp.updateBoardgameMongo(reviewedBoardgame.getId(), reviewedBoardgame)) {
-                            throw new Exception("Failed to update MongoDB boardgame");
-                        }
-                        System.out.println("[DEBUG] successfully deleted this review");
-                    }
-                }
-            }*/
-
             return true;
         } catch (Exception ex) {
             System.err.println("[ERROR] removeUserReviews@UserService.java raised an exception: " + ex.getMessage());
@@ -452,7 +431,6 @@ public class UserService {
                 if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
                     throw new Exception("Failed to restore user reviews");
                 }
-
 
                 // Restoring username - Neo4J node
                 if (!userNeo4jDB.restoreUserNodeAfterUnban(userId, username)) {

@@ -25,32 +25,32 @@
                   <Font name="System Bold Italic" size="28.0" />
                </font>
             </Text>
-            <Button fx:id="boardgamePostsButton" contentDisplay="CENTER" layoutX="20.0" layoutY="297.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="176.0" style="-fx-background-color: #ffffff;" text="Boardgame's Posts" textFill="#182e58">
+            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="85.0" layoutY="602.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#onClickBoardgamesCollection" prefHeight="39.0" prefWidth="209.0" style="-fx-background-color: #ffffff;" text="Boardgames Collection" textFill="#182e58">
+            <Button fx:id="yourProfileButton" contentDisplay="CENTER" layoutX="67.0" layoutY="184.0" mnemonicParsing="false" onAction="#onClickYourProfileButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="85.0" layoutY="602.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="79.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
+            <Button fx:id="postsFeedButton" contentDisplay="CENTER" layoutX="67.0" layoutY="296.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Posts Feed" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="profileButton" contentDisplay="CENTER" layoutX="20.0" layoutY="182.0" mnemonicParsing="false" onAction="#onClickYourProfile" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
+            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="67.0" layoutY="239.0" mnemonicParsing="false" onAction="#onClickBoardgamesCollection" prefHeight="39.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="accountDetailsButton" contentDisplay="CENTER" layoutX="20.0" layoutY="354.0" mnemonicParsing="false" onAction="#onClickAccountDetails" prefHeight="38.0" prefWidth="149.0" style="-fx-background-color: #ffffff;" text="Account Details" textFill="#182e58">
+            <Button fx:id="accountInfoButton" contentDisplay="CENTER" layoutX="67.0" layoutY="410.0" mnemonicParsing="false" onAction="#onClickAccountInfoButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Account Info" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="20.0" layoutY="414.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="128.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="67.0" layoutY="355.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>

@@ -39,7 +39,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button boardgamesCollectionButton;
     @FXML
-    private Button boardgamePostsButton;
+    private Button postsFeedButton;
     @FXML
     private Button nextButton;
     @FXML
@@ -55,7 +55,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button profileButton;
     @FXML
-    private Button accountDetailsButton;
+    private Button accountInfoButton;
     @FXML
     private ChoiceBox<String> whatPostsToShowChoiceBox;
     @FXML
@@ -119,7 +119,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         visitedPages = new ArrayList<>();
 
-        this.boardgamePostsButton.setDisable(true);
+        this.postsFeedButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
 
@@ -314,12 +314,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickYourProfile(ActionEvent event) {
+    public void onClickYourProfileButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickAccountDetails(ActionEvent event) {
+    public void onClickAccountInfoButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 
