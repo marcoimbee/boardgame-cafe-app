@@ -79,7 +79,6 @@ public class ControllerViewSignUp implements Initializable {
 
     }
 
-
     public void onClickFinish(ActionEvent event) {
         String firstName = this.textFieldFirstName.getText();
         String lastName = this.textFieldLastName.getText();
@@ -91,29 +90,36 @@ public class ControllerViewSignUp implements Initializable {
         String password = this.textFieldPassword.getText();
         String repeatedPassword = this.textFieldRepeatPassword.getText();
 
+        // Variabile per verificare la validità dei campi
+        boolean isValid = true;
+
         if (firstName.isEmpty()) {
             labelFirstName.setText("First Name is missing.");
+            isValid = false;
         } else {
             labelFirstName.setText("");
         }
         if (lastName.isEmpty()) {
             labelLastName.setText("Last Name is missing.");
+            isValid = false;
         } else {
             labelLastName.setText("");
         }
         if (country == null) {
             labelNationality.setText("Country is missing.");
+            isValid = false;
         } else {
             labelNationality.setText("");
         }
         if (gender == null) {
             labelGender.setText("Gender is missing.");
+            isValid = false;
         } else {
             labelGender.setText("");
         }
-        // Date of birth converter for service
         if (dateOfBirth == null) {
             labelDate.setText("Date of Birth is missing.");
+            isValid = false;
         } else {
             labelDate.setText("");
             int year = dateOfBirth.getYear();
@@ -122,42 +128,53 @@ public class ControllerViewSignUp implements Initializable {
         }
         if (email.isEmpty()) {
             labelEmail.setText("E-mail is missing.");
+            isValid = false;
         } else if (email.equals("user_banned")) {
             labelEmail.setText("E-mail already used by banned user.");
+            isValid = false;
         } else if (email.equals("already_used")) {
             labelEmail.setText("E-mail already used.");
+            isValid = false;
         } else if (!validateEmail(email)) {
             labelEmail.setText("E-mail not valid.");
-        } else
-        {
+            isValid = false;
+        } else {
             labelEmail.setText("");
         }
         if (username.isEmpty()) {
             labelUsername.setText("Username is missing.");
-        } else if (username.equals("already_used")){
+            isValid = false;
+        } else if (username.equals("already_used")) {
             labelUsername.setText("Username already exists");
+            isValid = false;
         } else {
             labelUsername.setText("");
         }
-        // Password management
         if (password.isEmpty()) {
             labelPassword.setText("Password is missing.");
             labelRepeatedPassword.setText("");
+            isValid = false;
         } else if (repeatedPassword.isEmpty()) {
             labelPassword.setText("");
             labelRepeatedPassword.setText("Repeat the password.");
+            isValid = false;
         } else if (!password.equals(repeatedPassword)) {
             labelPassword.setText("");
             labelRepeatedPassword.setText("The two passwords above do not match.");
+            isValid = false;
         } else {
             labelPassword.setText("");
             labelRepeatedPassword.setText("");
         }
 
-        //ToDo:
-//        stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered into Boardgame-Cafè App!");
-//        stageManager.closeStageButton(this.buttonFinish);
+        // Se tutti i campi sono validi, esegui l'operazione di successo
+        if (isValid) {
+            //ToDo: implementare serviceUser.insertUser()
+            stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered into Boardgame-Cafè App!");
+            stageManager.closeStageButton(this.buttonFinish);
+        }
     }
+
 
     public static boolean validateEmail(String email) {
         Matcher matcher = pattern.matcher(email);
