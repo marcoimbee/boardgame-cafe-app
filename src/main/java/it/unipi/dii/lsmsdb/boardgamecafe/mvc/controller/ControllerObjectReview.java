@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,6 +36,11 @@ public class ControllerObjectReview {
     private ReviewService reviewService; // Iniezione del servizio
 
     private StageManager stageManager;
+    @Autowired
+    @Lazy
+    public ControllerObjectReview(StageManager stageManager) {
+        this.stageManager = stageManager;
+    }
 
     public ControllerObjectReview() {
     }
@@ -42,37 +48,32 @@ public class ControllerObjectReview {
     public void setData(ReviewModelMongo review) {
 
         this.review = review;
-
-        this.editButton.setDisable(true);
-        this.deleteButton.setDisable(true);
-
+        this.editButton.setDisable(false);
+        this.deleteButton.setDisable(false);
         String creationDate = review.getDateOfReview().toString();
 
-        authorLabel.setText(review.getUsername());
-        dateOfReviewLabel.setText(creationDate);
-        tagBoardgameLabel.setText(review.getBoardgameName());
-        ratingLabel.setText(String.valueOf(review.getRating()));
-        bodyTextLabel.setText(review.getBody());
+        this.authorLabel.setText(review.getUsername());
+        this.dateOfReviewLabel.setText(creationDate);
+        this.tagBoardgameLabel.setText(review.getBoardgameName());
+        this.ratingLabel.setText(String.valueOf(review.getRating()));
+        this.bodyTextLabel.setText(review.getBody());
     }
-
 
     @FXML
     public void onClickEditButton(ActionEvent event) {
         // Implementazione per rimuovere il post
-        String title = "ToDo Message";
+        String title = "Work in Progress";
         String message = "" +
                 "A breve verrai reindirizzato alla pagina in cui puoi modificare la review.\n";
-
         stageManager.showInfoMessage(title, message);
     }
 
     @FXML
     public void onClickDeleteButton(ActionEvent event) {
         // Implementazione per commentare il post
-        String title = "ToDo Message";
+        String title = "Work in Progress";
         String message = "" +
-                "A breve questo messaggio si aggiornerà dicendoti 'Review Eliminata Correttamente'.\n";
-
+                "A breve avrai la possibilità di eliminare la Review.\n";
         stageManager.showInfoMessage(title, message);
     }
 
