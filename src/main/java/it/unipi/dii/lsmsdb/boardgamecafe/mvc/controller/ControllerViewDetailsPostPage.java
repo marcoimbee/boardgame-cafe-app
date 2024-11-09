@@ -296,7 +296,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectComment.setData(comment);
+                controllerObjectComment.setData(comment, this.post);
 
                 //choice number of column
                 if (columnGridPane == 1) {
@@ -315,7 +315,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 postGridPane.setPrefHeight(400);
                 postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                 //GridPane.setMargin(anchorPane, new Insets(25));
-                GridPane.setMargin(anchorPane, new Insets(10,5,10,90));
+                GridPane.setMargin(anchorPane, new Insets(0,5,10,90));
 
             }
         } catch (Exception e) {

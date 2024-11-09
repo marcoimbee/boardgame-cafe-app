@@ -71,7 +71,6 @@ public class ControllerObjectPost {
             commentCache.put(post.getId(), commentsCounter);
         }
 
-        System.out.println("\nObjectPostId: " + post.getId());
         this.authorLabel.setText(post.getUsername());
         this.timestampLabel.setText(creationDate);
         this.commentsLabel.setText(commentsCounter);
