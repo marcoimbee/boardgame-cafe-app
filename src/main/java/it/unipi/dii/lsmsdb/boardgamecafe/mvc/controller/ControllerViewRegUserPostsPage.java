@@ -122,6 +122,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.postsFeedButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
+        resetPageVars();
 
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
@@ -223,7 +224,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -237,11 +238,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.findPostsByFollowedUsers("g.sferr", LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers("g.sferr", LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers("g.sferr", LIMIT, skipCounter);
         };
     }
 
