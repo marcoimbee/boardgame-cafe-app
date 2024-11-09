@@ -1,8 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -74,6 +78,20 @@ public class CommentDBMongo {
             e.printStackTrace();
         }
         return commentList;
+    }
+
+    public List<CommentModelMongo> findRecentCommentsByPostId(String postId, int limit, int skip) {
+        List<CommentModelMongo> comments = null;
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("post").is(postId));
+            query.with(Sort.by(Sort.Direction.DESC, "timestamp"));
+            query.skip(skip).limit(limit);
+            comments = mongoOperations.find(query, CommentModelMongo.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return comments;
     }
 
     public List<CommentModelMongo> findByUsername(String username) {
