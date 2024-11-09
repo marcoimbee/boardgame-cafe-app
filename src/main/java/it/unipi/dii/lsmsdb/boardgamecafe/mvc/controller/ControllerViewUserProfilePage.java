@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
@@ -11,6 +12,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,6 +31,7 @@ import javafx.scene.layout.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -104,6 +107,8 @@ public class ControllerViewUserProfilePage implements Initializable{
     private ControllerObjectPost controllerObjectPost;
     @Autowired
     private ControllerObjectReview controllerObjectReview;
+    @Autowired
+    private ModelBean modelBean;
 
     //Stage Manager
     private final StageManager stageManager;
@@ -111,11 +116,14 @@ public class ControllerViewUserProfilePage implements Initializable{
     //Posts/Reviews Lists
     private List<PostModelMongo> postsUser = new ArrayList<>();
     private List<ReviewModelMongo> reviewsUser = new ArrayList<>();
+    private UserModelMongo regUser;
 
     //Listeners
     private PostListener postListener;
 
     //Useful Variables
+    private int totalFollowerUsers;
+    private int totalFollowingUsers;
     private int totalPosts;
     private int columnGridPane = 0;
     private int rowGridPane = 0;
@@ -139,42 +147,33 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
         this.selectedContentType = ContentType.POSTS;
+        this.resetPage();
 
-        Optional<GenericUserModelMongo> user = userMongoOp.findByUsername("brownswan589");
-        if (user.isPresent()){
-            UserModelMongo regUser = (UserModelMongo) user.get();
-            List<PostModelMongo> fullPosts = postDBMongo.findByUsername(regUser.getUsername());
-            int totalFollowerUsers = userDBNeo.getCountFollowers(regUser.getUsername());
-            int totalFollowingUsers = userDBNeo.getCountFollowing(regUser.getUsername());
-            totalPosts = fullPosts.size();
+        regUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
-            postsUser.addAll(getPosts(regUser.getUsername()));
-            if (this.postsUser.isEmpty()) {
-                stageManager.showInfoMessage("INFO", "Database is empty!");
-                try {
-                    Platform.exit();
-                    System.exit(0);
-                } catch (Exception e) {
-                    logger.error("Exception occurred: " + e.getLocalizedMessage());
-                }
-            }
-            this.firstNameLabel.setText(regUser.getName());
-            this.lastNameLabel.setText(regUser.getSurname());
-            this.nationalityLabel.setText(regUser.getNationality());
-            this.usernameLabel.setText(regUser.getUsername());
-            this.followerLabel.setText(String.valueOf(totalFollowerUsers));
-            this.followingLabel.setText(String.valueOf(totalFollowingUsers));
-            this.counterPostsLabel.setText(String.valueOf(totalPosts));
-            this.counterReviewsLabel.setText(String.valueOf(regUser.getReviews().size()));
-            Image image = new Image(Objects.requireNonNull(getClass().
-                                    getResource("/user.png")).toExternalForm());
-            this.profileImage.setImage(image);
+        List<PostModelMongo> fullPosts = postDBMongo.findByUsername(regUser.getUsername());
+        totalPosts = fullPosts.size();
+        totalFollowerUsers = userDBNeo.getCountFollowers(regUser.getUsername());
+        totalFollowingUsers = userDBNeo.getCountFollowing(regUser.getUsername());
 
-            fillGridPane(postsUser);
 
-        }else{
-            System.out.println("\n Error with user info loading: User Not Found");
+        postsUser.addAll(getPosts(regUser.getUsername()));
+        if (this.postsUser.isEmpty()) {
+            stageManager.showInfoMessage("Info Posts", "No Posts Yet");
         }
+        this.firstNameLabel.setText(regUser.getName());
+        this.lastNameLabel.setText(regUser.getSurname());
+        this.nationalityLabel.setText(regUser.getNationality());
+        this.usernameLabel.setText(regUser.getUsername());
+        this.followerLabel.setText(String.valueOf(totalFollowerUsers));
+        this.followingLabel.setText(String.valueOf(totalFollowingUsers));
+        this.counterPostsLabel.setText(String.valueOf(totalPosts));
+        this.counterReviewsLabel.setText(String.valueOf(regUser.getReviews().size()));
+        Image image = new Image(Objects.requireNonNull(getClass().
+                                getResource("/user.png")).toExternalForm());
+        this.profileImage.setImage(image);
+
+        fillGridPane(postsUser);
     }
 
     public void onClickBoardgamesButton() {
@@ -225,9 +224,15 @@ public class ControllerViewUserProfilePage implements Initializable{
         resetPage();
         if (selectedContentType.equals(ContentType.POSTS)) {
             List<?> items = getPosts(this.usernameLabel.getText());
+            if (items.isEmpty()) {
+                stageManager.showInfoMessage("Info Posts", "No Posts Yet");
+            }
             fillGridPane(items);
         } else if (selectedContentType.equals(ContentType.REVIEWS)){
             List<?> items = getReviews(this.usernameLabel.getText());
+            if (items.isEmpty()) {
+                stageManager.showInfoMessage("Info Reviews", "No Reviews Yet");
+            }
             fillGridPane(items);
         }
     }
@@ -378,6 +383,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     public void onClickLogout(ActionEvent event) {
+        modelBean.putBean(Constants.CURRENT_USER, null);
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
