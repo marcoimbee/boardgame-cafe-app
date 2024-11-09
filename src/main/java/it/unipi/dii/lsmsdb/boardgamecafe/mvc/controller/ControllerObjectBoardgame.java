@@ -141,4 +141,8 @@ public class ControllerObjectBoardgame implements Initializable {
         tooltipBoardgameText.show(bgameImage, event.getScreenX() + 10, event.getScreenY() + 10); // Offset di 10px
     }
 
+    @FXML
+    void mouseClick(MouseEvent mouseEvent) {
+        boardgameClickListener.onClickBoardgameListener(mouseEvent, boardgame);
+    }
 }
