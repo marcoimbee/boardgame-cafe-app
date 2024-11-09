@@ -50,7 +50,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button profileButton;
     @FXML
-    private Button accountDetailsButton;
+    private Button accountInfoButton;
     @FXML
     private Button searchButton;
     @FXML
@@ -294,7 +294,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickAccountDetails(ActionEvent event) {
+    public void onClickAccountInfoButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 
