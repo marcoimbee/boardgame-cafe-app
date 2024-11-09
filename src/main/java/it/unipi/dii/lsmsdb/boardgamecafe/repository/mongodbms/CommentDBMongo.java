@@ -85,7 +85,7 @@ public class CommentDBMongo {
         try {
             Query query = new Query();
             query.addCriteria(Criteria.where("post").is(postId));
-            query.with(Sort.by(Sort.Direction.DESC, "timestamp"));
+            query.with(Sort.by(Sort.Order.desc("timestamp"), Sort.Order.asc("_id")));
             query.skip(skip).limit(limit);
             comments = mongoOperations.find(query, CommentModelMongo.class);
         } catch (Exception e) {

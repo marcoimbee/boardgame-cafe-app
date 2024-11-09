@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepoMongo extends MongoRepository<CommentModelMongo, String> {
-    @Query("{'post': ?0}") //To_Check
+//    @Query("{'post': ?0}") //To_Check
     List<CommentModelMongo> findByPost(String postId);
     List<CommentModelMongo> findByUsername(String username);
     Optional<CommentModelMongo> findByUsernameAndPostAndTimestamp(String username, String post, Date timestamp);
