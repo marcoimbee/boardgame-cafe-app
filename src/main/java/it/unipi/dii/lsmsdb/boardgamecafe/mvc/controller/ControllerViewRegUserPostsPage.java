@@ -259,7 +259,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         // Logica per mostrare i dettagli del post usando StageManager
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
             modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.switchScene(FxmlView.DETAILS_POST);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
         };
 
         postGridPane.getChildren().clear();         // Removing old posts

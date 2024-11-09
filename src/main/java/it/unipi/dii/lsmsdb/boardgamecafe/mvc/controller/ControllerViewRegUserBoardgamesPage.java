@@ -238,7 +238,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
             // Logica per mostrare i dettagli del post usando StageManager
             modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame);
-            stageManager.switchScene(FxmlView.BOARDGAME_DETAILS);
+            stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
         //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
