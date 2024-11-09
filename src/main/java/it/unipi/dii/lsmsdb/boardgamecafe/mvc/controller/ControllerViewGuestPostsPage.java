@@ -1,12 +1,14 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -61,6 +63,8 @@ public class ControllerViewGuestPostsPage implements Initializable {
     private PostDBMongo postDBMongo;
     @Autowired
     private PostDBNeo4j PostDBNeo4j;
+    @Autowired
+    private ModelBean modelBean;
     @Autowired
     private ControllerObjectPost controllerObjectPost;
     private final StageManager stageManager;
@@ -230,12 +234,14 @@ public class ControllerViewGuestPostsPage implements Initializable {
         setGridPaneColumnAndRow();
 
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            String title = "Content Access Permissions";
-            String message = "" +
-                    "\t\t\tCurious To View The Content Of This Post?\n" +
-                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
 
-            stageManager.showInfoMessage(title, message);
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
+//            String title = "Content Access Permissions";
+//            String message = "" +
+//                    "\t\t\tCurious To View The Content Of This Post?\n" +
+//                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
+//            stageManager.showInfoMessage(title, message);
         };
 
         //CREATE FOR EACH POST AN ITEM (ObjectPosts)
