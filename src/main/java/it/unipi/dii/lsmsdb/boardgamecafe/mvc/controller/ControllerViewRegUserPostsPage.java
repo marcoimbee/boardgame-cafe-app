@@ -1,12 +1,14 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -74,7 +76,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private PostService postService;
     @Autowired
     private ControllerObjectPost controllerObjectPost;
+    @Autowired
+    private ModelBean modelBean;
     private final StageManager stageManager;
+    PostListener postListener;
 
     // Choice box variables
     ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
@@ -252,10 +257,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         rowGridPane = 1;
 
         // Logica per mostrare i dettagli del post usando StageManager
-        PostListener postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            // Logica per mostrare i dettagli del post usando StageManager
-            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
-            stageManager.closeStageMouseEvent(mouseEvent);
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.switchScene(FxmlView.DETAILS_POST);
         };
 
         postGridPane.getChildren().clear();         // Removing old posts
@@ -283,6 +287,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     anchorPane.getChildren().add(loadViewItem);
 
                     controllerObjectPost.setData(post, postListener);
+
+                    //
+                    anchorPane.setOnMouseClicked(event -> {
+                        this.postListener.onClickPostListener(event, post);});
 
                     //choice number of column
                     if (columnGridPane == 1) {
