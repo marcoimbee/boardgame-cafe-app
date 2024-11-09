@@ -5,10 +5,14 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -30,11 +34,9 @@ import org.springframework.expression.spel.ast.OpAnd;
 import org.springframework.stereotype.Component;
 
 import javax.swing.text.html.Option;
+import javax.xml.stream.events.Comment;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @Component
 public class ControllerViewDetailsPostPage implements Initializable {
@@ -86,6 +88,10 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private ControllerObjectComment controllerObjectComment;
     @Autowired
     private ModelBean modelBean;
+    @Autowired
+    private UserDBNeo4j userNeo4jDB;
+    @Autowired
+    private CommentService serviceComment;
 
     private final StageManager stageManager;
 
@@ -116,10 +122,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.nextButton.setDisable(true);
         resetPage();
 
-//        Optional<PostModelMongo> postFromMongo = postDBMongo.findById("65a930a56448dd90156b31ff");
-//        postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
         post = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
-        System.out.println("\nObjectPostIdSelected: " + post.getId());
         this.usernameLabel.setText(post.getUsername());
         this.tagBoardgameLabel.setText(post.getTag());
         this.timestampLabel.setText(post.getTimestamp().toString());
@@ -128,7 +131,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.counterLikesLabel.setText(String.valueOf(post.getLikeCount()));
         this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));
 
-        comments.addAll(getData(post.getId()));
+        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
+        comments.addAll(post.getComments());
         fillGridPane();
     }
 
@@ -139,11 +143,43 @@ public class ControllerViewDetailsPostPage implements Initializable {
     }
 
     public void onClickAddCommentButton(ActionEvent event) {
+
+        //ToDo: Aggiungere switchScene in cui verrè fatto quello che qui è commentato
+//        String postId = this.post.getId();
+//        String username_test = "g.sferr";
+//        String body_test = " commento verifica Refresh Grafico method";
+//        Date timestamp = new Date();
+//        CommentModelMongo commentTest = new CommentModelMongo(
+//                postId,
+//                username_test,
+//                body_test, timestamp);
+//
+//        //Operazione che genera correttamente l'id del commento che spunterà poi nell'array dei commenti del post
+//        CommentModelMongo commentIntoCommentCollection = commentDBMongo.addComment(commentTest);
+//
+//        Optional<UserModelNeo4j> userFromNeo = userNeo4jDB.
+//                findByUsername(commentIntoCommentCollection.getUsername());
+//        if (userFromNeo.isPresent()){
+//            UserModelNeo4j userNeo4j = userFromNeo.get();
+//
+//            boolean serviceTest = serviceComment.
+//                    insertComment(commentIntoCommentCollection, this.post, userNeo4j);
+//
+//            if (serviceTest) {
+//                stageManager.showInfoMessage("Info Comments", "Comment Successfully Added into Post");
+//            } else {
+//                stageManager.showInfoMessage("Info Comments", "Comment NOT Successfully Added into Post");
+//            }
+//        }
     }
 
     public void onClickRefreshButton(ActionEvent event) {
         resetPage();
-        getData(this.post.getId());
+        Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
+        postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
+        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
+        comments.addAll(post.getComments());
+        fillGridPane();
     }
 
     public void onClickExitButton(ActionEvent event) {
@@ -231,8 +267,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private List<CommentModelMongo> getData(String postId){
 
-        List<CommentModelMongo> comments =
-            commentDBMongo.findRecentCommentsByPostId(postId, LIMIT, SKIP);
+        List<CommentModelMongo> comments = commentDBMongo.findByPost(postId);
         if (comments.isEmpty()) {
             stageManager.showInfoMessage("Info Comments", "No Comments Yet");
         }
