@@ -47,9 +47,6 @@ public class ControllerObjectPost {
     private PostService postService; // Iniezione del servizio
     @Autowired
     private PostDBNeo4j postDBNeo4j;
-
-
-
     public ControllerObjectPost() {
     }
 
@@ -74,6 +71,7 @@ public class ControllerObjectPost {
             commentCache.put(post.getId(), commentsCounter);
         }
 
+        System.out.println("\nObjectPostId: " + post.getId());
         this.authorLabel.setText(post.getUsername());
         this.timestampLabel.setText(creationDate);
         this.commentsLabel.setText(commentsCounter);
