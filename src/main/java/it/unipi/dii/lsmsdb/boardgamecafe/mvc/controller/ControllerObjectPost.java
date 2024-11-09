@@ -121,8 +121,4 @@ public class ControllerObjectPost {
         // Implementazione per commentare il post
     }
 
-    @FXML
-    void mouseClick(MouseEvent mouseEvent) {
-        postListener.onClickPostListener(mouseEvent, post);
-    }
 }
