@@ -244,6 +244,9 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
 
                 controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
 
+                anchorPane.setOnMouseClicked(event ->{
+                    this.boardgameListener.onClickBoardgameListener(event,boardgame);} );
+
                 //choice number of column
                 if (columnGridPane == 4) {
                     columnGridPane = 0;
