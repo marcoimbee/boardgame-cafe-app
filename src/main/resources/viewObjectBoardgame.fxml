@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
+<AnchorPane fx:id="anchorPane" onMouseClicked="#mouseClick" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
    <children>
       <VBox fx:id="vbox" alignment="CENTER" prefHeight="268.0" prefWidth="187.0">
          <children>
