@@ -1,10 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -12,17 +10,13 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -30,11 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.expression.spel.ast.OpAnd;
 import org.springframework.stereotype.Component;
 
-import javax.swing.text.html.Option;
-import javax.xml.stream.events.Comment;
 import java.net.URL;
 import java.util.*;
 
@@ -77,7 +68,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     //********** Useful Variables **********
     @FXML
-    private GridPane postGridPane;
+    private GridPane commentGridPane;
     @FXML
     private ScrollPane scrollSet;
     @Autowired
@@ -142,44 +133,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
     public void onClickEditButton(ActionEvent event) {
     }
 
-    public void onClickAddCommentButton(ActionEvent event) {
-
-        //ToDo: Aggiungere switchScene in cui verrè fatto quello che qui è commentato
-//        String postId = this.post.getId();
-//        String username_test = "g.sferr";
-//        String body_test = " commento verifica Refresh Grafico method";
-//        Date timestamp = new Date();
-//        CommentModelMongo commentTest = new CommentModelMongo(
-//                postId,
-//                username_test,
-//                body_test, timestamp);
-//
-//        //Operazione che genera correttamente l'id del commento che spunterà poi nell'array dei commenti del post
-//        CommentModelMongo commentIntoCommentCollection = commentDBMongo.addComment(commentTest);
-//
-//        Optional<UserModelNeo4j> userFromNeo = userNeo4jDB.
-//                findByUsername(commentIntoCommentCollection.getUsername());
-//        if (userFromNeo.isPresent()){
-//            UserModelNeo4j userNeo4j = userFromNeo.get();
-//
-//            boolean serviceTest = serviceComment.
-//                    insertComment(commentIntoCommentCollection, this.post, userNeo4j);
-//
-//            if (serviceTest) {
-//                stageManager.showInfoMessage("Info Comments", "Comment Successfully Added into Post");
-//            } else {
-//                stageManager.showInfoMessage("Info Comments", "Comment NOT Successfully Added into Post");
-//            }
-//        }
-    }
-
     public void onClickRefreshButton(ActionEvent event) {
-        resetPage();
-        Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
-        postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
-        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
-        comments.addAll(post.getComments());
-        fillGridPane();
+        cleanFetchAndFill();
     }
 
     public void onClickExitButton(ActionEvent event) {
@@ -191,7 +146,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @FXML
     void onClickNext() {
         //clear variables
-        postGridPane.getChildren().clear();
+        commentGridPane.getChildren().clear();
         comments.clear();
 
         //update the skipcounter
@@ -207,7 +162,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @FXML
     void onClickPrevious() {
         //clear variables
-        postGridPane.getChildren().clear();
+        commentGridPane.getChildren().clear();
         comments.clear();
 
         //update the skipcounter
@@ -222,7 +177,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     void resetPage() {
         //clear variables
-        postGridPane.getChildren().clear();
+        commentGridPane.getChildren().clear();
         comments.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
@@ -280,14 +235,102 @@ public class ControllerViewDetailsPostPage implements Initializable {
         columnGridPane = 0;
         rowGridPane = 1;
     }
+
+    public void onClickAddCommentButton(ActionEvent event) {
+        try {
+            this.addCommentButton.setDisable(true);
+            // Carica l'FXML del commento modificabile
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATECOMMENT.getFxmlFile());
+
+            // Ottieni i controlli di input definiti nel FXML
+            TextField commentTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel"); // Assumi che bodyTextLabel sia modificabile nel FXML
+            Button submitCommentButton = (Button) loadViewItem.lookup("#submitButton");  // Assumi che submitButton esista solo in FXML modificabile
+            Button cancelCommentButton = (Button) loadViewItem.lookup("#cancelButton");
+            commentTextArea.setPromptText("Write Your Comment Here...");
+
+            //AddButton Behaviour
+            submitCommentButton.setOnAction(e ->
+            {
+                String commentText = commentTextArea.getText();
+                if (commentText.isEmpty()) {
+                    stageManager.showInfoMessage("Error", "Comment Cannot Be Empty.");
+                    return;
+                }
+                // Crea un nuovo CommentModelMongo e salva il commento nel database
+                CommentModelMongo newComment = new CommentModelMongo(
+                        this.post.getId(),  //Id del post in cui sto commentatndo
+                        post.getUsername(),  // username del "creatore! (Deve essere CurrentUser)
+                        commentText,    //Contenuto testuale del commento
+                        new Date()  //Timestamp
+                );
+                //Ottenimento user da neo4j per fare l'add locale nella insertComment
+                Optional<UserModelNeo4j> userFromNeo = userNeo4jDB.
+                                                       findByUsername(newComment.getUsername());
+                if (userFromNeo.isPresent()) {
+                    UserModelNeo4j userNeo4j = userFromNeo.get();
+
+                    boolean savedComment = serviceComment.
+                            insertComment(newComment, this.post, userNeo4j);
+
+                    if (savedComment) {
+                        stageManager.showInfoMessage("Success", "Comment Added Successfully.");
+                        cleanFetchAndFill(); //Per mostrare subito tutti commenti compreso quello appena aggiunto
+                        this.addCommentButton.setDisable(false);
+                    } else {
+                        stageManager.showInfoMessage("Error", "Failed to add comment.");
+                    }
+                } else {
+                    stageManager.showInfoMessage("Error", "No User presents in Neo4j.");
+                }
+            });
+
+            //CancelButton Behaviour
+            cancelCommentButton.setOnAction(e -> {
+                this.addCommentButton.setDisable(false);
+                cleanFetchAndFill();
+            });
+
+            AnchorPane addCommentBox = new AnchorPane();
+            addCommentBox.getChildren().add(loadViewItem);
+
+            if (comments.isEmpty()){
+                resetPage();
+                commentGridPane.add(addCommentBox, 0, rowGridPane);
+            } else {
+                resetPage();
+                commentGridPane.add(addCommentBox, 0, 0);
+            }
+            GridPane.setMargin(addCommentBox, new Insets(8, 5, 10, 90));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadViewMessagInfo(){
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGCOMMENTS.getFxmlFile());
+        AnchorPane noContentsYet = new AnchorPane();
+        noContentsYet.getChildren().add(loadViewItem);
+        if (comments.isEmpty()){
+            resetPage();
+            commentGridPane.add(noContentsYet, 0, rowGridPane);
+        }
+        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 265));
+    }
+
     @FXML
     void fillGridPane() {
 
-        columnGridPane = 0;
-        rowGridPane = 0;
+        //per mettere un solo elemento correttamente nel gridpane
+        if (comments.size() == 1) {
+            columnGridPane = 0;
+            rowGridPane = 0;
+        } else if (comments.isEmpty()) {
+            loadViewMessagInfo();
+        }
         setGridPaneColumnAndRow();
 
-        //CREATE FOR EACH POST AN ITEM (ObjectPosts)
+
         try {
             for (CommentModelMongo comment : comments) { // iterando lista di posts
 
@@ -304,18 +347,18 @@ public class ControllerViewDetailsPostPage implements Initializable {
                     rowGridPane++;
                 }
 
-                postGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
+                commentGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
                 //DISPLAY SETTINGS
                 //set grid width
-                postGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                postGridPane.setPrefWidth(500);
-                postGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+                commentGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+                commentGridPane.setPrefWidth(500);
+                commentGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
                 //set grid height
-                postGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                postGridPane.setPrefHeight(400);
-                postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+                commentGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+                commentGridPane.setPrefHeight(400);
+                commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                 //GridPane.setMargin(anchorPane, new Insets(25));
-                GridPane.setMargin(anchorPane, new Insets(0,5,10,90));
+                GridPane.setMargin(anchorPane, new Insets(4,5,10,90));
 
             }
         } catch (Exception e) {
@@ -323,5 +366,13 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
+    private void cleanFetchAndFill(){
+        resetPage();
+        Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
+        postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
+        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
+        comments.addAll(post.getComments());
+        fillGridPane();
+    }
 
 }
