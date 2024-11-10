@@ -23,6 +23,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -287,5 +288,14 @@ public class BoardgameDBMongo {
 
         // Se almeno un documento è stato modificato, l'update è riuscito
         return result.getModifiedCount() > 0;
+    }
+
+    public List<String> getBoardgameTags() {
+        try {
+            return boardgameRepoMongoOp.findAllBoardgameNames();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

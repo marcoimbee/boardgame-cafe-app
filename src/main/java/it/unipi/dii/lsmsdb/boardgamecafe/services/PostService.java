@@ -242,4 +242,16 @@ public class PostService {
 
         return retrievedPostsMongo;
     }
+
+    public List<PostModelMongo> findPostsByTag(String tag, int limitResults, int skipCounter) {
+        // skipCounter needed for incremental post displaying
+        List<PostModelMongo> postsReferringToTag = postDBMongo.findByTag(tag, limitResults, skipCounter);
+        List<PostModelMongo> retrievedPostsMongo = new ArrayList<>();
+        for (PostModelMongo postReferringToTag : postsReferringToTag) {
+            Optional<PostModelMongo> postMongo = postDBMongo.findById(postReferringToTag.getId());
+            postMongo.ifPresent(retrievedPostsMongo::add);
+        }
+
+        return retrievedPostsMongo;
+    }
 }

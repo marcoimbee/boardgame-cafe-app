@@ -5,10 +5,13 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,14 +19,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +42,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 
 @Component
 public class ControllerViewRegUserPostsPage implements Initializable {
+    @FXML
+    private ListView searchResultsList;
     @FXML
     private Button boardgamesCollectionButton;
     @FXML
@@ -62,6 +73,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private Button refreshButton;
     @FXML
     private ChoiceBox<String> whatPostsToShowChoiceBox;
+
     @FXML
     private Button testButton;
     @FXML
@@ -77,6 +89,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @Autowired
     private PostService postService;
     @Autowired
+    private BoardgameDBMongo boardgameDBMongo;
+    @Autowired
     private ControllerObjectPost controllerObjectPost;
     @Autowired
     private ModelBean modelBean;
@@ -87,7 +101,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
             "Posts by followed users",
             "Posts liked by followed users",
-            "Posts commented by followed users"
+            "Posts commented by followed users",
+            "All posts"
     );
 
     //Post Variables
@@ -105,15 +120,19 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private enum PostsToFetch {
         POSTS_BY_FOLLOWED_USERS,
         POSTS_LIKED_BY_FOLLOWED_USERS,
-        POSTS_COMMENTED_BY_FOLLOWED_USERS
+        POSTS_COMMENTED_BY_FOLLOWED_USERS,
+        SEARCH_RESULTS,
+        ALL_POSTS
     };
     private static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
-
-    private final static int CACHED_POSTS_LIMIT = LIMIT * 10;
 
     private static int currentPage;
     private static List<Integer> visitedPages;
     private static boolean visualizedLastPost;      // Keeps track of whether the user has reached the las reachable page or not;
+
+    // Search functionalities
+    private List<String> boardgameTags;
+    private static String selectedSearchTag;
 
     @Autowired
     @Lazy
@@ -144,6 +163,17 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         });
 
         onSelectChoiceBoxOption();        // Show posts by followed users by default
+
+        // Prefetch boardgame tags for the search function and init search functionalities variables
+        searchResultsList.setVisible(false);
+
+        long startTime = System.currentTimeMillis();
+        boardgameTags = boardgameDBMongo.getBoardgameTags();    // TODO: maybe move into model bean? (fetch once at start and the it's always there)
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
+        System.out.println("[DEBUG] " + boardgameTags.getFirst());
+        selectedSearchTag = null;
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
@@ -158,11 +188,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (choiceBoxValue.equals(whatPostsToShowList.get(2))) {
             currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
         }
+
+        if (choiceBoxValue.equals(whatPostsToShowList.get(3))) {
+            currentlyShowing = PostsToFetch.ALL_POSTS;
+        }
     }
 
     public void onSelectChoiceBoxOption() {
         resetPageVars();
-        List<PostModelMongo> retrievedPosts = getData();
+        selectedSearchTag = null;
+        List<PostModelMongo> retrievedPosts = getData(null);
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
@@ -183,13 +218,18 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickSearch() {
-        String text = this.textFieldSearch.getText();
-
-        stageManager.showInfoMessage("Info Text", text);
+        currentlyShowing = PostsToFetch.SEARCH_RESULTS;
+        resetPageVars();
+        List<PostModelMongo> retrievedPosts = getData(selectedSearchTag);
+        posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
+        fillGridPane();
+        prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
     }
 
     public void onClickClearField() {
-        this.textFieldSearch.clear();
+        this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown posts
+        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+        onSelectChoiceBoxOption();
     }
 
     @FXML
@@ -201,7 +241,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (!visitedPages.contains(currentPage)) {
             // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedPosts = getData();        // Fetching new posts
+            retrievedPosts = getData(selectedSearchTag);        // Fetching new posts
             posts.addAll(retrievedPosts);            // Adding fetched posts to the post list
             visitedPages.add(currentPage);
         } else {
@@ -231,7 +271,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -241,15 +281,19 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
     }
 
-    private List<PostModelMongo> getData(){
+    private List<PostModelMongo> getData(String tag){
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("g.sferr", LIMIT, skipCounter);
+                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("g.sferr", LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("g.sferr", LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+            case SEARCH_RESULTS ->
+                    postService.findPostsByTag(tag, LIMIT, skipCounter);
+            case ALL_POSTS ->
+                    postDBMongo.findRecentPosts(LIMIT, skipCounter);
         };
     }
 
@@ -315,7 +359,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
                     controllerObjectPost.setData(post, postListener);
 
-                    //
                     anchorPane.setOnMouseClicked(event -> {
                         this.postListener.onClickPostListener(event, post);});
 
@@ -368,5 +411,66 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         // Il button è già stato inserito nella view grafica e mappato su questo controller.
     }
 
+    public void onKeyTypedSearchBar() {
+        String searchString = textFieldSearch.getText();
 
+        if (searchString.isEmpty()) {
+            searchResultsList.setVisible(false);
+        } else {
+            searchResultsList.setVisible(true);
+        }
+
+        ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(boardgameTags.stream()
+                .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
+        System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
+
+        searchResultsList.setItems(tagsContainingSearchString);
+        int LIST_ROW_HEIGHT = 24;
+        if (tagsContainingSearchString.size() > 10) {
+            searchResultsList.setPrefHeight(10 * LIST_ROW_HEIGHT + 2);
+        } else if (tagsContainingSearchString.isEmpty()){
+            searchResultsList.setVisible(false);
+        } else {
+            searchResultsList.setPrefHeight(tagsContainingSearchString.size() * LIST_ROW_HEIGHT + 2);
+        }
+
+        // Highlight matching search substring in result strings
+        searchResultsList.setCellFactory(boardgameResult -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String result, boolean empty) {
+                super.updateItem(result, empty);
+
+                if (empty || result == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                TextFlow textFlow = new TextFlow();
+                int startIdx = result.toLowerCase().indexOf(searchString.toLowerCase());
+
+                if (startIdx >= 0 && !searchString.isEmpty()) {
+                    Text beforeMatch = new Text(result.substring(0, startIdx));
+                    beforeMatch.setFill(Color.BLACK);
+
+                    Text matchedPart = new Text(result.substring(startIdx, startIdx + searchString.length()));
+                    matchedPart.setFont(Font.font("System", FontWeight.EXTRA_BOLD, 14));
+
+                    Text afterMatch = new Text(result.substring(startIdx + searchString.length()));
+                    afterMatch.setFill(Color.BLACK);
+
+                    textFlow.getChildren().addAll(beforeMatch, matchedPart, afterMatch);
+                }
+
+                setGraphic(textFlow);
+            }
+        });
+    }
+
+    @FXML
+    public void onMouseClickedListView() {
+        searchResultsList.setVisible(false);
+
+        selectedSearchTag = searchResultsList.getSelectionModel().getSelectedItem().toString();
+        textFieldSearch.setText(selectedSearchTag);
+    }
 }

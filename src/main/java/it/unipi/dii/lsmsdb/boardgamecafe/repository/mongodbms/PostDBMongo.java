@@ -188,6 +188,21 @@ public class PostDBMongo {
         return true;
     }
 
+    public List<PostModelMongo> findByTag(String bgName, int limit, int skip) {
+        List<PostModelMongo> posts = new ArrayList<>();
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("tag").is(bgName));
+            query.skip(skip);
+            query.limit(limit);
+            posts = mongoOperations.find(query, PostModelMongo.class);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
     public List<PostModelMongo> findByTag(String bgName) {
         List<PostModelMongo> posts = new ArrayList<>();
         try {
