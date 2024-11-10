@@ -128,7 +128,17 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewObjectComment.fxml";
         }
-    }, DETAILS_POST {
+    }, OBJECTCREATECOMMENT {
+        @Override
+        public String getTitle() {
+            return "Create Comment";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectCreateComment.fxml";
+        }
+    },DETAILS_POST {
         @Override
         public String getTitle() {
             return "Post Details";
@@ -137,6 +147,36 @@ public enum FxmlView {
         @Override
         public String getFxmlFile() {
             return "/viewDetailsPostPage.fxml";
+        }
+    }, INFOMSGPOSTS {
+        @Override
+        public String getTitle() {
+            return "Info Posts";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectInfoPostsMsg.fxml";
+        }
+    }, INFOMSGREVIEWS {
+        @Override
+        public String getTitle() {
+            return "Info Reviews";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectInfoReviewsMsg.fxml";
+        }
+    }, INFOMSGCOMMENTS {
+        @Override
+        public String getTitle() {
+            return "Info Comments";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectInfoCommentsMsg.fxml";
         }
     };
 
