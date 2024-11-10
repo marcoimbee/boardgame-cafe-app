@@ -345,13 +345,15 @@ public class ControllerViewUserProfilePage implements Initializable{
     private void loadViewMessagInfo(Parent whatToLoad){
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
+
+        resetPage();
+        gridPane.add(noContentsYet, 0, 0);
+
         if (postsUser.isEmpty() || reviewsUser.isEmpty()){
             resetPage();
             gridPane.add(noContentsYet, 0, rowGridPane);
-        } else {
-            resetPage();
-            gridPane.add(noContentsYet, 0, 0);
         }
+
         GridPane.setMargin(noContentsYet, new Insets(560, 200, 200, 332));
     }
     @FXML
