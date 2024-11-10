@@ -311,7 +311,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGCOMMENTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
-        if (comments.isEmpty()){
+
+        resetPage();
+        commentGridPane.add(noContentsYet, 0, 0);
+
+        if (!comments.isEmpty()){
             resetPage();
             commentGridPane.add(noContentsYet, 0, rowGridPane);
         }
@@ -325,13 +329,14 @@ public class ControllerViewDetailsPostPage implements Initializable {
         if (comments.size() == 1) {
             columnGridPane = 0;
             rowGridPane = 0;
-        } else if (comments.isEmpty()) {
-            loadViewMessagInfo();
+        } else {
+            setGridPaneColumnAndRow();
         }
-        setGridPaneColumnAndRow();
-
 
         try {
+            if (comments.isEmpty()) {
+                loadViewMessagInfo();
+            }
             for (CommentModelMongo comment : comments) { // iterando lista di posts
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
