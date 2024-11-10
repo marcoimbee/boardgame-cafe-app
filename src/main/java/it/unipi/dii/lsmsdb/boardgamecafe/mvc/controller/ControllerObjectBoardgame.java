@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Tooltip;
@@ -29,6 +30,8 @@ import javax.tools.Tool;
 @Component
 public class ControllerObjectBoardgame implements Initializable {
     @FXML
+    public AnchorPane anchorPane;
+    @FXML
     private ImageView bgameImage;
     @FXML
     protected Label lblBoardgameName;
@@ -37,7 +40,7 @@ public class ControllerObjectBoardgame implements Initializable {
 
     private BoardgameModelMongo boardgame;
 
-    private BoardgameListener boardgameListener;
+    private BoardgameListener boardgameClickListener;
 
     public ControllerObjectBoardgame() {}
 
@@ -54,7 +57,7 @@ public class ControllerObjectBoardgame implements Initializable {
     public void setData(BoardgameModelMongo boardgame, BoardgameListener listener, AnchorPane anchorPane) {
 
         this.boardgame = boardgame;
-        this.boardgameListener = listener;
+        this.boardgameClickListener = listener;
 
         String imageBoardgameURL = boardgame.getImage(); // URL dell'immagine
         String nameBoardgameResource = boardgame.getBoardgameName();
@@ -136,11 +139,6 @@ public class ControllerObjectBoardgame implements Initializable {
     {
         tooltipBoardgameText.setShowDelay(javafx.util.Duration.ZERO); // Mostra subito la tooltip
         tooltipBoardgameText.show(bgameImage, event.getScreenX() + 10, event.getScreenY() + 10); // Offset di 10px
-    }
-
-    @FXML
-    void mouseClick(MouseEvent mouseEvent) {
-        boardgameListener.onClickBoardgameListener(mouseEvent, boardgame);
     }
 
 }
