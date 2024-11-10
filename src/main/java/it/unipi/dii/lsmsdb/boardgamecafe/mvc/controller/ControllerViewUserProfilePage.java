@@ -22,6 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -159,7 +160,8 @@ public class ControllerViewUserProfilePage implements Initializable{
 
         postsUser.addAll(getPosts(regUser.getUsername()));
         if (this.postsUser.isEmpty()) {
-            stageManager.showInfoMessage("Info Posts", "No Posts Yet");
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+            loadViewMessagInfo(loadViewItem);
         }
         this.firstNameLabel.setText(regUser.getName());
         this.lastNameLabel.setText(regUser.getSurname());
@@ -221,19 +223,25 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     // Metodo per caricare il contenuto in base a `selectedContentType`
     private void loadContent() {
-        resetPage();
+
         if (selectedContentType.equals(ContentType.POSTS)) {
             List<?> items = getPosts(this.usernameLabel.getText());
             if (items.isEmpty()) {
-                stageManager.showInfoMessage("Info Posts", "No Posts Yet");
+                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+                loadViewMessagInfo(loadViewItem);
+            } else {
+                resetPage();
+                fillGridPane(items);
             }
-            fillGridPane(items);
         } else if (selectedContentType.equals(ContentType.REVIEWS)){
             List<?> items = getReviews(this.usernameLabel.getText());
             if (items.isEmpty()) {
-                stageManager.showInfoMessage("Info Reviews", "No Reviews Yet");
+                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
+                loadViewMessagInfo(loadViewItem);
+            } else {
+                resetPage();
+                fillGridPane(items);
             }
-            fillGridPane(items);
         }
     }
 
@@ -334,11 +342,33 @@ public class ControllerViewUserProfilePage implements Initializable{
         rowGridPane = 1;
     }
 
+    private void loadViewMessagInfo(Parent whatToLoad){
+        AnchorPane noContentsYet = new AnchorPane();
+        noContentsYet.getChildren().add(whatToLoad);
+        if (postsUser.isEmpty() || reviewsUser.isEmpty()){
+            resetPage();
+            gridPane.add(noContentsYet, 0, rowGridPane);
+        } else {
+            resetPage();
+            gridPane.add(noContentsYet, 0, 0);
+        }
+        GridPane.setMargin(noContentsYet, new Insets(560, 200, 200, 332));
+    }
     @FXML
     private void fillGridPane(List<?> items) {
-        columnGridPane = 0;
-        rowGridPane = 0;
-        setGridPaneColumnAndRow();
+
+        //per mettere un solo elemento correttamente nel gridpane
+        if (postsUser.size() == 1 || reviewsUser.size() == 1){
+            columnGridPane = 0; rowGridPane = 0;
+        } else if (postsUser.isEmpty()) {
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+            loadViewMessagInfo(loadViewItem);
+        } else if(reviewsUser.isEmpty()){
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
+            loadViewMessagInfo(loadViewItem);
+        } else {
+            setGridPaneColumnAndRow();
+        }
 
         try {
             for (Object item : items) {
@@ -346,6 +376,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 AnchorPane anchorPane = new AnchorPane();
 
                 if (item instanceof PostModelMongo) {
+
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
                     postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
                         String title = "Work in Progress";
