@@ -59,6 +59,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button accountInfoButton;
     @FXML
+    private Button refreshButton;
+    @FXML
     private ChoiceBox<String> whatPostsToShowChoiceBox;
     @FXML
     private Button testButton;
@@ -251,10 +253,19 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         };
     }
 
-    @FXML
-    void fillGridPane() {
+    void setGridPaneColumnAndRow(){
         columnGridPane = 0;
         rowGridPane = 1;
+    }
+    @FXML
+    void fillGridPane() {
+
+        //per mettere un solo elemento correttamente nel gridpane
+        if (posts.size() == 1){
+            columnGridPane = 0; rowGridPane = 0;
+        } else {
+            setGridPaneColumnAndRow();
+        }
 
         // Logica per mostrare i dettagli del post usando StageManager
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
@@ -334,4 +345,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickSearchUserButton(ActionEvent event) {
     }
+
+    public void onClickRefreshButton(){
+        //ToDO: qua andrebbe fatto clean/fetch/fill.
+        // chidere a marco in base all'implementazione fatta all'interno di questo controller.
+        // Il button è già stato inserito nella view grafica e mappato su questo controller.
+    }
+
+
 }
