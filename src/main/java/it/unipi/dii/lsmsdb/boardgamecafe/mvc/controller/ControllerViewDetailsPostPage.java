@@ -312,13 +312,14 @@ public class ControllerViewDetailsPostPage implements Initializable {
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        resetPage();
-        commentGridPane.add(noContentsYet, 0, 0);
-
         if (!comments.isEmpty()){
             resetPage();
             commentGridPane.add(noContentsYet, 0, rowGridPane);
+        } else {
+            resetPage();
+            commentGridPane.add(noContentsYet, 0, 0);
         }
+
         GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 265));
     }
 

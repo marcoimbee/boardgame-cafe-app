@@ -263,12 +263,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        resetPageVars();
-        postGridPane.add(noContentsYet, 0, 0);
-
         if (!posts.isEmpty()){
             resetPageVars();
             postGridPane.add(noContentsYet, 0, rowGridPane);
+        } else {
+            resetPageVars();
+            postGridPane.add(noContentsYet, 0, 0);
         }
         GridPane.setMargin(noContentsYet, new Insets(525, 100, 100, 395));
     }

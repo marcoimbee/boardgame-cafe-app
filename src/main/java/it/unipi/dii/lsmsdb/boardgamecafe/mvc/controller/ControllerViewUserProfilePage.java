@@ -346,12 +346,15 @@ public class ControllerViewUserProfilePage implements Initializable{
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
 
-        resetPage();
-        gridPane.add(noContentsYet, 0, 0);
-
-        if (postsUser.isEmpty() || reviewsUser.isEmpty()){
+        if (!postsUser.isEmpty()){
             resetPage();
             gridPane.add(noContentsYet, 0, rowGridPane);
+        } else if (!reviewsUser.isEmpty()) {
+            resetPage();
+            gridPane.add(noContentsYet, 0, rowGridPane);
+        } else {
+            resetPage();
+            gridPane.add(noContentsYet, 0, 0);
         }
 
         GridPane.setMargin(noContentsYet, new Insets(560, 200, 200, 332));
@@ -362,17 +365,19 @@ public class ControllerViewUserProfilePage implements Initializable{
         //per mettere un solo elemento correttamente nel gridpane
         if (postsUser.size() == 1 || reviewsUser.size() == 1){
             columnGridPane = 0; rowGridPane = 0;
-        } else if (postsUser.isEmpty()) {
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-            loadViewMessagInfo(loadViewItem);
-        } else if(reviewsUser.isEmpty()){
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
-            loadViewMessagInfo(loadViewItem);
         } else {
             setGridPaneColumnAndRow();
         }
 
         try {
+            if (postsUser.isEmpty()) {
+                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+                loadViewMessagInfo(loadViewItem);
+            } else if(reviewsUser.isEmpty()){
+                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
+                loadViewMessagInfo(loadViewItem);
+            }
+
             for (Object item : items) {
                 Parent loadViewItem;
                 AnchorPane anchorPane = new AnchorPane();
