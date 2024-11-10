@@ -257,27 +257,37 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         columnGridPane = 0;
         rowGridPane = 1;
     }
+
+    private void loadViewMessagInfo(){
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+        AnchorPane noContentsYet = new AnchorPane();
+        noContentsYet.getChildren().add(loadViewItem);
+        if (posts.isEmpty()){
+            resetPageVars();
+            postGridPane.add(noContentsYet, 0, rowGridPane);
+        }
+        GridPane.setMargin(noContentsYet, new Insets(120, 200, 200, 392));
+    }
+
     @FXML
     void fillGridPane() {
 
         //per mettere un solo elemento correttamente nel gridpane
         if (posts.size() == 1){
             columnGridPane = 0; rowGridPane = 0;
-        } else {
-            setGridPaneColumnAndRow();
         }
+        setGridPaneColumnAndRow();
 
         // Logica per mostrare i dettagli del post usando StageManager
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
             modelBean.putBean(Constants.SELECTED_POST, post);
             stageManager.showWindow(FxmlView.DETAILS_POST);
         };
-
         postGridPane.getChildren().clear();         // Removing old posts
 
         try {
             if (posts.isEmpty()) {
-                stageManager.showInfoMessage("INFO", "No posts to show!");
+                loadViewMessagInfo();
             } else {
                 // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
                 int startPost = skipCounter;
