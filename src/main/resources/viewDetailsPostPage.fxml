@@ -39,7 +39,7 @@
                   </Button>
                   <ScrollPane fx:id="scrollSet" layoutX="54.0" layoutY="379.0" prefHeight="263.0" prefWidth="747.0">
                      <content>
-                        <GridPane fx:id="postGridPane">
+                        <GridPane fx:id="commentGridPane">
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>

@@ -71,18 +71,18 @@
                         </GridPane>
                      </content>
                   </ScrollPane>
-                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="315.0" layoutY="657.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="313.0" layoutY="657.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="428.0" layoutY="657.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="425.0" layoutY="657.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
                   <Separator blendMode="SRC_ATOP" layoutY="237.0" prefHeight="5.0" prefWidth="835.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="414.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="6.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="409.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="6.0" />
                   <Separator blendMode="SRC_ATOP" layoutY="201.0" prefHeight="9.0" prefWidth="835.0" />
                   <VBox layoutX="79.0" layoutY="53.0" prefHeight="99.0" prefWidth="104.0">
                      <children>
@@ -109,7 +109,7 @@
                         <Font name="Calibri Bold Italic" size="16.0" />
                      </font>
                   </Label>
-                  <Button fx:id="yourPostsButton" layoutX="1.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickPostsButton" prefHeight="30.0" prefWidth="411.0" style="-fx-background-color: #ffffff;" text="Posts" textFill="#182e58">
+                  <Button fx:id="yourPostsButton" layoutX="1.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickPostsButton" prefHeight="30.0" prefWidth="408.0" style="-fx-background-color: #ffffff;" text="Posts" textFill="#182e58">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -120,7 +120,7 @@
                         <Insets />
                      </opaqueInsets>
                   </Button>
-                  <Button fx:id="yourReviewsButton" layoutX="418.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickReviewsButton" prefHeight="30.0" prefWidth="417.0" style="-fx-background-color: #ffffff;" text="Reviews" textFill="#182e58">
+                  <Button fx:id="yourReviewsButton" layoutX="412.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickReviewsButton" prefHeight="30.0" prefWidth="423.0" style="-fx-background-color: #ffffff;" text="Reviews" textFill="#182e58">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>

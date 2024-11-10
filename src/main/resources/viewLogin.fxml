@@ -15,7 +15,7 @@
       <AnchorPane prefHeight="200.0" prefWidth="350.0" BorderPane.alignment="CENTER">
          <children>
             <TextField fx:id="textFieldUsername" layoutX="101.0" layoutY="224.0" promptText="Username" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-            <PasswordField fx:id="textFieldPassword" layoutX="101.0" layoutY="284.0" promptText="Password" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+            <PasswordField fx:id="textFieldPassword" layoutX="101.0" layoutY="284.0" onKeyPressed="#onClickEnter" promptText="Password" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
             <ImageView fitHeight="70.0" fitWidth="88.0" layoutX="21.0" layoutY="133.0" pickOnBounds="true" preserveRatio="true" />
             <Button fx:id="loginButton" layoutX="79.0" layoutY="364.0" mnemonicParsing="false" onAction="#onClickLogin" prefHeight="34.0" prefWidth="80.0" style="-fx-background-color: #182E58;" text="Login" textFill="WHITE">
                <font>
