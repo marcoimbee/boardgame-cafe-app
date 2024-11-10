@@ -15,6 +15,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +60,7 @@ public class ControllerViewLogin implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
     }
-    public void onClickLogin(ActionEvent actionEvent)
+    public void onClickLogin()
     {
         List<UserModelMongo> usersPath = new ArrayList<>();
         modelBean.putBean(Constants.USERS_PATH, usersPath);
@@ -120,6 +122,10 @@ public class ControllerViewLogin implements Initializable {
     {
         stageManager.closeStageButton(this.cancelButton);
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
+    }
+
+    public void onClickEnter(KeyEvent keyEvent) {
+        if(keyEvent.getCode() == KeyCode.ENTER) this.onClickLogin();
     }
 
 
