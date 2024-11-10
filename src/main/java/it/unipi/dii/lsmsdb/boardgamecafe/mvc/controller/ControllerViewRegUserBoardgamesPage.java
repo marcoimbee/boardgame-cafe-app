@@ -1,10 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -50,7 +52,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button profileButton;
     @FXML
-    private Button accountDetailsButton;
+    private Button accountInfoButton;
     @FXML
     private Button searchButton;
     @FXML
@@ -66,6 +68,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
     private ControllerObjectBoardgame controllerObjectBoardgame;
+    @Autowired
+    private ModelBean modelBean;
     private final StageManager stageManager;
 
     //Boardgame Variables
@@ -233,8 +237,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
             // Logica per mostrare i dettagli del post usando StageManager
-            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
-            stageManager.closeStageMouseEvent(mouseEvent);
+            modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame);
+            stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
         //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
@@ -249,6 +253,9 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 anchorPane.getChildren().add(loadViewItem);
 
                 controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
+
+                anchorPane.setOnMouseClicked(event ->{
+                    this.boardgameListener.onClickBoardgameListener(event,boardgame);} );
 
                 //choice number of column
                 if (columnGridPane == 4) {
@@ -294,7 +301,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickAccountDetails(ActionEvent event) {
+    public void onClickAccountInfoButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 

@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
@@ -44,7 +45,7 @@ public class ControllerObjectComment {
     public ControllerObjectComment() {
     }
 
-    public void setData(CommentModelMongo comment) {
+    public void setData(CommentModelMongo comment, PostModelMongo post) {
 
         this.comment = comment;
         this.editButton.setDisable(false);
@@ -53,7 +54,7 @@ public class ControllerObjectComment {
 
         this.usernameLabel.setText(comment.getUsername());
         this.timestampLabel.setText(creationDate);
-        this.postLabel.setText(comment.getPost());
+        this.postLabel.setText(post.getTitle());
         this.bodyTextLabel.setText(comment.getText());
     }
 

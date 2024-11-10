@@ -1,12 +1,14 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -57,6 +59,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button accountInfoButton;
     @FXML
+    private Button refreshButton;
+    @FXML
     private ChoiceBox<String> whatPostsToShowChoiceBox;
     @FXML
     private Button testButton;
@@ -74,7 +78,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private PostService postService;
     @Autowired
     private ControllerObjectPost controllerObjectPost;
+    @Autowired
+    private ModelBean modelBean;
     private final StageManager stageManager;
+    PostListener postListener;
 
     // Choice box variables
     ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
@@ -122,6 +129,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.postsFeedButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
+        resetPageVars();
 
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
@@ -223,7 +231,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -237,31 +245,55 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.findPostsByFollowedUsers("g.sferr", LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers("g.sferr", LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers("g.sferr", LIMIT, skipCounter);
         };
+    }
+
+    void setGridPaneColumnAndRow(){
+        columnGridPane = 0;
+        rowGridPane = 1;
+    }
+
+    private void loadViewMessagInfo(){
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+        AnchorPane noContentsYet = new AnchorPane();
+        noContentsYet.getChildren().add(loadViewItem);
+
+        if (!posts.isEmpty()){
+            resetPageVars();
+            postGridPane.add(noContentsYet, 0, rowGridPane);
+        } else {
+            resetPageVars();
+            postGridPane.add(noContentsYet, 0, 0);
+        }
+        GridPane.setMargin(noContentsYet, new Insets(525, 100, 100, 395));
     }
 
     @FXML
     void fillGridPane() {
-        columnGridPane = 0;
-        rowGridPane = 1;
+
+        //per mettere un solo elemento correttamente nel gridpane
+        if (posts.size() == 1) {
+            columnGridPane = 0;
+            rowGridPane = 0;
+        } else {
+            setGridPaneColumnAndRow();
+        }
 
         // Logica per mostrare i dettagli del post usando StageManager
-        PostListener postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            // Logica per mostrare i dettagli del post usando StageManager
-            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
-            stageManager.closeStageMouseEvent(mouseEvent);
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
         };
-
         postGridPane.getChildren().clear();         // Removing old posts
 
         try {
             if (posts.isEmpty()) {
-                stageManager.showInfoMessage("INFO", "No posts to show!");
+                loadViewMessagInfo();
             } else {
                 // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
                 int startPost = skipCounter;
@@ -282,6 +314,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     anchorPane.getChildren().add(loadViewItem);
 
                     controllerObjectPost.setData(post, postListener);
+
+                    //
+                    anchorPane.setOnMouseClicked(event -> {
+                        this.postListener.onClickPostListener(event, post);});
 
                     //choice number of column
                     if (columnGridPane == 1) {
@@ -325,4 +361,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickSearchUserButton(ActionEvent event) {
     }
+
+    public void onClickRefreshButton(){
+        //ToDO: qua andrebbe fatto clean/fetch/fill.
+        // chidere a marco in base all'implementazione fatta all'interno di questo controller.
+        // Il button è già stato inserito nella view grafica e mappato su questo controller.
+    }
+
+
 }

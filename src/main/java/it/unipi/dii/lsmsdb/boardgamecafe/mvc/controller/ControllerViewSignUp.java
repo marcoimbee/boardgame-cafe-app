@@ -5,6 +5,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,10 +21,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +56,8 @@ public class ControllerViewSignUp implements Initializable {
 
     @Autowired
     private UserDBMongo userDBMongo;
+    @Autowired
+    private UserService serviceUser;
 
     private final StageManager stageManager;
 
@@ -72,11 +72,6 @@ public class ControllerViewSignUp implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         this.initComboBox();
-
-        //ToDO: Inizializzare tutto ciò che riguarda il sign-up user
-        // per poi disabilitare se click su sign-up admin, così da consentire
-        // l'inserimento solo dei campi che riguardano quest'ultimo
-
     }
 
     public void onClickFinish(ActionEvent event) {
@@ -89,6 +84,7 @@ public class ControllerViewSignUp implements Initializable {
         String username = selectUsername();
         String password = this.textFieldPassword.getText();
         String repeatedPassword = this.textFieldRepeatPassword.getText();
+        int year=0; int month=0 ; int day=0;
 
         // Variabile per verificare la validità dei campi
         boolean isValid = true;
@@ -122,9 +118,9 @@ public class ControllerViewSignUp implements Initializable {
             isValid = false;
         } else {
             labelDate.setText("");
-            int year = dateOfBirth.getYear();
-            int month = dateOfBirth.getMonthValue();
-            int day = dateOfBirth.getDayOfMonth();
+            year = dateOfBirth.getYear();
+            month = dateOfBirth.getMonthValue();
+            day = dateOfBirth.getDayOfMonth();
         }
         if (email.isEmpty()) {
             labelEmail.setText("E-mail is missing.");
@@ -167,11 +163,20 @@ public class ControllerViewSignUp implements Initializable {
             labelRepeatedPassword.setText("");
         }
 
-        // Se tutti i campi sono validi, esegui l'operazione di successo
+        // Se tutti i campi sono validi, esegui l'operazione di inserimento
         if (isValid) {
-            //ToDo: implementare serviceUser.insertUser()
-            stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered into Boardgame-Cafè App!");
-            stageManager.closeStageButton(this.buttonFinish);
+
+            UserModelMongo newUser = serviceUser.createUser(
+                                    username, email, password,
+                                    firstName, lastName, gender,
+                                    country, year, month, day);
+
+            if(serviceUser.insertUser(newUser)){
+                stageManager.showInfoMessage("Sign-Up Info: ", "You're Successfully Registered into Boardgame-Cafè App!");
+                stageManager.closeStageButton(this.buttonFinish);
+            } else {
+                stageManager.showInfoMessage("Sign-Up Error: ", "You're NOT Successfully Registered into Boardgame-Cafè App!");
+            }
         }
     }
 

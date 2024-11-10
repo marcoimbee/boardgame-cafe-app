@@ -47,9 +47,6 @@ public class ControllerObjectPost {
     private PostService postService; // Iniezione del servizio
     @Autowired
     private PostDBNeo4j postDBNeo4j;
-
-
-
     public ControllerObjectPost() {
     }
 
@@ -63,20 +60,19 @@ public class ControllerObjectPost {
         this.removeButton.setDisable(true);
 
         String creationDate = post.getTimestamp().toString();
-        String commentsCounter = "";
-
-        if (commentCache.containsKey(post.getId())) {
-            commentsCounter = commentCache.get(post.getId());
-        } else {
-            // Calcola e memorizza il conteggio dei commenti
-            int sizeCommentsList = post.getComments().size();
-            commentsCounter = String.valueOf(sizeCommentsList);
-            commentCache.put(post.getId(), commentsCounter);
-        }
+//        String commentsCounter = "";
+//        if (commentCache.containsKey(post.getId())) {
+//            commentsCounter = commentCache.get(post.getId());
+//        } else {
+//            // Calcola e memorizza il conteggio dei commenti
+//            int sizeCommentsList = post.getComments().size();
+//            commentsCounter = String.valueOf(sizeCommentsList);
+//            commentCache.put(post.getId(), commentsCounter);
+//        }
 
         this.authorLabel.setText(post.getUsername());
         this.timestampLabel.setText(creationDate);
-        this.commentsLabel.setText(commentsCounter);
+        this.commentsLabel.setText(String.valueOf(post.getComments().size()));
         if (post.getTag() == null) {
             this.tagBoardgameLabel.setText("[ No Reference ]");
         } else {
@@ -123,8 +119,4 @@ public class ControllerObjectPost {
         // Implementazione per commentare il post
     }
 
-    @FXML
-    void mouseClick(MouseEvent mouseEvent) {
-        postListener.onClickPostListener(mouseEvent, post);
-    }
 }

@@ -50,4 +50,4 @@ You can find out more in detail by reading the final report on the [Board-Game C
 
 * Francesco Bruno - *e-mail*: f.bruno10@studenti.unipi.it - *GitHub Profile*: [ [@francescoB1997](https://github.com/francescoB1997) ]
 * Gaetano Sferrazza - *e-mail*: g.sferrazza@studenti.unipi.it - *GitHub Profile*: [ [@g-sferr](https://github.com/g-sferr) ]
-* Marco Imbellicai - *e-mail*: m.imbellicai@studenti.unipi.it - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]
+* Marco Imbelli Cai - *e-mail*: m.imbellicai@studenti.unipi.it - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]

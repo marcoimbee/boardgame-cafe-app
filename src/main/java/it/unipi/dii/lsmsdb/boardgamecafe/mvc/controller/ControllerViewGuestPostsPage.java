@@ -1,12 +1,15 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,9 +30,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @Component
 public class ControllerViewGuestPostsPage implements Initializable {
@@ -46,6 +47,8 @@ public class ControllerViewGuestPostsPage implements Initializable {
     @FXML
     private Button searchButton;
     @FXML
+    private Button refreshButton;
+    @FXML
     private Button clearFieldButton;
     @FXML
     private TextField textFieldSearch;
@@ -61,6 +64,8 @@ public class ControllerViewGuestPostsPage implements Initializable {
     private PostDBMongo postDBMongo;
     @Autowired
     private PostDBNeo4j PostDBNeo4j;
+    @Autowired
+    private ModelBean modelBean;
     @Autowired
     private ControllerObjectPost controllerObjectPost;
     private final StageManager stageManager;
@@ -171,6 +176,9 @@ public class ControllerViewGuestPostsPage implements Initializable {
         postGridPane.getChildren().clear();
         posts.clear();
         skipCounter = 0;
+        this.nextButton.setDisable(true);
+        this.previousButton.setDisable(true);
+        scrollSet.setVvalue(0);
     }
 
     void prevNextButtonsCheck(List<PostModelMongo> posts){
@@ -225,17 +233,22 @@ public class ControllerViewGuestPostsPage implements Initializable {
     @FXML
     void fillGridPane() {
 
-        columnGridPane = 0;
-        rowGridPane = 0;
-        setGridPaneColumnAndRow();
+        //per mettere un solo elemento correttamente nel gridpane
+        if (posts.size() == 1){
+            columnGridPane = 0; rowGridPane = 0;
+        } else {
+            setGridPaneColumnAndRow();
+        }
 
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            String title = "Content Access Permissions";
-            String message = "" +
-                    "\t\t\tCurious To View The Content Of This Post?\n" +
-                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
 
-            stageManager.showInfoMessage(title, message);
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
+//            String title = "Content Access Permissions";
+//            String message = "" +
+//                    "\t\t\tCurious To View The Content Of This Post?\n" +
+//                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
+//            stageManager.showInfoMessage(title, message);
         };
 
         //CREATE FOR EACH POST AN ITEM (ObjectPosts)
@@ -248,6 +261,9 @@ public class ControllerViewGuestPostsPage implements Initializable {
                 anchorPane.getChildren().add(loadViewItem);
 
                 controllerObjectPost.setData(post, postListener);
+
+                anchorPane.setOnMouseClicked(event -> {
+                    this.postListener.onClickPostListener(event, post);});
 
                 //choice number of column
                 if (columnGridPane == 1) {
@@ -283,5 +299,13 @@ public class ControllerViewGuestPostsPage implements Initializable {
     public void onClickLogin(ActionEvent event) {
         stageManager.showWindow(FxmlView.LOGIN);
         stageManager.closeStageButton(this.loginButton);
+    }
+
+    public void onClickRefreshButton(){ cleanFetchAndFill(); }
+
+    private void cleanFetchAndFill(){
+        resetPage();
+        this.posts.addAll(getData());
+        fillGridPane();
     }
 }

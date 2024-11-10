@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -67,7 +68,7 @@ public class ControllerViewBoardgameDetails implements Initializable {
         }
 
 
-        this.boardgame = (BoardgameModelMongo)modelBean.getBean("boardgameToShow");
+        this.boardgame = (BoardgameModelMongo)modelBean.getBean(Constants.SELECTED_BOARDGAME);
         this.prepareScene();
     }
 
