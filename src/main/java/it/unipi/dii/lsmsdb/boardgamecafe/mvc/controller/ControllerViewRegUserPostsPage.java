@@ -270,7 +270,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             resetPageVars();
             postGridPane.add(noContentsYet, 0, rowGridPane);
         }
-        GridPane.setMargin(noContentsYet, new Insets(522, 100, 100, 391));
+        GridPane.setMargin(noContentsYet, new Insets(525, 100, 100, 395));
     }
 
     @FXML
