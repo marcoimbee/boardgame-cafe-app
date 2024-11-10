@@ -262,21 +262,27 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
-        if (posts.isEmpty()){
+
+        resetPageVars();
+        postGridPane.add(noContentsYet, 0, 0);
+
+        if (!posts.isEmpty()){
             resetPageVars();
             postGridPane.add(noContentsYet, 0, rowGridPane);
         }
-        GridPane.setMargin(noContentsYet, new Insets(120, 200, 200, 392));
+        GridPane.setMargin(noContentsYet, new Insets(522, 100, 100, 391));
     }
 
     @FXML
     void fillGridPane() {
 
         //per mettere un solo elemento correttamente nel gridpane
-        if (posts.size() == 1){
-            columnGridPane = 0; rowGridPane = 0;
+        if (posts.size() == 1) {
+            columnGridPane = 0;
+            rowGridPane = 0;
+        } else {
+            setGridPaneColumnAndRow();
         }
-        setGridPaneColumnAndRow();
 
         // Logica per mostrare i dettagli del post usando StageManager
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
