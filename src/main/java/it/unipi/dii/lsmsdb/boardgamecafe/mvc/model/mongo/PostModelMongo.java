@@ -47,6 +47,16 @@ public class PostModelMongo {
         this.like_count = like_count;
     }
 
+    public PostModelMongo(String username,
+                          String title, String text,
+                          String tag, Date timestamp) {
+        this.username = username;
+        this.title = title;
+        this.text = text;
+        this.tag = tag;
+        this.timestamp = timestamp;
+    }
+
     public String getId(){
         return id;
     }

@@ -2,7 +2,10 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -39,9 +42,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -59,6 +60,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private Button previousButton;
     @FXML
     private Button searchButton;
+    @FXML
+    private Button newPostButton;
     @FXML
     private Button clearFieldButton;
     @FXML
@@ -403,6 +406,84 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickSearchUserButton(ActionEvent event) {
+    }
+    public void onClickNewPostButton(ActionEvent event) {
+        try {
+            this.newPostButton.setDisable(true);
+            // Carica l'FXML del commento modificabile
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEPOST.getFxmlFile());
+
+            // Ottieni i controlli di input definiti nel FXML
+            TextField tagBoardgameTextArea = (TextField) loadViewItem.lookup("#tagBoardgameText");
+            TextField titleTextArea = (TextField) loadViewItem.lookup("#titleTextLabel");
+            TextField postTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
+            Button submitPostButton = (Button) loadViewItem.lookup("#submitButton");
+            Button cancelPostButton = (Button) loadViewItem.lookup("#cancelButton");
+            tagBoardgameTextArea.setPromptText("If You Want Write The Board-Game Name You Want To Refer To Here...");
+            titleTextArea.setPromptText("Write The Post Title Here...");
+            postTextArea.setPromptText("Write Your Post Here...");
+
+            //AddButton Behaviour
+            submitPostButton.setOnAction(e ->
+            {
+                String tagBoardgameText = postTextArea.getText();
+                String titleText = postTextArea.getText();
+                String postText = postTextArea.getText();
+
+                if (postText.isEmpty()) {
+                    stageManager.showInfoMessage("Error", "Post Cannot Be Empty.");
+                    return;
+                }
+                if (titleText.isEmpty()){
+                    stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
+                    return;
+                }
+
+                // Crea un nuovo PostModelMonogo e salva il post nel database
+//                PostModelMongo newPost = new PostModelMongo(
+//                        currentUser.getUsername()//username
+//                        titleText,
+//                        postText,
+//                        tagBoardgameText
+//                        new Date()
+//                )
+//                boolean savedPost = postService.
+//                        insertPost(PostModelMongo newPost);
+//
+//                if (savedPost) {
+//                    stageManager.showInfoMessage("Success", "Post Added Successfully.");
+//                    //Per mostrare subito tutti commenti compreso quello appena aggiunto
+//                    //Dovrebbe pulire, richiamare la AllPosts e fare il fillgridpane
+//                    //cleanFetchAndFill();
+//                    this.newPostButton.setDisable(false);
+//                } else {
+//                    stageManager.showInfoMessage("Error", "Failed to add comment.");
+//                }
+            });
+
+            //CancelButton Behaviour
+            cancelPostButton.setOnAction(e -> {
+                this.newPostButton.setDisable(false);
+                //Per mostrare subito tutti commenti compreso quello appena aggiunto
+                //Dovrebbe pulire, richiamare la AllPosts e fare il fillgridpane
+                //cleanFetchAndFill();
+            });
+
+            AnchorPane addPostBox = new AnchorPane();
+            addPostBox.getChildren().add(loadViewItem);
+
+            if (!posts.isEmpty()){
+                resetPageVars();
+                postGridPane.add(addPostBox, 0, rowGridPane);
+            } else {
+                resetPageVars();
+                postGridPane.add(addPostBox, 0, 1);
+            }
+            GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 180));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void onClickRefreshButton(){

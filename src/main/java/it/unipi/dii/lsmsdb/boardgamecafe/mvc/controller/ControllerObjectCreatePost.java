@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ControllerObjectCreateComment {
+public class ControllerObjectCreatePost {
 
     @FXML
     private Button cacnelButton;
@@ -27,18 +27,20 @@ public class ControllerObjectCreateComment {
     @FXML
     private Button cancelButton;
     @FXML
+    protected TextField titleTextLabel;
+    @FXML
     protected TextField bodyTextLabel;
-
-    private CommentModelMongo comment;
+    @FXML
+    protected TextField tagBoardgameText;
 
     private StageManager stageManager;
     @Autowired
     @Lazy
-    public ControllerObjectCreateComment(StageManager stageManager) {
+    public ControllerObjectCreatePost(StageManager stageManager) {
         this.stageManager = stageManager;
     }
 
-    public ControllerObjectCreateComment() {
+    public ControllerObjectCreatePost() {
     }
 
     public void setData() {

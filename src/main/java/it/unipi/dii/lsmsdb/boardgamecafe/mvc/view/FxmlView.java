@@ -138,7 +138,17 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewObjectCreateComment.fxml";
         }
-    },DETAILS_POST {
+    }, OBJECTCREATEPOST {
+        @Override
+        public String getTitle() {
+            return "Create Post";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectCreatePost.fxml";
+        }
+    }, DETAILS_POST {
         @Override
         public String getTitle() {
             return "Post Details";
