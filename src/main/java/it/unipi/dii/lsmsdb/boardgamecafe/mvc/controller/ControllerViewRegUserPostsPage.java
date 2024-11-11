@@ -172,7 +172,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
-        System.out.println("[DEBUG] " + boardgameTags.getFirst());
+        System.out.println("[DEBUG] " + boardgameTags.get(0));
         selectedSearchTag = null;
     }
 
@@ -271,7 +271,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -312,9 +312,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             postGridPane.add(noContentsYet, 0, rowGridPane);
         } else {
             resetPageVars();
-            postGridPane.add(noContentsYet, 0, 0);
+            postGridPane.add(noContentsYet, 0, 1);
         }
-        GridPane.setMargin(noContentsYet, new Insets(525, 100, 100, 395));
+        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
     }
 
     @FXML
