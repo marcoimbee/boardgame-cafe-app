@@ -106,6 +106,19 @@ public class UserDBMongo {
         return (result.getModifiedCount() > 0);
     }
 
+    public List<UserModelMongo> findAllUsersWithLimit(int limit, int skip) {
+        List<UserModelMongo> users = null;
+        try {
+            Query query = new Query();
+            query.skip(skip).limit(limit);
+            users = mongoOperations.find(query, UserModelMongo.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+
     public boolean updateUser(String id,
                               GenericUserModelMongo newGenericUser,
                               String userType) {
