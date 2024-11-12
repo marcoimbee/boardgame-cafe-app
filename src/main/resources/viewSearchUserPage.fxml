@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewSearchUserPage">
+   <left>
+      <AnchorPane prefHeight="677.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
+         <children>
+            <Text fill="WHITE" layoutX="26.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="BoardGameCafè Application" textAlignment="CENTER" wrappingWidth="217.921875">
+               <font>
+                  <Font name="System Bold Italic" size="28.0" />
+               </font>
+            </Text>
+            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="85.0" layoutY="602.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="yourProfileButton" contentDisplay="CENTER" layoutX="67.0" layoutY="184.0" mnemonicParsing="false" onAction="#onClickYourProfileButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="postsFeedButton" contentDisplay="CENTER" layoutX="67.0" layoutY="296.0" mnemonicParsing="false" onAction="#onClickPostsFeedButton" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Posts Feed" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="67.0" layoutY="239.0" mnemonicParsing="false" onAction="#onClickBoardgamesButton" prefHeight="39.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="accountInfoButton" contentDisplay="CENTER" layoutX="67.0" layoutY="410.0" mnemonicParsing="false" onAction="#onClickAccountInfoButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Account Info" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="67.0" layoutY="355.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </left>
+   <center>
+      <VBox prefHeight="677.0" prefWidth="783.0" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane>
+               <children>
+                  <Button fx:id="searchButton" contentDisplay="CENTER" layoutX="380.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickSearch" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Search" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="clearFieldButton" contentDisplay="CENTER" layoutX="486.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickClearField" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Clear Field" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="285.0" promptText="Search User By Username" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <FontAwesomeIconView fill="#182e58" glyphName="SEARCH" layoutX="53.0" layoutY="68.0" size="20" />
+                  <ScrollPane fx:id="scrollSet" layoutY="115.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="492.0" prefWidth="953.0">
+                     <content>
+                        <GridPane fx:id="postGridPane">
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                        </GridPane>
+                     </content>
+                  </ScrollPane>
+                  <HBox alignment="CENTER" spacing="20.0">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </HBox>
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="351.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <ChoiceBox fx:id="whatPostsToShowChoiceBox" layoutX="695.0" layoutY="45.0" prefHeight="32.0" prefWidth="250.0" stylesheets="@css/style.css" />
+                  <Label layoutX="646.0" layoutY="50.0" text="Show:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="refreshButton" layoutX="458.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="REFRESH" size="18" />
+                     </graphic>
+                  </Button>
+                  <ListView fx:id="searchResultsList" layoutX="80.0" layoutY="81.0" onMouseClicked="#onMouseClickedListView" prefWidth="286.0" />
+               </children>
+               <padding>
+                  <Insets bottom="30.0" />
+               </padding>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
