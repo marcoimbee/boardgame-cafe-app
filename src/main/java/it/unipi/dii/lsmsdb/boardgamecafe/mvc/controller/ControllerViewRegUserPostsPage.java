@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -172,7 +173,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
         selectedSearchTag = null;
 
-        currentUser = Constants.CURRENT_USER;
+        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
@@ -209,6 +210,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         visitedPages.clear();
         visitedPages.add(0);
         visualizedLastPost = false;
+        scrollSet.setVvalue(0);
     }
 
     public void onClickBoardgamesCollection(ActionEvent actionEvent) {
@@ -270,17 +272,24 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
+        //ToDO: Fixare problema "next" sempre enable anche con lista vuota
 
-        if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
-            nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
+        if (posts.isEmpty()) {
+            nextButton.setDisable(false);
         } else {
-            boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
-            nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
+            boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
+
+            if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
+                nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
+            } else {
+                boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
+                nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
+            }
         }
     }
 
     private List<PostModelMongo> fetchPosts(String tag){
+        this.newPostButton.setDisable(false);
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
@@ -301,10 +310,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        if (!posts.isEmpty()) {
-            resetPageVars();
-            postGridPane.add(noContentsYet, 0, rowGridPane);
-        } else {
+        if (posts.isEmpty()) {
+            postGridPane.getChildren().clear();
             resetPageVars();
             postGridPane.add(noContentsYet, 0, 1);
         }
@@ -314,10 +321,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     void fillGridPane() {
 
-        if (posts.size() == 1) {        // Needed to correctly position a single element in the GridPane
+        if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
             rowGridPane = 0;
-        } else {
+        } else if (posts.size() > 1){
             columnGridPane = 0;
             rowGridPane = 1;
         }
@@ -417,12 +424,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             titleTextArea.setPromptText("Write The Post Title Here...");
             postTextArea.setPromptText("Write Your Post Here...");
 
-            String tag = tagBoardgameTextArea.getText();           // Getting post data
-            String title = titleTextArea.getText();
-            String body = postTextArea.getText();
-
             // AddButton behavior
             submitPostButton.setOnAction(e -> {
+                String tag = tagBoardgameTextArea.getText();           // Getting post data
+                String title = titleTextArea.getText();
+                String body = postTextArea.getText();
+
+                //ToDO: Check tagBoardgame validity
                 addNewPost(tag, title, body);                   // Adding the post
             });
 
@@ -439,8 +447,15 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 } else {
                     removePostInsertionPanel();   // The post was empty, can remove the panel without warning
                 }
+
                 newPostButton.setDisable(false);
                 whatPostsToShowChoiceBox.setDisable(false);
+//                //clean
+//                postGridPane.getChildren().clear();
+//                //fetch
+//                posts.addAll(fetchPosts(null));
+//                //fill
+//                fillGridPane();
             });
 
             // Displaying new post insertion box
@@ -448,16 +463,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             addPostBox.setId("newPostBox");
             addPostBox.getChildren().add(loadViewItem);
 
-            nextButton.setDisable(true);        // Disabling bottom row buttons
-            previousButton.setDisable(true);
-            refreshButton.setDisable(true);
-            whatPostsToShowChoiceBox.setDisable(true);
-
-            if (!posts.isEmpty()){                  // FIXME: push already shown posts below and make the panel take the place of the first one
+            if (!posts.isEmpty()){
+                rowGridPane++;
                 postGridPane.add(addPostBox, 0, 1);
             } else {
-                postGridPane.add(addPostBox, 0, 0);
+                postGridPane.add(addPostBox, 0, rowGridPane+1);
             }
+
             GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 180));
 
         } catch (Exception e) {
