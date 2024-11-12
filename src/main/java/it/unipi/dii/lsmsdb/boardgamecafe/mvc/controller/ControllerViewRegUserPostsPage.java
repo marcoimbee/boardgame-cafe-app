@@ -151,7 +151,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
         // Choice box init
-        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getFirst());      // Default choice box string
+        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
         whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
@@ -270,7 +270,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -510,13 +510,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     private void handleSuccessfulPostAddition(PostModelMongo newlyInsertedPost) {
         if (currentlyShowing == PostsToFetch.ALL_POSTS) {
-            posts.removeLast();         // Alter posts collection but keep it compliant to posts displaying rules
-            posts.addFirst(newlyInsertedPost);
+            posts.remove(posts.size() - 1);         // Alter posts collection but keep it compliant to posts displaying rules
+            posts.add(0, newlyInsertedPost);
             fillGridPane();
             prevNextButtonsCheck(posts.size() <= LIMIT ? posts.size() : LIMIT);
         } else {
             currentlyShowing = PostsToFetch.ALL_POSTS;          // get back to ALL_POSTS page, show the new post first
-            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getLast());       // Setting string inside choice box
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(whatPostsToShowList.size() -1));       // Setting string inside choice box
             onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
         }
 
