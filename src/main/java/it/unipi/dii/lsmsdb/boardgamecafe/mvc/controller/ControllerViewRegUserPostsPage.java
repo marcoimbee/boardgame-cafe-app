@@ -324,7 +324,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
             rowGridPane = 0;
-        } else if (posts.size() > 1){
+        } else {
             columnGridPane = 0;
             rowGridPane = 1;
         }
