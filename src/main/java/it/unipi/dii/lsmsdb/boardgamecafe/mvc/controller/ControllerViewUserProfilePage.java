@@ -228,7 +228,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
                 loadViewMessagInfo(loadViewItem);
             } else {
-                resetPage();
+//                resetPage();
                 fillGridPane(items);
             }
         } else if (selectedContentType.equals(ContentType.REVIEWS)){
@@ -237,7 +237,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
                 loadViewMessagInfo(loadViewItem);
             } else {
-                resetPage();
+//                resetPage();
                 fillGridPane(items);
             }
         }
@@ -345,15 +345,12 @@ public class ControllerViewUserProfilePage implements Initializable{
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
 
-        if (!postsUser.isEmpty()){
+        if (postsUser.isEmpty()){
             resetPage();
-            gridPane.add(noContentsYet, 0, rowGridPane);
-        } else if (!reviewsUser.isEmpty()) {
+            gridPane.add(noContentsYet, 0, rowGridPane+1);
+        } else if (reviewsUser.isEmpty()) {
             resetPage();
-            gridPane.add(noContentsYet, 0, rowGridPane);
-        } else {
-            resetPage();
-            gridPane.add(noContentsYet, 0, 1);
+            gridPane.add(noContentsYet, 0, rowGridPane+1);
         }
 
         GridPane.setMargin(noContentsYet, new Insets(100, 200, 200, 331));
@@ -362,7 +359,9 @@ public class ControllerViewUserProfilePage implements Initializable{
     private void fillGridPane(List<?> items) {
 
         //per mettere un solo elemento correttamente nel gridpane
-        if (postsUser.size() == 1 || reviewsUser.size() == 1){
+        if (postsUser.size() == 1 || reviewsUser.size() == 1 ||
+            postsUser.isEmpty() || reviewsUser.isEmpty())
+        {
             columnGridPane = 0; rowGridPane = 0;
         } else {
             setGridPaneColumnAndRow();
@@ -405,7 +404,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 gridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
                 gridPane.setPrefHeight(400);
                 gridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                GridPane.setMargin(anchorPane, new Insets(12,5,12,130));
+                GridPane.setMargin(anchorPane, new Insets(25,5,12,130));
             }
         } catch (Exception e) {
             e.printStackTrace();
