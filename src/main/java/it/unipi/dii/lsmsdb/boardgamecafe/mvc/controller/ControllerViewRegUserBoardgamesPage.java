@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -50,7 +51,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button logoutButton;
     @FXML
-    private Button profileButton;
+    private Button yourProfileButton;
     @FXML
     private Button accountInfoButton;
     @FXML
@@ -298,7 +299,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     public void onClickYourProfile(ActionEvent event) {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        stageManager.closeStageButton(this.yourProfileButton);
     }
 
     public void onClickAccountInfoButton(ActionEvent event) {
@@ -306,5 +307,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     }
 
     public void onClickSearchUserButton(ActionEvent event) {
+        stageManager.showWindow(FxmlView.SEARCHUSER);
+        stageManager.closeStageButton(this.searchButton);
     }
 }

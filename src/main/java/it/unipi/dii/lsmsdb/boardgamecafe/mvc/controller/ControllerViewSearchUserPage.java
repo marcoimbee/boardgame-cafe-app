@@ -1,12 +1,14 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.UserListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -34,15 +36,17 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 
 @Component
-public class ControllerViewRegUserPostsPage implements Initializable {
+public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     private ListView searchResultsList;
     @FXML
-    private Button boardgamesCollectionButton;
+    private Button boardgamesButton;
     @FXML
     private Button postsFeedButton;
     @FXML
@@ -52,16 +56,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button searchButton;
     @FXML
-    private Button newPostButton;
-    @FXML
-    private Button yourProfileButton;
-    @FXML
     private Button clearFieldButton;
     @FXML
     private Button searchUserButton;
     @FXML
     private Button logoutButton;
-
+    @FXML
+    private Button profileButton;
     @FXML
     private Button accountInfoButton;
     @FXML
@@ -82,15 +83,19 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @Autowired
     private PostDBNeo4j postDBNeo4j;
     @Autowired
+    private UserDBMongo userMongoOp;
+    @Autowired
     private PostService postService;
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
     private ControllerObjectPost controllerObjectPost;
     @Autowired
+    private ControllerObjectUser controllerObjectUser;
+    @Autowired
     private ModelBean modelBean;
     private final StageManager stageManager;
-    PostListener postListener;
+    UserListener userListener;
 
     // Choice box variables
     ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
@@ -102,6 +107,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     //Post Variables
     private List<PostModelMongo> posts = new ArrayList<>();
+    private List<UserModelMongo> users = new ArrayList<>();
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -129,11 +135,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private List<String> boardgameTags;
     private static String selectedSearchTag;
 
-    private static String currentUser;
-
     @Autowired
     @Lazy
-    public ControllerViewRegUserPostsPage(StageManager stageManager) {
+    public ControllerViewSearchUserPage(StageManager stageManager) {
         this.stageManager = stageManager;
     }
 
@@ -142,37 +146,51 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         visitedPages = new ArrayList<>();
 
-        this.postsFeedButton.setDisable(true);
+        this.searchUserButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
-        this.newPostButton.setDisable(false);
         resetPageVars();
-
-        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
-
-        // Choice box init
-        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getFirst());      // Default choice box string
-        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
-
-        // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
-        whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateCurrentlyShowing(newValue);
-            onSelectChoiceBoxOption();
-        });
-
-        onSelectChoiceBoxOption();        // Show posts by followed users by default
 
         // Prefetch boardgame tags for the search function and init search functionalities variables
         searchResultsList.setVisible(false);
 
-        long startTime = System.currentTimeMillis();
-        boardgameTags = boardgameDBMongo.getBoardgameTags();
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
-        selectedSearchTag = null;
+        users.addAll(getUsers());
 
-        currentUser = Constants.CURRENT_USER;
+        fillGridPane();
+//
+//        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
+//
+//        // Choice box init
+//        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
+//        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
+//
+//        // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
+//        whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//            updateCurrentlyShowing(newValue);
+//            onSelectChoiceBoxOption();
+//        });
+//
+//        onSelectChoiceBoxOption();        // Show posts by followed users by default
+//
+//        // Prefetch boardgame tags for the search function and init search functionalities variables
+//        searchResultsList.setVisible(false);
+//
+//        long startTime = System.currentTimeMillis();
+//        boardgameTags = boardgameDBMongo.getBoardgameTags();    // TODO: maybe move into model bean? (fetch once at start and the it's always there)
+//        long stopTime = System.currentTimeMillis();
+//        long elapsedTime = stopTime - startTime;
+//        System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
+//        System.out.println("[DEBUG] " + boardgameTags.get(0));
+//        selectedSearchTag = null;
+    }
+
+    private List<UserModelMongo> getUsers(){
+        List<UserModelMongo> users =
+                userMongoOp.findAllUsersWithLimit(LIMIT, skipCounter);
+        if (users.isEmpty()) {
+            loadViewMessagInfo();
+        }
+        return users;
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
@@ -196,7 +214,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void onSelectChoiceBoxOption() {
         resetPageVars();
         selectedSearchTag = null;
-        List<PostModelMongo> retrievedPosts = fetchPosts(null);
+        List<PostModelMongo> retrievedPosts = getData(null);
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
@@ -205,21 +223,26 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private void resetPageVars() {
         skipCounter = 0;
         posts.clear();
+        users.clear();
         currentPage = 0;
         visitedPages.clear();
         visitedPages.add(0);
         visualizedLastPost = false;
     }
 
-    public void onClickBoardgamesCollection(ActionEvent actionEvent) {
+    public void onClickBoardgamesButton(ActionEvent actionEvent) {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
-        stageManager.closeStageButton(this.boardgamesCollectionButton);
+        stageManager.closeStageButton(this.boardgamesButton);
+    }
+    public void onClickPostsFeedButton(ActionEvent actionEvent) {
+        stageManager.showWindow(FxmlView.REGUSERPOSTS);
+        stageManager.closeStageButton(this.postsFeedButton);
     }
 
     public void onClickSearch() {
         currentlyShowing = PostsToFetch.SEARCH_RESULTS;
         resetPageVars();
-        List<PostModelMongo> retrievedPosts = fetchPosts(selectedSearchTag);
+        List<PostModelMongo> retrievedPosts = getData(selectedSearchTag);
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
@@ -235,13 +258,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void onClickNext() {
         postGridPane.getChildren().clear();
 
-        List<PostModelMongo> retrievedPosts = new ArrayList<>();
+        List<UserModelMongo> retrievedPosts = new ArrayList<>();
         currentPage++;
         if (!visitedPages.contains(currentPage)) {
             // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedPosts = fetchPosts(selectedSearchTag);        // Fetching new posts
-            posts.addAll(retrievedPosts);            // Adding fetched posts to the post list
+            retrievedPosts = getUsers();        // Fetching new posts
+            users.addAll(retrievedPosts);            // Adding fetched posts to the post list
             visitedPages.add(currentPage);
         } else {
             skipCounter += SKIP;
@@ -270,7 +293,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -280,15 +303,15 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
     }
 
-    private List<PostModelMongo> fetchPosts(String tag){
+    private List<PostModelMongo> getData(String tag){
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers(currentUser, LIMIT, skipCounter);
+                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers(currentUser, LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers(currentUser, LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
             case SEARCH_RESULTS ->
                     postService.findPostsByTag(tag, LIMIT, skipCounter);
             case ALL_POSTS ->
@@ -296,12 +319,17 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         };
     }
 
-    private void loadViewMessageInfo() {
+    void setGridPaneColumnAndRow(){
+        columnGridPane = 0;
+        rowGridPane = 1;
+    }
+
+    private void loadViewMessagInfo(){
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        if (!posts.isEmpty()) {
+        if (!users.isEmpty()){
             resetPageVars();
             postGridPane.add(noContentsYet, 0, rowGridPane);
         } else {
@@ -314,47 +342,48 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     void fillGridPane() {
 
-        if (posts.size() == 1) {        // Needed to correctly position a single element in the GridPane
+        //per mettere un solo elemento correttamente nel gridpane
+        if (users.size() == 1) {
             columnGridPane = 0;
             rowGridPane = 0;
         } else {
-            columnGridPane = 0;
-            rowGridPane = 1;
+            setGridPaneColumnAndRow();
         }
 
         // Logica per mostrare i dettagli del post usando StageManager
-        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.showWindow(FxmlView.DETAILS_POST);
+        userListener = (MouseEvent mouseEvent, UserModelMongo user) -> {
+            modelBean.putBean(Constants.SELECTED_USER, user);
+            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
         };
         postGridPane.getChildren().clear();         // Removing old posts
 
+
         try {
-            if (posts.isEmpty()) {
-                loadViewMessageInfo();
+            if (users.isEmpty()) {
+                loadViewMessagInfo();
             } else {
                 // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
                 int startPost = skipCounter;
                 int endPost = skipCounter + LIMIT - 1;
-                if (endPost > posts.size()) {
-                    endPost = posts.size() - 1;
+                if (endPost > users.size()) {
+                    endPost = users.size() - 1;
                     visualizedLastPost = true;
                 }
 
                 System.out.println("[DEBUG] [startPost, endPost]: [" + startPost + ", " + endPost + "]");
 
                 for (int i = startPost; i <= endPost; i++) {
-                    PostModelMongo post = posts.get(i);
+                    UserModelMongo user = users.get(i);
 
-                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
+                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTUSER.getFxmlFile());
 
                     AnchorPane anchorPane = new AnchorPane();
                     anchorPane.getChildren().add(loadViewItem);
 
-                    controllerObjectPost.setData(post, postListener);
+                    controllerObjectUser.setData(user);
 
                     anchorPane.setOnMouseClicked(event -> {
-                        this.postListener.onClickPostListener(event, post);});
+                        this.userListener.onClickUserListener(event, user);});
 
                     //choice number of column
                     if (columnGridPane == 1) {
@@ -389,143 +418,17 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickYourProfileButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
-        stageManager.closeStageButton(this.yourProfileButton);
+        stageManager.closeStageButton(this.logoutButton);
     }
 
     public void onClickAccountInfoButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 
-    public void onClickSearchUserButton(ActionEvent event) {
-        stageManager.showWindow(FxmlView.SEARCHUSER);
-        stageManager.closeStageButton(this.searchButton);
-    }
-
-    public void onClickNewPostButton() {
-        System.out.println("[INFO] Starting new post creation procedure");
-        try {
-            this.newPostButton.setDisable(true);
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEPOST.getFxmlFile());       // Load modifiable post's FXML
-
-            TextField tagBoardgameTextArea = (TextField) loadViewItem.lookup("#tagBoardgameText");  // Get control over FXML input fields
-            TextField titleTextArea = (TextField) loadViewItem.lookup("#titleTextLabel");
-            TextField postTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
-            Button submitPostButton = (Button) loadViewItem.lookup("#submitButton");
-            Button cancelPostButton = (Button) loadViewItem.lookup("#cancelButton");
-
-            tagBoardgameTextArea.setPromptText("What boardgame will the post be about? (Optional)");
-            titleTextArea.setPromptText("Write The Post Title Here...");
-            postTextArea.setPromptText("Write Your Post Here...");
-
-            String tag = tagBoardgameTextArea.getText();           // Getting post data
-            String title = titleTextArea.getText();
-            String body = postTextArea.getText();
-
-            // AddButton behavior
-            submitPostButton.setOnAction(e -> {
-                addNewPost(tag, title, body);                   // Adding the post
-            });
-
-            // CancelButton behavior
-            cancelPostButton.setOnAction(e -> {
-                String latestTag = tagBoardgameTextArea.getText();
-                String latestTitle = titleTextArea.getText();
-                String latestBody = postTextArea.getText();
-                if (!latestTag.isEmpty() ||!latestTitle.isEmpty() || !latestBody.isEmpty()) {
-                    boolean discardPost = stageManager.showDiscardPostInfoMessage();          // Show info message
-                    if (discardPost) {              // User chose to discard post, remove post creation panel element
-                        removePostInsertionPanel();
-                    }
-                } else {
-                    removePostInsertionPanel();   // The post was empty, can remove the panel without warning
-                }
-                newPostButton.setDisable(false);
-                whatPostsToShowChoiceBox.setDisable(false);
-            });
-
-            // Displaying new post insertion box
-            AnchorPane addPostBox = new AnchorPane();
-            addPostBox.setId("newPostBox");
-            addPostBox.getChildren().add(loadViewItem);
-
-            nextButton.setDisable(true);        // Disabling bottom row buttons
-            previousButton.setDisable(true);
-            refreshButton.setDisable(true);
-            whatPostsToShowChoiceBox.setDisable(true);
-
-            if (!posts.isEmpty()){                  // FIXME: push already shown posts below and make the panel take the place of the first one
-                postGridPane.add(addPostBox, 0, 1);
-            } else {
-                postGridPane.add(addPostBox, 0, 0);
-            }
-            GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 180));
-
-        } catch (Exception e) {
-            stageManager.showInfoMessage("INFO", "An error occurred while creating the post. Try again in a while.");
-            System.err.println("[ERROR] onClickNewPostButton@ControllerViewRegUserPostsPage.java raised an exception: " + e.getMessage());
-        }
-    }
-
-    private void removePostInsertionPanel() {
-        postGridPane.getChildren().removeIf(elem -> {
-            String elemId = elem.getId();
-            if (elemId != null) {
-                return elemId.equals("newPostBox");
-            }
-            return false;
-        });
-    }
-
-    private void addNewPost(String tag, String title, String body) {
-        if (body.isEmpty()) {
-            stageManager.showInfoMessage("Error", "Post Cannot Be Empty.");
-            return;
-        }
-        if (title.isEmpty()){
-            stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
-            return;
-        }
-
-        PostModelMongo newPost = new PostModelMongo(    // Create a new PostModelMongo and save it in the DB
-                currentUser,
-                title,
-                body,
-                tag,
-                new Date()
-        );
-
-        PostModelMongo savedPost = postService.insertPost(newPost);     // MongoDB + Neo4J insertion
-
-        if (savedPost != null) {
-            System.out.println("[INFO] New post added");
-            stageManager.showInfoMessage("Success", "Your post has been added successfully! You're being redirected to the 'All posts' page.");
-            handleSuccessfulPostAddition(savedPost);
-            this.newPostButton.setDisable(false);
-        } else {
-            System.out.println("[INFO] An error occurred while adding a new post");
-            stageManager.showInfoMessage("Error", "Failed to add comment. Try again in a while.");
-            fillGridPane();             // Restoring GridPane if anything went wrong
-        }
-    }
-
-    private void handleSuccessfulPostAddition(PostModelMongo newlyInsertedPost) {
-        if (currentlyShowing == PostsToFetch.ALL_POSTS) {
-            posts.removeLast();         // Alter posts collection but keep it compliant to posts displaying rules
-            posts.addFirst(newlyInsertedPost);
-            fillGridPane();
-            prevNextButtonsCheck(posts.size() <= LIMIT ? posts.size() : LIMIT);
-        } else {
-            currentlyShowing = PostsToFetch.ALL_POSTS;          // get back to ALL_POSTS page, show the new post first
-            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getLast());       // Setting string inside choice box
-            onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
-        }
-
-        refreshButton.setDisable(false);        // Re-enabling the button
-        whatPostsToShowChoiceBox.setDisable(false);
-    }
-
     public void onClickRefreshButton(){
-        onSelectChoiceBoxOption();  // The same actions that are performed when clicking a choice box option have to be performed
+        //ToDO: qua andrebbe fatto clean/fetch/fill.
+        // chidere a marco in base all'implementazione fatta all'interno di questo controller.
+        // Il button è già stato inserito nella view grafica e mappato su questo controller.
     }
 
     public void onKeyTypedSearchBar() {

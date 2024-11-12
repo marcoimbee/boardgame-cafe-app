@@ -91,7 +91,7 @@ public enum FxmlView {
     }, OBJECTBOARDGAME {
         @Override
         public String getTitle() {
-            return "Boardgame Preview";
+            return "Boardgame Preview Page";
         }
 
         @Override
@@ -101,7 +101,7 @@ public enum FxmlView {
     }, OBJECTPOST {
         @Override
         public String getTitle() {
-            return "Post Preview";
+            return "Post Preview Page";
         }
 
         @Override
@@ -111,7 +111,7 @@ public enum FxmlView {
     }, OBJECTREVIEW {
         @Override
         public String getTitle() {
-            return "Review Preview";
+            return "Review Preview Page";
         }
 
         @Override
@@ -121,7 +121,7 @@ public enum FxmlView {
     }, OBJECTCOMMENT {
         @Override
         public String getTitle() {
-            return "Comment Preview";
+            return "Comment Preview Page";
         }
 
         @Override
@@ -131,7 +131,7 @@ public enum FxmlView {
     }, OBJECTCREATECOMMENT {
         @Override
         public String getTitle() {
-            return "Create Comment";
+            return "Create Comment Page";
         }
 
         @Override
@@ -141,17 +141,27 @@ public enum FxmlView {
     }, OBJECTCREATEPOST {
         @Override
         public String getTitle() {
-            return "Create Post";
+            return "Create Post Page";
         }
 
         @Override
         public String getFxmlFile() {
             return "/viewObjectCreatePost.fxml";
         }
+    }, OBJECTUSER {
+        @Override
+        public String getTitle() {
+            return "User Info Preview Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectUser.fxml";
+        }
     }, DETAILS_POST {
         @Override
         public String getTitle() {
-            return "Post Details";
+            return "Post Details Page";
         }
 
         @Override
@@ -161,7 +171,7 @@ public enum FxmlView {
     }, INFOMSGPOSTS {
         @Override
         public String getTitle() {
-            return "Info Posts";
+            return "Info Posts Page";
         }
 
         @Override
@@ -171,14 +181,24 @@ public enum FxmlView {
     }, INFOMSGREVIEWS {
         @Override
         public String getTitle() {
-            return "Info Reviews";
+            return "Info Reviews Page";
         }
 
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoReviewsMsg.fxml";
         }
-    }, INFOMSGCOMMENTS {
+    }, SEARCHUSER {
+        @Override
+        public String getTitle() {
+            return "Search Users Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewSearchUserPage.fxml";
+        }
+    },INFOMSGCOMMENTS {
         @Override
         public String getTitle() {
             return "Info Comments";
