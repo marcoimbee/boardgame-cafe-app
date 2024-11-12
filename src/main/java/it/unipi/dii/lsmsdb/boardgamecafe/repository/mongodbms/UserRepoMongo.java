@@ -20,4 +20,5 @@ public interface UserRepoMongo extends MongoRepository<GenericUserModelMongo, St
 
     Optional<GenericUserModelMongo> findByEmail(String email);
 
+
 }
