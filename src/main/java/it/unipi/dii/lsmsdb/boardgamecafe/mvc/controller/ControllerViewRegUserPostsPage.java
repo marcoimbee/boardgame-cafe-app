@@ -106,7 +106,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     //Utils Variables
     private int columnGridPane = 0;
-    private int rowGridPane = 0;
+    private int rowGridPane = 1;
     private int skipCounter = 0;            // Ho many times the user clicked on the 'Next' button
     private final static int SKIP = 10;     // How many posts to skip each time
     private final static int LIMIT = 10;    // How many posts to show in each page
@@ -310,11 +310,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        if (posts.isEmpty()) {
-            postGridPane.getChildren().clear();
-            resetPageVars();
-            postGridPane.add(noContentsYet, 0, 1);
-        }
+        postGridPane.getChildren().clear();
+        resetPageVars();
+        postGridPane.add(noContentsYet, 0, 1);
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
     }
 
@@ -326,7 +324,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             rowGridPane = 0;
         } else {
             columnGridPane = 0;
-            rowGridPane = 1;
+            rowGridPane++;
         }
 
         // Logica per mostrare i dettagli del post usando StageManager
@@ -465,6 +463,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
             if (!posts.isEmpty()){
                 rowGridPane++;
+                fillGridPane();
                 postGridPane.add(addPostBox, 0, 1);
             } else {
                 postGridPane.add(addPostBox, 0, rowGridPane+1);
