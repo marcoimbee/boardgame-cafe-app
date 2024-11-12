@@ -16,9 +16,10 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javafx.stage.Window;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,9 +40,9 @@ public class StageManager {
     }
 
     public void switchScene(final FxmlView view) {
-//
 //        Parent viewRoot = loadViewNode(view.getFxmlFile());
 //        show(viewRoot, view.getTitle());
+
 
         Parent viewRoot = loadViewNode(view.getFxmlFile());
 
@@ -49,7 +50,7 @@ public class StageManager {
         Stage currentStage = (Stage) Stage.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
 
         if (currentStage != null) {
-        currentStage.close(); // Chiude l'attuale
+            currentStage.close(); // Chiude l'attuale
         }
 
         // Crea un nuovo stage per la nuova scena
@@ -184,7 +185,6 @@ public class StageManager {
     }
 
     public void closeStageButton(Button button) {
-
         Stage stage = (Stage) button.getScene().getWindow();
         stage.close();
     }
