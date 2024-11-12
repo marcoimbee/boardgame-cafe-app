@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //--- La classe StageManager è responsabile della gestione delle finestre e delle scene dell'applicazione.
 // Fornisce metodi per caricare le viste, mostrare le finestre e visualizzare eventuali messaggi di errore.
@@ -138,6 +139,48 @@ public class StageManager {
         Scene scene = new Scene(vBox);
         window.setScene(scene);
         window.show();
+    }
+
+    public boolean showDiscardPostInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard the post? You will lose what you were writing.";
+
+        Stage window = new Stage();
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle(title);
+        window.setMinWidth(650);
+        window.setMinHeight(200);
+        window.setOnCloseRequest(e -> window.close());
+
+        Label label = new Label();
+        label.setText(message);
+        label.setFont(Font.font("Georgia Pro Cond Black", FontWeight.BOLD, FontPosture.REGULAR, 16));
+        label.setTextFill(Color.rgb(24,46,88));
+        label.setAlignment(Pos.CENTER);
+
+        AtomicBoolean discard = new AtomicBoolean(false);
+
+        Button backButton = new Button("Return to post");
+        backButton.setOnAction(e -> {
+            window.close();
+            discard.set(false);
+        });
+
+        Button discardPostButton = new Button("Discard post");
+        discardPostButton.setOnAction(e -> {
+            window.close();
+            discard.set(true);
+        });
+
+        VBox vBox = new VBox(10);
+        vBox.getChildren().addAll(label, backButton, discardPostButton);
+        vBox.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(vBox);
+        window.setScene(scene);
+        window.showAndWait();
+
+        return discard.get();
     }
 
     public void closeStageButton(Button button) {

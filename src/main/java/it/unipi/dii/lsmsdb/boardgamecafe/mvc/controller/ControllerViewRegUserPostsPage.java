@@ -2,19 +2,14 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,8 +18,6 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -34,7 +27,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +35,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -137,6 +128,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private List<String> boardgameTags;
     private static String selectedSearchTag;
 
+    private static String currentUser;
+
     @Autowired
     @Lazy
     public ControllerViewRegUserPostsPage(StageManager stageManager) {
@@ -151,12 +144,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.postsFeedButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
+        this.newPostButton.setDisable(false);
         resetPageVars();
 
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
         // Choice box init
-        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
+        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getFirst());      // Default choice box string
         whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
@@ -171,12 +165,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         searchResultsList.setVisible(false);
 
         long startTime = System.currentTimeMillis();
-        boardgameTags = boardgameDBMongo.getBoardgameTags();    // TODO: maybe move into model bean? (fetch once at start and the it's always there)
+        boardgameTags = boardgameDBMongo.getBoardgameTags();
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
-        System.out.println("[DEBUG] " + boardgameTags.get(0));
         selectedSearchTag = null;
+
+        currentUser = Constants.CURRENT_USER;
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
@@ -200,7 +195,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void onSelectChoiceBoxOption() {
         resetPageVars();
         selectedSearchTag = null;
-        List<PostModelMongo> retrievedPosts = getData(null);
+        List<PostModelMongo> retrievedPosts = fetchPosts(null);
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
@@ -223,7 +218,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void onClickSearch() {
         currentlyShowing = PostsToFetch.SEARCH_RESULTS;
         resetPageVars();
-        List<PostModelMongo> retrievedPosts = getData(selectedSearchTag);
+        List<PostModelMongo> retrievedPosts = fetchPosts(selectedSearchTag);
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
@@ -244,7 +239,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (!visitedPages.contains(currentPage)) {
             // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedPosts = getData(selectedSearchTag);        // Fetching new posts
+            retrievedPosts = fetchPosts(selectedSearchTag);        // Fetching new posts
             posts.addAll(retrievedPosts);            // Adding fetched posts to the post list
             visitedPages.add(currentPage);
         } else {
@@ -274,7 +269,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
+        boolean onFurthestPage = visitedPages.getLast() == currentPage;     // User is in the furthest page he visited
 
         if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
@@ -284,15 +279,15 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
     }
 
-    private List<PostModelMongo> getData(String tag){
+    private List<PostModelMongo> fetchPosts(String tag){
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.findPostsByFollowedUsers(currentUser, LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers(currentUser, LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers(currentUser, LIMIT, skipCounter);
             case SEARCH_RESULTS ->
                     postService.findPostsByTag(tag, LIMIT, skipCounter);
             case ALL_POSTS ->
@@ -300,17 +295,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         };
     }
 
-    void setGridPaneColumnAndRow(){
-        columnGridPane = 0;
-        rowGridPane = 1;
-    }
-
-    private void loadViewMessagInfo(){
+    private void loadViewMessageInfo() {
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        if (!posts.isEmpty()){
+        if (!posts.isEmpty()) {
             resetPageVars();
             postGridPane.add(noContentsYet, 0, rowGridPane);
         } else {
@@ -323,12 +313,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     void fillGridPane() {
 
-        //per mettere un solo elemento correttamente nel gridpane
-        if (posts.size() == 1) {
+        if (posts.size() == 1) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
             rowGridPane = 0;
         } else {
-            setGridPaneColumnAndRow();
+            columnGridPane = 0;
+            rowGridPane = 1;
         }
 
         // Logica per mostrare i dettagli del post usando StageManager
@@ -340,7 +330,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         try {
             if (posts.isEmpty()) {
-                loadViewMessagInfo();
+                loadViewMessageInfo();
             } else {
                 // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
                 int startPost = skipCounter;
@@ -407,89 +397,132 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickSearchUserButton(ActionEvent event) {
     }
-    public void onClickNewPostButton(ActionEvent event) {
+
+    public void onClickNewPostButton() {
+        System.out.println("[INFO] Starting new post creation procedure");
         try {
             this.newPostButton.setDisable(true);
-            // Carica l'FXML del commento modificabile
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEPOST.getFxmlFile());
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEPOST.getFxmlFile());       // Load modifiable post's FXML
 
-            // Ottieni i controlli di input definiti nel FXML
-            TextField tagBoardgameTextArea = (TextField) loadViewItem.lookup("#tagBoardgameText");
+            TextField tagBoardgameTextArea = (TextField) loadViewItem.lookup("#tagBoardgameText");  // Get control over FXML input fields
             TextField titleTextArea = (TextField) loadViewItem.lookup("#titleTextLabel");
             TextField postTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
             Button submitPostButton = (Button) loadViewItem.lookup("#submitButton");
             Button cancelPostButton = (Button) loadViewItem.lookup("#cancelButton");
-            tagBoardgameTextArea.setPromptText("If You Want Write The Board-Game Name You Want To Refer To Here...");
+
+            tagBoardgameTextArea.setPromptText("What boardgame will the post be about? (Optional)");
             titleTextArea.setPromptText("Write The Post Title Here...");
             postTextArea.setPromptText("Write Your Post Here...");
 
-            //AddButton Behaviour
-            submitPostButton.setOnAction(e ->
-            {
-                String tagBoardgameText = postTextArea.getText();
-                String titleText = postTextArea.getText();
-                String postText = postTextArea.getText();
+            String tag = tagBoardgameTextArea.getText();           // Getting post data
+            String title = titleTextArea.getText();
+            String body = postTextArea.getText();
 
-                if (postText.isEmpty()) {
-                    stageManager.showInfoMessage("Error", "Post Cannot Be Empty.");
-                    return;
-                }
-                if (titleText.isEmpty()){
-                    stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
-                    return;
-                }
-
-                // Crea un nuovo PostModelMonogo e salva il post nel database
-//                PostModelMongo newPost = new PostModelMongo(
-//                        currentUser.getUsername()//username
-//                        titleText,
-//                        postText,
-//                        tagBoardgameText
-//                        new Date()
-//                )
-//                boolean savedPost = postService.
-//                        insertPost(PostModelMongo newPost);
-//
-//                if (savedPost) {
-//                    stageManager.showInfoMessage("Success", "Post Added Successfully.");
-//                    //Per mostrare subito tutti commenti compreso quello appena aggiunto
-//                    //Dovrebbe pulire, richiamare la AllPosts e fare il fillgridpane
-//                    //cleanFetchAndFill();
-//                    this.newPostButton.setDisable(false);
-//                } else {
-//                    stageManager.showInfoMessage("Error", "Failed to add comment.");
-//                }
+            // AddButton behavior
+            submitPostButton.setOnAction(e -> {
+                addNewPost(tag, title, body);                   // Adding the post
             });
 
-            //CancelButton Behaviour
+            // CancelButton behavior
             cancelPostButton.setOnAction(e -> {
-                this.newPostButton.setDisable(false);
-                //Per mostrare subito tutti commenti compreso quello appena aggiunto
-                //Dovrebbe pulire, richiamare la AllPosts e fare il fillgridpane
-                //cleanFetchAndFill();
+                String latestTag = tagBoardgameTextArea.getText();
+                String latestTitle = titleTextArea.getText();
+                String latestBody = postTextArea.getText();
+                if (!latestTag.isEmpty() ||!latestTitle.isEmpty() || !latestBody.isEmpty()) {
+                    boolean discardPost = stageManager.showDiscardPostInfoMessage();          // Show info message
+                    if (discardPost) {              // User chose to discard post, remove post creation panel element
+                        removePostInsertionPanel();
+                    }
+                } else {
+                    removePostInsertionPanel();   // The post was empty, can remove the panel without warning
+                }
+                newPostButton.setDisable(false);
+                whatPostsToShowChoiceBox.setDisable(false);
             });
 
+            // Displaying new post insertion box
             AnchorPane addPostBox = new AnchorPane();
+            addPostBox.setId("newPostBox");
             addPostBox.getChildren().add(loadViewItem);
 
-            if (!posts.isEmpty()){
-                resetPageVars();
-                postGridPane.add(addPostBox, 0, rowGridPane);
-            } else {
-                resetPageVars();
+            nextButton.setDisable(true);        // Disabling bottom row buttons
+            previousButton.setDisable(true);
+            refreshButton.setDisable(true);
+            whatPostsToShowChoiceBox.setDisable(true);
+
+            if (!posts.isEmpty()){                  // FIXME: push already shown posts below and make the panel take the place of the first one
                 postGridPane.add(addPostBox, 0, 1);
+            } else {
+                postGridPane.add(addPostBox, 0, 0);
             }
             GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 180));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            stageManager.showInfoMessage("INFO", "An error occurred while creating the post. Try again in a while.");
+            System.err.println("[ERROR] onClickNewPostButton@ControllerViewRegUserPostsPage.java raised an exception: " + e.getMessage());
         }
     }
 
+    private void removePostInsertionPanel() {
+        postGridPane.getChildren().removeIf(elem -> {
+            String elemId = elem.getId();
+            if (elemId != null) {
+                return elemId.equals("newPostBox");
+            }
+            return false;
+        });
+    }
+
+    private void addNewPost(String tag, String title, String body) {
+        if (body.isEmpty()) {
+            stageManager.showInfoMessage("Error", "Post Cannot Be Empty.");
+            return;
+        }
+        if (title.isEmpty()){
+            stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
+            return;
+        }
+
+        PostModelMongo newPost = new PostModelMongo(    // Create a new PostModelMongo and save it in the DB
+                currentUser,
+                title,
+                body,
+                tag,
+                new Date()
+        );
+
+        PostModelMongo savedPost = postService.insertPost(newPost);     // MongoDB + Neo4J insertion
+
+        if (savedPost != null) {
+            System.out.println("[INFO] New post added");
+            stageManager.showInfoMessage("Success", "Your post has been added successfully! You're being redirected to the 'All posts' page.");
+            handleSuccessfulPostAddition(savedPost);
+            this.newPostButton.setDisable(false);
+        } else {
+            System.out.println("[INFO] An error occurred while adding a new post");
+            stageManager.showInfoMessage("Error", "Failed to add comment. Try again in a while.");
+            fillGridPane();             // Restoring GridPane if anything went wrong
+        }
+    }
+
+    private void handleSuccessfulPostAddition(PostModelMongo newlyInsertedPost) {
+        if (currentlyShowing == PostsToFetch.ALL_POSTS) {
+            posts.removeLast();         // Alter posts collection but keep it compliant to posts displaying rules
+            posts.addFirst(newlyInsertedPost);
+            fillGridPane();
+            prevNextButtonsCheck(posts.size() <= LIMIT ? posts.size() : LIMIT);
+        } else {
+            currentlyShowing = PostsToFetch.ALL_POSTS;          // get back to ALL_POSTS page, show the new post first
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.getLast());       // Setting string inside choice box
+            onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
+        }
+
+        refreshButton.setDisable(false);        // Re-enabling the button
+        whatPostsToShowChoiceBox.setDisable(false);
+    }
+
     public void onClickRefreshButton(){
-        //ToDO: qua andrebbe fatto clean/fetch/fill.
-        // chidere a marco in base all'implementazione fatta all'interno di questo controller.
-        // Il button è già stato inserito nella view grafica e mappato su questo controller.
+        onSelectChoiceBoxOption();  // The same actions that are performed when clicking a choice box option have to be performed
     }
 
     public void onKeyTypedSearchBar() {

@@ -45,12 +45,11 @@ public class PostService {
             String usernameAuthorPost = postModelMongo.getUsername();
             Optional<UserModelNeo4j> authorPostOptional = userDBNeo4j.findByUsername(usernameAuthorPost);
             if (authorPostOptional.isEmpty()) // Check if the user is OK
-                throw new RuntimeException("InsertPost Exception: Post not added. Your account is not found!");
+                throw new RuntimeException("Post not added. No account match was found.");
 
             PostModelMongo insertedPost = postDBMongo.addPost(postModelMongo);
             if (insertedPost == null)
-                throw new RuntimeException("InsertPost Exception: Error in adding post to collection in MongoDB");
-            System.out.println("Inserito post id: " + insertedPost.getId());
+                throw new RuntimeException("Unable to add post to MongoDB collection.");
 
             PostModelNeo4j postModelNeo4j = new PostModelNeo4j(insertedPost.getId()); // Creation of post node in neo
             UserModelNeo4j authorPost = authorPostOptional.get();
@@ -58,22 +57,21 @@ public class PostService {
             {
                 Optional<BoardgameModelNeo4j> referredBoardgameOptional = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
                 referredBoardgameOptional.ifPresent(referredBoardgames -> postModelNeo4j.setTaggedGame(referredBoardgames));
-                System.out.println("Il post è riferito al gioco: " + referredBoardgameOptional.get().boardgameName);
             }
             if (!postDBNeo4j.addPost(postModelNeo4j)) // The REFERES TO relationship is already added (if exists)
             {
                 deletePost(insertedPost);
-                throw new RuntimeException("InsertPost Exception: Post not added in Neo44j");
+                throw new RuntimeException("Unable to add post to Neo4j.");
             }
             if (!addPostToUser(postModelNeo4j, authorPost))
             {
                 deletePost(insertedPost);
-                throw new RuntimeException("InsertPost Exception: Problem with relationhip creation");
+                throw new RuntimeException("Unable to create relationships.");
             }
             return insertedPost;
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println("[ERROR] insertPost@PostService.java raised an exception: " + ex.getMessage());
             return null;
         }
     }
