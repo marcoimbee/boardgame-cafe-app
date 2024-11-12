@@ -63,13 +63,14 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button newPostButton;
     @FXML
+    private Button yourProfileButton;
+    @FXML
     private Button clearFieldButton;
     @FXML
     private Button searchUserButton;
     @FXML
     private Button logoutButton;
-    @FXML
-    private Button profileButton;
+
     @FXML
     private Button accountInfoButton;
     @FXML
@@ -398,7 +399,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickYourProfileButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        stageManager.closeStageButton(this.yourProfileButton);
     }
 
     public void onClickAccountInfoButton(ActionEvent event) {
@@ -406,6 +407,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickSearchUserButton(ActionEvent event) {
+        stageManager.showWindow(FxmlView.SEARCHUSER);
+        stageManager.closeStageButton(this.searchButton);
     }
     public void onClickNewPostButton(ActionEvent event) {
         try {
