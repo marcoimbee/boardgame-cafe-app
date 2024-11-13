@@ -12,4 +12,5 @@ public class Constants {
     public static final String USERS_PATH = "Users_Path";
 
     public static final String BOARDGAME_LIST = "boardgameList";
+    public static final String USERS_USERNAMES = "usersUsernames";
 }

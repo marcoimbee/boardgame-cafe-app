@@ -168,6 +168,16 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewDetailsPostPage.fxml";
         }
+    }, INFOMSGUSERS {
+        @Override
+        public String getTitle() {
+            return "Info Users Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectInfoUsersMsg.fxml";
+        }
     }, INFOMSGPOSTS {
         @Override
         public String getTitle() {

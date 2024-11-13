@@ -51,8 +51,10 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "MATCH (notFriend:User)-[:WRITES_POST]->(post:Post)-[:REFERS_TO]->(notFriendBgames:Boardgame)\n" +
             "WHERE (notFriendBgames.boardgameName IN myBGamesNames)\n" +
             "AND (NOT (me)-[:FOLLOWS]->(notFriend)) AND me <> notFriend\n" +
-            "RETURN notFriend.username LIMIT $limit")
-    List<String> usersByCommonBoardgamePosted(@Param("username") String username, @Param("limit") int limit);
+            "RETURN notFriend.username " +
+            "SKIP $skipCounter " +
+            "LIMIT $limit")
+    List<String> usersByCommonBoardgamePosted(@Param("username") String username, @Param("limit") int limit, @Param("skipCounter") int skipCounter);
 
     @Query("MATCH (u)<-[followRel:FOLLOWS]-(follower:User) " +
             "WITH u, COUNT(DISTINCT followRel) AS followersCount " +
@@ -70,8 +72,9 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "WITH notFriend, COUNT(p) as sameLikedPosts\n" +
             "RETURN notFriend.username\n" +
             "ORDER BY sameLikedPosts DESC\n" +
+            "SKIP $skipCounter " +
             "LIMIT $limit")
-    List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit);
+    List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit, @Param("skipCounter") int skipCounter);
 
     @Query("MATCH (u:User {username: $username})\n" +
             "SET u.username = \"[Banned user]\"\n")

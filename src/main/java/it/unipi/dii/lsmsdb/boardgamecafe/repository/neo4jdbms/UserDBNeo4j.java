@@ -135,18 +135,18 @@ public class UserDBNeo4j {
         }
     }
 
-    public List<String> getUsersByCommonBoardgamePosted(String username, int limit)
+    public List<String> getUsersByCommonBoardgamePosted(String username, int limit, int skipCounter)
     {
         List<String> suggestedUsers = new ArrayList<>();
-        try { return userNeo4jDB.usersByCommonBoardgamePosted(username, limit); }
+        try { return userNeo4jDB.usersByCommonBoardgamePosted(username, limit, skipCounter); }
         catch (Exception e) { e.printStackTrace(); }
         return suggestedUsers;
     }
 
-    public List<String> getUsersBySameLikedPosts(String username, int limit)
+    public List<String> getUsersBySameLikedPosts(String username, int limit, int skipCounter)
     {
         List<String> suggestedUsers = new ArrayList<>();
-        try { return userNeo4jDB.findUsersBySameLikedPosts(username, limit); }
+        try { return userNeo4jDB.findUsersBySameLikedPosts(username, limit, skipCounter); }
         catch (Exception e) { e.printStackTrace(); }
         return suggestedUsers;
     }
