@@ -237,6 +237,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void onClickClearField() {
         this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown posts
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));
         onSelectChoiceBoxOption();
     }
 
