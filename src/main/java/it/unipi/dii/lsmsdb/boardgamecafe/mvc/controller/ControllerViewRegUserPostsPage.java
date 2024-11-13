@@ -445,15 +445,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 } else {
                     removePostInsertionPanel();   // The post was empty, can remove the panel without warning
                 }
-
                 newPostButton.setDisable(false);
                 whatPostsToShowChoiceBox.setDisable(false);
-//                //clean
-//                postGridPane.getChildren().clear();
-//                //fetch
-//                posts.addAll(fetchPosts(null));
-//                //fill
-//                fillGridPane();
             });
 
             // Displaying new post insertion box
