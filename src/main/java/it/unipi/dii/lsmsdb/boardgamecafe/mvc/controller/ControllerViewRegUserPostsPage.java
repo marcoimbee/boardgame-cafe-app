@@ -436,7 +436,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 String title = titleTextArea.getText();
                 String body = postTextArea.getText();
 
-                //ToDO: Check tagBoardgame validity
                 addNewPost(tag, title, body);                   // Adding the post
             });
 
@@ -445,7 +444,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 String latestTag = tagBoardgameTextArea.getText();
                 String latestTitle = titleTextArea.getText();
                 String latestBody = postTextArea.getText();
-                if (!latestTag.isEmpty() ||!latestTitle.isEmpty() || !latestBody.isEmpty()) {
+                if (!latestTitle.isEmpty() || !latestBody.isEmpty()) {
                     boolean discardPost = stageManager.showDiscardPostInfoMessage();          // Show info message
                     if (discardPost) {              // User chose to discard post, remove post creation panel element
                         removePostInsertionPanel();
@@ -495,6 +494,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
         if (title.isEmpty()){
             stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
+            return;
+        }
+
+        if (!tag.isEmpty() && !boardgameTags.contains(tag)) {     // Checking boardgame validity
+            stageManager.showInfoMessage("Error", "'" + tag + "' is not a valid boardgame name.");
             return;
         }
 
