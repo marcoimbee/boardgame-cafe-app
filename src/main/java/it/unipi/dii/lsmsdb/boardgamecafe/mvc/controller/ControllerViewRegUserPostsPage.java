@@ -279,10 +279,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        //ToDO: Fixare problema "next" sempre enable anche con lista vuota
-
         if (posts.isEmpty()) {
-            nextButton.setDisable(false);
+            nextButton.setDisable(true);
         } else {
             boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
