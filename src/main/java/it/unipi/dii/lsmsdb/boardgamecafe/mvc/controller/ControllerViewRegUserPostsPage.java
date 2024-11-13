@@ -168,13 +168,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         searchResultsList.setVisible(false);
 
         long startTime = System.currentTimeMillis();
-        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
-        {
-            boardgameTags = boardgameDBMongo.getBoardgameTags();
-            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);
+        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null) {
+            boardgameTags = boardgameDBMongo.getBoardgameTags();            // Fetching boardgame names as soon as the page opens
+            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);     // Saving them in the Bean, so they'll be always available from now on in the whole app
+        } else {
+            boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);     // Obtaining tags from the Bean, as thy had been put there before
         }
-        else
-            boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
