@@ -241,14 +241,11 @@ public class ControllerViewGuestPostsPage implements Initializable {
         }
 
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-
-            modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.showWindow(FxmlView.DETAILS_POST);
-//            String title = "Content Access Permissions";
-//            String message = "" +
-//                    "\t\t\tCurious To View The Content Of This Post?\n" +
-//                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
-//            stageManager.showInfoMessage(title, message);
+            String title = "Content Access Permissions";
+            String message = "" +
+                    "\t\t\tCurious To View The Content Of This Post?\n" +
+                    "\t\t\nSign-Up Via The Appropriate Button On The Left Side To Do This And More.";
+            stageManager.showInfoMessage(title, message);
         };
 
         //CREATE FOR EACH POST AN ITEM (ObjectPosts)
