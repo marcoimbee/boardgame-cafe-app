@@ -123,7 +123,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private int totalFollowingUsers;
     private int totalPosts;
     private int columnGridPane = 0;
-    private int rowGridPane = 0;
+    private int rowGridPane = 1;
     private int skipCounter = 0;
     private final static int SKIP = 10; //how many posts to skip per time
     private final static int LIMIT = 10; //how many posts to show for each page
@@ -205,7 +205,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.yourReviewsButton.setDisable(false);
         this.yourPostsButton.setDisable(true);
         this.selectedContentType = ContentType.POSTS;
-        resetPage();
         loadContent();
         scrollSet.setVvalue(0);
     }
@@ -214,7 +213,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.yourReviewsButton.setDisable(true);
         this.yourPostsButton.setDisable(false);
         this.selectedContentType = ContentType.REVIEWS;
-        resetPage();
         loadContent();
         scrollSet.setVvalue(0);
     }
@@ -228,7 +226,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
                 loadViewMessagInfo(loadViewItem);
             } else {
-//                resetPage();
+                gridPane.getChildren().clear();
                 fillGridPane(items);
             }
         } else if (selectedContentType.equals(ContentType.REVIEWS)){
@@ -237,7 +235,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
                 loadViewMessagInfo(loadViewItem);
             } else {
-//                resetPage();
+                gridPane.getChildren().clear();
                 fillGridPane(items);
             }
         }
@@ -336,21 +334,16 @@ public class ControllerViewUserProfilePage implements Initializable{
         return reviews;
     }
 
-    private void setGridPaneColumnAndRow(){
-        columnGridPane = 0;
-        rowGridPane = 1;
-    }
-
     private void loadViewMessagInfo(Parent whatToLoad){
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
 
         if (postsUser.isEmpty()){
-            resetPage();
-            gridPane.add(noContentsYet, 0, rowGridPane+1);
+            gridPane.getChildren().clear();
+            gridPane.add(noContentsYet, 0, 1);
         } else if (reviewsUser.isEmpty()) {
-            resetPage();
-            gridPane.add(noContentsYet, 0, rowGridPane+1);
+            gridPane.getChildren().clear();
+            gridPane.add(noContentsYet, 0, 1);
         }
 
         GridPane.setMargin(noContentsYet, new Insets(100, 200, 200, 331));
@@ -358,53 +351,48 @@ public class ControllerViewUserProfilePage implements Initializable{
     @FXML
     private void fillGridPane(List<?> items) {
 
-        //per mettere un solo elemento correttamente nel gridpane
-        if (postsUser.size() == 1 || reviewsUser.size() == 1 ||
-            postsUser.isEmpty() || reviewsUser.isEmpty())
-        {
-            columnGridPane = 0; rowGridPane = 0;
-        } else {
-            setGridPaneColumnAndRow();
+        columnGridPane = 0; rowGridPane = 0;
+        if (postsUser.size() > 1 || reviewsUser.size() > 1){
+            rowGridPane++;
         }
 
-        try {
+        // Logica per mostrare i dettagli del post usando StageManager sfruttando il listener sul post
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
+        };
+        gridPane.getChildren().clear();
 
+        try {
             for (Object item : items) {
                 Parent loadViewItem;
                 AnchorPane anchorPane = new AnchorPane();
-
                 if (item instanceof PostModelMongo) {
-
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
-                    postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-                        String title = "Work in Progress";
-                        String message = "" +
-                                "A breve vedrai la pagina in cui potrai ci saranno i dettagli del post.\n";
-                        stageManager.showInfoMessage(title, message);
-                    };
                     controllerObjectPost.setData((PostModelMongo) item, postListener);
-
                 } else if (item instanceof ReviewModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
                     controllerObjectReview.setData((ReviewModelMongo) item);
                 } else {
                     continue;
                 }
+
                 anchorPane.getChildren().add(loadViewItem);
+                anchorPane.setOnMouseClicked(event -> {
+                    this.postListener.onClickPostListener(event, (PostModelMongo) item);});
 
                 if (columnGridPane == 1) {
                     columnGridPane = 0;
                     rowGridPane++;
                 }
                 gridPane.add(anchorPane, columnGridPane++, rowGridPane);
-
                 gridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
                 gridPane.setPrefWidth(500);
                 gridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
                 gridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
                 gridPane.setPrefHeight(400);
                 gridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                GridPane.setMargin(anchorPane, new Insets(25,5,12,130));
+                GridPane.setMargin(anchorPane, new Insets(23,5,5,130));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -420,6 +408,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     public void checkSelectedUser() {
         UserModelMongo selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
         if (selectedUser == regUser) {
+                modelBean.putBean(Constants.SELECTED_USER, null);
                 resetToCurrent();
             } else {
                 this.followButton.setDisable(false);
@@ -431,10 +420,12 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     public void onClickYourProfileButton(ActionEvent event) {
-        resetToCurrent();
+        checkSelectedUser();
     }
 
     private void resetToCurrent(){
+//        stageManager.showInfoMessage("rowgridPane", String.valueOf(rowGridPane));
+        System.out.println(rowGridPane);
 
         UserModelMongo currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser != null  ) {
@@ -455,8 +446,8 @@ public class ControllerViewUserProfilePage implements Initializable{
             this.profileImage.setImage(image);
 
             // Ripristina i post o le recensioni a seconda del tipo di contenuto selezionato
-            resetPage();
             selectedContentType = ContentType.POSTS;
+            resetPage(); //fondamentale per il corretto caricamento dopo onClickYourProfileButton()
             loadContent();
             scrollSet.setVvalue(0);
 
