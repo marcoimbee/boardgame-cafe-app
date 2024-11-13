@@ -62,12 +62,6 @@ public class ControllerViewBoardgameDetails implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        if (modelBean != null)
-        {
-            System.out.println("EBAN-> " + modelBean);
-        }
-
-
         this.boardgame = (BoardgameModelMongo)modelBean.getBean(Constants.SELECTED_BOARDGAME);
         this.prepareScene();
     }
@@ -94,17 +88,11 @@ public class ControllerViewBoardgameDetails implements Initializable {
 
             try (InputStream inputStream = connection.getInputStream()) {
                 byte[] imageBytes = readFullInputStream(inputStream);
-                System.out.println("URL -> " + this.boardgame.getImage());
                 Image downloadedImage = new Image(new ByteArrayInputStream(imageBytes));
                 this.imgViewBoardgame.setImage(downloadedImage);
             }
         }
-        catch (Exception e)
-        {
-
-            System.out.println("eccezione download");
-        }
-
+        catch (Exception e)  { System.out.println("ControllerViewBoardgameDetails: download boardgame image failed"); }
     }
 
     private byte[] readFullInputStream(InputStream inputStream) throws IOException {

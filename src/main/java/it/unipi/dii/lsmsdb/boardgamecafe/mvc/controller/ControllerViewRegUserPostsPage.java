@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -167,7 +168,14 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         searchResultsList.setVisible(false);
 
         long startTime = System.currentTimeMillis();
-        boardgameTags = boardgameDBMongo.getBoardgameTags();
+        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
+        {
+            boardgameTags = boardgameDBMongo.getBoardgameTags();
+            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);
+        }
+        else
+            boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);
+
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
@@ -540,8 +548,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         } else {
             searchResultsList.setVisible(true);
         }
-
-        ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(boardgameTags.stream()
+        ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(
+                ((List<String>)modelBean.getBean(Constants.BOARDGAME_LIST)).stream()
                 .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
         System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
 
@@ -564,7 +572,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 if (empty || result == null) {
                     setGraphic(null);
                     return;
-                }
+                    }
 
                 TextFlow textFlow = new TextFlow();
                 int startIdx = result.toLowerCase().indexOf(searchString.toLowerCase());

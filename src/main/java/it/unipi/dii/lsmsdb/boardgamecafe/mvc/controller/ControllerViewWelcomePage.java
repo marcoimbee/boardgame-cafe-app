@@ -33,6 +33,8 @@ public class ControllerViewWelcomePage {
 
     public void onClickLogIn(ActionEvent event) {
         stageManager.switchScene(FxmlView.LOGIN);
+        //stageManager.showWindow(FxmlView.LOGIN);
+        //stageManager.closeStageButton(this.logInButton);
     }
 
     public void onClickSignUpWPage(ActionEvent event) {

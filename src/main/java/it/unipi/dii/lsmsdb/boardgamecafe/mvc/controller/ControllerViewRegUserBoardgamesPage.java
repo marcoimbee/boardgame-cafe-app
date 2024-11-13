@@ -9,19 +9,25 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +70,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private GridPane boardgameGridPane;
     @FXML
     private ScrollPane scrollSet;
+    @FXML
+    private ListView listViewBoardgames;
+    @FXML
+    private Button onClickRefreshButton;
 
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
@@ -83,8 +93,9 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private int skipCounter = 0;
     private final static int SKIP = 12; //how many boardgame to skip per time
     private final static int LIMIT = 12; //how many boardgame to show for each page
-
     private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
+
+
 
     @Autowired
     @Lazy
@@ -98,6 +109,14 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         this.boardgamesCollectionButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
+
+        initPage();
+
+        //pause.setOnFinished(event -> performSearch());
+    }
+
+    public void initPage()
+    {
         resetPage();
 
         boardgames.addAll(getData());
@@ -110,6 +129,15 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 logger.error("Exception occurred: " + e.getLocalizedMessage());
             }
         }
+
+        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
+        {
+            List<String> boardgameNames = boardgameDBMongo.getBoardgameTags();
+            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
+        }
+        else
+            System.out.println("Constants.BOARDGAME_LIST != null");
+
         fillGridPane();
     }
 
@@ -117,13 +145,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.boardgamePostsButton);
 
-    }
-
-    public void onClickSearch() {
-
-        String text = this.textFieldSearch.getText();
-
-        stageManager.showInfoMessage("Info Text", text);
     }
 
     public void onClickClearField() {
@@ -209,25 +230,9 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         List<BoardgameModelMongo> boardgames =
                 boardgameDBMongo.findRecentBoardgames(LIMIT, skipCounter);
 
-        /* francesco: DEBUG
-        System.out.println("----------------------- Giochi: " + boardgames.size());
-        List<BoardgameModelMongo> boardgameUnique = boardgames.stream().distinct().collect(Collectors.toList());
-
-        System.out.println("----------------------- Giochi Unique: " + boardgameUnique.size());
-        */
-
         prevNextButtonsCheck(boardgames);
         return boardgames;
     }
-
-    /* francesco: non utilizzata
-    void setGridPaneColumnAndRow(){
-
-        columnGridPane = 0;
-        rowGridPane = 1;
-    }
-    */
-
 
     @FXML
     void fillGridPane() {
@@ -239,12 +244,12 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
             // Logica per mostrare i dettagli del post usando StageManager
             modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame);
+            //stageManager.switchScene(FxmlView.BOARDGAME_DETAILS);
             stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
         //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
         try {
-            System.out.println("Dimensone boradgamesList: " + boardgames.size());
             for (BoardgameModelMongo boardgame : boardgames) { // iterando lista di boardgames
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
@@ -254,9 +259,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 anchorPane.getChildren().add(loadViewItem);
 
                 controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
-
-                anchorPane.setOnMouseClicked(event ->{
-                    this.boardgameListener.onClickBoardgameListener(event,boardgame);} );
+                controllerObjectBoardgame.anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
+                anchorPane.setOnMouseClicked(event -> { this.boardgameListener.onClickBoardgameListener(event, boardgame);});
 
                 //choice number of column
                 if (columnGridPane == 4) {
@@ -308,6 +312,88 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     public void onClickSearchUserButton(ActionEvent event) {
         stageManager.showWindow(FxmlView.SEARCHUSER);
-        stageManager.closeStageButton(this.searchButton);
+        stageManager.closeStageButton(this.searchUserButton);
+    }
+
+    public void onClickButtonSearchBoardgame(MouseEvent event)
+    {
+        String searchString = textFieldSearch.getText();
+        handleChoiceBoardgame(searchString);
+    }
+
+    public void onMouseClickedListView()
+    {
+        listViewBoardgames.setVisible(false);
+        String selectedSearchTag = listViewBoardgames.getSelectionModel().getSelectedItem().toString();
+        textFieldSearch.setText(selectedSearchTag);
+        handleChoiceBoardgame(selectedSearchTag);
+    }
+
+    public void onClickRefreshButton()
+    {
+        initPage();
+    }
+
+    public void onKeyTypedSearchBar()
+    {
+        String searchString = textFieldSearch.getText();
+
+        if (searchString.isEmpty()) {
+            listViewBoardgames.setVisible(false);
+        } else {
+            listViewBoardgames.setVisible(true);
+        }
+        ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(
+                ((List<String>)modelBean.getBean(Constants.BOARDGAME_LIST)).stream()
+                        .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
+        System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
+
+        listViewBoardgames.setItems(tagsContainingSearchString);
+        int LIST_ROW_HEIGHT = 24;
+        if (tagsContainingSearchString.size() > 10) {
+            listViewBoardgames.setPrefHeight(10 * LIST_ROW_HEIGHT + 2);
+        } else if (tagsContainingSearchString.isEmpty()){
+            listViewBoardgames.setVisible(false);
+        } else {
+            listViewBoardgames.setPrefHeight(tagsContainingSearchString.size() * LIST_ROW_HEIGHT + 2);
+        }
+
+        // Highlight matching search substring in result strings
+        listViewBoardgames.setCellFactory(boardgameResult -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String result, boolean empty) {
+                super.updateItem(result, empty);
+
+                if (empty || result == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                TextFlow textFlow = new TextFlow();
+                int startIdx = result.toLowerCase().indexOf(searchString.toLowerCase());
+
+                if (startIdx >= 0 && !searchString.isEmpty()) {
+                    Text beforeMatch = new Text(result.substring(0, startIdx));
+                    beforeMatch.setFill(Color.BLACK);
+
+                    Text matchedPart = new Text(result.substring(startIdx, startIdx + searchString.length()));
+                    matchedPart.setFont(Font.font("System", FontWeight.EXTRA_BOLD, 14));
+
+                    Text afterMatch = new Text(result.substring(startIdx + searchString.length()));
+                    afterMatch.setFill(Color.BLACK);
+
+                    textFlow.getChildren().addAll(beforeMatch, matchedPart, afterMatch);
+                }
+
+                setGraphic(textFlow);
+            }
+        });
+
+
+    }
+
+    public void handleChoiceBoardgame(String boardgameName)
+    {
+        System.out.println("Scelto -> " + boardgameName);
     }
 }
