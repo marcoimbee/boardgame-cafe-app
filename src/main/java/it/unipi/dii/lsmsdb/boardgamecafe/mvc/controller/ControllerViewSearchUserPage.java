@@ -393,7 +393,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickAccountInfoButton(ActionEvent event) {
+    public void onClickAccountInfoButton() {
         stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
         stageManager.closeStageButton(this.accountInfoButton);
     }
