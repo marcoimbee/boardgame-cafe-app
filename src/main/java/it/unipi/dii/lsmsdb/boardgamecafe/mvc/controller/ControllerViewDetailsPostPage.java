@@ -9,6 +9,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -76,23 +78,23 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
+    private PostDBNeo4j postDBNeo4j;
+    @Autowired
     private ControllerObjectComment controllerObjectComment;
     @Autowired
     private ModelBean modelBean;
     @Autowired
     private UserDBNeo4j userNeo4jDB;
     @Autowired
+    private CommentDBNeo4j commentDBNeo4j;
+    @Autowired
     private CommentService serviceComment;
-
-//    private final StageManager stageManager;
 
     private List<CommentModelMongo> comments = new ArrayList<>();
 
     private PostModelMongo post;
 
     private static UserModelMongo currentUser;
-
-    private String deletedCommentId;
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -104,9 +106,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     @Lazy
     private StageManager stageManager;
-//    public ControllerViewDetailsPostPage(StageManager stageManager) {
-//        this.stageManager = stageManager;
-//    }
 
     private Consumer<String> deletedCommentCallback;
 
@@ -138,19 +137,39 @@ public class ControllerViewDetailsPostPage implements Initializable {
         // Setting up buttons depending on if the current user is who created the post that's being visualized
         if (!currentUser.getUsername().equals(post.getUsername())) {
             editButton.setVisible(false);       // Making the edit button invisible
+            deleteButton.setVisible(false);     // Making the delete button invisible
         }
     }
 
     // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
     public void updateUIAfterCommentDeletion(String deletedCommentId) {
-        System.out.println("[DEBUG] comments list before updating: " + comments);
         comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
-        System.out.println("[DEBUG] comments list after updating: " + comments);
-
         fillGridPane();
     }
 
-    public void onClickDeleteButton(ActionEvent event) {
+    public void onClickDeleteButton() {
+        boolean userChoice = stageManager.showDeletePostInfoMessage();
+        if (!userChoice) {
+            return;
+        }
+
+        try {
+            // Delete post from neo4j and its comments
+            commentDBNeo4j.deleteByPost(post.getId());
+            postDBNeo4j.deletePost(post.getId());
+
+            // Delete post from mongodb and its comments
+            postDBMongo.deletePost(post);
+            commentDBMongo.deleteByPost(post.getId());
+
+            // TODO: Updating origin page UI - HOW????
+
+            // Close post details window
+            stageManager.closePostDetailsScene();
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again ini a while.");
+            System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsPostPage.java raised an exception: " + ex.getMessage());
+        }
     }
 
     public void onClickEditButton(ActionEvent event) {
