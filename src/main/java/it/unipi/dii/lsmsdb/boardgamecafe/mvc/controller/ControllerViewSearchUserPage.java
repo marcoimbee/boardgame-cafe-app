@@ -393,8 +393,9 @@ public class ControllerViewSearchUserPage implements Initializable {
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickAccountInfoButton() {
-        stageManager.showWindow(FxmlView.SIGNUP);
+    public void onClickAccountInfoButton(ActionEvent event) {
+        stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
+        stageManager.closeStageButton(this.accountInfoButton);
     }
 
     public void onClickRefreshButton(){
