@@ -140,7 +140,6 @@ public class UserDBMongo {
                     UserModelMongo user = (UserModelMongo) genericUser.get();
                     UserModelMongo newUser = (UserModelMongo) newGenericUser;
 
-
                     user.setUsername(newUser.getUsername());
                     user.setEmail(newUser.getEmail());
                     user.setName(newUser.getName());
