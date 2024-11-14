@@ -77,6 +77,10 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "SET u.username = \"[Banned user]\"\n")
     void setUsernameAsBanned(@Param("username") String username);
 
+    @Query("MATCH (u:User {username: $oldUsername})\n" +
+            "SET u.username = $oldUsername\n")
+    void setNewUsername(@Param("oldUsername") String oldUsername, @Param("newUsername") String newUsername);
+
     @Query("MATCH (u:User {id: $userId}) " +
             "SET u.username = $username")
     void restoreUserUsername(@Param("userId") String userId, @Param("username") String username);
