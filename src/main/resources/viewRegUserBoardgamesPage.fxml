@@ -3,6 +3,8 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
@@ -107,6 +109,12 @@
                      </graphic>
                   </Button>
                   <ListView fx:id="listViewBoardgames" layoutX="80.0" layoutY="81.0" onMouseClicked="#onMouseClickedListView" prefWidth="286.0" visible="false" />
+                  <ChoiceBox fx:id="whatBgameToShowChoiceBox" layoutX="695.0" layoutY="45.0" prefHeight="32.0" prefWidth="250.0" stylesheets="@css/style.css" />
+                  <Label layoutX="646.0" layoutY="50.0" text="Show:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
                </children>
                <padding>
                   <Insets bottom="30.0" />
