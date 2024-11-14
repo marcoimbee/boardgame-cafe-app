@@ -414,7 +414,6 @@ public class ControllerViewUserProfilePage implements Initializable{
             modelBean.putBean(Constants.SELECTED_POST, post);
             stageManager.showWindow(FxmlView.DETAILS_POST);
         };
-        gridPane.getChildren().clear();
 
         try {
             for (Object item : items) {
