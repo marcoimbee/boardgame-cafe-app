@@ -509,7 +509,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     public void onClickAccountInfoButton(ActionEvent event) {
-        stageManager.showWindow(FxmlView.SIGNUP);
+        stageManager.switchScene(FxmlView.ACCOUNTINFOPAGE);
     }
 
 }
