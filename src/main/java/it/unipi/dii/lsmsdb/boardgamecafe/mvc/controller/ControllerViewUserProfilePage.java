@@ -5,6 +5,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
@@ -26,8 +27,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -113,7 +112,8 @@ public class ControllerViewUserProfilePage implements Initializable{
     //Posts/Reviews Lists
     private List<PostModelMongo> postsUser = new ArrayList<>();
     private List<ReviewModelMongo> reviewsUser = new ArrayList<>();
-    private UserModelMongo regUser;
+    private UserModelMongo openUserProfile;     // The user whose profile is open right now
+    private static boolean openUserProfileIsCurrentUsers;       // The profile we're looking at is the current user's one
 
     //Listeners
     private PostListener postListener;
@@ -128,8 +128,10 @@ public class ControllerViewUserProfilePage implements Initializable{
     private final static int SKIP = 10; //how many posts to skip per time
     private final static int LIMIT = 10; //how many posts to show for each page
     private ContentType selectedContentType; // variabile di stato per tipo di contenuto
+    private static List<String> currentUserFollowedList;
+    private static UserModelMongo currentUser;
+    private static UserModelMongo selectedUser;
 
-    private final static Logger logger = LoggerFactory.getLogger(PostDBMongo.class);
     @Autowired
     @Lazy
     public ControllerViewUserProfilePage(StageManager stageManager) {
@@ -137,7 +139,6 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         this.yourProfileButton.setDisable(true);
         this.yourPostsButton.setDisable(true);
         this.previousButton.setDisable(true);
@@ -145,38 +146,55 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.selectedContentType = ContentType.POSTS;
         this.resetPage();
 
-        UserModelMongo selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
+        selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
+        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
-        if (selectedUser != null ){
+        if (selectedUser != null){          // User is looking at another user's profile
             checkSelectedUser();
         } else {
-            regUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            openUserProfile = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page
             this.followButton.setDisable(true);
         }
 
-        List<PostModelMongo> fullPosts = postDBMongo.findByUsername(regUser.getUsername());
+        List<PostModelMongo> fullPosts = postDBMongo.findByUsername(openUserProfile.getUsername());
         totalPosts = fullPosts.size();
-        totalFollowerUsers = userDBNeo.getCountFollowers(regUser.getUsername());
-        totalFollowingUsers = userDBNeo.getCountFollowing(regUser.getUsername());
+        totalFollowerUsers = userDBNeo.getCountFollowers(openUserProfile.getUsername());
+        totalFollowingUsers = userDBNeo.getCountFollowing(openUserProfile.getUsername());
 
-        postsUser.addAll(getPosts(regUser.getUsername()));
+        postsUser.addAll(getPosts(openUserProfile.getUsername()));
         if (this.postsUser.isEmpty()) {
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
             loadViewMessagInfo(loadViewItem);
         }
-        this.firstNameLabel.setText(regUser.getName());
-        this.lastNameLabel.setText(regUser.getSurname());
-        this.nationalityLabel.setText(regUser.getNationality());
-        this.usernameLabel.setText(regUser.getUsername());
+        this.firstNameLabel.setText(openUserProfile.getName());
+        this.lastNameLabel.setText(openUserProfile.getSurname());
+        this.nationalityLabel.setText(openUserProfile.getNationality());
+        this.usernameLabel.setText(openUserProfile.getUsername());
         this.followerLabel.setText(String.valueOf(totalFollowerUsers));
         this.followingLabel.setText(String.valueOf(totalFollowingUsers));
         this.counterPostsLabel.setText(String.valueOf(totalPosts));
-        this.counterReviewsLabel.setText(String.valueOf(regUser.getReviews().size()));
+        this.counterReviewsLabel.setText(String.valueOf(openUserProfile.getReviews().size()));
         Image image = new Image(Objects.requireNonNull(getClass().
                                 getResource("/user.png")).toExternalForm());
         this.profileImage.setImage(image);
 
         fillGridPane(postsUser);
+
+        // If we enter here we are at the app start - it's the first time we see this page, so the constant is certainly empty
+        if (modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST) == null) {
+            currentUserFollowedList = userDBNeo.getFollowedUsernames(currentUser.getUsername());
+            modelBean.putBean(Constants.CURRENT_USER_FOLLOWED_LIST, currentUserFollowedList);
+            System.out.println("[INFO] Fetched " + currentUserFollowedList.size() + " followed users' usernames");
+        } else {            // If we enter here for sure we're re-visiting the current user profile page, or we're visiting another user's profile page
+            currentUserFollowedList = (List<String>) modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST);
+
+            // Setting follow button text depending on if the user already follows or not the user whose profile is being visited
+            if (selectedUser != null && currentUserFollowedList.contains(selectedUser.getUsername())) {
+                this.followButton.setText(" Unfollow");
+            } else {
+                this.followButton.setText(" Follow");
+            }
+        }
     }
 
     public void onClickBoardgamesButton() {
@@ -195,10 +213,45 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     public void onClickFollowButton() {
-        String title = "Work in Progress";
-        String message = "" +
-                "A breve avrai la possibilità di seguire questo utente.\n";
-        stageManager.showInfoMessage(title, message);;
+        try {
+            boolean following = currentUserFollowedList.contains(selectedUser.getUsername());  // Tells if the current use is following or not the user he's looking at
+            if (!following) {
+                // Add new Neo4J relationship
+                userDBNeo.followUser(currentUser.getUsername(), selectedUser.getUsername());
+
+                // Adding username to collection and updating model bean
+                currentUserFollowedList.add(selectedUser.getUsername());
+                modelBean.putBean(Constants.CURRENT_USER_FOLLOWED_LIST, currentUserFollowedList);
+
+                // Increment user followers counter in graphics
+                totalFollowerUsers++;
+                this.followerLabel.setText(String.valueOf(totalFollowerUsers));         // No need to read again from DB
+
+                // Update follow/unfollow button graphics
+                this.followButton.setText(" Unfollow");
+
+                System.out.println("[INFO] " + currentUser.getUsername() + " followed " + selectedUser.getUsername());
+            } else {
+                // Remove Neo4J relationship
+                userDBNeo.unfollowUser(currentUser.getUsername(), selectedUser.getUsername());
+
+                // Remove username from collection and updating model bean
+                currentUserFollowedList.remove(selectedUser.getUsername());
+                modelBean.putBean(Constants.CURRENT_USER_FOLLOWED_LIST, currentUserFollowedList);
+
+                // Decrement user followers counter in graphics
+                totalFollowerUsers--;
+                this.followerLabel.setText(String.valueOf(totalFollowerUsers));
+
+                // Update follow/unfollow button graphics
+                this.followButton.setText(" Follow");
+
+                System.out.println("[INFO] " + currentUser.getUsername() + " stopped following " + selectedUser.getUsername());
+            }
+        } catch (Exception e) {
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
+            System.err.println("[ERROR] onClickFollowButton@ControllerViewUserProfilePage raised an exception: " + e.getMessage());
+        }
     }
 
     public void onClickPostsButton() {
@@ -407,39 +460,36 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     public void checkSelectedUser() {
         UserModelMongo selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
-        if (selectedUser == regUser) {
-                modelBean.putBean(Constants.SELECTED_USER, null);
-                resetToCurrent();
-            } else {
-                this.followButton.setDisable(false);
-                this.yourProfileButton.setDisable(false);
-                this.yourPostsButton.setDisable(true);
-                this.yourReviewsButton.setDisable(false);
-                regUser = selectedUser;
+        if (selectedUser == openUserProfile) {              // User found his profile and clicked on it while searching for a user
+            modelBean.putBean(Constants.SELECTED_USER, null);
+            resetToCurrent();
+        } else {
+            this.followButton.setDisable(false);        // User decided to open another user's profile
+            this.yourProfileButton.setDisable(false);
+            this.yourPostsButton.setDisable(true);
+            this.yourReviewsButton.setDisable(false);
+            openUserProfile = selectedUser;
         }
     }
 
-    public void onClickYourProfileButton(ActionEvent event) {
+    public void onClickYourProfileButton() {
         checkSelectedUser();
     }
 
     private void resetToCurrent(){
-//        stageManager.showInfoMessage("rowgridPane", String.valueOf(rowGridPane));
-        System.out.println(rowGridPane);
-
         UserModelMongo currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser != null  ) {
-            regUser = currentUser;
+            openUserProfile = currentUser;
 
             // Aggiorna le etichette con le informazioni dell'utente corrente
-            this.firstNameLabel.setText(regUser.getName());
-            this.lastNameLabel.setText(regUser.getSurname());
-            this.nationalityLabel.setText(regUser.getNationality());
-            this.usernameLabel.setText(regUser.getUsername());
-            this.followerLabel.setText(String.valueOf(userDBNeo.getCountFollowers(regUser.getUsername())));
-            this.followingLabel.setText(String.valueOf(userDBNeo.getCountFollowing(regUser.getUsername())));
-            this.counterPostsLabel.setText(String.valueOf(postDBMongo.findByUsername(regUser.getUsername()).size()));
-            this.counterReviewsLabel.setText(String.valueOf(regUser.getReviews().size()));
+            this.firstNameLabel.setText(openUserProfile.getName());
+            this.lastNameLabel.setText(openUserProfile.getSurname());
+            this.nationalityLabel.setText(openUserProfile.getNationality());
+            this.usernameLabel.setText(openUserProfile.getUsername());
+            this.followerLabel.setText(String.valueOf(userDBNeo.getCountFollowers(openUserProfile.getUsername())));
+            this.followingLabel.setText(String.valueOf(userDBNeo.getCountFollowing(openUserProfile.getUsername())));
+            this.counterPostsLabel.setText(String.valueOf(postDBMongo.findByUsername(openUserProfile.getUsername()).size()));
+            this.counterReviewsLabel.setText(String.valueOf(openUserProfile.getReviews().size()));
 
             // Imposta l'immagine del profilo
             Image image = new Image(Objects.requireNonNull(getClass().getResource("/user.png")).toExternalForm());

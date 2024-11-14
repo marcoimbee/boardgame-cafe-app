@@ -13,4 +13,5 @@ public class Constants {
 
     public static final String BOARDGAME_LIST = "boardgameList";
     public static final String USERS_USERNAMES = "usersUsernames";
+    public static final String CURRENT_USER_FOLLOWED_LIST = "currentUserFollowedList";
 }

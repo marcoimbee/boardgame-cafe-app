@@ -83,4 +83,16 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u:User {id: $userId}) " +
             "SET u.username = $username")
     void restoreUserUsername(@Param("userId") String userId, @Param("username") String username);
+
+    @Query("MATCH (follower:User {username: $username})-[r:FOLLOWS]->(followed:User)\n" +
+            "RETURN followed.username")
+    List<String> findFollowedUsernamesByUsername(@Param("username") String username);
+
+    @Query("MATCH (u1:User {username: $username}), (u2:User {username: $followed}) " +
+            "MERGE (u1)-[:FOLLOWS]->(u2)")
+    void addFollowRelationship(@Param("username") String followingUser, @Param("followed") String followedUser);
+
+    @Query("MATCH (u1:User {username: $username})-[f:FOLLOWS]->(u2:User {username: $unfollowed}) " +
+            "DELETE f")
+    void removeFollowRelationship(@Param("username") String unfollowingUser, @Param("unfollowed") String unfollowedUser);
 }
