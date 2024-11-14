@@ -1,9 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -47,10 +50,18 @@ public class ControllerObjectPost {
     private PostService postService; // Iniezione del servizio
     @Autowired
     private PostDBNeo4j postDBNeo4j;
+
+    @Autowired
+    private ModelBean modelBean;
+
+    private static UserModelMongo currentUser;
+
     public ControllerObjectPost() {
     }
 
     public void setData(PostModelMongo post, PostListener listener) {
+
+        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.post = post;
         this.postListener = listener;
@@ -83,6 +94,11 @@ public class ControllerObjectPost {
 
         //updateLikeButton(post.getUsername(), post.getId());
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
+
+        // Buttons settings
+        if (!currentUser.getUsername().equals(post.getUsername())) {
+            removeButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
+        }
     }
 
     public void likeDislikePost(ActionEvent event) {
