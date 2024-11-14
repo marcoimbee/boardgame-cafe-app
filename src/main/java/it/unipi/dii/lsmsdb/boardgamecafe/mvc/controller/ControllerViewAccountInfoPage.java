@@ -77,7 +77,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @FXML
     private Button clearFieldsButton;
 
-
     // ********** Llabels *********
     @FXML
     private Label firstNameLabel;
@@ -242,7 +241,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
             String password = this.textFieldPassword.getText();
             String repeatedPassword = this.textFieldRepeatPassword.getText();
             int year = 0; int month = 0; int day = 0;
-
             // Gestione delle checkbox
             boolean updateFirstName = this.flagFirstName.isSelected();
             boolean updateLastName = this.flagLastName.isSelected();
@@ -404,6 +402,9 @@ public class ControllerViewAccountInfoPage implements Initializable{
 
                 }
             }
+        } else {
+            stageManager.showInfoMessage("Update Error: ",
+                    "There Is No Logged-In User To Update ");
         }
     }
 
