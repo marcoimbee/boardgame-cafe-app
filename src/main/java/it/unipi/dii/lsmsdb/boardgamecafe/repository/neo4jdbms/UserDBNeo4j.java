@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
 
@@ -117,6 +118,32 @@ public class UserDBNeo4j {
         return followers;
     }
 
+    public void followUser(String following, String followed) {
+        try {
+            userNeo4jDB.addFollowRelationship(following, followed);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void unfollowUser(String unfollowing, String unfollowed) {
+        try {
+            userNeo4jDB.removeFollowRelationship(unfollowing, unfollowed);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public List<String> getFollowedUsernames(String username) {
+        List<String> followers = new ArrayList<>();
+        try {
+            return userNeo4jDB.findFollowedUsernamesByUsername(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return followers;
+    }
+
     public int getCountFollowing(String username) {
         try {
             return userNeo4jDB.countFollowingByUsername(username);
@@ -135,18 +162,18 @@ public class UserDBNeo4j {
         }
     }
 
-    public List<String> getUsersByCommonBoardgamePosted(String username, int limit)
+    public List<String> getUsersByCommonBoardgamePosted(String username, int limit, int skipCounter)
     {
         List<String> suggestedUsers = new ArrayList<>();
-        try { return userNeo4jDB.usersByCommonBoardgamePosted(username, limit); }
+        try { return userNeo4jDB.usersByCommonBoardgamePosted(username, limit, skipCounter); }
         catch (Exception e) { e.printStackTrace(); }
         return suggestedUsers;
     }
 
-    public List<String> getUsersBySameLikedPosts(String username, int limit)
+    public List<String> getUsersBySameLikedPosts(String username, int limit, int skipCounter)
     {
         List<String> suggestedUsers = new ArrayList<>();
-        try { return userNeo4jDB.findUsersBySameLikedPosts(username, limit); }
+        try { return userNeo4jDB.findUsersBySameLikedPosts(username, limit, skipCounter); }
         catch (Exception e) { e.printStackTrace(); }
         return suggestedUsers;
     }

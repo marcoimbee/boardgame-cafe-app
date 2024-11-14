@@ -168,13 +168,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         searchResultsList.setVisible(false);
 
         long startTime = System.currentTimeMillis();
-        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
-        {
-            boardgameTags = boardgameDBMongo.getBoardgameTags();
-            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);
+        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null) {
+            boardgameTags = boardgameDBMongo.getBoardgameTags();            // Fetching boardgame names as soon as the page opens
+            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);     // Saving them in the Bean, so they'll be always available from now on in the whole app
+        } else {
+            boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);     // Obtaining tags from the Bean, as thy had been put there before
         }
-        else
-            boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
@@ -238,6 +237,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public void onClickClearField() {
         this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown posts
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));
         onSelectChoiceBoxOption();
     }
 
@@ -280,10 +280,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     void prevNextButtonsCheck(int retrievedPostsSize) {
         previousButton.setDisable(currentPage == 0);
 
-        //ToDO: Fixare problema "next" sempre enable anche con lista vuota
-
         if (posts.isEmpty()) {
-            nextButton.setDisable(false);
+            nextButton.setDisable(true);
         } else {
             boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
@@ -437,7 +435,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 String title = titleTextArea.getText();
                 String body = postTextArea.getText();
 
-                //ToDO: Check tagBoardgame validity
                 addNewPost(tag, title, body);                   // Adding the post
             });
 
@@ -446,7 +443,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 String latestTag = tagBoardgameTextArea.getText();
                 String latestTitle = titleTextArea.getText();
                 String latestBody = postTextArea.getText();
-                if (!latestTag.isEmpty() ||!latestTitle.isEmpty() || !latestBody.isEmpty()) {
+                if (!latestTitle.isEmpty() || !latestBody.isEmpty()) {
                     boolean discardPost = stageManager.showDiscardPostInfoMessage();          // Show info message
                     if (discardPost) {              // User chose to discard post, remove post creation panel element
                         removePostInsertionPanel();
@@ -496,6 +493,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
         if (title.isEmpty()){
             stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
+            return;
+        }
+
+        if (!tag.isEmpty() && !boardgameTags.contains(tag)) {     // Checking boardgame validity
+            stageManager.showInfoMessage("Error", "'" + tag + "' is not a valid boardgame name.");
             return;
         }
 

@@ -357,4 +357,13 @@ public class UserDBMongo {
         // Se almeno un documento è stato modificato, l'update è riuscito
         return result.getModifiedCount() > 0;
     }
+
+    public List<String> getUserUsernames() {
+        try {
+            return userRepoMongo.findAllUsernames();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
 }

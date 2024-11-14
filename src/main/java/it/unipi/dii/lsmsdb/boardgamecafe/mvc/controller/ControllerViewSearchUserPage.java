@@ -2,19 +2,15 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.UserListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -29,8 +25,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -62,34 +56,23 @@ public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     private Button logoutButton;
     @FXML
-    private Button profileButton;
+    private Button yourProfileButton;
     @FXML
     private Button accountInfoButton;
     @FXML
     private Button refreshButton;
     @FXML
-    private ChoiceBox<String> whatPostsToShowChoiceBox;
-
-    @FXML
-    private Button testButton;
+    private ChoiceBox<String> whatUsersToShowChoiceBox;
     @FXML
     private TextField textFieldSearch;
     @FXML
-    private GridPane postGridPane;
+    private GridPane usersGridPane;
     @FXML
     private ScrollPane scrollSet;
     @Autowired
-    private PostDBMongo postDBMongo;
+    private UserDBMongo userDBMongo;
     @Autowired
-    private PostDBNeo4j postDBNeo4j;
-    @Autowired
-    private UserDBMongo userMongoOp;
-    @Autowired
-    private PostService postService;
-    @Autowired
-    private BoardgameDBMongo boardgameDBMongo;
-    @Autowired
-    private ControllerObjectPost controllerObjectPost;
+    private UserService userService;
     @Autowired
     private ControllerObjectUser controllerObjectUser;
     @Autowired
@@ -98,42 +81,40 @@ public class ControllerViewSearchUserPage implements Initializable {
     UserListener userListener;
 
     // Choice box variables
-    ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
-            "Posts by followed users",
-            "Posts liked by followed users",
-            "Posts commented by followed users",
-            "All posts"
+    ObservableList<String> whatUsersToShowList = FXCollections.observableArrayList(
+            "All users",
+            "Users which posted about boardgames you posted about too",  // suggestUsersByCommonBoardgamePosted@UserService
+            "Users that enjoy the same posts as you do",  // suggestUsersByCommonLikedPosts@UserService
+            "Influencers in the boardgame community"   // suggestInfluencerUsers@UserService
     );
 
-    //Post Variables
-    private List<PostModelMongo> posts = new ArrayList<>();
     private List<UserModelMongo> users = new ArrayList<>();
 
     //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
     private int skipCounter = 0;            // Ho many times the user clicked on the 'Next' button
-    private final static int SKIP = 10;     // How many posts to skip each time
-    private final static int LIMIT = 10;    // How many posts to show in each page
+    private final static int SKIP = 10;     // How many users to skip each time
+    private final static int LIMIT = 10;    // How many users to show in each page
 
-    private final static Logger logger = LoggerFactory.getLogger(PostDBMongo.class);
-
-    private enum PostsToFetch {
-        POSTS_BY_FOLLOWED_USERS,
-        POSTS_LIKED_BY_FOLLOWED_USERS,
-        POSTS_COMMENTED_BY_FOLLOWED_USERS,
-        SEARCH_RESULTS,
-        ALL_POSTS
+    private enum UsersToFetch {
+        ALL_USERS,
+        USERS_WITH_COMMON_BOARDGAMES_POSTED,
+        USERS_WITH_COMMON_LIKED_POSTS,
+        INFLUENCER_USERS,
+        SEARCH_RESULTS
     };
-    private static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
+    private static UsersToFetch currentlyShowing;       // Global indicator of what type of user is being shown on the page
 
     private static int currentPage;
     private static List<Integer> visitedPages;
-    private static boolean visualizedLastPost;      // Keeps track of whether the user has reached the las reachable page or not;
+    private static boolean visualizedLastUser;      // Keeps track of whether the user has reached the last reachable page or not;
 
     // Search functionalities
-    private List<String> boardgameTags;
-    private static String selectedSearchTag;
+    private List<String> userUsernames;
+    private static String selectedSearchUser;
+
+    private static String currentUser;
 
     @Autowired
     @Lazy
@@ -151,126 +132,117 @@ public class ControllerViewSearchUserPage implements Initializable {
         this.nextButton.setDisable(true);
         resetPageVars();
 
-        // Prefetch boardgame tags for the search function and init search functionalities variables
+        currentlyShowing = UsersToFetch.ALL_USERS;      // Static var init
+
+        // Choice box init
+        whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(0));
+        whatUsersToShowChoiceBox.setItems(whatUsersToShowList);
+
+        // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
+        whatUsersToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            updateCurrentlyShowing(newValue);
+            onSelectChoiceBoxOption();
+        });
+
+        onSelectChoiceBoxOption();
+
+        // Prefetch usernames for the search function and init search functionalities variables
         searchResultsList.setVisible(false);
 
-        users.addAll(getUsers());
-
-        fillGridPane();
-//
-//        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
-//
-//        // Choice box init
-//        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
-//        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
-//
-//        // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
-//        whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            updateCurrentlyShowing(newValue);
-//            onSelectChoiceBoxOption();
-//        });
-//
-//        onSelectChoiceBoxOption();        // Show posts by followed users by default
-//
-//        // Prefetch boardgame tags for the search function and init search functionalities variables
-//        searchResultsList.setVisible(false);
-//
-//        long startTime = System.currentTimeMillis();
-//        boardgameTags = boardgameDBMongo.getBoardgameTags();    // TODO: maybe move into model bean? (fetch once at start and the it's always there)
-//        long stopTime = System.currentTimeMillis();
-//        long elapsedTime = stopTime - startTime;
-//        System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
-//        System.out.println("[DEBUG] " + boardgameTags.get(0));
-//        selectedSearchTag = null;
-    }
-
-    private List<UserModelMongo> getUsers(){
-        List<UserModelMongo> users =
-                userMongoOp.findAllUsersWithLimit(LIMIT, skipCounter);
-        if (users.isEmpty()) {
-            loadViewMessagInfo();
+        long startTime = System.currentTimeMillis();
+        if (modelBean.getBean(Constants.USERS_USERNAMES) == null) {
+            userUsernames = userDBMongo.getUserUsernames();       // Fetching usernames as soon as the page opens
+            modelBean.putBean(Constants.USERS_USERNAMES, userUsernames);       // Saving them in the Bean, so they'll be always available from now on in the whole app
+        } else {
+            userUsernames = (List<String>) modelBean.getBean(Constants.USERS_USERNAMES);    // Obtaining usernames from the Bean, as thy had been put there before
         }
-        return users;
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
+        selectedSearchUser = null;
+
+        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
-        if (choiceBoxValue.equals(whatPostsToShowList.get(0))) {
-            currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+        if (choiceBoxValue.equals(whatUsersToShowList.get(0))) {
+            currentlyShowing = UsersToFetch.ALL_USERS;
         }
 
-        if (choiceBoxValue.equals(whatPostsToShowList.get(1))) {
-            currentlyShowing = PostsToFetch.POSTS_LIKED_BY_FOLLOWED_USERS;
+        if (choiceBoxValue.equals(whatUsersToShowList.get(1))) {
+            currentlyShowing = UsersToFetch.USERS_WITH_COMMON_BOARDGAMES_POSTED;
         }
 
-        if (choiceBoxValue.equals(whatPostsToShowList.get(2))) {
-            currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
+        if (choiceBoxValue.equals(whatUsersToShowList.get(2))) {
+            currentlyShowing = UsersToFetch.USERS_WITH_COMMON_LIKED_POSTS;
         }
 
-        if (choiceBoxValue.equals(whatPostsToShowList.get(3))) {
-            currentlyShowing = PostsToFetch.ALL_POSTS;
+        if (choiceBoxValue.equals(whatUsersToShowList.get(3))) {
+            currentlyShowing = UsersToFetch.INFLUENCER_USERS;
         }
     }
 
     public void onSelectChoiceBoxOption() {
         resetPageVars();
-        selectedSearchTag = null;
-        List<PostModelMongo> retrievedPosts = getData(null);
-        posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
+        selectedSearchUser = null;
+        List<UserModelMongo> retrievedUsers = fetchUsers(null);
+        users.addAll(retrievedUsers);            // Add new LIMIT users (at most)
         fillGridPane();
-        prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
+        prevNextButtonsCheck(retrievedUsers.size());            // Initialize buttons
     }
 
     private void resetPageVars() {
         skipCounter = 0;
-        posts.clear();
         users.clear();
         currentPage = 0;
         visitedPages.clear();
         visitedPages.add(0);
-        visualizedLastPost = false;
+        visualizedLastUser = false;
+        scrollSet.setVvalue(0);
+        textFieldSearch.setText(null);
     }
 
-    public void onClickBoardgamesButton(ActionEvent actionEvent) {
+    public void onClickBoardgamesButton() {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
         stageManager.closeStageButton(this.boardgamesButton);
     }
-    public void onClickPostsFeedButton(ActionEvent actionEvent) {
+    public void onClickPostsFeedButton() {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.postsFeedButton);
     }
 
     public void onClickSearch() {
-        currentlyShowing = PostsToFetch.SEARCH_RESULTS;
+        currentlyShowing = UsersToFetch.SEARCH_RESULTS;
         resetPageVars();
-        List<PostModelMongo> retrievedPosts = getData(selectedSearchTag);
-        posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
+        List<UserModelMongo> retrievedUsers = fetchUsers(selectedSearchUser);
+        users.addAll(retrievedUsers);            // Add new LIMIT users (at most)
         fillGridPane();
-        prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
+        prevNextButtonsCheck(retrievedUsers.size());            // Initialize buttons
     }
 
     public void onClickClearField() {
-        this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown posts
-        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+        this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown users
+        currentlyShowing = UsersToFetch.ALL_USERS;
         onSelectChoiceBoxOption();
     }
 
     @FXML
     void onClickNext() {
-        postGridPane.getChildren().clear();
+        usersGridPane.getChildren().clear();
 
-        List<UserModelMongo> retrievedPosts = new ArrayList<>();
+        List<UserModelMongo> retrievedUsers = new ArrayList<>();
         currentPage++;
         if (!visitedPages.contains(currentPage)) {
-            // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
+            // New users need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedPosts = getUsers();        // Fetching new posts
-            users.addAll(retrievedPosts);            // Adding fetched posts to the post list
+            retrievedUsers = fetchUsers(selectedSearchUser);        // Fetching new users
+            users.addAll(retrievedUsers);            // Adding fetched users to the users list
             visitedPages.add(currentPage);
         } else {
             skipCounter += SKIP;
         }
 
-        prevNextButtonsCheck(retrievedPosts.size());
+        prevNextButtonsCheck(retrievedUsers.size());
 
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -278,7 +250,7 @@ public class ControllerViewSearchUserPage implements Initializable {
 
     @FXML
     void onClickPrevious() {
-        postGridPane.getChildren().clear();
+        usersGridPane.getChildren().clear();
 
         if (currentPage > 0) {
             currentPage--;
@@ -290,33 +262,37 @@ public class ControllerViewSearchUserPage implements Initializable {
         scrollSet.setVvalue(0);
     }
 
-    void prevNextButtonsCheck(int retrievedPostsSize) {
+    void prevNextButtonsCheck(int retrievedUsersSize) {
         previousButton.setDisable(currentPage == 0);
 
         boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
-        if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
+        if (onFurthestPage && retrievedUsersSize == 0 && !visualizedLastUser) {
             nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
         } else {
-            boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
-            nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
+            boolean moreUsersAvailable = (retrievedUsersSize == SKIP);          // If we retrieved SKIP users, likely there will be more available in the DB
+            nextButton.setDisable(onFurthestPage && !moreUsersAvailable);       // Disable if on last page and if retrieved less than SKIP users
         }
     }
 
-    private List<PostModelMongo> getData(String tag){
+    private List<UserModelMongo> fetchUsers(String username){
         System.out.println("[INFO] New data has been fetched");
-        return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
-            case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers("blackpanda723", LIMIT, skipCounter);
-            case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
-            case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers("blackpanda723", LIMIT, skipCounter);
-            case SEARCH_RESULTS ->
-                    postService.findPostsByTag(tag, LIMIT, skipCounter);
-            case ALL_POSTS ->
-                    postDBMongo.findRecentPosts(LIMIT, skipCounter);
-        };
+        switch (currentlyShowing) {             // Decide what type of users need to be fetched
+            case ALL_USERS:
+                return userDBMongo.findAllUsersWithLimit(LIMIT, skipCounter);
+            case USERS_WITH_COMMON_BOARDGAMES_POSTED:
+                return userService.suggestUsersByCommonBoardgamePosted(currentUser, LIMIT, skipCounter);
+            case USERS_WITH_COMMON_LIKED_POSTS:
+                return userService.suggestUsersByCommonLikedPosts(currentUser, LIMIT, skipCounter);
+            case INFLUENCER_USERS:
+                return userService.suggestInfluencerUsers(10, 10, 10, 10);
+            case SEARCH_RESULTS:
+                GenericUserModelMongo searchResult = userDBMongo.findByUsername(username).get();
+                System.out.println("[DEBUG] searchResult: " + searchResult);
+                return List.of((UserModelMongo) searchResult);
+        }
+
+        return new ArrayList<>();
     }
 
     void setGridPaneColumnAndRow(){
@@ -324,55 +300,51 @@ public class ControllerViewSearchUserPage implements Initializable {
         rowGridPane = 1;
     }
 
-    private void loadViewMessagInfo(){
-        Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+    private void loadViewMessageInfo(){
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGUSERS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
         if (!users.isEmpty()){
             resetPageVars();
-            postGridPane.add(noContentsYet, 0, rowGridPane);
+            usersGridPane.add(noContentsYet, 0, rowGridPane);
         } else {
             resetPageVars();
-            postGridPane.add(noContentsYet, 0, 1);
+            usersGridPane.add(noContentsYet, 0, 1);
         }
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
     }
 
     @FXML
     void fillGridPane() {
-
-        //per mettere un solo elemento correttamente nel gridpane
-        if (users.size() == 1) {
+        if (users.size() == 1) {        // Needed to correctly position a single user in the gridpane
             columnGridPane = 0;
             rowGridPane = 0;
         } else {
             setGridPaneColumnAndRow();
         }
 
-        // Logica per mostrare i dettagli del post usando StageManager
-        userListener = (MouseEvent mouseEvent, UserModelMongo user) -> {
+        userListener = (MouseEvent mouseEvent, UserModelMongo user) -> {        // Show user details using StageManager
             modelBean.putBean(Constants.SELECTED_USER, user);
             stageManager.switchScene(FxmlView.USERPROFILEPAGE);
         };
-        postGridPane.getChildren().clear();         // Removing old posts
-
+        usersGridPane.getChildren().clear();         // Removing old users
 
         try {
             if (users.isEmpty()) {
-                loadViewMessagInfo();
+                loadViewMessageInfo();
             } else {
-                // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
-                int startPost = skipCounter;
-                int endPost = skipCounter + LIMIT - 1;
-                if (endPost > users.size()) {
-                    endPost = users.size() - 1;
-                    visualizedLastPost = true;
+                // Creating an item for each user: displaying users in [skipCounter, skipCounter + LIMIT - 1]
+                int startUser = skipCounter;
+                int endUser = skipCounter + LIMIT - 1;
+                if (endUser > users.size()) {
+                    endUser = users.size() - 1;
+                    visualizedLastUser = true;
                 }
 
-                System.out.println("[DEBUG] [startPost, endPost]: [" + startPost + ", " + endPost + "]");
+                System.out.println("[DEBUG] [startUser, endUser]: [" + startUser + ", " + endUser + "]");
 
-                for (int i = startPost; i <= endPost; i++) {
+                for (int i = startUser; i <= endUser; i++) {
                     UserModelMongo user = users.get(i);
 
                     Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTUSER.getFxmlFile());
@@ -391,45 +363,43 @@ public class ControllerViewSearchUserPage implements Initializable {
                         rowGridPane++;
                     }
 
-                    postGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
+                    usersGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
                     //DISPLAY SETTINGS
                     //set grid width
-                    postGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                    postGridPane.setPrefWidth(500);
-                    postGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+                    usersGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+                    usersGridPane.setPrefWidth(500);
+                    usersGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
                     //set grid height
-                    postGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                    postGridPane.setPrefHeight(400);
-                    postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+                    usersGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+                    usersGridPane.setPrefHeight(400);
+                    usersGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                     //GridPane.setMargin(anchorPane, new Insets(25));
                     GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 180));
                 }
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "An error occurred while retrieving posts. Try again in a while.");
-            System.err.println("[ERROR] fillGridPane@ControllerViewRegUserPostsPage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "An error occurred while retrieving users. Try again in a while.");
+            System.err.println("[ERROR] fillGridPane@ControllerViewSearchUserPage.java raised an exception: " + ex.getMessage());
         }
     }
 
-    public void onClickLogout(ActionEvent event) {
+    public void onClickLogout() {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickYourProfileButton(ActionEvent event) {
+    public void onClickYourProfileButton() {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickAccountInfoButton(ActionEvent event) {
-        stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
-        stageManager.closeStageButton(this.accountInfoButton);
+    public void onClickAccountInfoButton() {
+        stageManager.showWindow(FxmlView.SIGNUP);
     }
 
     public void onClickRefreshButton(){
-        //ToDO: qua andrebbe fatto clean/fetch/fill.
-        // chidere a marco in base all'implementazione fatta all'interno di questo controller.
-        // Il button è già stato inserito nella view grafica e mappato su questo controller.
+        currentlyShowing = UsersToFetch.ALL_USERS;
+        onSelectChoiceBoxOption();  // The same actions that are performed when clicking a choice box option have to be performed
     }
 
     public void onKeyTypedSearchBar() {
@@ -441,18 +411,19 @@ public class ControllerViewSearchUserPage implements Initializable {
             searchResultsList.setVisible(true);
         }
 
-        ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(boardgameTags.stream()
-                .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
-        System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
+        ObservableList<String> usernamesContainingSearchString = FXCollections.observableArrayList(
+                ((List<String>)modelBean.getBean(Constants.USERS_USERNAMES)).stream()
+                        .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
+        System.out.println("[DEBUG] filtered usernames list size: " + usernamesContainingSearchString.size());
 
-        searchResultsList.setItems(tagsContainingSearchString);
+        searchResultsList.setItems(usernamesContainingSearchString);
         int LIST_ROW_HEIGHT = 24;
-        if (tagsContainingSearchString.size() > 10) {
+        if (usernamesContainingSearchString.size() > 10) {
             searchResultsList.setPrefHeight(10 * LIST_ROW_HEIGHT + 2);
-        } else if (tagsContainingSearchString.isEmpty()){
+        } else if (usernamesContainingSearchString.isEmpty()){
             searchResultsList.setVisible(false);
         } else {
-            searchResultsList.setPrefHeight(tagsContainingSearchString.size() * LIST_ROW_HEIGHT + 2);
+            searchResultsList.setPrefHeight(usernamesContainingSearchString.size() * LIST_ROW_HEIGHT + 2);
         }
 
         // Highlight matching search substring in result strings
@@ -491,7 +462,7 @@ public class ControllerViewSearchUserPage implements Initializable {
     public void onMouseClickedListView() {
         searchResultsList.setVisible(false);
 
-        selectedSearchTag = searchResultsList.getSelectionModel().getSelectedItem().toString();
-        textFieldSearch.setText(selectedSearchTag);
+        selectedSearchUser = searchResultsList.getSelectionModel().getSelectedItem().toString();
+        textFieldSearch.setText(selectedSearchUser);
     }
 }
