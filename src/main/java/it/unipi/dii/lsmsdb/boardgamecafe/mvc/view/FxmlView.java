@@ -198,7 +198,7 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewSearchUserPage.fxml";
         }
-    },INFOMSGCOMMENTS {
+    }, INFOMSGCOMMENTS {
         @Override
         public String getTitle() {
             return "Info Comments";
@@ -207,6 +207,16 @@ public enum FxmlView {
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoCommentsMsg.fxml";
+        }
+    }, ACCOUNTINFOPAGE {
+        @Override
+        public String getTitle() {
+            return "Info Account";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewAccountInfoPage.fxml";
         }
     };
 
