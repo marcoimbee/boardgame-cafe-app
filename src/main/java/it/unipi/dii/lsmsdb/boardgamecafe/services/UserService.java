@@ -96,7 +96,10 @@ public class UserService {
                                      String nationality, int year,
                                      int month, int day)
     {
-        Date dateOfBirth = new GregorianCalendar(year, month - 1, day + 1).getTime();
+//        Date dateOfBirth = new GregorianCalendar(year, month - 1, day + 1).getTime();
+        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        calendar.set(year, month - 1, day); // Month -1 per la rappresentazione zero-based
+        Date dateOfBirth = calendar.getTime();
         String salt = this.generateSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
