@@ -142,6 +142,48 @@ public class StageManager {
         window.show();
     }
 
+    public boolean showDeleteCommentInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to delete this comment?";
+
+        Stage window = new Stage();
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle(title);
+        window.setMinWidth(650);
+        window.setMinHeight(200);
+        window.setOnCloseRequest(e -> window.close());
+
+        Label label = new Label();
+        label.setText(message);
+        label.setFont(Font.font("Georgia Pro Cond Black", FontWeight.BOLD, FontPosture.REGULAR, 16));
+        label.setTextFill(Color.rgb(24,46,88));
+        label.setAlignment(Pos.CENTER);
+
+        AtomicBoolean discard = new AtomicBoolean(false);
+
+        Button backButton = new Button("Return to post");
+        backButton.setOnAction(e -> {
+            window.close();
+            discard.set(false);
+        });
+
+        Button discardCommentButton = new Button("Delete comment");
+        discardCommentButton.setOnAction(e -> {
+            window.close();
+            discard.set(true);
+        });
+
+        VBox vBox = new VBox(10);
+        vBox.getChildren().addAll(label, backButton, discardCommentButton);
+        vBox.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(vBox);
+        window.setScene(scene);
+        window.showAndWait();
+
+        return discard.get();
+    }
+
     public boolean showDiscardPostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard the post? You will lose what you were writing.";
