@@ -382,7 +382,14 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 if (updateEmail) newUser.setEmail(email);
                 else newUser.setEmail(regUser.getEmail());
 
-                if (updateUsername) newUser.setUsername(username);
+                //ToDo: - UPDATE BUT NOT UPDATE! -
+                //      # Since no method to propagate update to Posts, Comments and Reviews collection yet.
+                //      *****************************************************************
+                //      Implemented in this manner TO AVOID The Update.
+                //      Takes the text from the textfield but always updates it with
+                //      the same username that was there before.
+                newUser.setUsername(regUser.getUsername());
+                if (updateUsername) newUser.setUsername(newUser.getUsername());
                 else newUser.setUsername(regUser.getUsername());
 
                 if (updatePassword) {
@@ -399,7 +406,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
                     stageManager.showInfoMessage("Update Info: ",
                             "Your account information has been successfully updated!");
                     initDisplay();
-
                 }
             }
         } else {
