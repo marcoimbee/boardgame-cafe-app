@@ -21,14 +21,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 
 @Component
 public class ControllerViewDetailsPostPage implements Initializable {
@@ -85,7 +84,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     private CommentService serviceComment;
 
-    private final StageManager stageManager;
+//    private final StageManager stageManager;
 
     private List<CommentModelMongo> comments = new ArrayList<>();
 
@@ -93,7 +92,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private static UserModelMongo currentUser;
 
-
+    private String deletedCommentId;
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -104,13 +103,19 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @Autowired
     @Lazy
-    public ControllerViewDetailsPostPage(StageManager stageManager) {
-        this.stageManager = stageManager;
-    }
+    private StageManager stageManager;
+//    public ControllerViewDetailsPostPage(StageManager stageManager) {
+//        this.stageManager = stageManager;
+//    }
 
+    private Consumer<String> deletedCommentCallback;
+
+    public ControllerViewDetailsPostPage() {}
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        System.out.println("[DEBUG] HERE");
+
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
@@ -134,6 +139,15 @@ public class ControllerViewDetailsPostPage implements Initializable {
         if (!currentUser.getUsername().equals(post.getUsername())) {
             editButton.setVisible(false);       // Making the edit button invisible
         }
+    }
+
+    // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
+    public void updateUIAfterCommentDeletion(String deletedCommentId) {
+        System.out.println("[DEBUG] comments list before updating: " + comments);
+        comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
+        System.out.println("[DEBUG] comments list after updating: " + comments);
+
+        fillGridPane();
     }
 
     public void onClickDeleteButton(ActionEvent event) {
@@ -316,7 +330,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    private void loadViewMessagInfo(){
+    private void loadViewMessageInfo(){
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGCOMMENTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
@@ -334,6 +348,12 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @FXML
     void fillGridPane() {
+        // Setting up what method should be called upon comment deletion
+        deletedCommentCallback = commentId -> {
+            updateUIAfterCommentDeletion(commentId);
+        };
+
+        commentGridPane.getChildren().clear();
 
         //per mettere un solo elemento correttamente nel gridpane
         if (comments.size() == 1) {
@@ -345,8 +365,9 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
         try {
             if (comments.isEmpty()) {
-                loadViewMessagInfo();
+                loadViewMessageInfo();
             }
+
             for (CommentModelMongo comment : comments) { // iterando lista di posts
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
@@ -354,7 +375,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectComment.setData(comment, this.post);
+                // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
+                controllerObjectComment.setData(comment, this.post, deletedCommentCallback);
 
                 //choice number of column
                 if (columnGridPane == 1) {
@@ -374,7 +396,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                 //GridPane.setMargin(anchorPane, new Insets(25));
                 GridPane.setMargin(anchorPane, new Insets(4,5,10,90));
-
             }
         } catch (Exception e) {
             e.printStackTrace();
