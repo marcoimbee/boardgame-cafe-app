@@ -1,8 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
+import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,6 +38,11 @@ public class ControllerObjectReview {
     @Autowired
     private ReviewService reviewService; // Iniezione del servizio
 
+    private static UserModelMongo currentUser;
+
+    @Autowired
+    private ModelBean modelBean;
+
     private StageManager stageManager;
     @Autowired
     @Lazy
@@ -46,6 +54,7 @@ public class ControllerObjectReview {
     }
 
     public void setData(ReviewModelMongo review) {
+        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.review = review;
         this.editButton.setDisable(false);
@@ -57,6 +66,12 @@ public class ControllerObjectReview {
         this.tagBoardgameLabel.setText(review.getBoardgameName());
         this.ratingLabel.setText(String.valueOf(review.getRating()));
         this.bodyTextLabel.setText(review.getBody());
+
+        // Removing the possibility to edit and delete a review if the current user is not the author
+        if (!currentUser.getUsername().equals(review.getUsername())) {
+            editButton.setVisible(false);
+            deleteButton.setVisible(false);
+        }
     }
 
     @FXML
