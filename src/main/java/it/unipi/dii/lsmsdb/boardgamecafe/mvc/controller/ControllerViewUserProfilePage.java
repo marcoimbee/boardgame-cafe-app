@@ -39,7 +39,7 @@ import java.util.*;
 public class ControllerViewUserProfilePage implements Initializable{
 
     public enum ContentType {
-        POSTS, REVIEWS;
+        POSTS, REVIEWS
     }
     //********* Buttons *********
     @FXML
@@ -198,7 +198,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         String title = "Work in Progress";
         String message = "" +
                 "A breve avrai la possibilità di seguire questo utente.\n";
-        stageManager.showInfoMessage(title, message);;
+        stageManager.showInfoMessage(title, message);
     }
 
     public void onClickPostsButton() {
@@ -458,8 +458,9 @@ public class ControllerViewUserProfilePage implements Initializable{
         }
     }
 
-    public void onClickAccountInfoButton(ActionEvent event) {
-        stageManager.showWindow(FxmlView.SIGNUP);
+    public void onClickAccountInfoButton() {
+        stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
+        stageManager.closeStageButton(this.accountInfoButton);
     }
 
 }

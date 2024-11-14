@@ -307,7 +307,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     }
 
     public void onClickAccountInfoButton(ActionEvent event) {
-        stageManager.showWindow(FxmlView.SIGNUP);
+        stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
+        stageManager.closeStageButton(this.accountInfoButton);
     }
 
     public void onClickSearchUserButton(ActionEvent event) {
