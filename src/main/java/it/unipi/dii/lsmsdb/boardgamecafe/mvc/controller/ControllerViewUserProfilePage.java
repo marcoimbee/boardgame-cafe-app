@@ -408,6 +408,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         UserModelMongo selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
         if (selectedUser == regUser) {
                 modelBean.putBean(Constants.SELECTED_USER, null);
+                this.followButton.setDisable(true);
                 resetToCurrent();
             } else {
                 this.followButton.setDisable(false);
@@ -454,7 +455,6 @@ public class ControllerViewUserProfilePage implements Initializable{
             this.yourPostsButton.setDisable(true);
             this.yourReviewsButton.setDisable(false);
             this.yourProfileButton.setDisable(true);
-            this.followButton.setDisable(true);
         }
     }
 
