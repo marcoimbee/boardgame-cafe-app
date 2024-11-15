@@ -7,6 +7,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -74,9 +76,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private ListView listViewBoardgames;
     @FXML
     private Button onClickRefreshButton;
+    @FXML
+    private ChoiceBox<String> whatBgameToShowChoiceBox;
 
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
+    @Autowired
+    private BoardgameService boardgameService;
     @Autowired
     private ControllerObjectBoardgame controllerObjectBoardgame;
     @Autowired
@@ -95,7 +101,21 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private final static int LIMIT = 12; //how many boardgame to show for each page
     private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
 
+    //• Show the boardgame that has the highest average score in its reviews. -----> Top rated boardgames
+    //• Show Boardgames with the highest average score in its reviews per year. --> Top rated boardgames per Year
+    //• Suggerisci Boardgame su cui hanno fatto post utenti che segui ---> Boargames commentati da utenti che segui
 
+    private ObservableList<String> whatBgameToShowList = FXCollections.observableArrayList(
+            "All bordgames",
+            "Boardgames commented by your followed users",
+            "Top rated Boardgames per year"
+    );
+    private enum BgameToFetch {
+        ALL_BOARDGAMES,
+        BOARDGAME_COMMENTED_BY_FOLLOWERS,
+        TOP_RATED_BOARDGAMES_PER_YEAR
+    };
+    private BgameToFetch currentlyShowing;
 
     @Autowired
     @Lazy
@@ -110,6 +130,15 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
 
+        this.currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
+        this.whatBgameToShowChoiceBox.setValue(this.whatBgameToShowList.get(0));
+        this.whatBgameToShowChoiceBox.setItems(this.whatBgameToShowList);
+
+        this.whatBgameToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.currentlyShowing = BgameToFetch.values()[this.whatBgameToShowList.indexOf(newValue)];
+            initPage();
+        });
+
         initPage();
 
         //pause.setOnFinished(event -> performSearch());
@@ -119,9 +148,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     {
         resetPage();
 
-        boardgames.addAll(getData());
+        boardgames.addAll(getBoardgamesByChoice());
+        // Come mostro nessun boardgame ??
+
+        //prevNextButtonsCheck();
+        /*
         if (boardgames.isEmpty()) {
-            stageManager.showInfoMessage("INFO", "Database is empty!");
+            stageManager.showInfoMessage("INFO", "No boardgames");
             try {
                 Platform.exit();
                 System.exit(0);
@@ -129,14 +162,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 logger.error("Exception occurred: " + e.getLocalizedMessage());
             }
         }
+         */
 
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
         {
             List<String> boardgameNames = boardgameDBMongo.getBoardgameTags();
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
         }
-        else
-            System.out.println("Constants.BOARDGAME_LIST != null");
 
         fillGridPane();
     }
@@ -162,7 +194,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter += SKIP;
 
         //retrieve boardgames
-        boardgames.addAll(getData());
+        boardgames.addAll(getBoardgamesByChoice());
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -178,7 +210,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        boardgames.addAll(getData());
+        boardgames.addAll(getBoardgamesByChoice());
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -225,10 +257,23 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         boardgames.clear();
         skipCounter = 0;
     }
-    private List<BoardgameModelMongo> getData(){
-
-        List<BoardgameModelMongo> boardgames =
-                boardgameDBMongo.findRecentBoardgames(LIMIT, skipCounter);
+    private List<BoardgameModelMongo> getBoardgamesByChoice()
+    {
+        List<BoardgameModelMongo> boardgames = null;
+        switch (this.currentlyShowing)
+        {
+            case ALL_BOARDGAMES ->
+                    boardgames = boardgameDBMongo.findRecentBoardgames(LIMIT, this.skipCounter);
+            case TOP_RATED_BOARDGAMES_PER_YEAR ->
+                    boardgames = boardgameService.findTopRatedBoardgamesPerYear(0, LIMIT, this.skipCounter);
+            case BOARDGAME_COMMENTED_BY_FOLLOWERS ->
+                    boardgames = boardgameService.suggestBoardgamesWithPostsByFollowedUsers(
+                            ((UserModelMongo)modelBean.getBean(Constants.CURRENT_USER)).getUsername(), this.skipCounter);
+            default ->
+                boardgames = null;
+        }
+        if (boardgames == null)
+            return null;
 
         prevNextButtonsCheck(boardgames);
         return boardgames;

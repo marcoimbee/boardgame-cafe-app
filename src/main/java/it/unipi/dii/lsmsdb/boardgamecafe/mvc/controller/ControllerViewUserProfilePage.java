@@ -38,7 +38,7 @@ import java.util.*;
 public class ControllerViewUserProfilePage implements Initializable{
 
     public enum ContentType {
-        POSTS, REVIEWS
+        POSTS, REVIEWS;
     }
     //********* Buttons *********
     @FXML
@@ -508,9 +508,8 @@ public class ControllerViewUserProfilePage implements Initializable{
         }
     }
 
-    public void onClickAccountInfoButton() {
-        stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
-        stageManager.closeStageButton(this.accountInfoButton);
+    public void onClickAccountInfoButton(ActionEvent event) {
+        stageManager.switchScene(FxmlView.ACCOUNTINFOPAGE);
     }
 
 }

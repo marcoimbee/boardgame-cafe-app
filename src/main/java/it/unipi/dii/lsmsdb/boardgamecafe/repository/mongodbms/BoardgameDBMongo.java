@@ -196,7 +196,7 @@ public class BoardgameDBMongo {
         return boardgames;
     }
 
-    public Document findTopRatedBoardgamesPerYear(int minReviews, int results) {
+    public Document findTopRatedBoardgamesPerYear(int minReviews, int results, int skipCounter) {
         // Step 1: Scomponi il campo delle recensioni
         UnwindOperation unwindOperation = unwind("reviews");
 
@@ -219,16 +219,21 @@ public class BoardgameDBMongo {
         // (Stage_4) Step 5: Ordina per punteggio medio e numero di recensioni in ordine decrescente
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "year","rating", "reviews"));
 
+        SkipOperation skipOperation = skip(skipCounter);
+
         // Step 6: Limita i risultati a un certo numero (es. i top risultati)
         LimitOperation limitOperation = limit(results);
 
         // Step 7: Definisci l'aggregazione completa
-        Aggregation aggregation = newAggregation(unwindOperation, groupOperation, matchOperation, projectionOperation, sortOperation, limitOperation);
+        Aggregation aggregation = newAggregation(unwindOperation, groupOperation, matchOperation, projectionOperation, sortOperation, skipOperation, limitOperation);
 
         // Step 8: Esegui l'aggregazione sulla collezione di giochi da tavolo
         AggregationResults<BoardgameModelMongo> result = mongoOperations.aggregate(aggregation, "boardgames", BoardgameModelMongo.class);
 
-        // Step 9: Restituisci i risultati grezzi
+        //result.getMappedResults().stream().filter(boardgameModelMongo ->
+        //        (boardgameModelMongo.getId() != null)).forEach(resultset::add); // serve per evitare di inserire nel resultset degli oggetti che hanno
+                                                                                // tutti i campi a null quando il result non ha boardgames
+
         return result.getRawResults();
     }
 
