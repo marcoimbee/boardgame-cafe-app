@@ -3,6 +3,8 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,12 +78,20 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.gender = gender;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
+    // Cambiata la gestione del tipo di dato per i metodi set/get per dateOfBirth a causa dei problemi
+    // generati dalle differenze di fuso orario ed evitare gestioni implicite da parte
+    // del framework e mongo db.
+    // Prima era tutto Date, ora si articola tra LocalDate e Date (Date continua a rimanere come tipo principale
+    // per per metter a mongo db di salvare l'informazione senza eccezioni).
+    public LocalDate getDateOfBirth() {
+        Date dateOfBirth = this.dateOfBirth;
+        // Convertiamo Date in LocalDate per evitare problemi di fuso orario
+        return dateOfBirth.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
     }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        // Convertiamo LocalDate a Date in UTC per inserirlo in MongoDB
+        Date dateOfBirthInUTC = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
+        this.dateOfBirth = dateOfBirthInUTC;
     }
 
     public String getNationality() {

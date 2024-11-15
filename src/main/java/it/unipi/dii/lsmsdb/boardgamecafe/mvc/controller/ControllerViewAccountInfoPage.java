@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
@@ -12,6 +14,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +38,11 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class ControllerViewAccountInfoPage implements Initializable{
@@ -43,6 +50,10 @@ public class ControllerViewAccountInfoPage implements Initializable{
     public enum UserActivity {
         EDIT_INFO, NO_EDIT
     }
+    private static final String EMAIL_REGEX =
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    private static final Pattern pattern = Pattern.compile(EMAIL_REGEX);
+
     //********* Buttons *********
     @FXML
     private Button yourProfileButton;
@@ -64,7 +75,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private Button saveChangesButton;
     @FXML
     private Button editAccountInfoButton;
-
+    @FXML
+    private Button clearFieldsButton;
 
     // ********** Llabels *********
     @FXML
@@ -83,6 +95,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private Label usernameLabel;
     @FXML
     private Label passwordLabel;
+    @FXML
+    private Label reminderLabel;
 
     //********* TextField and its Label Components *********
     @FXML private TextField textFieldFirstName;
@@ -104,20 +118,64 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @FXML private TextField textFieldRepeatPassword;
     @FXML private Label subLabelRepeatedPassword;
 
+    //********* TextField Check Boxes *********
+    @FXML
+    private CheckBox flagFirstName;
+    @FXML
+    private CheckBox flagLastName;
+    @FXML
+    private CheckBox flagNationality;
+    @FXML
+    private CheckBox flagGender;
+    @FXML
+    private CheckBox flagDateOfBirth;
+    @FXML
+    private CheckBox flagEmail;
+    @FXML
+    private CheckBox flagUsername;
+    @FXML
+    private CheckBox flagPassword;
 
-    //********* Other Components *********
+    //********* TextField Icons *********
+    @FXML
+    private FontAwesomeIconView iconFirstName;
+    @FXML
+    private FontAwesomeIconView iconLastName;
+    @FXML
+    private FontAwesomeIconView iconNationality;
+    @FXML
+    private FontAwesomeIconView iconGender1;
+    @FXML
+    private FontAwesomeIconView iconGender2;
+    @FXML
+    private FontAwesomeIconView iconCalendar;
+    @FXML
+    private FontAwesomeIconView iconEmail;
+    @FXML
+    private FontAwesomeIconView iconUsername;
+    @FXML
+    private FontAwesomeIconView iconPassword;
+    @FXML
+    private FontAwesomeIconView iconRepeatPassword;
+    @FXML
+    private FontAwesomeIconView iconClearFields;
+    @FXML
+    private FontAwesomeIconView iconSaveChanges;
+    @FXML
+    private FontAwesomeIconView iconCancel;
+
+
+    //********* Others View Components *********
     @FXML
     private ImageView profileImage;
 
     //********* Autowireds *********
     @Autowired
-    private PostDBMongo postDBMongo;
+    private UserDBMongo userDBMongo;
     @Autowired
-    private ReviewDBMongo reviewMongoOp;
+    private UserDBNeo4j userDBNeo4j;
     @Autowired
-    private UserDBMongo userMongoOp;
-    @Autowired
-    private UserDBNeo4j userDBNeo;
+    private UserService serviceUser;
     @Autowired
     private ModelBean modelBean;
 
@@ -136,169 +194,17 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        //resetPage();
-        this.accountInfoButton.setDisable(true);
-        this.cancelButton.setVisible(false);
-        this.saveChangesButton.setVisible(false);
-        this.selectedOperation = UserActivity.NO_EDIT;
-        regUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        Image image = new Image(Objects.requireNonNull(getClass().
-                getResource("/user.png")).toExternalForm());
-        this.profileImage.setImage(image);
-
-        this.firstNameLabel.setText(regUser.getName());
-        this.lastNameLabel.setText(regUser.getSurname());
-        this.nationalityLabel.setText(regUser.getNationality());
-        this.genderLabel.setText(regUser.getGender());
-        this.dateOfBirthLabel.setText(regUser.getDateOfBirth().toString());
-        this.emailLabel.setText(regUser.getEmail());
-        this.usernameLabel.setText(regUser.getUsername());
-        this.passwordLabel.setText("***************");
-
-        this.textFieldFirstName.setVisible(false);
-        this.subLabelFirstName.setVisible(false);
-        this.textFieldLastName.setVisible(false);
-        this.subLabelLastName.setVisible(false);
-        this.comboBoxNationality.setVisible(false);
-        this.subLabelNationality.setVisible(false);
-        this.comboBoxGender.setVisible(false);
-        this.subLabelGender.setVisible(false);
-        this.datePickerDate.setVisible(false);
-        this.subLabelDate.setVisible(false);
-        this.textFieldEmail.setVisible(false);
-        this.subLabelEmail.setVisible(false);
-        this.textFieldUsername.setVisible(false);
-        this.subLabelUsername.setVisible(false);
-        this.textFieldPassword.setVisible(false);
-        this.subLabelPassword.setVisible(false);
-        this.textFieldRepeatPassword.setVisible(false);
-        this.subLabelRepeatedPassword.setVisible(false);
+        this.initComboBox();
+        initDisplay();
     }
 
+    //********** On Click Button Methods **********
     public void onClickEditAccountInfoButton() {
         this.selectedOperation = UserActivity.EDIT_INFO;
         this.cancelButton.setVisible(true);
         this.saveChangesButton.setVisible(true);
-        insertNewInfo();
+        setEditFieldsVisibility(true);
     }
-    public void onClickSaveChangesButton() {
-
-    }
-    public void onClickCancelButton() {
-        resetPage();
-    }
-    public void onClickDeleteAccountButton() {
-
-    }
-
-    private void initDisplay(){
-
-        Image image = new Image(Objects.requireNonNull(getClass().
-                getResource("/user.png")).toExternalForm());
-        this.profileImage.setImage(image);
-
-        this.firstNameLabel.setText(regUser.getName());
-        this.lastNameLabel.setText(regUser.getSurname());
-        this.nationalityLabel.setText(regUser.getNationality());
-        this.genderLabel.setText(regUser.getGender());
-        this.dateOfBirthLabel.setText(regUser.getDateOfBirth().toString());
-        this.emailLabel.setText(regUser.getEmail());
-        this.usernameLabel.setText(regUser.getUsername());
-        this.passwordLabel.setText("***************");
-
-        setEditFieldsVisibility(false);
-    }
-
-    private void insertNewInfo() {
-        if(selectedOperation == UserActivity.EDIT_INFO){
-            setEditFieldsVisibility(true);
-        }
-    }
-
-    private void setEditFieldsVisibility(boolean isVisible) {
-        this.textFieldFirstName.setVisible(isVisible);
-        this.subLabelFirstName.setVisible(isVisible);
-        this.textFieldLastName.setVisible(isVisible);
-        this.subLabelLastName.setVisible(isVisible);
-        this.comboBoxNationality.setVisible(isVisible);
-        this.subLabelNationality.setVisible(isVisible);
-        this.comboBoxGender.setVisible(isVisible);
-        this.subLabelGender.setVisible(isVisible);
-        this.datePickerDate.setVisible(isVisible);
-        this.subLabelDate.setVisible(isVisible);
-        this.textFieldEmail.setVisible(isVisible);
-        this.subLabelEmail.setVisible(isVisible);
-        this.textFieldUsername.setVisible(isVisible);
-        this.subLabelUsername.setVisible(isVisible);
-        this.textFieldPassword.setVisible(isVisible);
-        this.subLabelPassword.setVisible(isVisible);
-        this.textFieldRepeatPassword.setVisible(isVisible);
-        this.subLabelRepeatedPassword.setVisible(isVisible);
-    }
-
-
-    private void resetPage() {
-        if (this.selectedOperation.equals(UserActivity.EDIT_INFO)) {
-            this.selectedOperation = UserActivity.NO_EDIT;
-        }
-        this.cancelButton.setVisible(true);
-        this.saveChangesButton.setVisible(true);
-        this.accountInfoButton.setDisable(true);
-        initDisplay();
-    }
-
-
-    public LocalDateTime selectDate() {
-//        LocalDate selectedDate = this.datePickerDate.getValue();
-//        LocalDate currentDate = LocalDate.now();
-//
-//        if (selectedDate == null) {
-//            labelDate.setText("Date of Birth is missing.");
-//        } else if (selectedDate.isAfter(currentDate)) {
-//            labelDate.setText("Were you born in the future?");
-//        } else {
-//            LocalDateTime dateTime = selectedDate.atStartOfDay();
-//            //String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-//            Period age = Period.between(selectedDate, currentDate);
-//
-//            if (age.getYears() < 13 ) {
-//                labelDate.setText("You must be at least 13 years old.");
-//            } else {
-//                labelDate.setText("");
-//                return dateTime;
-//            }
-//        }
-        return null;
-    }
-
-    public String selectEmail() {
-//        //se email già presente o bannata: messaggio di errore.
-//        Optional<GenericUserModelMongo> user = userDBMongo.
-//                findByEmail(this.textFieldEmail.getText());
-//        if (user.isPresent()) {
-//            UserModelMongo userFromMongo = (UserModelMongo) user.get();
-//            if (userFromMongo.isBanned())
-//                return "user_banned";
-//            return "already_used";
-//        }
-//        return this.textFieldEmail.getText();
-        return "";
-    }
-
-
-    public String  selectUsername(){
-
-//        //se username già presente: messaggio di errore.
-//        Optional<GenericUserModelMongo> user = userDBMongo.
-//                findByUsername(this.textFieldUsername.getText());
-//
-//        if (user.isPresent()) { return "already_used"; }
-//        return this.textFieldUsername.getText();
-        return "";
-    }
-
-
     public void onClickYourProfileButton() {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.yourProfileButton);
@@ -320,6 +226,438 @@ public class ControllerViewAccountInfoPage implements Initializable{
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
+    public void onClickCancelButton() {
+        clearFields(); initDisplay();
+    }
+    public void onClickClearFieldsButton() {
+        clearFields();
+    }
+    public void onClickDeleteAccountButton() {
 
+    }
+    public void onClickSaveChangesButton() {
+
+        if(regUser != null){
+            // Ottenere i dati dai campi di input
+            String firstName = this.textFieldFirstName.getText();
+            String lastName = this.textFieldLastName.getText();
+            String country = this.comboBoxNationality.getValue();
+            String gender = this.comboBoxGender.getValue();
+            LocalDateTime dateOfBirth = selectDate();
+            String email = selectEmail();
+            String username = selectUsername();
+            String password = this.textFieldPassword.getText();
+            String repeatedPassword = this.textFieldRepeatPassword.getText();
+            // Gestione delle checkbox
+            boolean updateFirstName = this.flagFirstName.isSelected();
+            boolean updateLastName = this.flagLastName.isSelected();
+            boolean updateNationality = this.flagNationality.isSelected();
+            boolean updateGender = this.flagGender.isSelected();
+            boolean updateDateOfBirth = this.flagDateOfBirth.isSelected();
+            boolean updateEmail = this.flagEmail.isSelected();
+            boolean updateUsername = this.flagUsername.isSelected();
+            boolean updatePassword = this.flagPassword.isSelected();
+
+            // Verifica che almeno una checkbox sia selezionata
+            if (!(updateFirstName || updateLastName || updateNationality || updateGender ||
+                    updateDateOfBirth || updateEmail || updateUsername || updatePassword)) {
+                clearFields();
+                stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
+                return;
+            }
+
+            // Variabile di validazione
+            boolean isValid = true;
+
+            // Validazione condizionata in base alla selezione delle checkbox
+            if (updateFirstName) {
+                if (firstName.isEmpty()) {
+                    subLabelFirstName.setText("First Name is missing.");
+                    isValid = false;
+                } else {
+                    subLabelFirstName.setText("");
+                }
+            }
+            if (updateLastName) {
+                if (lastName.isEmpty()) {
+                    subLabelLastName.setText("Last Name is missing.");
+                    isValid = false;
+                } else {
+                    subLabelLastName.setText("");
+                }
+            }
+            if (updateNationality) {
+                if (country == null) {
+                    subLabelNationality.setText("Country is missing.");
+                    isValid = false;
+                } else {
+                    subLabelNationality.setText("");
+                }
+            }
+            if (updateGender) {
+                if (gender == null) {
+                    subLabelGender.setText("Gender is missing.");
+                    isValid = false;
+                } else {
+                    subLabelGender.setText("");
+                }
+            }
+            if (updateDateOfBirth) {
+                if (dateOfBirth == null) {
+                    subLabelDate.setText("Date of Birth is missing.");
+                    isValid = false;
+                } else {
+                    subLabelDate.setText("");
+                }
+            }
+            if (updateEmail) {
+                if (email.isEmpty()) {
+                    subLabelEmail.setText("E-mail is missing.");
+                    isValid = false;
+                } else if (email.equals("user_banned")) {
+                    subLabelEmail.setText("E-mail already used by banned user.");
+                    isValid = false;
+                } else if (email.equals("already_used")) {
+                    subLabelEmail.setText("E-mail already used.");
+                    isValid = false;
+                } else if (!validateEmail(email)) {
+                    subLabelEmail.setText("E-mail not valid.");
+                    isValid = false;
+                } else {
+                    subLabelEmail.setText("");
+                }
+            }
+            if (updateUsername) {
+                if (username.isEmpty()) {
+                    subLabelUsername.setText("Username is missing.");
+                    isValid = false;
+                } else if (username.equals("already_used")) {
+                    subLabelUsername.setText("Username already exists");
+                    isValid = false;
+                } else {
+                    subLabelUsername.setText("");
+                }
+            }
+            if (updatePassword) {
+                if (password.isEmpty()) {
+                    subLabelPassword.setText("Password is missing.");
+                    subLabelRepeatedPassword.setText("");
+                    isValid = false;
+                } else if (repeatedPassword.isEmpty()) {
+                    subLabelPassword.setText("");
+                    subLabelRepeatedPassword.setText("Repeat the password.");
+                    isValid = false;
+                } else if (!password.equals(repeatedPassword)) {
+                    subLabelPassword.setText("");
+                    subLabelRepeatedPassword.setText("The two passwords above do not match.");
+                    isValid = false;
+                } else {
+                    subLabelPassword.setText("");
+                    subLabelRepeatedPassword.setText("");
+                }
+            }
+
+            if (isValid) {
+                // Esegui l'aggiornamento del modello utente come prima
+                UserModelMongo newUser = new UserModelMongo();
+
+                if (updateFirstName) newUser.setName(firstName);
+                else newUser.setName(regUser.getName());
+
+                if (updateLastName) newUser.setSurname(lastName);
+                else newUser.setSurname(regUser.getSurname());
+
+                if (updateNationality) newUser.setNationality(country);
+                else newUser.setNationality(regUser.getNationality());
+
+                if (updateGender) newUser.setGender(gender);
+                else newUser.setGender(regUser.getGender());
+
+                if (updateDateOfBirth) newUser.setDateOfBirth(dateOfBirth.toLocalDate());
+                else newUser.setDateOfBirth(regUser.getDateOfBirth());
+
+                if (updateEmail) newUser.setEmail(email);
+                else newUser.setEmail(regUser.getEmail());
+
+                //ToDo: - UPDATE BUT NOT UPDATE! -
+                //      # Since no method to propagate update to Posts, Comments and Reviews collection yet.
+                //      *****************************************************************
+                //      Implemented in this manner TO AVOID The Update.
+                //      Takes the text from the textfield but always updates it with
+                //      the same username that was there before.
+                newUser.setUsername(regUser.getUsername());
+                if (updateUsername) newUser.setUsername(newUser.getUsername());
+                else newUser.setUsername(regUser.getUsername());
+
+                if (updatePassword) {
+                    newUser.setSalt(regUser.getSalt());
+                    String hashedPassword = serviceUser.getHashedPassword(password,newUser.getSalt());
+                    newUser.setPasswordHashed(hashedPassword);
+                } else {
+                    newUser.setSalt(regUser.getSalt());
+                    newUser.setPasswordHashed(regUser.getPasswordHashed());
+                }
+
+                newUser.setId(regUser.getId());
+                newUser.setBanned(regUser.isBanned());
+                String oldUsername = regUser.getUsername();
+
+                if (updateDbms(newUser, oldUsername, updateUsername)){
+                    modelBean.putBean(Constants.CURRENT_USER, newUser);
+                    stageManager.showInfoMessage("Update Info: ",
+                            "Your account information has been successfully updated!");
+                    initDisplay();
+                }
+            }
+        } else {
+            stageManager.showInfoMessage("Update Error: ",
+                    "There Is No Logged-In User To Update ");
+        }
+    }
+
+
+    //********** Internal Methods **********
+    private void initDisplay(){
+        clearFields();
+        regUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        this.accountInfoButton.setDisable(true);
+        this.selectedOperation = UserActivity.NO_EDIT;
+
+        String formattedDate = regUser.getDateOfBirth().format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+        Image image = new Image(Objects.requireNonNull(getClass().
+                getResource("/user.png")).toExternalForm());
+        this.profileImage.setImage(image);
+
+        this.firstNameLabel.setText(regUser.getName());
+        this.lastNameLabel.setText(regUser.getSurname());
+        this.nationalityLabel.setText(regUser.getNationality());
+        this.genderLabel.setText(regUser.getGender());
+        this.dateOfBirthLabel.setText(formattedDate);
+        this.emailLabel.setText(regUser.getEmail());
+        this.usernameLabel.setText(regUser.getUsername());
+        this.passwordLabel.setText("***************");
+
+        setEditFieldsVisibility(false);
+    }
+
+    private boolean updateDbms(UserModelMongo newUser, String oldUsername, boolean updateUsername){
+
+        boolean mongoUpdate = userDBMongo.updateUser(newUser.getId(), newUser, "user");
+        boolean neo4jUpdate = userDBNeo4j.setNewUsername(oldUsername, newUser.getUsername());
+
+        if (mongoUpdate) {
+            if (updateUsername) {
+                if (!neo4jUpdate){
+                    // Rollback se necessario
+                    userDBMongo.updateUser(newUser.getId(), regUser, "user");
+                    stageManager.showInfoMessage("Update Error: ",
+                            "There was an error updating your account information on Neo4j DB." +
+                                    " Please try again.");
+                    initDisplay();
+                    return false;
+                }
+            }
+        } else {
+            stageManager.showInfoMessage("Update Error: ",
+                    "There was an error updating your account information. " +
+                            "Please try again.");
+            initDisplay();
+            return false;
+        }
+        return true;
+    }
+
+    private void setEditFieldsVisibility(boolean isVisible) {
+        //********** Actual Labels **********
+        this.firstNameLabel.setDisable(isVisible);
+        this.lastNameLabel.setDisable(isVisible);
+        this.nationalityLabel.setDisable(isVisible);
+        this.genderLabel.setDisable(isVisible);
+        this.dateOfBirthLabel.setDisable(isVisible);
+        this.emailLabel.setDisable(isVisible);
+        this.usernameLabel.setDisable(isVisible);
+        this.passwordLabel.setDisable(isVisible);
+        this.reminderLabel.setVisible(isVisible);
+        //********** TextFields & SubLabels **********
+        this.textFieldFirstName.setVisible(isVisible);
+        this.subLabelFirstName.setVisible(isVisible);
+        this.textFieldLastName.setVisible(isVisible);
+        this.subLabelLastName.setVisible(isVisible);
+        this.comboBoxNationality.setVisible(isVisible);
+        this.subLabelNationality.setVisible(isVisible);
+        this.comboBoxGender.setVisible(isVisible);
+        this.subLabelGender.setVisible(isVisible);
+        this.datePickerDate.setVisible(isVisible);
+        this.subLabelDate.setVisible(isVisible);
+        this.textFieldEmail.setVisible(isVisible);
+        this.subLabelEmail.setVisible(isVisible);
+        this.textFieldUsername.setVisible(isVisible);
+        this.subLabelUsername.setVisible(isVisible);
+        this.textFieldPassword.setVisible(isVisible);
+        this.subLabelPassword.setVisible(isVisible);
+        this.textFieldRepeatPassword.setVisible(isVisible);
+        this.subLabelRepeatedPassword.setVisible(isVisible);
+        //********** Icons **********
+        this.iconFirstName.setVisible(isVisible);
+        this.iconLastName.setVisible(isVisible);
+        this.iconNationality.setVisible(isVisible);
+        this.iconGender1.setVisible(isVisible);
+        this.iconGender2.setVisible(isVisible);
+        this.iconCalendar.setVisible(isVisible);
+        this.iconEmail.setVisible(isVisible);
+        this.iconUsername.setVisible(isVisible);
+        this.iconPassword.setVisible(isVisible);
+        this.iconRepeatPassword.setVisible(isVisible);
+        this.iconClearFields.setVisible(isVisible);
+        this.iconCancel.setVisible(isVisible);
+        this.iconSaveChanges.setVisible(isVisible);
+        //********** Related CheckBoxes **********
+        this.flagFirstName.setVisible(isVisible);
+        this.flagLastName.setVisible(isVisible);
+        this.flagNationality.setVisible(isVisible);
+        this.flagGender.setVisible(isVisible);
+        this.flagDateOfBirth.setVisible(isVisible);
+        this.flagEmail.setVisible(isVisible);
+        this.flagUsername.setVisible(isVisible);
+        this.flagPassword.setVisible(isVisible);
+        //********** Related Buttons **********
+        this.cancelButton.setVisible(isVisible);
+        this.saveChangesButton.setVisible(isVisible);
+        this.clearFieldsButton.setVisible(isVisible);
+        this.deleteAccountButton.setDisable(isVisible);
+        this.editAccountInfoButton.setDisable(isVisible);
+    }
+
+    public void clearFields(){
+        //********** TextFields & SubLabels **********
+        this.textFieldFirstName.clear();
+        this.textFieldFirstName.setPromptText("First Name");
+        this.subLabelFirstName.setText("");
+        this.textFieldLastName.clear();
+        this.textFieldLastName.setPromptText("Laset Name");
+        this.subLabelLastName.setText("");
+        this.comboBoxNationality.setValue(null);
+        this.comboBoxNationality.setPromptText("Nationality");
+        this.subLabelNationality.setText("");
+        this.comboBoxGender.setValue(null);
+        this.comboBoxGender.setPromptText("Gender");
+        this.subLabelGender.setText("");
+        this.datePickerDate.setValue(null);
+        this.datePickerDate.setPromptText("Date Of Birth");
+        this.subLabelDate.setText("");
+        this.textFieldEmail.clear();
+        this.textFieldEmail.setPromptText("E-mail");
+        this.subLabelEmail.setText("");
+        this.textFieldUsername.clear();
+        this.textFieldUsername.setPromptText("Username");
+        this.subLabelUsername.setText("");
+        this.textFieldPassword.clear();
+        this.textFieldPassword.setPromptText("Password");
+        this.subLabelPassword.setText("");
+        this.textFieldRepeatPassword.clear();
+        this.textFieldRepeatPassword.setPromptText("Repeat Password");
+        this.subLabelRepeatedPassword.setText("");
+        //********** Related CheckBoxes **********
+        this.flagFirstName.setSelected(false);
+        this.flagLastName.setSelected(false);
+        this.flagNationality.setSelected(false);
+        this.flagGender.setSelected(false);
+        this.flagDateOfBirth.setSelected(false);
+        this.flagEmail.setSelected(false);
+        this.flagUsername.setSelected(false);
+        this.flagPassword.setSelected(false);
+    }
+
+    private void resetPage() {}
+
+    public LocalDateTime selectDate() {
+        LocalDate selectedDate = this.datePickerDate.getValue();
+        LocalDate currentDate = LocalDate.now();
+
+        if (selectedDate == null) {
+            subLabelDate.setText("Date of Birth is missing.");
+        } else if (selectedDate.isAfter(currentDate)) {
+            subLabelDate.setText("Were you born in the future?");
+        } else {
+            LocalDateTime dateTime = selectedDate.atStartOfDay();
+            //String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+            Period age = Period.between(selectedDate, currentDate);
+
+            if (age.getYears() < 13 ) {
+                subLabelDate.setText("You must be at least 13 years old.");
+            } else {
+                subLabelDate.setText("");
+                return dateTime;
+            }
+        }
+        return null;
+    }
+
+    public String selectEmail() {
+        //se email già presente o bannata: messaggio di errore.
+        Optional<GenericUserModelMongo> user = userDBMongo.
+                findByEmail(this.textFieldEmail.getText());
+        if (user.isPresent()) {
+            UserModelMongo userFromMongo = (UserModelMongo) user.get();
+            if (userFromMongo.isBanned())
+                return "user_banned";
+            return "already_used";
+        }
+        return this.textFieldEmail.getText();
+    }
+
+    public String  selectUsername(){
+        //se username già presente: messaggio di errore.
+        Optional<GenericUserModelMongo> user = userDBMongo.
+                findByUsername(this.textFieldUsername.getText());
+
+        if (user.isPresent()) { return "already_used"; }
+        return this.textFieldUsername.getText();
+
+    }
+
+    public static boolean validateEmail(String email) {
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    private void initComboBox() {
+        this.comboBoxGender.getItems().addAll("Male","Female", "Other");
+        this.comboBoxNationality.getItems().addAll("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica",
+                "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas",
+                "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan",
+                "Bolivia", "Bonaire Sint Eustatius and Saba", "Bosnia and Herzegovina", "Botswana", "Bouvet Island",
+                "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi",
+                "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Cayman Islands", "Central African Republic", "Chad",
+                "Chile", "China", "Christmas Island", "Cocos Islands", "Colombia", "Comoros", "Congo", "Congo",
+                "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Curaçao", "Cyprus", "Czechia", "Côte d'Ivoire",
+                "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador",
+                "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Falkland Islands", "Faroe Islands",
+                "Fiji", "Finland", "France", "French Guiana", "French Polynesia", "French Southern Territories",
+                "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada",
+                "Guadeloupe", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana", "Haiti",
+                "Heard Island and McDonald Islands", "Holy See", "Honduras", "Hong Kong", "Hungary", "Iceland",
+                "India", "Indonesia", "Iran", "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Jamaica",
+                "Japan", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "North Korea", "South Korea",
+                "Kuwait", "Kyrgyzstan", "Lao", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein",
+                "Lithuania", "Luxembourg", "Macao", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta",
+                "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia",
+                "Moldova", "Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar",
+                "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger",
+                "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau",
+                "Palestine State of", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn",
+                "Poland", "Portugal", "Puerto Rico", "Qatar", "Republic of North Macedonia", "Romania",
+                "Russian Federation", "Rwanda", "Réunion", "Saint Barthélemy", "Saint Helena Ascension and Tristan da Cunha",
+                "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin", "Saint Pierre and Miquelon",
+                "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia",
+                "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Sint Maarten", "Slovakia", "Slovenia",
+                "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands", "South Sudan",
+                "Spain", "Sri Lanka", "Sudan", "Suriname", "Svalbard and Jan Mayen", "Sweden", "Switzerland",
+                "Syrian Arab Republic", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tokelau",
+                "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands",
+                "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States Minor Outlying Islands",
+                "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Viet Nam", "Virgin Islands",
+                "Virgin Islands", "Wallis and Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe", "Åland Islands");
+    }
 
 }
