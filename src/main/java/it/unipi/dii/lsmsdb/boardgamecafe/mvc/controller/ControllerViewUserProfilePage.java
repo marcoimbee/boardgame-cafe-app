@@ -5,7 +5,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
@@ -27,6 +26,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -164,7 +164,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         postsUser.addAll(getPosts(openUserProfile.getUsername()));
         if (this.postsUser.isEmpty()) {
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-            loadViewMessagInfo(loadViewItem);
+            loadViewMessageInfo(loadViewItem);
         }
         this.firstNameLabel.setText(openUserProfile.getName());
         this.lastNameLabel.setText(openUserProfile.getSurname());
@@ -195,7 +195,37 @@ public class ControllerViewUserProfilePage implements Initializable{
                 this.followButton.setText(" Follow");
             }
         }
+
+        // Page focus listener - needed to potentially update UI when coming back from a post detail window
+        gridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        onFocusGained();            // Update UI after post deletion
+                    }
+                });
+            }
+        });
     }
+
+    public void onFocusGained() {
+        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
+        if (deletedPostId != null) {
+            modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
+            resetPage();
+            List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+            if (retrievedPosts.isEmpty()) {
+                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+                loadViewMessageInfo(loadViewItem);
+            } else {
+                postsUser.addAll(retrievedPosts);
+                fillGridPane(postsUser);
+                prevNextButtonsCheck(postsUser);
+            }
+        }
+    }
+
 
     public void onClickBoardgamesButton() {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
@@ -277,7 +307,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             List<?> items = getPosts(this.usernameLabel.getText());
             if (items.isEmpty()) {
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-                loadViewMessagInfo(loadViewItem);
+                loadViewMessageInfo(loadViewItem);
             } else {
                 gridPane.getChildren().clear();
                 fillGridPane(items);
@@ -286,7 +316,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             List<?> items = getReviews(this.usernameLabel.getText());
             if (items.isEmpty()) {
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
-                loadViewMessagInfo(loadViewItem);
+                loadViewMessageInfo(loadViewItem);
             } else {
                 gridPane.getChildren().clear();
                 fillGridPane(items);
@@ -387,7 +417,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         return reviews;
     }
 
-    private void loadViewMessagInfo(Parent whatToLoad){
+    private void loadViewMessageInfo(Parent whatToLoad){
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
 

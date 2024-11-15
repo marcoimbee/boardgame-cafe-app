@@ -113,8 +113,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("[DEBUG] HERE");
-
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
@@ -162,7 +160,10 @@ public class ControllerViewDetailsPostPage implements Initializable {
             postDBMongo.deletePost(post);
             commentDBMongo.deleteByPost(post.getId());
 
-            // TODO: Updating origin page UI - HOW????
+            System.out.println("[INFO] A post has been successfully deleted.");
+
+            // Set model bean variable to tell destination page what post was deleted, so that UI can be dynamically updated
+            modelBean.putBean(Constants.DELETED_POST, post.getId());
 
             // Close post details window
             stageManager.closePostDetailsScene();
