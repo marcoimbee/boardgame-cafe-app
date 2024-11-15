@@ -28,6 +28,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -112,8 +114,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private final static int SKIP = 10;     // How many posts to skip each time
     private final static int LIMIT = 10;    // How many posts to show in each page
 
-    private final static Logger logger = LoggerFactory.getLogger(PostDBMongo.class);
-
     private enum PostsToFetch {
         POSTS_BY_FOLLOWED_USERS,
         POSTS_LIKED_BY_FOLLOWED_USERS,
@@ -132,6 +132,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private static String selectedSearchTag;
 
     private static String currentUser;
+
+    private Consumer<String> deletedPostCallback;       // Used when a post author decides to delete a post via the delete button without opening its details page
 
     @Autowired
     @Lazy
@@ -181,6 +183,26 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         selectedSearchTag = null;
 
         currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
+
+        // Page focus listener - needed to potentially update UI when coming back from a post detail window
+        postGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        onFocusGained();            // Update UI after post deletion
+                    }
+                });
+            }
+        });
+    }
+
+    public void onFocusGained() {
+        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
+        if (deletedPostId != null) {
+            modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
+            onClickRefreshButton();             // Updating UI by refreshing
+        }
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
@@ -220,7 +242,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         scrollSet.setVvalue(0);
     }
 
-    public void onClickBoardgamesCollection(ActionEvent actionEvent) {
+    public void onClickBoardgamesCollection() {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
         stageManager.closeStageButton(this.boardgamesCollectionButton);
     }
@@ -322,8 +344,24 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
     }
 
+    private void updateUIAfterPostDeletion(String postId) {
+        resetPageVars();
+        List<PostModelMongo> retrievedPosts = fetchPosts(currentUser);
+        if (retrievedPosts.isEmpty()) {
+            loadViewMessageInfo();
+        } else {
+            posts.addAll(retrievedPosts);
+            fillGridPane();
+            prevNextButtonsCheck(retrievedPosts.size());
+        }
+    }
+
     @FXML
     void fillGridPane() {
+        // Setting up what should be called upon post deletion using the delete post button, without opening the post's details
+        deletedPostCallback = postId -> {
+            updateUIAfterPostDeletion(postId);
+        };
 
         if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
@@ -362,7 +400,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     AnchorPane anchorPane = new AnchorPane();
                     anchorPane.getChildren().add(loadViewItem);
 
-                    controllerObjectPost.setData(post, postListener);
+                    controllerObjectPost.setData(post, postListener, deletedPostCallback);
 
                     anchorPane.setOnMouseClicked(event -> {
                         this.postListener.onClickPostListener(event, post);});
@@ -390,6 +428,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "An error occurred while retrieving posts. Try again in a while.");
             System.err.println("[ERROR] fillGridPane@ControllerViewRegUserPostsPage.java raised an exception: " + ex.getMessage());
+            ex.printStackTrace();
+            ex.getCause();
         }
     }
 

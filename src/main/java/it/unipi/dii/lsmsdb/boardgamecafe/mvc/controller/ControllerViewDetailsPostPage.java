@@ -9,6 +9,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -21,14 +23,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 
 @Component
 public class ControllerViewDetailsPostPage implements Initializable {
@@ -77,23 +79,23 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
+    private PostDBNeo4j postDBNeo4j;
+    @Autowired
     private ControllerObjectComment controllerObjectComment;
     @Autowired
     private ModelBean modelBean;
     @Autowired
     private UserDBNeo4j userNeo4jDB;
     @Autowired
+    private CommentDBNeo4j commentDBNeo4j;
+    @Autowired
     private CommentService serviceComment;
-
-    private final StageManager stageManager;
 
     private List<CommentModelMongo> comments = new ArrayList<>();
 
     private PostModelMongo post;
 
     private static UserModelMongo currentUser;
-
-
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -104,10 +106,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @Autowired
     @Lazy
-    public ControllerViewDetailsPostPage(StageManager stageManager) {
-        this.stageManager = stageManager;
-    }
+    private StageManager stageManager;
 
+    private Consumer<String> deletedCommentCallback;
+
+    public ControllerViewDetailsPostPage() {}
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -133,13 +136,65 @@ public class ControllerViewDetailsPostPage implements Initializable {
         // Setting up buttons depending on if the current user is who created the post that's being visualized
         if (!currentUser.getUsername().equals(post.getUsername())) {
             editButton.setVisible(false);       // Making the edit button invisible
+            deleteButton.setVisible(false);     // Making the delete button invisible
+        }
+
+        // Page focus listener - needed to potentially update UI when coming back from a post update window
+        commentGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        onFocusGained();            // Update UI after post updates
+                    }
+                });
+            }
+        });
+    }
+
+    public void onFocusGained() {
+        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+        this.tagBoardgameLabel.setText(updatedPost.getTag());
+        this.postTitleTextArea.setText(updatedPost.getTitle());
+        this.postBodyTextArea.setText(updatedPost.getText());
+    }
+
+    // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
+    public void updateUIAfterCommentDeletion(String deletedCommentId) {
+        comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
+        fillGridPane();
+    }
+
+    public void onClickDeleteButton() {
+        boolean userChoice = stageManager.showDeletePostInfoMessage();
+        if (!userChoice) {
+            return;
+        }
+
+        try {
+            // Delete post from neo4j and its comments
+            commentDBNeo4j.deleteByPost(post.getId());
+            postDBNeo4j.deletePost(post.getId());
+
+            // Delete post from mongodb and its comments
+            postDBMongo.deletePost(post);
+            commentDBMongo.deleteByPost(post.getId());
+
+            System.out.println("[INFO] A post has been successfully deleted.");
+
+            // Set model bean variable to tell destination page what post was deleted, so that UI can be dynamically updated
+            modelBean.putBean(Constants.DELETED_POST, post.getId());
+
+            // Close post details window
+            stageManager.closeStage();
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again ini a while.");
+            System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsPostPage.java raised an exception: " + ex.getMessage());
         }
     }
 
-    public void onClickDeleteButton(ActionEvent event) {
-    }
-
-    public void onClickEditButton(ActionEvent event) {
+    public void onClickEditButton() {
+        stageManager.showWindow(FxmlView.EDIT_POST);            // Do not close underlying page, just show the little post editing window
     }
 
     public void onClickRefreshButton(ActionEvent event) {
@@ -316,7 +371,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    private void loadViewMessagInfo(){
+    private void loadViewMessageInfo(){
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGCOMMENTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
@@ -334,6 +389,12 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @FXML
     void fillGridPane() {
+        // Setting up what method should be called upon comment deletion
+        deletedCommentCallback = commentId -> {
+            updateUIAfterCommentDeletion(commentId);
+        };
+
+        commentGridPane.getChildren().clear();
 
         //per mettere un solo elemento correttamente nel gridpane
         if (comments.size() == 1) {
@@ -345,8 +406,9 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
         try {
             if (comments.isEmpty()) {
-                loadViewMessagInfo();
+                loadViewMessageInfo();
             }
+
             for (CommentModelMongo comment : comments) { // iterando lista di posts
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
@@ -354,7 +416,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectComment.setData(comment, this.post);
+                // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
+                controllerObjectComment.setData(comment, this.post, deletedCommentCallback);
 
                 //choice number of column
                 if (columnGridPane == 1) {
@@ -374,7 +437,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                 //GridPane.setMargin(anchorPane, new Insets(25));
                 GridPane.setMargin(anchorPane, new Insets(4,5,10,90));
-
             }
         } catch (Exception e) {
             e.printStackTrace();

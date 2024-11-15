@@ -257,7 +257,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectPost.setData(post, postListener);
+                controllerObjectPost.setData(post, postListener, null);
 
                 anchorPane.setOnMouseClicked(event -> {
                     this.postListener.onClickPostListener(event, post);});

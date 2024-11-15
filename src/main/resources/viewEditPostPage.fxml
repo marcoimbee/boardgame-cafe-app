@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="379.0" prefWidth="567.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewEditPostPage">
+   <children>
+      <Label fx:id="name111" alignment="TOP_LEFT" layoutX="250.0" layoutY="24.0" prefHeight="18.0" prefWidth="68.0" text="Edit post" textFill="#182e58">
+         <font>
+            <Font name="Calibri Bold" size="16.0" />
+         </font>
+      </Label>
+      <Button fx:id="cancelButton" layoutX="103.0" layoutY="334.0" mnemonicParsing="false" onAction="#onClickCancelButton" prefHeight="30.0" prefWidth="146.0" style="-fx-background-color: #182E58;" text="Discard changes" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+         <graphic>
+            <FontAwesomeIconView fill="WHITE" glyphName="TRASH" size="14" />
+         </graphic>
+      </Button>
+      <Separator layoutX="12.0" layoutY="18.0" orientation="VERTICAL" prefHeight="30.0" prefWidth="6.0" />
+      <Separator layoutX="13.0" layoutY="47.0" prefHeight="3.0" prefWidth="537.0" />
+      <Separator layoutX="13.0" layoutY="13.0" prefHeight="9.0" prefWidth="540.0" />
+      <Separator layoutX="551.0" layoutY="18.0" orientation="VERTICAL" prefHeight="30.0" prefWidth="0.0" />
+      <Button fx:id="submitButton" layoutX="318.0" layoutY="334.0" mnemonicParsing="false" onAction="#onClickSubmitButton" prefHeight="30.0" prefWidth="125.0" style="-fx-background-color: #182E58;" text="Update post" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+         <graphic>
+            <FontAwesomeIconView fill="WHITE" glyphName="SEND" size="14" />
+         </graphic>
+      </Button>
+      <TextField fx:id="bodyTextLabel" alignment="TOP_LEFT" layoutX="14.0" layoutY="220.0" prefHeight="104.0" prefWidth="540.0" />
+      <TextField fx:id="titleTextLabel" alignment="TOP_LEFT" layoutX="15.0" layoutY="150.0" prefHeight="38.0" prefWidth="537.0" />
+      <Separator layoutX="15.0" layoutY="213.0" prefHeight="9.0" prefWidth="538.0" />
+      <Separator layoutX="15.0" layoutY="143.0" prefHeight="9.0" prefWidth="537.0" />
+      <Label fx:id="titleBodyText" alignment="BASELINE_LEFT" layoutX="13.0" layoutY="195.0" prefHeight="22.0" prefWidth="83.0" text="Body Text:" textFill="#182e58">
+         <font>
+            <Font name="Calibri Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="postTitle" alignment="BASELINE_LEFT" layoutX="15.0" layoutY="125.0" prefHeight="18.0" prefWidth="40.0" text="Title:" textFill="#182e58">
+         <font>
+            <Font name="Calibri Bold" size="18.0" />
+         </font>
+      </Label>
+      <TextField fx:id="boardgameTextLabel" alignment="TOP_LEFT" layoutX="15.0" layoutY="86.0" prefHeight="38.0" prefWidth="537.0" />
+      <Separator layoutX="15.0" layoutY="79.0" prefHeight="9.0" prefWidth="537.0" />
+      <Label fx:id="postTitle1" alignment="BASELINE_LEFT" layoutX="15.0" layoutY="61.0" prefHeight="22.0" prefWidth="111.0" text="Boardgame:" textFill="#182e58">
+         <font>
+            <Font name="Calibri Bold" size="18.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

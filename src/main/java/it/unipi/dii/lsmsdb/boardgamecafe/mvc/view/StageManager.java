@@ -61,6 +61,17 @@ public class StageManager {
         newStage.show();
     }
 
+    public void closeStage() {
+        Stage currentStage = (Stage) Stage.getWindows().stream()
+                .filter(window -> window.isFocused())
+                .findFirst()
+                .orElse(null);
+
+        if (currentStage != null) {
+            currentStage.close();
+        }
+    }
+
     public Parent loadViewNode(String fxmlFilePath) {
 
         Parent rootNode = null;
@@ -142,10 +153,43 @@ public class StageManager {
         window.show();
     }
 
+    public boolean showUpdatePostInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard changes? Your updates will be lost.";
+        String okButtonString = "Discard changes";
+        String backButtonString = "Return to editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDeleteCommentInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to delete this comment?";
+        String okButtonString = "Delete Comment";
+        String backButtonString = "Return to Comments";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDeletePostInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to delete this post?";
+        String okButtonString = "Delete Post";
+        String backButtonString = "Return to Post";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
     public boolean showDiscardPostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard the post? You will lose what you were writing.";
+        String okButtonString = "Discard Post";
+        String backButtonString = "Return to Post";
 
+        return  displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    private boolean displayInfoMessageAfterContentEditingOrDeletion(String title, String message, String okButtonString, String backButtonString) {
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
@@ -159,29 +203,29 @@ public class StageManager {
         label.setTextFill(Color.rgb(24,46,88));
         label.setAlignment(Pos.CENTER);
 
-        AtomicBoolean discard = new AtomicBoolean(false);
+        AtomicBoolean userChoice = new AtomicBoolean(false);
 
-        Button backButton = new Button("Return to post");
+        Button backButton = new Button(backButtonString);
         backButton.setOnAction(e -> {
             window.close();
-            discard.set(false);
+            userChoice.set(false);
         });
 
-        Button discardPostButton = new Button("Discard post");
-        discardPostButton.setOnAction(e -> {
+        Button confirmActionButton = new Button(okButtonString);
+        confirmActionButton.setOnAction(e -> {
             window.close();
-            discard.set(true);
+            userChoice.set(true);
         });
 
         VBox vBox = new VBox(10);
-        vBox.getChildren().addAll(label, backButton, discardPostButton);
+        vBox.getChildren().addAll(label, backButton, confirmActionButton);
         vBox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vBox);
         window.setScene(scene);
         window.showAndWait();
 
-        return discard.get();
+        return userChoice.get();
     }
 
     public void closeStageButton(Button button) {
@@ -207,5 +251,4 @@ public class StageManager {
         String[] value = id.split("image");
         return Integer.parseInt(value[1]);
     }
-
 }
