@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 
@@ -32,6 +34,8 @@ public class ControllerViewEditPostPage implements Initializable {
     public Label titleBodyText;
     @FXML
     public Label postTitle;
+    @FXML
+    public TextField boardgameTextLabel;
 
     private static PostModelMongo selectedPost;
 
@@ -44,6 +48,8 @@ public class ControllerViewEditPostPage implements Initializable {
 
     @Autowired
     private PostDBMongo postDBMongo;
+    @Autowired
+    private BoardgameDBMongo boardgameDBMongo;
 
     public ControllerViewEditPostPage() {}
 
@@ -51,19 +57,29 @@ public class ControllerViewEditPostPage implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         selectedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
 
+        this.boardgameTextLabel.setText(selectedPost.getTag());
         this.titleTextLabel.setText(selectedPost.getTitle());
         this.bodyTextLabel.setText(selectedPost.getText());
+
+        // set boardgame names bean if not already set - needed to check the updated boardgame tag existence
+        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null ) {
+            List<String> boardgameNames = boardgameDBMongo.getBoardgameTags();
+            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
+        }
     }
 
-    private boolean noChangesWereMade(String updatedTitle, String updatedBody) {
-        return (updatedBody.equals(selectedPost.getText()) && updatedTitle.equals(selectedPost.getTitle()));
+    private boolean noChangesWereMade(String updatedTitle, String updatedBody, String updatedBoardgame) {
+        return (updatedBody.equals(selectedPost.getText()) &&
+                updatedTitle.equals(selectedPost.getTitle()) &&
+                updatedBoardgame.equals(selectedPost.getTag()));
     }
 
     public void onClickCancelButton() {
+        String updatedBoardgame = this.boardgameTextLabel.getText();
         String updatedTitle = this.titleTextLabel.getText();
         String updatedBody = this.bodyTextLabel.getText();
 
-        if (noChangesWereMade(updatedTitle, updatedBody)) {
+        if (noChangesWereMade(updatedTitle, updatedBody, updatedBoardgame)) {
             stageManager.closeStage();
             return;
         }
@@ -76,11 +92,18 @@ public class ControllerViewEditPostPage implements Initializable {
     }
 
     public void onClickSubmitButton() {
+        String updatedBoardgame = this.boardgameTextLabel.getText();
         String updatedTitle = this.titleTextLabel.getText();
         String updatedBody = this.bodyTextLabel.getText();
 
-        if (noChangesWereMade(updatedTitle, updatedBody)) {      // Nothing was updated, ok to close and no further action
+        if (noChangesWereMade(updatedTitle, updatedBody, updatedBoardgame)) {      // Nothing was updated, ok to close and no further action
             stageManager.closeStage();
+            return;
+        }
+
+        // Checking if the updated boardgame name is a valid one
+        if (!((List<String>)modelBean.getBean(Constants.BOARDGAME_LIST)).contains(updatedBoardgame)) {
+            stageManager.showInfoMessage("INFO", "'" + updatedBoardgame + "' is not a valid boardgame name.");
             return;
         }
 
@@ -88,6 +111,7 @@ public class ControllerViewEditPostPage implements Initializable {
         try {
             // Update mongoDB post in post collection
             PostModelMongo updatedPost = selectedPost;
+            updatedPost.setTag(updatedBoardgame);
             updatedPost.setTitle(updatedTitle);
             updatedPost.setText(updatedBody);
             postDBMongo.updatePost(selectedPost.getId(), updatedPost);

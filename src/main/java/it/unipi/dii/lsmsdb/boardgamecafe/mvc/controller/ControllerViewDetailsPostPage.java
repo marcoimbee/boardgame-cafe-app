@@ -154,6 +154,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     public void onFocusGained() {
         PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+        this.tagBoardgameLabel.setText(updatedPost.getTag());
         this.postTitleTextArea.setText(updatedPost.getTitle());
         this.postBodyTextArea.setText(updatedPost.getText());
     }
