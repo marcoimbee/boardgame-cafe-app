@@ -23,6 +23,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -137,6 +138,24 @@ public class ControllerViewDetailsPostPage implements Initializable {
             editButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
+
+        // Page focus listener - needed to potentially update UI when coming back from a post update window
+        commentGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        onFocusGained();            // Update UI after post updates
+                    }
+                });
+            }
+        });
+    }
+
+    public void onFocusGained() {
+        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+        this.postTitleTextArea.setText(updatedPost.getTitle());
+        this.postBodyTextArea.setText(updatedPost.getText());
     }
 
     // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
@@ -166,14 +185,15 @@ public class ControllerViewDetailsPostPage implements Initializable {
             modelBean.putBean(Constants.DELETED_POST, post.getId());
 
             // Close post details window
-            stageManager.closePostDetailsScene();
+            stageManager.closeStage();
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again ini a while.");
             System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsPostPage.java raised an exception: " + ex.getMessage());
         }
     }
 
-    public void onClickEditButton(ActionEvent event) {
+    public void onClickEditButton() {
+        stageManager.showWindow(FxmlView.EDIT_POST);            // Do not close underlying page, just show the little post editing window
     }
 
     public void onClickRefreshButton(ActionEvent event) {

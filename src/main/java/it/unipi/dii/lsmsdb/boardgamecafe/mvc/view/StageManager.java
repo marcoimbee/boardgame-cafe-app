@@ -61,7 +61,7 @@ public class StageManager {
         newStage.show();
     }
 
-    public void closePostDetailsScene() {
+    public void closeStage() {
         Stage currentStage = (Stage) Stage.getWindows().stream()
                 .filter(window -> window.isFocused())
                 .findFirst()
@@ -153,6 +153,15 @@ public class StageManager {
         window.show();
     }
 
+    public boolean showUpdatePostInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard changes? Your updates will be lost.";
+        String okButtonString = "Discard changes";
+        String backButtonString = "Return to editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
     public boolean showDeleteCommentInfoMessage() {
         String title = "ATTENTION";
         String message = "Are you sure you want to delete this comment?";
@@ -242,5 +251,4 @@ public class StageManager {
         String[] value = id.split("image");
         return Integer.parseInt(value[1]);
     }
-
 }
