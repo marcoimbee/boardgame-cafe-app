@@ -10,6 +10,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import jakarta.transaction.Transactional;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,11 +220,11 @@ public class BoardgameService {
         return true;
     }
 
-    public List<BoardgameModelMongo> suggestBoardgamesWithPostsByFollowedUsers(String username) {
+    public List<BoardgameModelMongo> suggestBoardgamesWithPostsByFollowedUsers(String username, int skipCounter) {
         try {
             // Get suggested boardgames' Ids from Neo4J
             List<String> suggestedBoardgamesId = boardgameNeo4jOp.
-                    getBoardgamesWithPostsByFollowedUsers(username, 10);
+                    getBoardgamesWithPostsByFollowedUsers(username, 10, skipCounter);
             // Init empty list of BoardgameModelMongo objects
             List<BoardgameModelMongo> suggestedMongoBoardgames = new ArrayList<>();
             // For each returned Neo4J ID
@@ -242,5 +243,18 @@ public class BoardgameService {
             logger.error("ERROR: " + e.getMessage());
             return new ArrayList<>();       // Return empty list in case of exception
         }
+    }
+
+    public List<BoardgameModelMongo> findTopRatedBoardgamesPerYear(int minReviews, int results, int skipCounter)
+    {
+        List<BoardgameModelMongo> resultset = new ArrayList<>();
+        List<Document> resultDocList = (List<Document>)boardgameMongoOp.findTopRatedBoardgamesPerYear(minReviews, results, skipCounter).get("results");
+        for (Document boardgameAsDoc : resultDocList)
+        {
+            String bordgameName = boardgameAsDoc.getString("name");
+            Optional<BoardgameModelMongo> optionalBoardgame = boardgameMongoOp.findBoardgameByName(bordgameName);
+            optionalBoardgame.ifPresent(boardgameModelMongo -> { resultset.add(boardgameModelMongo); });
+        }
+        return resultset;
     }
 }

@@ -300,9 +300,9 @@ public class UserService {
         }
     }
 
-    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username, int limit) {
+    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username, int limit, int skipCounter) {
         try {
-            List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username, limit);
+            List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username, limit, skipCounter);
             List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
             for (String suggestedUsername : suggestedNeo4jUsers) {
                 Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername);
@@ -352,9 +352,9 @@ public class UserService {
         }
     }
 
-    public List<UserModelMongo> suggestUsersByCommonLikedPosts(String username, int limit) {
+    public List<UserModelMongo> suggestUsersByCommonLikedPosts(String username, int limit, int skipCounter) {
         try {
-            List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersBySameLikedPosts(username, limit);
+            List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersBySameLikedPosts(username, limit, skipCounter);
             List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
             for (String suggestedUsername : suggestedNeo4jUsers) {
                 Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername);

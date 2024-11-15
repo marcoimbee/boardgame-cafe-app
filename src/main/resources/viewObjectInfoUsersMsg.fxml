@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="154.0" prefWidth="148.0" style="-fx-background-radius: ; -fx-border-width: ; -fx-border-color: #f5f5f5; -fx-border-radius: 0; -fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectCreateComment">
+    <children>
+        <Label fx:id="name111" alignment="TOP_LEFT" layoutX="26.0" layoutY="75.0" prefHeight="23.0" prefWidth="110.0" text="No Users" textFill="#182e58">
+            <font>
+                <Font name="Calibri Bold" size="20.0" />
+            </font>
+        </Label>
+        <FontAwesomeIconView fill="#182e58" glyphName="USER" layoutX="71.0" layoutY="63.0" size="18" />
+        <Circle fill="WHITE" layoutX="80.0" layoutY="80.0" opacity="0.42" radius="78.0" stroke="#182e58" strokeType="INSIDE" />
+    </children>
+</AnchorPane>

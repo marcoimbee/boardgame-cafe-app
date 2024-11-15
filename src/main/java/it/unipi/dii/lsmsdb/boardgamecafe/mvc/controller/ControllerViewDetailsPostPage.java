@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -90,6 +91,9 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private PostModelMongo post;
 
+    private static UserModelMongo currentUser;
+
+
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -97,8 +101,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private int skipCounter = 0;
     private final static int SKIP = 10; //how many posts to skip per time
     private final static int LIMIT = 10; //how many posts to show for each page
-
-    private final static Logger logger = LoggerFactory.getLogger(PostDBMongo.class);
 
     @Autowired
     @Lazy
@@ -109,6 +111,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
         resetPage();
@@ -125,6 +129,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
         post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
         comments.addAll(post.getComments());
         fillGridPane();
+
+        // Setting up buttons depending on if the current user is who created the post that's being visualized
+        if (!currentUser.getUsername().equals(post.getUsername())) {
+            editButton.setVisible(false);       // Making the edit button invisible
+        }
     }
 
     public void onClickDeleteButton(ActionEvent event) {

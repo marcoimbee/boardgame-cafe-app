@@ -21,7 +21,7 @@
             <Font name="Calibri Bold Italic" size="16.0" />
          </font>
       </Label>
-      <Button fx:id="followButton" alignment="CENTER" graphicTextGap="2.0" layoutX="188.0" layoutY="170.0" mnemonicParsing="false" onAction="#onClickFollowButton" prefHeight="35.0" prefWidth="190.0" style="-fx-background-color: #182E58;" text="Follow" textFill="WHITE">
+      <Button fx:id="followButton" alignment="CENTER" graphicTextGap="2.0" layoutX="188.0" layoutY="170.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="190.0" style="-fx-background-color: #182E58;" text="Follow" textFill="WHITE">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>

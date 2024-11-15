@@ -51,8 +51,10 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "MATCH (notFriend:User)-[:WRITES_POST]->(post:Post)-[:REFERS_TO]->(notFriendBgames:Boardgame)\n" +
             "WHERE (notFriendBgames.boardgameName IN myBGamesNames)\n" +
             "AND (NOT (me)-[:FOLLOWS]->(notFriend)) AND me <> notFriend\n" +
-            "RETURN notFriend.username LIMIT $limit")
-    List<String> usersByCommonBoardgamePosted(@Param("username") String username, @Param("limit") int limit);
+            "RETURN notFriend.username " +
+            "SKIP $skipCounter " +
+            "LIMIT $limit")
+    List<String> usersByCommonBoardgamePosted(@Param("username") String username, @Param("limit") int limit, @Param("skipCounter") int skipCounter);
 
     @Query("MATCH (u)<-[followRel:FOLLOWS]-(follower:User) " +
             "WITH u, COUNT(DISTINCT followRel) AS followersCount " +
@@ -70,8 +72,9 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             "WITH notFriend, COUNT(p) as sameLikedPosts\n" +
             "RETURN notFriend.username\n" +
             "ORDER BY sameLikedPosts DESC\n" +
+            "SKIP $skipCounter " +
             "LIMIT $limit")
-    List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit);
+    List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit, @Param("skipCounter") int skipCounter);
 
     @Query("MATCH (u:User {username: $username})\n" +
             "SET u.username = \"[Banned user]\"\n")
@@ -80,4 +83,16 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u:User {id: $userId}) " +
             "SET u.username = $username")
     void restoreUserUsername(@Param("userId") String userId, @Param("username") String username);
+
+    @Query("MATCH (follower:User {username: $username})-[r:FOLLOWS]->(followed:User)\n" +
+            "RETURN followed.username")
+    List<String> findFollowedUsernamesByUsername(@Param("username") String username);
+
+    @Query("MATCH (u1:User {username: $username}), (u2:User {username: $followed}) " +
+            "MERGE (u1)-[:FOLLOWS]->(u2)")
+    void addFollowRelationship(@Param("username") String followingUser, @Param("followed") String followedUser);
+
+    @Query("MATCH (u1:User {username: $username})-[f:FOLLOWS]->(u2:User {username: $unfollowed}) " +
+            "DELETE f")
+    void removeFollowRelationship(@Param("username") String unfollowingUser, @Param("unfollowed") String unfollowedUser);
 }
