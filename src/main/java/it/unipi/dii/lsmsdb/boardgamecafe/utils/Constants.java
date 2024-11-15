@@ -24,4 +24,5 @@ public class Constants {
     public static final String SELECTED_COMMENT = "selectedComment";
     public static final String DELETED_COMMENT = "deletedComment";
     public static final String UPDATED_COMMENT = "updatedComment";
+    public static final String ADDED_COMMENT = "addedComment";
 }

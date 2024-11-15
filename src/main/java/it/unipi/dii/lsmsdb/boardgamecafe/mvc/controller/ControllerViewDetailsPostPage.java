@@ -334,7 +334,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 // Crea un nuovo CommentModelMongo e salva il commento nel database
                 CommentModelMongo newComment = new CommentModelMongo(
                         this.post.getId(),  //Id del post in cui sto commentatndo
-                        post.getUsername(),  // username del "creatore! (Deve essere CurrentUser)
+                        currentUser.getUsername(),        // Current user is commenting this post
                         commentText,    //Contenuto testuale del commento
                         new Date()  //Timestamp
                 );
@@ -354,6 +354,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
                     } else {
                         stageManager.showInfoMessage("Error", "Failed to add comment.");
                     }
+
+                    modelBean.putBean(Constants.ADDED_COMMENT, newComment);
                 } else {
                     stageManager.showInfoMessage("Error", "No User presents in Neo4j.");
                 }
@@ -376,7 +378,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 commentGridPane.add(addCommentBox, 0, 0);
             }
             GridPane.setMargin(addCommentBox, new Insets(8, 5, 10, 90));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
