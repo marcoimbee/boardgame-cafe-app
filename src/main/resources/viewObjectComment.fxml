@@ -37,7 +37,7 @@
             <Font size="16.0" />
          </font>
       </TextArea>
-      <Button fx:id="deleteButton" layoutX="316.0" layoutY="201.0" mnemonicParsing="false" onAction="#onClickDeleteButton" prefHeight="30.0" prefWidth="88.0" style="-fx-background-color: #182E58;" text="Delete" textFill="WHITE">
+      <Button fx:id="deleteButton" layoutX="316.0" layoutY="201.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="88.0" style="-fx-background-color: #182E58;" text="Delete" textFill="WHITE">
          <graphic>
             <FontAwesomeIconView fill="WHITE" glyphName="TRASH" size="14" />
          </graphic>
@@ -45,7 +45,7 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
-      <Button fx:id="editButton" layoutX="164.0" layoutY="201.0" mnemonicParsing="false" onAction="#onClickEditButton" prefHeight="30.0" prefWidth="76.0" style="-fx-background-color: #182E58;" text="Edit" textFill="WHITE">
+      <Button fx:id="editButton" layoutX="164.0" layoutY="201.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="76.0" style="-fx-background-color: #182E58;" text="Edit" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>

@@ -4,6 +4,9 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -12,12 +15,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Component
 public class ControllerObjectPost {
@@ -27,7 +31,7 @@ public class ControllerObjectPost {
     @FXML
     private Button likeButton;
     @FXML
-    private Button removeButton;
+    private Button deleteButton;
     @FXML
     protected Label authorLabel;
     @FXML
@@ -50,16 +54,29 @@ public class ControllerObjectPost {
     private PostService postService; // Iniezione del servizio
     @Autowired
     private PostDBNeo4j postDBNeo4j;
+    @Autowired
+    private PostDBMongo postDBMongo;
+    @Autowired
+    private CommentDBMongo commentDBMongo;
 
     @Autowired
     private ModelBean modelBean;
 
     private static UserModelMongo currentUser;
+    private StageManager stageManager;
+
+    private Consumer<String> deletedPostCallback;
+
+    @Autowired
+    @Lazy
+    public ControllerObjectPost(StageManager stageManager) {
+        this.stageManager = stageManager;
+    }
 
     public ControllerObjectPost() {
     }
 
-    public void setData(PostModelMongo post, PostListener listener) {
+    public void setData(PostModelMongo post, PostListener listener, Consumer<String> deletedPostCallback) {
 
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
@@ -68,9 +85,8 @@ public class ControllerObjectPost {
 
         this.likeButton.setDisable(true);
         this.commentButton.setDisable(true);
-        this.removeButton.setDisable(true);
 
-        String creationDate = post.getTimestamp().toString();
+         String creationDate = post.getTimestamp().toString();
 //        String commentsCounter = "";
 //        if (commentCache.containsKey(post.getId())) {
 //            commentsCounter = commentCache.get(post.getId());
@@ -97,8 +113,16 @@ public class ControllerObjectPost {
 
         // Buttons settings
         if (!currentUser.getUsername().equals(post.getUsername())) {
-            removeButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
+            deleteButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
+        } else {
+            deleteButton.setVisible(true);
+            deleteButton.setDisable(false);
         }
+
+        this.deletedPostCallback = deletedPostCallback;
+
+        // Setting up remove button listener
+        deleteButton.setOnAction(event -> onClickDeleteButton(post));
     }
 
     public void likeDislikePost(ActionEvent event) {
@@ -127,12 +151,26 @@ public class ControllerObjectPost {
         }
     }
 
-    public void removePost(ActionEvent event) {
-        // Implementazione per rimuovere il post
-    }
+    public void onClickDeleteButton(PostModelMongo post) {
+        boolean userChoice = stageManager.showDeletePostInfoMessage();
+        if (!userChoice) {
+            return;
+        }
 
-    public void commentPost(ActionEvent event) {
-        // Implementazione per commentare il post
-    }
+        try {
+            // Neo4J post deletion
+            postDBNeo4j.deletePost(post.getId());
 
+            // MongoDB post deletion
+            postDBMongo.deletePost(post);
+            commentDBMongo.deleteByPost(post.getId());
+
+            System.out.println("[INFO] Successful post deletion");
+
+            deletedPostCallback.accept(post.getId());
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton@ControllerObjectPost.java raised an exception: " + ex.getMessage());
+        }
+    }
 }

@@ -228,6 +228,16 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewAccountInfoPage.fxml";
         }
+    }, EDIT_POST {
+        @Override
+        public String getTitle() {
+            return "Post Editing";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewEditPostpage.fxml";
+        }
     };
 
     public abstract String getTitle();
