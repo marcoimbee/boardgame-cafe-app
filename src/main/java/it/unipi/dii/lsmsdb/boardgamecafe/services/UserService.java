@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -96,15 +98,20 @@ public class UserService {
                                      String nationality, int year,
                                      int month, int day)
     {
-//        Date dateOfBirth = new GregorianCalendar(year, month - 1, day + 1).getTime();
-        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        calendar.set(year, month - 1, day); // Month -1 per la rappresentazione zero-based
-        Date dateOfBirth = calendar.getTime();
+        // Viene creata la data con tipo LocalDate perchè rappresenta solo una data
+        // senza informazioni di tempo né di fuso orario. Questa classe evita completamente
+        // l'incremento o decremento del giorno causato da conversioni di fuso orario (offset etc),
+        // mantenendo in modo più affidabile la data desiderata ed evitando la gestione di conversioni implicite
+        // dovute ad eventuali differenze di gestione dell'ora tra il framwork e il database
+        LocalDate dateOfBirth = LocalDate.of(year, month, day);
         String salt = this.generateSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
+        // Convertiamo LocalDate a Date in UTC per inserirlo in MongoDB (step obbligatorio)
+        Date dateOfBirthInUTC = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
+
         return new UserModelMongo(username,email,name, surname,
-                gender,dateOfBirth, nationality, false,
+                gender,dateOfBirthInUTC, nationality, false,
                 salt, hashedPassword, "user");
     }
 
