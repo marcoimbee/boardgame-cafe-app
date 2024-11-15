@@ -158,6 +158,15 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.tagBoardgameLabel.setText(updatedPost.getTag());
         this.postTitleTextArea.setText(updatedPost.getTitle());
         this.postBodyTextArea.setText(updatedPost.getText());
+
+        // Potentially update a comment
+        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.UPDATED_COMMENT);
+        if (updatedComment != null) {
+            modelBean.putBean(Constants.UPDATED_COMMENT, null);
+
+            comments.replaceAll(comment -> comment.getId().equals(updatedComment.getId()) ? updatedComment : comment);
+            fillGridPane();
+        }
     }
 
     // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI

@@ -347,6 +347,28 @@ public class PostDBMongo {
         return result.getModifiedCount() > 0;
     }
 
+    public boolean updatePostComment(PostModelMongo post, CommentModelMongo updatedComment) {
+        try {
+            ObjectId updatedCommentObjectId = new ObjectId(updatedComment.getId());
+            Query query = Query.query(Criteria.where("comments._id").is(updatedCommentObjectId));
+
+            Update update = new Update();
+            update.set("comments.$.text", updatedComment.getText());
+
+            mongoOperations.updateFirst(
+                    query,
+                    update,
+                    PostDBMongo.class,
+                    "posts"
+            );
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] updatePostComment@PostDBMongo raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
     public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModelMongo> userComments) {
         try {
             if (updateReason == UserContentUpdateReason.BANNED_USER || updateReason == UserContentUpdateReason.DELETED_USER) {

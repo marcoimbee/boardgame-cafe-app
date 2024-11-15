@@ -63,14 +63,8 @@ public class ControllerObjectComment {
     @Autowired
     @Lazy
     private StageManager stageManager;
-    @Autowired
-    @Lazy
-    public ControllerObjectComment(StageManager stageManager) {
-        this.stageManager = stageManager;
-    }
 
-    public ControllerObjectComment() {
-    }
+    public ControllerObjectComment() {}
 
     public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback) {
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -100,8 +94,10 @@ public class ControllerObjectComment {
     }
 
     @FXML
-    public void onClickEditButton(PostModelMongo post, CommentModelMongo comment) {     // TODO
-
+    public void onClickEditButton(PostModelMongo post, CommentModelMongo comment) {
+        System.out.println("[DEBUG] Switching to edit page...");
+        modelBean.putBean(Constants.SELECTED_COMMENT, comment);
+        stageManager.showWindow(FxmlView.EDIT_COMMENT);            // Do not close underlying page, just show the little comment editing window
     }
 
     @FXML

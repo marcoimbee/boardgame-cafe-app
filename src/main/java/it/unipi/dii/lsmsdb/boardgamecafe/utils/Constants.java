@@ -22,6 +22,6 @@ public class Constants {
 
     // ------ COMMENT MANAGEMENT ------
     public static final String SELECTED_COMMENT = "selectedComment";
-    public static final String COMMENT_WAS_DELETED = "commentWasDeleted";
     public static final String DELETED_COMMENT = "deletedComment";
+    public static final String UPDATED_COMMENT = "updatedComment";
 }
