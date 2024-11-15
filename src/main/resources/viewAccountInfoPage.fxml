@@ -65,39 +65,37 @@
             <AnchorPane prefHeight="718.0" prefWidth="946.0">
                <children>
                   <Separator blendMode="SRC_ATOP" layoutY="581.0" prefHeight="5.0" prefWidth="838.0" />
-                  <VBox layoutX="79.0" layoutY="53.0" prefHeight="99.0" prefWidth="104.0" />
-                  <Label fx:id="usernameTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="427.0" prefHeight="22.0" prefWidth="89.0" text="Username:" textFill="#182e58">
+                  <Label fx:id="usernameTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="430.0" prefHeight="22.0" prefWidth="89.0" text="Username:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Separator blendMode="SRC_ATOP" layoutX="834.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="3.0" />
-                  <Label fx:id="firstNameTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="189.0" prefHeight="22.0" prefWidth="95.0" text="First Name: " textFill="#182e58">
+                  <Label fx:id="firstNameTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="192.0" prefHeight="22.0" prefWidth="95.0" text="First Name: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="firstNameLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="187.0" prefHeight="22.0" prefWidth="175.0" text="name" textFill="#182e58">
+                  <Label fx:id="firstNameLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="190.0" prefHeight="22.0" prefWidth="175.0" text="name" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="lastNameTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="231.0" prefHeight="22.0" prefWidth="92.0" text="Last Name: " textFill="#182e58">
+                  <Label fx:id="lastNameTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="234.0" prefHeight="22.0" prefWidth="92.0" text="Last Name: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="lastNameLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="229.0" prefHeight="22.0" prefWidth="175.0" text="surname" textFill="#182e58">
+                  <Label fx:id="lastNameLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="232.0" prefHeight="22.0" prefWidth="175.0" text="surname" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="nationalityTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="272.0" prefHeight="22.0" prefWidth="90.0" text="Nationality:" textFill="#182e58">
+                  <Label fx:id="nationalityTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="275.0" prefHeight="22.0" prefWidth="90.0" text="Nationality:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Separator blendMode="SRC_ATOP" layoutX="106.0" layoutY="192.0" orientation="VERTICAL" prefHeight="296.0" prefWidth="9.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="80.0" layoutY="6.0" orientation="VERTICAL" prefHeight="577.0" prefWidth="15.0" />
                   <Button fx:id="deleteAccountButton" layoutX="29.0" layoutY="605.0" mnemonicParsing="false" onAction="#onClickDeleteAccountButton" prefHeight="30.0" prefWidth="144.0" style="-fx-background-color: #182E58;" text="Delete Account" textFill="WHITESMOKE">
                      <font>
                         <Font name="System Bold" size="14.0" />
@@ -111,7 +109,7 @@
                      </graphic>
                   </Button>
                   <FontAwesomeIconView fill="WHITE" glyphName="TRASH" layoutX="40.0" layoutY="625.0" size="16" />
-                  <Button fx:id="cancelButton" layoutX="180.0" layoutY="605.0" mnemonicParsing="false" onAction="#onClickCancelButton" prefHeight="30.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Cancel" textFill="WHITESMOKE">
+                  <Button fx:id="cancelButton" layoutX="180.0" layoutY="604.0" mnemonicParsing="false" onAction="#onClickCancelButton" prefHeight="31.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Cancel" textFill="WHITESMOKE">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -123,7 +121,7 @@
                         </FontAwesomeIconView>
                      </graphic>
                   </Button>
-                  <Button fx:id="editAccountInfoButton" layoutX="653.0" layoutY="604.0" mnemonicParsing="false" onAction="#onClickEditAccountInfoButton" prefHeight="30.0" prefWidth="160.0" style="-fx-background-color: #182E58;" text="Edit Account Info" textFill="WHITESMOKE">
+                  <Button fx:id="editAccountInfoButton" layoutX="653.0" layoutY="603.0" mnemonicParsing="false" onAction="#onClickEditAccountInfoButton" prefHeight="31.0" prefWidth="160.0" style="-fx-background-color: #182E58;" text="Edit Account Info" textFill="WHITESMOKE">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -136,7 +134,7 @@
                      </graphic>
                   </Button>
                   <FontAwesomeIconView fill="WHITE" glyphName="EDIT" layoutX="664.0" layoutY="625.0" size="15" />
-                  <Button fx:id="saveChangesButton" layoutX="500.0" layoutY="604.0" mnemonicParsing="false" onAction="#onClickSaveChangesButton" prefHeight="30.0" prefWidth="145.0" style="-fx-background-color: #182E58;" text="Save Changes" textFill="WHITESMOKE">
+                  <Button fx:id="saveChangesButton" layoutX="500.0" layoutY="603.0" mnemonicParsing="false" onAction="#onClickSaveChangesButton" prefHeight="31.0" prefWidth="145.0" style="-fx-background-color: #182E58;" text="Save Changes" textFill="WHITESMOKE">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -148,145 +146,145 @@
                         </FontAwesomeIconView>
                      </graphic>
                   </Button>
-                  <FontAwesomeIconView fill="WHITE" glyphName="SEND" layoutX="515.0" layoutY="624.0" size="13" />
-                  <FontAwesomeIconView fill="WHITE" glyphName="BAN" layoutX="195.0" layoutY="626.0" size="18" />
-                  <Label fx:id="genderTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="311.0" prefHeight="22.0" prefWidth="67.0" text="Gender:" textFill="#182e58">
+                  <FontAwesomeIconView fx:id="iconSaveChanges" fill="WHITE" glyphName="SEND" layoutX="515.0" layoutY="624.0" size="13" />
+                  <FontAwesomeIconView fx:id="iconCancel" fill="WHITE" glyphName="BAN" layoutX="195.0" layoutY="626.0" size="18" />
+                  <Label fx:id="genderTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="314.0" prefHeight="22.0" prefWidth="67.0" text="Gender:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="dateOfBirthTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="352.0" prefHeight="22.0" prefWidth="112.0" text="Date Of Birth:" textFill="#182e58">
+                  <Label fx:id="dateOfBirthTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="355.0" prefHeight="22.0" prefWidth="112.0" text="Date Of Birth:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="emailTitle" alignment="TOP_LEFT" layoutX="128.0" layoutY="389.0" prefHeight="22.0" prefWidth="65.0" text="E-mail:" textFill="#182e58">
+                  <Label fx:id="emailTitle" alignment="TOP_LEFT" layoutX="109.0" layoutY="392.0" prefHeight="22.0" prefWidth="65.0" text="E-mail:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="passwordTitle" alignment="TOP_LEFT" layoutX="127.0" layoutY="467.0" prefHeight="21.0" prefWidth="85.0" text="Password: " textFill="#182e58">
+                  <Label fx:id="passwordTitle" alignment="TOP_LEFT" layoutX="108.0" layoutY="470.0" prefHeight="21.0" prefWidth="85.0" text="Password: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <ImageView fx:id="profileImage" fitHeight="136.0" fitWidth="159.0" layoutX="318.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true" />
-                  <Label fx:id="passwordLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="465.0" prefHeight="22.0" prefWidth="175.0" text="password" textFill="#182e58">
+                  <ImageView fx:id="profileImage" fitHeight="136.0" fitWidth="159.0" layoutX="196.0" layoutY="37.0" pickOnBounds="true" preserveRatio="true" />
+                  <Label fx:id="passwordLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="468.0" prefHeight="22.0" prefWidth="175.0" text="password" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="emailLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="388.0" prefHeight="22.0" prefWidth="175.0" text="email" textFill="#182e58">
+                  <Label fx:id="emailLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="391.0" prefHeight="22.0" prefWidth="175.0" text="email" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="usernameLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="426.0" prefHeight="22.0" prefWidth="175.0" text="username" textFill="#182e58">
+                  <Label fx:id="usernameLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="429.0" prefHeight="22.0" prefWidth="175.0" text="username" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="dateOfBirthLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="350.0" prefHeight="22.0" prefWidth="175.0" text="date" textFill="#182e58">
+                  <Label fx:id="dateOfBirthLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="353.0" prefHeight="22.0" prefWidth="175.0" text="date" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="nationalityLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="270.0" prefHeight="22.0" prefWidth="175.0" text="nationality" textFill="#182e58">
+                  <Label fx:id="nationalityLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="273.0" prefHeight="22.0" prefWidth="175.0" text="nationality" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="genderLabel" contentDisplay="CENTER" layoutX="353.0" layoutY="310.0" prefHeight="22.0" prefWidth="175.0" text="gender" textFill="#182e58">
+                  <Label fx:id="genderLabel" contentDisplay="CENTER" layoutX="334.0" layoutY="313.0" prefHeight="22.0" prefWidth="175.0" text="gender" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="18.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="textFieldFirstName" layoutX="558.0" layoutY="184.0" prefHeight="25.0" prefWidth="170.0" promptText="First Name" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <TextField fx:id="textFieldLastName" layoutX="558.0" layoutY="224.0" prefHeight="25.0" prefWidth="170.0" promptText="Last Name" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <ComboBox fx:id="comboBoxNationality" editable="true" layoutX="558.0" layoutY="267.0" prefHeight="25.0" prefWidth="170.0" promptText="Nationality" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <ComboBox fx:id="comboBoxGender" editable="true" layoutX="558.0" layoutY="308.0" prefHeight="25.0" prefWidth="170.0" promptText="Gender" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <DatePicker fx:id="datePickerDate" editable="false" layoutX="558.0" layoutY="348.0" onAction="#selectDate" prefHeight="25.0" prefWidth="170.0" promptText="Date Of Birth" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <TextField fx:id="textFieldEmail" layoutX="558.0" layoutY="386.0" onAction="#selectEmail" prefHeight="25.0" prefWidth="170.0" promptText="E-mail" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <TextField fx:id="textFieldUsername" layoutX="558.0" layoutY="424.0" onAction="#selectUsername" prefHeight="25.0" prefWidth="170.0" promptText="Username" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <PasswordField fx:id="textFieldPassword" layoutX="559.0" layoutY="462.0" prefHeight="25.0" prefWidth="170.0" promptText="Password" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <PasswordField fx:id="textFieldRepeatPassword" layoutX="559.0" layoutY="500.0" prefHeight="27.0" prefWidth="172.0" promptText="Repeat Password" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
-                  <FontAwesomeIconView fx:id="iconFirstName" fill="#182e58" glyphName="EDIT" layoutX="739.0" layoutY="207.0" size="20" text="" />
-                  <FontAwesomeIconView fx:id="iconLastName" fill="#182e58" glyphName="EDIT" layoutX="740.0" layoutY="250.0" size="20" wrappingWidth="14.285714149475098" />
-                  <FontAwesomeIconView fx:id="iconNationality" fill="#182e58" glyphName="GLOBE" layoutX="740.0" layoutY="293.0" size="21" />
-                  <FontAwesomeIconView fx:id="iconCalendar" fill="#182e58" glyphName="CALENDAR" layoutX="742.0" layoutY="367.0" size="18" text="" />
-                  <FontAwesomeIconView fx:id="iconEmail" fill="#182e58" glyphName="ENVELOPE" layoutX="742.0" layoutY="405.0" size="18" />
-                  <FontAwesomeIconView fx:id="iconUsername" fill="#182e58" glyphName="USER" layoutX="744.0" layoutY="448.0" size="22" />
-                  <FontAwesomeIconView fx:id="iconPassword" fill="#182e58" glyphName="KEY" layoutX="744.0" layoutY="484.0" size="20" />
-                  <FontAwesomeIconView fx:id="iconRepeatPassword" fill="#182e58" glyphName="LOCK" layoutX="747.0" layoutY="524.0" size="21" />
-                  <FontAwesomeIconView fx:id="iconGender2" fill="#182e58" glyphName="VENUS" layoutX="739.0" layoutY="333.0" size="20" />
-                  <FontAwesomeIconView fx:id="iconGender1" fill="#182e58" glyphName="MARS" layoutX="744.0" layoutY="324.0" size="20" text="" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="209.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="251.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="293.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="331.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="372.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="409.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="128.0" layoutY="448.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="127.0" layoutY="487.0" prefHeight="5.0" prefWidth="401.0" />
-                  <Label fx:id="subLabelFirstName" alignment="CENTER" layoutX="550.0" layoutY="210.0" prefHeight="17.0" prefWidth="192.0" style="-fx-text-fill: #ff0000;">
+                  <TextField fx:id="textFieldFirstName" layoutX="538.0" layoutY="187.0" prefHeight="25.0" prefWidth="170.0" promptText="First Name" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldLastName" layoutX="538.0" layoutY="227.0" prefHeight="25.0" prefWidth="170.0" promptText="Last Name" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <ComboBox fx:id="comboBoxNationality" editable="true" layoutX="538.0" layoutY="270.0" prefHeight="25.0" prefWidth="170.0" promptText="Nationality" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <ComboBox fx:id="comboBoxGender" editable="true" layoutX="538.0" layoutY="311.0" prefHeight="25.0" prefWidth="170.0" promptText="Gender" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <DatePicker fx:id="datePickerDate" editable="false" layoutX="538.0" layoutY="351.0" onAction="#selectDate" prefHeight="25.0" prefWidth="170.0" promptText="Date Of Birth" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldEmail" layoutX="538.0" layoutY="389.0" onAction="#selectEmail" prefHeight="25.0" prefWidth="170.0" promptText="E-mail" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldUsername" layoutX="538.0" layoutY="427.0" onAction="#selectUsername" prefHeight="25.0" prefWidth="170.0" promptText="Username" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <PasswordField fx:id="textFieldPassword" layoutX="539.0" layoutY="465.0" prefHeight="25.0" prefWidth="170.0" promptText="Password" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <PasswordField fx:id="textFieldRepeatPassword" layoutX="539.0" layoutY="503.0" prefHeight="27.0" prefWidth="172.0" promptText="Repeat Password" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <FontAwesomeIconView fx:id="iconFirstName" fill="#182e58" glyphName="EDIT" layoutX="713.0" layoutY="210.0" size="20" text="" />
+                  <FontAwesomeIconView fx:id="iconLastName" fill="#182e58" glyphName="EDIT" layoutX="714.0" layoutY="253.0" size="20" wrappingWidth="14.285714149475098" />
+                  <FontAwesomeIconView fx:id="iconNationality" fill="#182e58" glyphName="GLOBE" layoutX="714.0" layoutY="293.0" size="21" />
+                  <FontAwesomeIconView fx:id="iconCalendar" fill="#182e58" glyphName="CALENDAR" layoutX="716.0" layoutY="371.0" size="18" text="" />
+                  <FontAwesomeIconView fx:id="iconEmail" fill="#182e58" glyphName="ENVELOPE" layoutX="716.0" layoutY="408.0" size="18" />
+                  <FontAwesomeIconView fx:id="iconUsername" fill="#182e58" glyphName="USER" layoutX="718.0" layoutY="451.0" size="22" />
+                  <FontAwesomeIconView fx:id="iconPassword" fill="#182e58" glyphName="KEY" layoutX="718.0" layoutY="487.0" size="20" />
+                  <FontAwesomeIconView fx:id="iconRepeatPassword" fill="#182e58" glyphName="LOCK" layoutX="721.0" layoutY="527.0" size="21" />
+                  <FontAwesomeIconView fx:id="iconGender2" fill="#182e58" glyphName="VENUS" layoutX="724.0" layoutY="336.0" size="20" />
+                  <FontAwesomeIconView fx:id="iconGender1" fill="#182e58" glyphName="MARS" layoutX="718.0" layoutY="327.0" size="20" text="" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="212.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="254.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="296.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="334.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="375.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="412.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="109.0" layoutY="451.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="108.0" layoutY="490.0" prefHeight="5.0" prefWidth="401.0" />
+                  <Label fx:id="subLabelFirstName" alignment="CENTER" layoutX="530.0" layoutY="213.0" prefHeight="17.0" prefWidth="192.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelLastName" alignment="CENTER" layoutX="546.0" layoutY="249.0" prefHeight="18.0" prefWidth="195.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelLastName" alignment="CENTER" layoutX="526.0" layoutY="252.0" prefHeight="18.0" prefWidth="195.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelNationality" alignment="CENTER" layoutX="546.0" layoutY="293.0" prefHeight="19.0" prefWidth="194.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelNationality" alignment="CENTER" layoutX="526.0" layoutY="296.0" prefHeight="19.0" prefWidth="194.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelGender" alignment="CENTER" layoutX="548.0" layoutY="333.0" prefHeight="9.0" prefWidth="195.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelGender" alignment="CENTER" layoutX="528.0" layoutY="336.0" prefHeight="9.0" prefWidth="195.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelDate" alignment="CENTER" layoutX="538.0" layoutY="374.0" prefHeight="10.0" prefWidth="215.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelDate" alignment="CENTER" layoutX="518.0" layoutY="377.0" prefHeight="10.0" prefWidth="215.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelEmail" alignment="CENTER" layoutX="528.0" layoutY="410.0" prefHeight="19.0" prefWidth="248.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelEmail" alignment="CENTER" layoutX="508.0" layoutY="413.0" prefHeight="19.0" prefWidth="248.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelUsername" alignment="CENTER" layoutX="544.0" layoutY="448.0" prefHeight="20.0" prefWidth="216.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelUsername" alignment="CENTER" layoutX="524.0" layoutY="451.0" prefHeight="20.0" prefWidth="216.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelPassword" alignment="CENTER" layoutX="547.0" layoutY="488.0" prefHeight="19.0" prefWidth="210.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelPassword" alignment="CENTER" layoutX="527.0" layoutY="491.0" prefHeight="19.0" prefWidth="210.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <Label fx:id="subLabelRepeatedPassword" alignment="CENTER" layoutX="528.0" layoutY="525.0" prefHeight="25.0" prefWidth="247.0" style="-fx-text-fill: #ff0000;">
+                  <Label fx:id="subLabelRepeatedPassword" alignment="CENTER" layoutX="508.0" layoutY="528.0" prefHeight="25.0" prefWidth="247.0" style="-fx-text-fill: #ff0000;">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
-                  <CheckBox fx:id="flagFirstName" layoutX="537.0" layoutY="190.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagLastName" layoutX="537.0" layoutY="230.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagNationality" layoutX="537.0" layoutY="273.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagGender" layoutX="537.0" layoutY="314.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagDateOfBirth" layoutX="537.0" layoutY="353.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagEmail" layoutX="538.0" layoutY="392.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagUsername" layoutX="538.0" layoutY="429.0" mnemonicParsing="false" />
-                  <CheckBox fx:id="flagPassword" layoutX="538.0" layoutY="468.0" mnemonicParsing="false" />
-                  <Label fx:id="reminderLabel" contentDisplay="CENTER" layoutX="109.0" layoutY="548.0" prefHeight="22.0" prefWidth="577.0" text="[ Flag The Boxes Of The Fields You Want To Edit Before Saving The Changes ]" textFill="#ae8b32">
+                  <CheckBox fx:id="flagFirstName" layoutX="517.0" layoutY="193.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagLastName" layoutX="517.0" layoutY="233.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagNationality" layoutX="517.0" layoutY="276.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagGender" layoutX="517.0" layoutY="317.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagDateOfBirth" layoutX="517.0" layoutY="356.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagEmail" layoutX="518.0" layoutY="395.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagUsername" layoutX="518.0" layoutY="432.0" mnemonicParsing="false" />
+                  <CheckBox fx:id="flagPassword" layoutX="518.0" layoutY="471.0" mnemonicParsing="false" />
+                  <Label fx:id="reminderLabel" contentDisplay="CENTER" layoutX="107.0" layoutY="551.0" prefHeight="22.0" prefWidth="577.0" text="[ Flag The Boxes Of The Fields You Want To Edit Before Saving The Changes ]" textFill="#ae8b32">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Button fx:id="clearFieldsButton" layoutX="535.0" layoutY="137.0" mnemonicParsing="false" onAction="#onClickClearFieldsButton" prefHeight="30.0" prefWidth="218.0" style="-fx-background-color: #182E58;" text="Clear Fields" textFill="WHITESMOKE">
+                  <Button fx:id="clearFieldsButton" layoutX="535.0" layoutY="140.0" mnemonicParsing="false" onAction="#onClickClearFieldsButton" prefHeight="30.0" prefWidth="175.0" style="-fx-background-color: #182E58;" text="Clear Fields" textFill="WHITESMOKE">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -298,7 +296,7 @@
                         </FontAwesomeIconView>
                      </graphic>
                   </Button>
-                  <FontAwesomeIconView fill="WHITE" glyphName="REFRESH" layoutX="590.0" layoutY="158.0" size="17" />
+                  <FontAwesomeIconView fx:id="iconClearFields" fill="WHITE" glyphName="REFRESH" layoutX="570.0" layoutY="161.0" size="17" />
                </children>
                <padding>
                   <Insets bottom="30.0" />

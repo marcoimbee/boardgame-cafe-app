@@ -156,6 +156,13 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private FontAwesomeIconView iconPassword;
     @FXML
     private FontAwesomeIconView iconRepeatPassword;
+    @FXML
+    private FontAwesomeIconView iconClearFields;
+    @FXML
+    private FontAwesomeIconView iconSaveChanges;
+    @FXML
+    private FontAwesomeIconView iconCancel;
+
 
     //********* Others View Components *********
     @FXML
@@ -514,6 +521,9 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.iconUsername.setVisible(isVisible);
         this.iconPassword.setVisible(isVisible);
         this.iconRepeatPassword.setVisible(isVisible);
+        this.iconClearFields.setVisible(isVisible);
+        this.iconCancel.setVisible(isVisible);
+        this.iconSaveChanges.setVisible(isVisible);
         //********** Related CheckBoxes **********
         this.flagFirstName.setVisible(isVisible);
         this.flagLastName.setVisible(isVisible);
