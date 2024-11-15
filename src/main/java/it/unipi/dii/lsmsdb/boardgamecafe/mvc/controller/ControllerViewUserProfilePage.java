@@ -212,11 +212,13 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     public void onFocusGained() {
+        // Potentially update UI after post deletion
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
         if (deletedPostId != null) {
             modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
             resetPage();
             List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+            this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
             if (retrievedPosts.isEmpty()) {
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
                 loadViewMessageInfo(loadViewItem);
@@ -444,6 +446,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private void updateUIAfterPostDeletion(String postId) {
         resetPage();
         List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+        this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
         if (retrievedPosts.isEmpty()) {
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
             loadViewMessageInfo(loadViewItem);
