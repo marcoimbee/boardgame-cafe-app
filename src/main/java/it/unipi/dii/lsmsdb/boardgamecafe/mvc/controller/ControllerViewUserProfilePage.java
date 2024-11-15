@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 
 @Component
 public class ControllerViewUserProfilePage implements Initializable{
@@ -131,6 +132,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private static List<String> currentUserFollowedList;
     private static UserModelMongo currentUser;
     private static UserModelMongo selectedUser;
+    private Consumer<String> deletedPostCallback;
 
     @Autowired
     @Lazy
@@ -431,8 +433,26 @@ public class ControllerViewUserProfilePage implements Initializable{
 
         GridPane.setMargin(noContentsYet, new Insets(100, 200, 200, 331));
     }
+
+    private void updateUIAfterPostDeletion(String postId) {
+        resetPage();
+        List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+        if (retrievedPosts.isEmpty()) {
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+            loadViewMessageInfo(loadViewItem);
+        } else {
+            postsUser.addAll(retrievedPosts);
+            fillGridPane(postsUser);
+            prevNextButtonsCheck(postsUser);
+        }
+    }
+
     @FXML
     private void fillGridPane(List<?> items) {
+        // Setting up what should be called upon post deletion
+        deletedPostCallback = postId -> {
+            updateUIAfterPostDeletion(postId);
+        };
 
         columnGridPane = 0; rowGridPane = 0;
         if (postsUser.size() > 1 || reviewsUser.size() > 1){
@@ -451,7 +471,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 AnchorPane anchorPane = new AnchorPane();
                 if (item instanceof PostModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
-                    controllerObjectPost.setData((PostModelMongo) item, postListener);
+                    controllerObjectPost.setData((PostModelMongo) item, postListener, deletedPostCallback);
                 } else if (item instanceof ReviewModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
                     controllerObjectReview.setData((ReviewModelMongo) item);

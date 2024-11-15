@@ -20,7 +20,7 @@
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Button fx:id="removeButton" layoutX="463.0" layoutY="165.0" mnemonicParsing="false" onAction="#removePost" prefHeight="30.0" prefWidth="95.0" style="-fx-background-color: #ffffff;" text="Remove" textFill="#182e58">
+      <Button fx:id="deleteButton" layoutX="463.0" layoutY="165.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="95.0" style="-fx-background-color: #ffffff;" text="Remove" textFill="#182e58">
          <graphic>
             <FontAwesomeIconView fill="#182e58" glyphName="TRASH" size="14" />
          </graphic>
@@ -63,7 +63,7 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Button>
-      <Button fx:id="commentButton" layoutX="187.0" layoutY="165.0" mnemonicParsing="false" onAction="#commentPost" prefHeight="30.0" prefWidth="35.0" style="-fx-background-color: #ffffff;" textFill="#182e58">
+      <Button fx:id="commentButton" layoutX="187.0" layoutY="165.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="35.0" style="-fx-background-color: #ffffff;" textFill="#182e58">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>

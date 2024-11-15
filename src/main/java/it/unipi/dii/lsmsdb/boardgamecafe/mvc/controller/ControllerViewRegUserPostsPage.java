@@ -37,6 +37,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -131,6 +132,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private static String selectedSearchTag;
 
     private static String currentUser;
+
+    private Consumer<String> deletedPostCallback;       // Used when a post author decides to delete a post via the delete button without opening its details page
 
     @Autowired
     @Lazy
@@ -341,8 +344,24 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
     }
 
+    private void updateUIAfterPostDeletion(String postId) {
+        resetPageVars();
+        List<PostModelMongo> retrievedPosts = fetchPosts(currentUser);
+        if (retrievedPosts.isEmpty()) {
+            loadViewMessageInfo();
+        } else {
+            posts.addAll(retrievedPosts);
+            fillGridPane();
+            prevNextButtonsCheck(retrievedPosts.size());
+        }
+    }
+
     @FXML
     void fillGridPane() {
+        // Setting up what should be called upon post deletion using the delete post button, without opening the post's details
+        deletedPostCallback = postId -> {
+            updateUIAfterPostDeletion(postId);
+        };
 
         if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
@@ -381,7 +400,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     AnchorPane anchorPane = new AnchorPane();
                     anchorPane.getChildren().add(loadViewItem);
 
-                    controllerObjectPost.setData(post, postListener);
+                    controllerObjectPost.setData(post, postListener, deletedPostCallback);
 
                     anchorPane.setOnMouseClicked(event -> {
                         this.postListener.onClickPostListener(event, post);});
