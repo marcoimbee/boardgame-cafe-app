@@ -39,6 +39,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -247,7 +248,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
             String username = selectUsername();
             String password = this.textFieldPassword.getText();
             String repeatedPassword = this.textFieldRepeatPassword.getText();
-            int year = 0; int month = 0; int day = 0;
             // Gestione delle checkbox
             boolean updateFirstName = this.flagFirstName.isSelected();
             boolean updateLastName = this.flagLastName.isSelected();
@@ -308,9 +308,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
                     isValid = false;
                 } else {
                     subLabelDate.setText("");
-                    year = dateOfBirth.getYear();
-                    month = dateOfBirth.getMonthValue();
-                    day = dateOfBirth.getDayOfMonth();
                 }
             }
             if (updateEmail) {
@@ -376,15 +373,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 if (updateGender) newUser.setGender(gender);
                 else newUser.setGender(regUser.getGender());
 
-                if (updateDateOfBirth) {
-                    newUser.setDateOfBirth(Date.from(dateOfBirth.atZone(ZoneId.systemDefault()).toInstant()));
-                }
-                else {
-                    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                    calendar.setTime(regUser.getDateOfBirth());
-                    Date currentUserDateOfBirth = calendar.getTime();
-                    newUser.setDateOfBirth(currentUserDateOfBirth);
-                }
+                if (updateDateOfBirth) newUser.setDateOfBirth(dateOfBirth.toLocalDate());
+                else newUser.setDateOfBirth(regUser.getDateOfBirth());
 
                 if (updateEmail) newUser.setEmail(email);
                 else newUser.setEmail(regUser.getEmail());
@@ -408,7 +398,11 @@ public class ControllerViewAccountInfoPage implements Initializable{
                     newUser.setPasswordHashed(regUser.getPasswordHashed());
                 }
 
-                if (updateDbms(newUser, updateUsername)){
+                newUser.setId(regUser.getId());
+                newUser.setBanned(regUser.isBanned());
+                String oldUsername = regUser.getUsername();
+
+                if (updateDbms(newUser, oldUsername, updateUsername)){
                     modelBean.putBean(Constants.CURRENT_USER, newUser);
                     stageManager.showInfoMessage("Update Info: ",
                             "Your account information has been successfully updated!");
@@ -428,15 +422,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
         regUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         this.accountInfoButton.setDisable(true);
         this.selectedOperation = UserActivity.NO_EDIT;
-        //Anche se la data appare corretta su MongoDB, quando viene recuperata,
-        // potrebbe esserci un offset che causa l'incremento di un giorno, specialmente
-        // se c'è un conflitto tra UTC e il fuso orario locale del sistema.
-        // Di seguito si legge consideando come si è scritto in fase di creazione dell'utente (creatUser method)
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(regUser.getDateOfBirth());
-        Date dateOfBirth = calendar.getTime();
 
-
+        String formattedDate = regUser.getDateOfBirth().format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
         Image image = new Image(Objects.requireNonNull(getClass().
                 getResource("/user.png")).toExternalForm());
         this.profileImage.setImage(image);
@@ -445,7 +432,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.lastNameLabel.setText(regUser.getSurname());
         this.nationalityLabel.setText(regUser.getNationality());
         this.genderLabel.setText(regUser.getGender());
-        this.dateOfBirthLabel.setText(dateOfBirth.toString());
+        this.dateOfBirthLabel.setText(formattedDate);
         this.emailLabel.setText(regUser.getEmail());
         this.usernameLabel.setText(regUser.getUsername());
         this.passwordLabel.setText("***************");
@@ -453,16 +440,16 @@ public class ControllerViewAccountInfoPage implements Initializable{
         setEditFieldsVisibility(false);
     }
 
-    private boolean updateDbms(UserModelMongo newUser, boolean updateUsername){
+    private boolean updateDbms(UserModelMongo newUser, String oldUsername, boolean updateUsername){
 
-        boolean mongoUpdate = userDBMongo.updateUser(regUser.getId(), newUser, "user");
-        boolean neo4jUpdate = userDBNeo4j.setNewUsername(regUser.getUsername(), newUser.getUsername());
+        boolean mongoUpdate = userDBMongo.updateUser(newUser.getId(), newUser, "user");
+        boolean neo4jUpdate = userDBNeo4j.setNewUsername(oldUsername, newUser.getUsername());
 
         if (mongoUpdate) {
             if (updateUsername) {
                 if (!neo4jUpdate){
                     // Rollback se necessario
-                    userDBMongo.updateUser(regUser.getId(), regUser, "user");
+                    userDBMongo.updateUser(newUser.getId(), regUser, "user");
                     stageManager.showInfoMessage("Update Error: ",
                             "There was an error updating your account information on Neo4j DB." +
                                     " Please try again.");
