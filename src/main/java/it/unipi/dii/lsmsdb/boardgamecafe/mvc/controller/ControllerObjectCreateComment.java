@@ -2,7 +2,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,6 +9,7 @@ import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
 
 @Component
 public class ControllerObjectCreateComment {
@@ -38,15 +38,13 @@ public class ControllerObjectCreateComment {
         this.stageManager = stageManager;
     }
 
-    public ControllerObjectCreateComment() {
-    }
+    public ControllerObjectCreateComment() {}
 
-    public void setData() {
-    }
+    public void setData() {}
 
     @FXML
-    public void onClickSubmitButton(ActionEvent event) {}
-    @FXML
-    public void onClickCancelButton(ActionEvent event) {}
+    public void onClickSubmitButton() {}
 
+    @FXML
+    public void onClickCancelButton() {}
 }

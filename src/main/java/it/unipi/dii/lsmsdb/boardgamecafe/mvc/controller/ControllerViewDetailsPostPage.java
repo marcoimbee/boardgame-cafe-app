@@ -26,6 +26,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -120,6 +121,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
         resetPage();
+        comments.clear();
 
         post = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
         this.usernameLabel.setText(post.getUsername());
@@ -208,15 +210,21 @@ public class ControllerViewDetailsPostPage implements Initializable {
         stageManager.showWindow(FxmlView.EDIT_POST);            // Do not close underlying page, just show the little post editing window
     }
 
-    public void onClickRefreshButton(ActionEvent event) {
-        cleanFetchAndFill();
+    public void onClickRefreshButton() {
+        resetPage();
+        comments.clear();
+        Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
+        postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
+        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
+        comments.addAll(post.getComments());
+        fillGridPane();
     }
 
-    public void onClickExitButton(ActionEvent event) {
+    public void onClickExitButton() {
         stageManager.closeStageButton(this.exitButton);
     }
 
-    public void onClickLikeButton(ActionEvent event) {
+    public void onClickLikeButton() {
     }
     @FXML
     void onClickNext() {
@@ -251,9 +259,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     }
 
     void resetPage() {
-        //clear variables
         commentGridPane.getChildren().clear();
-        comments.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
         nextButton.setDisable(true);
@@ -305,72 +311,20 @@ public class ControllerViewDetailsPostPage implements Initializable {
         return comments;
     }
 
-    void setGridPaneColumnAndRow(){
-
-        columnGridPane = 0;
-        rowGridPane = 1;
-    }
-
     public void onClickAddCommentButton() {
         try {
             this.addCommentButton.setDisable(true);
-            // Carica l'FXML del commento modificabile
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATECOMMENT.getFxmlFile());
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATECOMMENT.getFxmlFile());        // Loading FXML
 
-            // Ottieni i controlli di input definiti nel FXML
-            TextField commentTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel"); // Assumi che bodyTextLabel sia modificabile nel FXML
-            Button submitCommentButton = (Button) loadViewItem.lookup("#submitButton");  // Assumi che submitButton esista solo in FXML modificabile
+            TextField commentTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
+            Button submitCommentButton = (Button) loadViewItem.lookup("#submitButton");
             Button cancelCommentButton = (Button) loadViewItem.lookup("#cancelButton");
-            commentTextArea.setPromptText("Write Your Comment Here...");
-
-            //AddButton Behaviour
-            submitCommentButton.setOnAction(e ->
-            {
-                String commentText = commentTextArea.getText();
-                if (commentText.isEmpty()) {
-                    stageManager.showInfoMessage("Error", "Comment Cannot Be Empty.");
-                    return;
-                }
-                // Crea un nuovo CommentModelMongo e salva il commento nel database
-                CommentModelMongo newComment = new CommentModelMongo(
-                        this.post.getId(),  //Id del post in cui sto commentatndo
-                        currentUser.getUsername(),        // Current user is commenting this post
-                        commentText,    //Contenuto testuale del commento
-                        new Date()  //Timestamp
-                );
-                //Ottenimento user da neo4j per fare l'add locale nella insertComment
-                Optional<UserModelNeo4j> userFromNeo = userNeo4jDB.
-                                                       findByUsername(newComment.getUsername());
-                if (userFromNeo.isPresent()) {
-                    UserModelNeo4j userNeo4j = userFromNeo.get();
-
-                    boolean savedComment = serviceComment.
-                            insertComment(newComment, this.post, userNeo4j);
-
-                    if (savedComment) {
-                        stageManager.showInfoMessage("Success", "Comment Added Successfully.");
-                        cleanFetchAndFill(); //Per mostrare subito tutti commenti compreso quello appena aggiunto
-                        this.addCommentButton.setDisable(false);
-                    } else {
-                        stageManager.showInfoMessage("Error", "Failed to add comment.");
-                    }
-
-                    modelBean.putBean(Constants.ADDED_COMMENT, newComment);
-                } else {
-                    stageManager.showInfoMessage("Error", "No User presents in Neo4j.");
-                }
-            });
-
-            //CancelButton Behaviour
-            cancelCommentButton.setOnAction(e -> {
-                this.addCommentButton.setDisable(false);
-                cleanFetchAndFill();
-            });
+            commentTextArea.setPromptText("Write your comment here...");
 
             AnchorPane addCommentBox = new AnchorPane();
             addCommentBox.getChildren().add(loadViewItem);
 
-            if (comments.isEmpty()){
+            if (comments.isEmpty()){            // Comment box displaying
                 resetPage();
                 commentGridPane.add(addCommentBox, 0, rowGridPane);
             } else {
@@ -378,8 +332,52 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 commentGridPane.add(addCommentBox, 0, 0);
             }
             GridPane.setMargin(addCommentBox, new Insets(8, 5, 10, 90));
+
+            // Submit comment button behavior
+            submitCommentButton.setOnAction(e -> {
+                String commentText = commentTextArea.getText();
+                if (commentText.isEmpty()) {
+                    stageManager.showInfoMessage("Error", "A comment cannot be empty.");
+                    return;
+                }
+
+                CommentModelMongo newComment = new CommentModelMongo(
+                        this.post.getId(),                // ID of the post that's being commented
+                        currentUser.getUsername(),        // Current user is commenting this post
+                        commentText,
+                        new Date()                        // Comment creation date
+                );
+
+                UserModelNeo4j currentUserNeo = userNeo4jDB.findByUsername(currentUser.getUsername()).get();
+                boolean savedComment = serviceComment.insertComment(newComment, this.post, currentUserNeo);     // MongoDB + Neo4J comment insertion
+
+                if (savedComment) {
+                    stageManager.showInfoMessage("Success", "Comment added successfully.");
+
+                    comments.addFirst(newComment);      // Adding the new comment to the comment list
+
+                    fillGridPane();             // Displaying update
+
+                    this.addCommentButton.setDisable(false);        // Restore button
+                    modelBean.putBean(Constants.ADDED_COMMENT, newComment);         // Saving info about the newly inserted comment to update UI in posts feed page
+
+                    this.counterCommentsLabel.setText(String.valueOf(comments.size()));  // Update post details page UI - increase comment count
+                } else {
+                    stageManager.showInfoMessage("Error", "Failed to add comment.");
+                }
+            });
+
+            // Discard comment button behavior
+            cancelCommentButton.setOnAction(e -> {
+                boolean userChoice = stageManager.showDiscardCommentInfoMessage();
+                if (userChoice) {
+                    this.addCommentButton.setDisable(false);
+                    resetPage();
+                    fillGridPane();
+                }
+            });
         } catch (Exception e) {
-            e.printStackTrace();
+            stageManager.showInfoMessage("ERROR", "Something went wrong. Please try again in a while.");
         }
     }
 
@@ -401,17 +399,14 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @FXML
     void fillGridPane() {
-        // Setting up what method should be called upon comment deletion
-        deletedCommentCallback = this::updateUIAfterCommentDeletion;
-
         commentGridPane.getChildren().clear();
 
-        //per mettere un solo elemento correttamente nel gridpane
-        if (comments.size() == 1) {
+        if (comments.size() == 1) {         // Needed to correctly position a single element in the gridpane
             columnGridPane = 0;
             rowGridPane = 0;
         } else {
-            setGridPaneColumnAndRow();
+            columnGridPane = 0;
+            rowGridPane = 1;
         }
 
         try {
@@ -419,32 +414,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 loadViewMessageInfo();
             } else {
                 for (CommentModelMongo comment : comments) {
-                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
-
-                    AnchorPane anchorPane = new AnchorPane();
-                    anchorPane.getChildren().add(loadViewItem);
-
-                    // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
-                    controllerObjectComment.setData(comment, this.post, deletedCommentCallback);
-
-                    //choice number of column
-                    if (columnGridPane == 1) {
-                        columnGridPane = 0;
-                        rowGridPane++;
-                    }
-
-                    commentGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
-                    //DISPLAY SETTINGS
-                    //set grid width
-                    commentGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                    commentGridPane.setPrefWidth(500);
-                    commentGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                    //set grid height
-                    commentGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                    commentGridPane.setPrefHeight(400);
-                    commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                    //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(4, 5, 10, 90));
+                    AnchorPane commentNode = createCommentViewNode(comment);
+                    addCommentToGridPane(commentNode);
                 }
             }
         } catch (Exception e) {
@@ -453,13 +424,36 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    private void cleanFetchAndFill(){
-        resetPage();
-        Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
-        postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
-        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
-        comments.addAll(post.getComments());
-        fillGridPane();
+    private AnchorPane createCommentViewNode(CommentModelMongo comment) {
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.getChildren().add(loadViewItem);
+
+        // Setting up what method should be called upon comment deletion
+        deletedCommentCallback = this::updateUIAfterCommentDeletion;
+
+        // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
+        controllerObjectComment.setData(comment, this.post, deletedCommentCallback);
+
+        return anchorPane;
     }
 
+    private void addCommentToGridPane(AnchorPane commentNode) {
+        if (columnGridPane == 1) {
+            columnGridPane = 0;
+            rowGridPane++;
+        }
+
+        commentGridPane.add(commentNode, columnGridPane++, rowGridPane); //(child,column,row)
+
+        commentGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+        commentGridPane.setPrefWidth(500);
+        commentGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        commentGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+        commentGridPane.setPrefHeight(400);
+        commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        GridPane.setMargin(commentNode, new Insets(4, 5, 10, 90));
+    }
 }

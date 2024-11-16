@@ -232,7 +232,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         }
 
         // Potentially update UI after post editing
-        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
         if (updatedPost != null) {
             postsUser.replaceAll(post -> post.getId().equals(updatedPost.getId()) ? updatedPost : post);
             fillGridPane(postsUser);
