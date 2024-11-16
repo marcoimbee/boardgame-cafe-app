@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
@@ -141,6 +142,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        System.out.println("[INFO] Loaded ControllerViewUserProfilePage");
         this.yourProfileButton.setDisable(true);
         this.yourPostsButton.setDisable(true);
         this.previousButton.setDisable(true);
@@ -235,6 +237,29 @@ public class ControllerViewUserProfilePage implements Initializable{
             postsUser.replaceAll(post -> post.getId().equals(updatedPost.getId()) ? updatedPost : post);
             fillGridPane(postsUser);
         }
+
+        // Potentially update UI after comment deletion under a post
+        CommentModelMongo deletedComment = (CommentModelMongo) modelBean.getBean(Constants.DELETED_COMMENT);
+        if (deletedComment != null) {
+            modelBean.putBean(Constants.DELETED_COMMENT, null);
+            resetPage();
+            List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+            this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
+            if (retrievedPosts.isEmpty()) {
+                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+                loadViewMessageInfo(loadViewItem);
+            } else {
+                postsUser.addAll(retrievedPosts);
+                fillGridPane(postsUser);
+                prevNextButtonsCheck(postsUser);
+            }
+        }
+
+        // Potentially update UI after comment editing
+//        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.SELECTED_COMMENT);
+//        if (updatedComment != null) {
+//            loadContent();
+//        }
     }
 
 
@@ -313,7 +338,6 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     // Metodo per caricare il contenuto in base a `selectedContentType`
     private void loadContent() {
-
         if (selectedContentType.equals(ContentType.POSTS)) {
             List<?> items = getPosts(this.usernameLabel.getText());
             if (items.isEmpty()) {

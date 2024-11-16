@@ -114,6 +114,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        System.out.println("[INFO] Loaded ControllerViewDetailsPostPage");
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
@@ -157,11 +158,21 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.tagBoardgameLabel.setText(updatedPost.getTag());
         this.postTitleTextArea.setText(updatedPost.getTitle());
         this.postBodyTextArea.setText(updatedPost.getText());
+
+        // Potentially update a comment
+        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.UPDATED_COMMENT);
+        if (updatedComment != null) {
+            modelBean.putBean(Constants.UPDATED_COMMENT, null);
+
+            comments.replaceAll(comment -> comment.getId().equals(updatedComment.getId()) ? updatedComment : comment);
+            fillGridPane();
+        }
     }
 
     // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
     public void updateUIAfterCommentDeletion(String deletedCommentId) {
         comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
+        this.counterCommentsLabel.setText(String.valueOf(comments.size()));
         fillGridPane();
     }
 
@@ -188,7 +199,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
             // Close post details window
             stageManager.closeStage();
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again ini a while.");
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
             System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsPostPage.java raised an exception: " + ex.getMessage());
         }
     }
@@ -300,7 +311,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         rowGridPane = 1;
     }
 
-    public void onClickAddCommentButton(ActionEvent event) {
+    public void onClickAddCommentButton() {
         try {
             this.addCommentButton.setDisable(true);
             // Carica l'FXML del commento modificabile
@@ -323,7 +334,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 // Crea un nuovo CommentModelMongo e salva il commento nel database
                 CommentModelMongo newComment = new CommentModelMongo(
                         this.post.getId(),  //Id del post in cui sto commentatndo
-                        post.getUsername(),  // username del "creatore! (Deve essere CurrentUser)
+                        currentUser.getUsername(),        // Current user is commenting this post
                         commentText,    //Contenuto testuale del commento
                         new Date()  //Timestamp
                 );
@@ -343,6 +354,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
                     } else {
                         stageManager.showInfoMessage("Error", "Failed to add comment.");
                     }
+
+                    modelBean.putBean(Constants.ADDED_COMMENT, newComment);
                 } else {
                     stageManager.showInfoMessage("Error", "No User presents in Neo4j.");
                 }
@@ -365,7 +378,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 commentGridPane.add(addCommentBox, 0, 0);
             }
             GridPane.setMargin(addCommentBox, new Insets(8, 5, 10, 90));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -390,9 +402,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @FXML
     void fillGridPane() {
         // Setting up what method should be called upon comment deletion
-        deletedCommentCallback = commentId -> {
-            updateUIAfterCommentDeletion(commentId);
-        };
+        deletedCommentCallback = this::updateUIAfterCommentDeletion;
 
         commentGridPane.getChildren().clear();
 
@@ -407,39 +417,39 @@ public class ControllerViewDetailsPostPage implements Initializable {
         try {
             if (comments.isEmpty()) {
                 loadViewMessageInfo();
-            }
+            } else {
+                for (CommentModelMongo comment : comments) {
+                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
 
-            for (CommentModelMongo comment : comments) { // iterando lista di posts
+                    AnchorPane anchorPane = new AnchorPane();
+                    anchorPane.getChildren().add(loadViewItem);
 
-                Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
+                    // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
+                    controllerObjectComment.setData(comment, this.post, deletedCommentCallback);
 
-                AnchorPane anchorPane = new AnchorPane();
-                anchorPane.getChildren().add(loadViewItem);
+                    //choice number of column
+                    if (columnGridPane == 1) {
+                        columnGridPane = 0;
+                        rowGridPane++;
+                    }
 
-                // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
-                controllerObjectComment.setData(comment, this.post, deletedCommentCallback);
-
-                //choice number of column
-                if (columnGridPane == 1) {
-                    columnGridPane = 0;
-                    rowGridPane++;
+                    commentGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
+                    //DISPLAY SETTINGS
+                    //set grid width
+                    commentGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+                    commentGridPane.setPrefWidth(500);
+                    commentGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+                    //set grid height
+                    commentGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+                    commentGridPane.setPrefHeight(400);
+                    commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+                    //GridPane.setMargin(anchorPane, new Insets(25));
+                    GridPane.setMargin(anchorPane, new Insets(4, 5, 10, 90));
                 }
-
-                commentGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
-                //DISPLAY SETTINGS
-                //set grid width
-                commentGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                commentGridPane.setPrefWidth(500);
-                commentGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                //set grid height
-                commentGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                commentGridPane.setPrefHeight(400);
-                commentGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                //GridPane.setMargin(anchorPane, new Insets(25));
-                GridPane.setMargin(anchorPane, new Insets(4,5,10,90));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
+            System.err.println("[ERROR] fillGridPane@ControllerViewDetailsPostPage.java raised an exception: " + e.getMessage());
         }
     }
 

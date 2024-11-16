@@ -5,6 +5,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
@@ -59,15 +60,11 @@ public class ControllerObjectComment {
 
     private Consumer<String> deletedCommentCallback;
 
-    private StageManager stageManager;
     @Autowired
     @Lazy
-    public ControllerObjectComment(StageManager stageManager) {
-        this.stageManager = stageManager;
-    }
+    private StageManager stageManager;
 
-    public ControllerObjectComment() {
-    }
+    public ControllerObjectComment() {}
 
     public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback) {
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -97,12 +94,10 @@ public class ControllerObjectComment {
     }
 
     @FXML
-    public void onClickEditButton(PostModelMongo post, CommentModelMongo comment) {             // TODO TODO TODO TODO !!!!!
-        // Implementazione per rimuovere il post
-        String title = "Work in Progress";
-        String message = "" +
-                "A breve verrai reindirizzato alla pagina in cui puoi modificare il Commento.\n";
-        stageManager.showInfoMessage(title, message);
+    public void onClickEditButton(PostModelMongo post, CommentModelMongo comment) {
+        System.out.println("[DEBUG] Switching to edit page...");
+        modelBean.putBean(Constants.SELECTED_COMMENT, comment);
+        stageManager.showWindow(FxmlView.EDIT_COMMENT);            // Do not close underlying page, just show the little comment editing window
     }
 
     @FXML
@@ -122,6 +117,7 @@ public class ControllerObjectComment {
 
             System.out.println("[INFO] Successful comment deletion.");
 
+            modelBean.putBean(Constants.DELETED_COMMENT, comment);
             deletedCommentCallback.accept(comment.getId());
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
