@@ -209,6 +209,7 @@ public class UserDBNeo4j {
         }
     }
 
+
     public boolean restoreUserNodeAfterUnban(String userId, String username) {
         try {
             userNeo4jDB.restoreUserUsername(userId, userId);
