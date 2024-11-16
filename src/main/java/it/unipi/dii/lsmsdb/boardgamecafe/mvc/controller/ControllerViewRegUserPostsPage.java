@@ -341,7 +341,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         postGridPane.getChildren().clear();
         resetPageVars();
         postGridPane.add(noContentsYet, 0, 1);
-        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
+        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 387));
     }
 
     private void updateUIAfterPostDeletion(String postId) {
@@ -422,7 +422,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     postGridPane.setPrefHeight(400);
                     postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                     //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 180));
+                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 190));
                 }
             }
         } catch (Exception ex) {
