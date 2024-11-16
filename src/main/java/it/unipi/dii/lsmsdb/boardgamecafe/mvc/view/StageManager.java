@@ -182,9 +182,9 @@ public class StageManager {
 
     public boolean showDeleteAccountInfoMessage() {
         String title = "ATTENTION";
-        String message = "Are you sure you want to delete your Account from BoardGame-Cafè_App post?";
+        String message = "Are You Sure You Want To Delete Your Account From BoardGame-Cafè_App post?";
         String okButtonString = "Delete Account";
-        String backButtonString = "Return to Account Info Page";
+        String backButtonString = "Return To Account Info Page";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
