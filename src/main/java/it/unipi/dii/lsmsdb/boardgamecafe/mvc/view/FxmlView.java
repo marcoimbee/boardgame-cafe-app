@@ -236,7 +236,17 @@ public enum FxmlView {
 
         @Override
         public String getFxmlFile() {
-            return "/viewEditPostpage.fxml";
+            return "/viewEditPostPage.fxml";
+        }
+    }, EDIT_COMMENT {
+        @Override
+        public String getTitle() {
+            return "Comment Editing";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewEditCommentPage.fxml";
         }
     };
 

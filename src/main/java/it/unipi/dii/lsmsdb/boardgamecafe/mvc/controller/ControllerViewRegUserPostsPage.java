@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -198,10 +199,25 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onFocusGained() {
+        // Update UI after potentially having deleted a post
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
         if (deletedPostId != null) {
             modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
             onClickRefreshButton();             // Updating UI by refreshing
+        }
+
+        // Update UI after potentially having added a comment to a post
+        CommentModelMongo addedComment = (CommentModelMongo) modelBean.getBean(Constants.ADDED_COMMENT);
+        if (addedComment != null) {
+            modelBean.putBean(Constants.ADDED_COMMENT, null);
+            onClickRefreshButton();
+        }
+
+        // Update UI after potentially having deleted a comment form a post
+        CommentModelMongo deletedComment = (CommentModelMongo) modelBean.getBean(Constants.DELETED_COMMENT);
+        if (deletedComment != null) {
+            modelBean.putBean(Constants.DELETED_COMMENT, null);
+            onClickRefreshButton();
         }
     }
 
@@ -341,7 +357,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         postGridPane.getChildren().clear();
         resetPageVars();
         postGridPane.add(noContentsYet, 0, 1);
-        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
+        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 387));
     }
 
     private void updateUIAfterPostDeletion(String postId) {
@@ -422,7 +438,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     postGridPane.setPrefHeight(400);
                     postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                     //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 180));
+                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 190));
                 }
             }
         } catch (Exception ex) {

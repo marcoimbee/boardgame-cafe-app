@@ -10,9 +10,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -111,8 +109,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @FXML private Label subLabelDate;
     @FXML private TextField textFieldEmail;
     @FXML private Label subLabelEmail;
-    @FXML private TextField textFieldUsername;
-    @FXML private Label subLabelUsername;
     @FXML private TextField textFieldPassword;
     @FXML private Label subLabelPassword;
     @FXML private TextField textFieldRepeatPassword;
@@ -132,8 +128,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @FXML
     private CheckBox flagEmail;
     @FXML
-    private CheckBox flagUsername;
-    @FXML
     private CheckBox flagPassword;
 
     //********* TextField Icons *********
@@ -151,8 +145,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private FontAwesomeIconView iconCalendar;
     @FXML
     private FontAwesomeIconView iconEmail;
-    @FXML
-    private FontAwesomeIconView iconUsername;
     @FXML
     private FontAwesomeIconView iconPassword;
     @FXML
@@ -172,8 +164,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     //********* Autowireds *********
     @Autowired
     private UserDBMongo userDBMongo;
-    @Autowired
-    private UserDBNeo4j userDBNeo4j;
     @Autowired
     private UserService serviceUser;
     @Autowired
@@ -234,6 +224,23 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
     public void onClickDeleteAccountButton() {
 
+        boolean userChoice = stageManager.showDeleteAccountInfoMessage();
+        if (!userChoice) {
+            return;
+        }
+        if (serviceUser.deleteUser(regUser)){
+            modelBean.putBean(Constants.CURRENT_USER, null);
+            stageManager.switchScene(FxmlView.WELCOMEPAGE);
+            stageManager.showInfoMessage("Delete Operation", "Your Account Was Successfully " +
+                    "Deleted From BoardGame-Cafè App." +
+                    "\n\n\t\t\tWe Hope You Can Sign-Up Again Soon.");
+        } else {
+            modelBean.putBean(Constants.CURRENT_USER, null);
+            stageManager.switchScene(FxmlView.WELCOMEPAGE);
+            stageManager.showInfoMessage("Delete Operation", "An Unexpected Error Occurred " +
+                    "While Deleting Your Account From BoardGame-Café_App." +
+                    "\n\n\t\t\tPlease contact the administrator.");
+        }
     }
     public void onClickSaveChangesButton() {
 
@@ -245,7 +252,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
             String gender = this.comboBoxGender.getValue();
             LocalDateTime dateOfBirth = selectDate();
             String email = selectEmail();
-            String username = selectUsername();
             String password = this.textFieldPassword.getText();
             String repeatedPassword = this.textFieldRepeatPassword.getText();
             // Gestione delle checkbox
@@ -255,12 +261,11 @@ public class ControllerViewAccountInfoPage implements Initializable{
             boolean updateGender = this.flagGender.isSelected();
             boolean updateDateOfBirth = this.flagDateOfBirth.isSelected();
             boolean updateEmail = this.flagEmail.isSelected();
-            boolean updateUsername = this.flagUsername.isSelected();
             boolean updatePassword = this.flagPassword.isSelected();
 
             // Verifica che almeno una checkbox sia selezionata
             if (!(updateFirstName || updateLastName || updateNationality || updateGender ||
-                    updateDateOfBirth || updateEmail || updateUsername || updatePassword)) {
+                    updateDateOfBirth || updateEmail || updatePassword)) {
                 clearFields();
                 stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
                 return;
@@ -327,17 +332,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
                     subLabelEmail.setText("");
                 }
             }
-            if (updateUsername) {
-                if (username.isEmpty()) {
-                    subLabelUsername.setText("Username is missing.");
-                    isValid = false;
-                } else if (username.equals("already_used")) {
-                    subLabelUsername.setText("Username already exists");
-                    isValid = false;
-                } else {
-                    subLabelUsername.setText("");
-                }
-            }
             if (updatePassword) {
                 if (password.isEmpty()) {
                     subLabelPassword.setText("Password is missing.");
@@ -379,16 +373,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 if (updateEmail) newUser.setEmail(email);
                 else newUser.setEmail(regUser.getEmail());
 
-                //ToDo: - UPDATE BUT NOT UPDATE! -
-                //      # Since no method to propagate update to Posts, Comments and Reviews collection yet.
-                //      *****************************************************************
-                //      Implemented in this manner TO AVOID The Update.
-                //      Takes the text from the textfield but always updates it with
-                //      the same username that was there before.
-                newUser.setUsername(regUser.getUsername());
-                if (updateUsername) newUser.setUsername(newUser.getUsername());
-                else newUser.setUsername(regUser.getUsername());
-
                 if (updatePassword) {
                     newUser.setSalt(regUser.getSalt());
                     String hashedPassword = serviceUser.getHashedPassword(password,newUser.getSalt());
@@ -399,10 +383,10 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 }
 
                 newUser.setId(regUser.getId());
+                newUser.setUsername(regUser.getUsername());
                 newUser.setBanned(regUser.isBanned());
-                String oldUsername = regUser.getUsername();
 
-                if (updateDbms(newUser, oldUsername, updateUsername)){
+                if (updateDbms(newUser)){
                     modelBean.putBean(Constants.CURRENT_USER, newUser);
                     stageManager.showInfoMessage("Update Info: ",
                             "Your account information has been successfully updated!");
@@ -440,24 +424,11 @@ public class ControllerViewAccountInfoPage implements Initializable{
         setEditFieldsVisibility(false);
     }
 
-    private boolean updateDbms(UserModelMongo newUser, String oldUsername, boolean updateUsername){
+    private boolean updateDbms(UserModelMongo newUser){
 
-        boolean mongoUpdate = userDBMongo.updateUser(newUser.getId(), newUser, "user");
-        boolean neo4jUpdate = userDBNeo4j.setNewUsername(oldUsername, newUser.getUsername());
+        boolean mongoUpdateUser = userDBMongo.updateUser(newUser.getId(), newUser, "user");
 
-        if (mongoUpdate) {
-            if (updateUsername) {
-                if (!neo4jUpdate){
-                    // Rollback se necessario
-                    userDBMongo.updateUser(newUser.getId(), regUser, "user");
-                    stageManager.showInfoMessage("Update Error: ",
-                            "There was an error updating your account information on Neo4j DB." +
-                                    " Please try again.");
-                    initDisplay();
-                    return false;
-                }
-            }
-        } else {
+        if (!mongoUpdateUser) {
             stageManager.showInfoMessage("Update Error: ",
                     "There was an error updating your account information. " +
                             "Please try again.");
@@ -491,8 +462,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.subLabelDate.setVisible(isVisible);
         this.textFieldEmail.setVisible(isVisible);
         this.subLabelEmail.setVisible(isVisible);
-        this.textFieldUsername.setVisible(isVisible);
-        this.subLabelUsername.setVisible(isVisible);
         this.textFieldPassword.setVisible(isVisible);
         this.subLabelPassword.setVisible(isVisible);
         this.textFieldRepeatPassword.setVisible(isVisible);
@@ -505,7 +474,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.iconGender2.setVisible(isVisible);
         this.iconCalendar.setVisible(isVisible);
         this.iconEmail.setVisible(isVisible);
-        this.iconUsername.setVisible(isVisible);
         this.iconPassword.setVisible(isVisible);
         this.iconRepeatPassword.setVisible(isVisible);
         this.iconClearFields.setVisible(isVisible);
@@ -518,7 +486,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.flagGender.setVisible(isVisible);
         this.flagDateOfBirth.setVisible(isVisible);
         this.flagEmail.setVisible(isVisible);
-        this.flagUsername.setVisible(isVisible);
         this.flagPassword.setVisible(isVisible);
         //********** Related Buttons **********
         this.cancelButton.setVisible(isVisible);
@@ -548,9 +515,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.textFieldEmail.clear();
         this.textFieldEmail.setPromptText("E-mail");
         this.subLabelEmail.setText("");
-        this.textFieldUsername.clear();
-        this.textFieldUsername.setPromptText("Username");
-        this.subLabelUsername.setText("");
         this.textFieldPassword.clear();
         this.textFieldPassword.setPromptText("Password");
         this.subLabelPassword.setText("");
@@ -564,7 +528,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.flagGender.setSelected(false);
         this.flagDateOfBirth.setSelected(false);
         this.flagEmail.setSelected(false);
-        this.flagUsername.setSelected(false);
         this.flagPassword.setSelected(false);
     }
 
@@ -604,16 +567,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
             return "already_used";
         }
         return this.textFieldEmail.getText();
-    }
-
-    public String  selectUsername(){
-        //se username già presente: messaggio di errore.
-        Optional<GenericUserModelMongo> user = userDBMongo.
-                findByUsername(this.textFieldUsername.getText());
-
-        if (user.isPresent()) { return "already_used"; }
-        return this.textFieldUsername.getText();
-
     }
 
     public static boolean validateEmail(String email) {

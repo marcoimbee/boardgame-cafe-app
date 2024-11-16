@@ -180,6 +180,15 @@ public class StageManager {
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
 
+    public boolean showDeleteAccountInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are You Sure You Want To Delete Your Account From BoardGame-Cafè_App post?";
+        String okButtonString = "Delete Account";
+        String backButtonString = "Return To Account Info Page";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
     public boolean showDiscardPostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard the post? You will lose what you were writing.";

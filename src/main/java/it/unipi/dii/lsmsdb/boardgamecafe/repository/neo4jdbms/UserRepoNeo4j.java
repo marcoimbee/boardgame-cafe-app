@@ -26,7 +26,7 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u: User {username: $username}) RETURN u")
     Optional<UserModelNeo4j> findByUsername(String username);
 
-    @Query("MATCH (u:User {username: $username}) DETACH DELETE u, (u)-[r]-()")
+    @Query("MATCH (u:User {username: $username}) DETACH DELETE u")
     void deleteAndDetachUserByUsername(@Param("username") String username);
 
     @Query("MATCH (u:User{username: $username})-[:WRITES_COMMENT]->(c:Comment) RETURN u, collect(c) as comments")
@@ -79,10 +79,6 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u:User {username: $username})\n" +
             "SET u.username = \"[Banned user]\"\n")
     void setUsernameAsBanned(@Param("username") String username);
-
-    @Query("MATCH (u:User {username: $oldUsername})\n" +
-            "SET u.username = $oldUsername\n")
-    void setNewUsername(@Param("oldUsername") String oldUsername, @Param("newUsername") String newUsername);
 
     @Query("MATCH (u:User {id: $userId}) " +
             "SET u.username = $username")

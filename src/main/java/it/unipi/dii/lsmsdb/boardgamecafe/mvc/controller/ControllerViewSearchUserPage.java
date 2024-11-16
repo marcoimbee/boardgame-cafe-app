@@ -312,7 +312,7 @@ public class ControllerViewSearchUserPage implements Initializable {
             resetPageVars();
             usersGridPane.add(noContentsYet, 0, 1);
         }
-        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 392));
+        GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 387));
     }
 
     @FXML
@@ -374,7 +374,7 @@ public class ControllerViewSearchUserPage implements Initializable {
                     usersGridPane.setPrefHeight(400);
                     usersGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                     //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 180));
+                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 215));
                 }
             }
         } catch (Exception ex) {

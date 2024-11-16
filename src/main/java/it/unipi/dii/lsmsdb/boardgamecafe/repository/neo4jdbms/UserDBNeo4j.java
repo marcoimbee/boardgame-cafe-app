@@ -209,15 +209,6 @@ public class UserDBNeo4j {
         }
     }
 
-    public boolean setNewUsername(String oldUsername, String newUsername) {
-        try {
-            userNeo4jDB.setNewUsername(oldUsername, newUsername);
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
 
     public boolean restoreUserNodeAfterUnban(String userId, String username) {
         try {

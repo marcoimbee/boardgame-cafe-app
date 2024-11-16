@@ -39,7 +39,9 @@ public class ControllerObjectUser {
     @FXML
     private Button followButton;
     @FXML
-    private Button viewProfileButton;
+    private Button deleteUserButton;
+    @FXML
+    private Button banUserButton;
     @FXML
     protected Label usernameLabel;
     @FXML
@@ -82,7 +84,18 @@ public class ControllerObjectUser {
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         currentUserFollowedList = (List<String>) modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST);
 
-        if (user == currentUser){
+        if (currentUser == null){
+            System.out.println("\n\n current user missed");
+        }
+        if (user.getUsername() == currentUser.getUsername()){
+            this.followButton.setDisable(true);
+        }
+        if(user.get_class().equals("user")){
+            this.banUserButton.setVisible(false);
+            this.deleteUserButton.setVisible(false);
+        } else {
+            this.banUserButton.setDisable(false);
+            this.deleteUserButton.setDisable(false);
             this.followButton.setDisable(true);
         }
 
@@ -139,5 +152,12 @@ public class ControllerObjectUser {
             stageManager.showInfoMessage("INFO", "An error occurred. Please try again in a while.");
             System.err.println("[ERROR] onClickFollowButton@ControllerObjectUser.java raised an exception: " + e.getMessage());
         }
+    }
+
+    public void onClickDeleteUserButton(){
+
+    }
+    public void onClickBanUserButton(){
+
     }
 }
