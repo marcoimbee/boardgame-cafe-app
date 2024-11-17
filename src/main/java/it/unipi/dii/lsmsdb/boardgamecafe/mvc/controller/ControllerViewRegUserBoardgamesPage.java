@@ -281,7 +281,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             case TOP_RATED_BOARDGAMES_PER_YEAR ->
             {
                 List<BoardgameModelMongo> finalBoardgames = new ArrayList<>();
-                this.cboxYear.setPromptText("Seleziona l'anno");
                 this.cboxYear.setVisible(true);
                 this.topRatedBoardgamePairList.keySet().forEach(finalBoardgames::add);
                 boardgames = finalBoardgames;
