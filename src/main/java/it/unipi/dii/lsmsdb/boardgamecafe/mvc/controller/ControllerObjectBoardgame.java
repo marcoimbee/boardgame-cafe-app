@@ -37,6 +37,8 @@ public class ControllerObjectBoardgame implements Initializable {
     protected Label lblBoardgameName;
     @FXML
     protected Tooltip tooltipBoardgameText;
+    @FXML
+    private Label lblRating;
 
     private BoardgameModelMongo boardgame;
 
@@ -54,16 +56,23 @@ public class ControllerObjectBoardgame implements Initializable {
         tooltipBoardgameText.hide();
     }
 
-    public void setData(BoardgameModelMongo boardgame, BoardgameListener listener, AnchorPane anchorPane) {
+    public void setData(BoardgameModelMongo boardgame, BoardgameListener listener, AnchorPane anchorPane, Double ratingForThisGame) {
 
         this.boardgame = boardgame;
         this.boardgameClickListener = listener;
+        if (ratingForThisGame != null)
+        {
+            this.lblRating.setText("Rating: " + ratingForThisGame);
+            this.lblRating.setVisible(true);
+        }
+        else
+            this.lblRating.setVisible(false);
 
         String imageBoardgameURL = boardgame.getImage(); // URL dell'immagine
         String nameBoardgameResource = boardgame.getBoardgameName();
 
         Image image = getImageFromCache(imageBoardgameURL); // Tenta di recuperare l'immagine dalla cache
-
+        lblBoardgameName.setText(nameBoardgameResource);
         if (image == null) { // Se l'immagine non è nella cache
             Task<Image> imageDownloadTask = new Task<>() {
                 @Override
@@ -72,6 +81,8 @@ public class ControllerObjectBoardgame implements Initializable {
                     URL url = uri.toURL(); // Converti a URL
                     URLConnection connection = url.openConnection();
                     connection.setRequestProperty("User-Agent", "JavaFX Application");
+
+                    System.out.println("Parrito tjread per -> " + boardgame.getBoardgameName());
 
                     try (InputStream inputStream = connection.getInputStream()) {
                         byte[] imageBytes = readFullInputStream(inputStream);
@@ -96,7 +107,6 @@ public class ControllerObjectBoardgame implements Initializable {
         }
         else {
             bgameImage.setImage(getImageFromCache(imageBoardgameURL));
-            lblBoardgameName.setText(nameBoardgameResource);
             bgameImage.setAccessibleText(boardgame.getDescription());
         }
 
