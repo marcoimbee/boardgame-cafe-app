@@ -9,6 +9,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -20,6 +21,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -30,6 +33,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +41,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -63,8 +65,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button accountInfoButton;
     @FXML
-    private Button searchButton;
-    @FXML
     private Button clearFieldButton;
     @FXML
     private TextField textFieldSearch;
@@ -78,11 +78,15 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private Button onClickRefreshButton;
     @FXML
     private ChoiceBox<String> whatBgameToShowChoiceBox;
+    @FXML
+    private ComboBox cboxYear;
 
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
     private BoardgameService boardgameService;
+    @Autowired
+    private ReviewService reviewService;
     @Autowired
     private ControllerObjectBoardgame controllerObjectBoardgame;
     @Autowired
@@ -90,7 +94,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private final StageManager stageManager;
 
     //Boardgame Variables
-    private List<BoardgameModelMongo> boardgames = new ArrayList<>();
+    private ObservableList<BoardgameModelMongo> boardgames = FXCollections.observableArrayList();
     private BoardgameListener boardgameListener;
 
     //Utils Variables
@@ -107,15 +111,20 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     private ObservableList<String> whatBgameToShowList = FXCollections.observableArrayList(
             "All bordgames",
-            "Boardgames commented by your followed users",
-            "Top rated Boardgames per year"
+            "Boardgames commented by followed users",
+            "Top rated Boardgames per year",
+            "Boardgames group by category"
     );
+
     private enum BgameToFetch {
         ALL_BOARDGAMES,
         BOARDGAME_COMMENTED_BY_FOLLOWERS,
-        TOP_RATED_BOARDGAMES_PER_YEAR
+        TOP_RATED_BOARDGAMES_PER_YEAR,
+        BOARDGAME_GROUP_BY_CATEGORY
     };
     private BgameToFetch currentlyShowing;
+
+    private LinkedHashMap<BoardgameModelMongo, Double> topRatedBoardgamePairList; // Hash <Nome gioco, Rating>
 
     @Autowired
     @Lazy
@@ -126,6 +135,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.topRatedBoardgamePairList = new LinkedHashMap<>(); // In questo modo, viene preservato l'ordine di inserimento che è fondamentale!
         this.boardgamesCollectionButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
@@ -136,6 +146,21 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         this.whatBgameToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.currentlyShowing = BgameToFetch.values()[this.whatBgameToShowList.indexOf(newValue)];
+            // Solamente se hai selezionato TOP_RATED... mostra la listViewYears
+            initPage();
+        });
+
+        ObservableList<Integer> yearsToShow = FXCollections.observableArrayList();
+        for (int i = 2000; i <= LocalDate.now().getYear(); i++)
+            yearsToShow.add(i);
+
+        this.cboxYear.setItems(yearsToShow);
+        this.cboxYear.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!(newValue instanceof Integer))
+                return;
+            int selectedYear = (int)newValue;
+            this.topRatedBoardgamePairList = this.reviewService.getTopRatedBoardgamePerYear(5, 4, selectedYear);
+            this.topRatedBoardgamePairList.keySet().forEach(key -> System.out.println("Chiave --> " + key.getBoardgameName()));
             initPage();
         });
 
@@ -151,18 +176,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         boardgames.addAll(getBoardgamesByChoice());
         // Come mostro nessun boardgame ??
 
-        //prevNextButtonsCheck();
-        /*
-        if (boardgames.isEmpty()) {
-            stageManager.showInfoMessage("INFO", "No boardgames");
-            try {
-                Platform.exit();
-                System.exit(0);
-            } catch (Exception e) {
-                logger.error("Exception occurred: " + e.getLocalizedMessage());
-            }
-        }
-         */
 
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
         {
@@ -260,15 +273,28 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private List<BoardgameModelMongo> getBoardgamesByChoice()
     {
         List<BoardgameModelMongo> boardgames = null;
+        this.cboxYear.setVisible(false);
         switch (this.currentlyShowing)
         {
             case ALL_BOARDGAMES ->
                     boardgames = boardgameDBMongo.findRecentBoardgames(LIMIT, this.skipCounter);
             case TOP_RATED_BOARDGAMES_PER_YEAR ->
-                    boardgames = boardgameService.findTopRatedBoardgamesPerYear(0, LIMIT, this.skipCounter);
+            {
+                List<BoardgameModelMongo> finalBoardgames = new ArrayList<>();
+                this.cboxYear.setPromptText("Seleziona l'anno");
+                this.cboxYear.setVisible(true);
+                this.topRatedBoardgamePairList.keySet().forEach(finalBoardgames::add);
+                boardgames = finalBoardgames;
+            }
             case BOARDGAME_COMMENTED_BY_FOLLOWERS ->
                     boardgames = boardgameService.suggestBoardgamesWithPostsByFollowedUsers(
                             ((UserModelMongo)modelBean.getBean(Constants.CURRENT_USER)).getUsername(), this.skipCounter);
+            case BOARDGAME_GROUP_BY_CATEGORY -> {
+                // 16/11/2024 -> Da cambiare?
+                for (Integer i : this.boardgameDBMongo.getListOfPublishedYear())
+                    System.out.println("Anno : " + String.valueOf(i));
+                boardgames = new ArrayList<>();
+            }
             default ->
                 boardgames = null;
         }
@@ -276,12 +302,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             return null;
 
         prevNextButtonsCheck(boardgames);
+        for(BoardgameModelMongo b : boardgames)
+            System.out.println("gioco -> " + b.getBoardgameName());
         return boardgames;
     }
 
     @FXML
     void fillGridPane() {
-
         columnGridPane = 0;
         rowGridPane = 1;
         //setGridPaneColumnAndRow();
@@ -289,23 +316,26 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
             // Logica per mostrare i dettagli del post usando StageManager
             modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame);
-            //stageManager.switchScene(FxmlView.BOARDGAME_DETAILS);
             stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
-        //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
         try {
-            for (BoardgameModelMongo boardgame : boardgames) { // iterando lista di boardgames
+            for (BoardgameModelMongo boardgame : boardgames) {
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
 
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
-                anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
+                anchorPane.getChildren().add(loadViewItem);
+                Double ratingForThisGame = null;
+                if (this.currentlyShowing == BgameToFetch.TOP_RATED_BOARDGAMES_PER_YEAR)
+                    ratingForThisGame = this.topRatedBoardgamePairList.get(boardgame);
+                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane, ratingForThisGame);
                 controllerObjectBoardgame.anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
-                anchorPane.setOnMouseClicked(event -> { this.boardgameListener.onClickBoardgameListener(event, boardgame);});
+                anchorPane.setOnMouseClicked(event -> {
+                    this.boardgameListener.onClickBoardgameListener(event, boardgame);
+                });
 
                 //choice number of column
                 if (columnGridPane == 4) {
@@ -330,15 +360,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             e.printStackTrace();
         }
     }
-/*
-    public static void updateGridPane()
-    {
-        for (Node:
-             ) {
-            
-        }boardgameGridPane.getChildren();
-    }
-*/
 
 
     public void onClickLogout(ActionEvent event) {
@@ -361,11 +382,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         stageManager.closeStageButton(this.searchUserButton);
     }
 
-    public void onClickButtonSearchBoardgame(MouseEvent event)
-    {
-        String searchString = textFieldSearch.getText();
-        handleChoiceBoardgame(searchString);
-    }
 
     public void onMouseClickedListView()
     {
@@ -442,4 +458,5 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     {
         System.out.println("Scelto -> " + boardgameName);
     }
+
 }
