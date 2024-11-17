@@ -111,7 +111,7 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="cboxYear" layoutX="729.0" layoutY="81.0" prefHeight="25.0" prefWidth="148.0" />
+                  <ComboBox fx:id="cboxYear" layoutX="732.0" layoutY="81.0" prefHeight="25.0" prefWidth="176.0" promptText="Select the year" stylesheets="@css/style.css" />
                </children>
                <padding>
                   <Insets bottom="30.0" />
