@@ -303,4 +303,24 @@ public class BoardgameDBMongo {
             return new ArrayList<>();
         }
     }
+
+    public List<Integer> getListOfPublishedYear()
+    { // 16/11/2024 -> Da eliminare?
+        ProjectionOperation projectionOperation = project()
+                .andExpression("yearPublished").as("year");
+
+        GroupOperation groupOperation = group("year");
+
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.ASC, "_id")); // Ordine crescente
+
+        Aggregation aggregation = newAggregation(projectionOperation, groupOperation, sortOperation);
+
+        AggregationResults<Document> result = mongoOperations.aggregate(aggregation, "boardgames", Document.class);
+
+        List<Integer> years = result.getMappedResults().stream()
+                .map(doc -> doc.getInteger("_id"))
+                .collect(Collectors.toList());
+
+        return years;
+    }
 }
