@@ -13,9 +13,7 @@
       <VBox fx:id="vbox" alignment="CENTER" prefHeight="268.0" prefWidth="187.0">
          <children>
             <ImageView fx:id="bgameImage" fitHeight="221.0" fitWidth="164.0" onMouseEntered="#onMouseEnteredOnImageBoardgame" onMouseExited="#onMouseExitedFromImageBoardgame" onMouseMoved="#onMouseMovedOnImageBoardgame" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../image_sample.jpg" />
-               </image></ImageView>
+               </ImageView>
             <Label fx:id="lblBoardgameName" alignment="CENTER" prefHeight="47.0" text="Board-Game Name">
                <font>
                   <Font name="System Bold" size="15.0" />
