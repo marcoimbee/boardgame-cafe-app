@@ -8,14 +8,17 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 
+import javafx.util.Pair;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import javax.print.Doc;
+import java.lang.annotation.Documented;
+import java.util.*;
 
 @Component
 public class ReviewService {
@@ -343,5 +346,23 @@ public class ReviewService {
             logger.error("Review not found");
         }
         return "";
+    }
+
+    public LinkedHashMap<BoardgameModelMongo, Double> getTopRatedBoardgamePerYear(int minReviews, int limit, int year)
+    {
+        List<Document> docList = (List<Document>) reviewMongoOp.getTopRatedBoardgamePerYear(minReviews, limit, year).get("results");
+        LinkedHashMap<BoardgameModelMongo, Double> boardgamePairListForParamYear = new LinkedHashMap<>();
+        if (!docList.isEmpty())
+        {
+            List<Document> docTopRated = (List<Document>) docList.get(0).get("topGames");
+            for (Document doc_boardgame : docTopRated)
+            {
+                String boardgameName = (String) doc_boardgame.get("name");
+                Optional<BoardgameModelMongo> boardgameOptional = this.boardgameMongoOp.findBoardgameByName(boardgameName);
+                Double rating = (Double)doc_boardgame.get("avgRating");
+                boardgameOptional.ifPresent(boardgame -> boardgamePairListForParamYear.put(boardgame, rating));
+            }
+        }
+        return boardgamePairListForParamYear;
     }
 }
