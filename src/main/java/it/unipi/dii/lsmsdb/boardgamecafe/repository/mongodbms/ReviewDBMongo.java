@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
@@ -234,4 +235,58 @@ public class ReviewDBMongo {
         return true;
     }
 
+    public Document getTopRatedBoardgamePerYear(int minReviews, int limit, int year)
+    {
+        ProjectionOperation projectYear = project()
+                .andExpression("boardgameName").as("name")
+                .andExpression("rating").as("rating")
+                .andExpression("year(dateOfReview)").as("year");
+
+        GroupOperation groupByYearAndGame = group("year", "name")
+                .avg("rating").as("avgRating")
+                .count().as("numReviews");
+
+        Criteria minReviewsAndYear = new Criteria().andOperator(
+                Criteria.where("numReviews").gte(minReviews),
+                Criteria.where("_id.year").is(year) // Accedo ad year attraverso _id, perchè l'anno stesso è diventato una chiave, a causa del raggruppamento
+        );
+
+        MatchOperation matchMinReviews = match(minReviewsAndYear);
+
+        GroupOperation groupByYear = group("_id.year")
+                .push(new BasicDBObject("name", "$_id.name")
+                        .append("avgRating", "$avgRating")
+                        .append("numReviews", "$numReviews"))
+                .as("topGames");
+
+        AddFieldsOperation addFieldsSortTopGames = addFields()
+                .addField("topGames")
+                .withValue(new BasicDBObject("$let", new BasicDBObject("vars", new BasicDBObject("topGames", "$topGames"))
+                        .append("in", new BasicDBObject("$sortArray", new BasicDBObject("input", "$$topGames")
+                                .append("sortBy", new BasicDBObject("avgRating", -1)))))).build();
+
+        ProjectionOperation limitTopGamesPerYear = project()
+                .and("topGames").slice(limit)
+                .as("topGames");
+
+        SortOperation sortByYear = sort(Sort.by(Sort.Order.asc("_id"), Sort.Order.desc("topGames.avgRating")));
+
+        Aggregation aggregation = newAggregation(
+                projectYear,
+                groupByYearAndGame,
+                matchMinReviews,
+                groupByYear,
+                addFieldsSortTopGames,
+                limitTopGamesPerYear,
+                sortByYear
+        );
+
+        AggregationResults<Document> results = mongoOperations.aggregate(
+                aggregation,
+                "reviews",
+                Document.class
+        );
+
+        return results.getRawResults();
+    }
 }
