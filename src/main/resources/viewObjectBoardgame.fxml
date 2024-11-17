@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
+<AnchorPane fx:id="anchorPane" prefHeight="268.0" prefWidth="187.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectBoardgame">
    <children>
       <VBox fx:id="vbox" alignment="CENTER" prefHeight="268.0" prefWidth="187.0">
          <children>
@@ -22,6 +22,14 @@
                </font>
                <tooltip>
                   <Tooltip fx:id="tooltipBoardgameText" height="180.0" maxHeight="180.0" maxWidth="150.0" minHeight="180.0" minWidth="150.0" prefHeight="180.0" prefWidth="150.0" width="150.0" wrapText="true" x="0.0" y="0.0" />
+               </tooltip>
+            </Label>
+            <Label fx:id="lblRating" alignment="CENTER" prefHeight="23.0" prefWidth="136.0" text="Rating:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+               <tooltip>
+                  <Tooltip fx:id="tooltipBoardgameText1" height="180.0" maxHeight="180.0" maxWidth="150.0" minHeight="180.0" minWidth="150.0" prefHeight="180.0" prefWidth="150.0" width="150.0" wrapText="true" x="0.0" y="0.0" />
                </tooltip>
             </Label>
          </children>
