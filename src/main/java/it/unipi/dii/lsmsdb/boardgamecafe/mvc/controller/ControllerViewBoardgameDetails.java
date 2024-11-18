@@ -80,6 +80,12 @@ public class ControllerViewBoardgameDetails implements Initializable {
 
     private void setImage()
     {
+        Image imageInCache = ControllerObjectBoardgame.getImageFromCache(this.boardgame.getImage());
+        if (imageInCache != null)
+        {
+            this.imgViewBoardgame.setImage(imageInCache);
+            return;
+        }
         try {
             URI uri = new URI(this.boardgame.getImage()); // Crea URI
             URL url = uri.toURL(); // Converti a URL

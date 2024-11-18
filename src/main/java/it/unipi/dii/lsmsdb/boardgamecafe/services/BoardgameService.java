@@ -244,17 +244,4 @@ public class BoardgameService {
             return new ArrayList<>();       // Return empty list in case of exception
         }
     }
-
-    public List<BoardgameModelMongo> findTopRatedBoardgamesPerYear(int minReviews, int results, int skipCounter)
-    {
-        List<BoardgameModelMongo> resultset = new ArrayList<>();
-        List<Document> resultDocList = (List<Document>)boardgameMongoOp.findTopRatedBoardgamesPerYear(minReviews, results, skipCounter).get("results");
-        for (Document boardgameAsDoc : resultDocList)
-        {
-            String bordgameName = boardgameAsDoc.getString("name");
-            Optional<BoardgameModelMongo> optionalBoardgame = boardgameMongoOp.findBoardgameByName(bordgameName);
-            optionalBoardgame.ifPresent(boardgameModelMongo -> { resultset.add(boardgameModelMongo); });
-        }
-        return resultset;
-    }
 }
