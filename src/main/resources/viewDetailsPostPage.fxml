@@ -122,10 +122,13 @@
                   <Separator layoutX="115.0" layoutY="84.0" prefHeight="7.0" prefWidth="181.0" />
                   <Separator layoutX="514.0" layoutY="52.0" prefHeight="9.0" prefWidth="110.0" />
                   <Separator layoutX="53.0" layoutY="21.0" orientation="VERTICAL" prefHeight="356.0" prefWidth="4.0" />
-                  <Button fx:id="exitButton" alignment="CENTER" contentDisplay="CENTER" layoutX="704.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickExitButton" prefHeight="22.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Exit" textFill="WHITE">
+                  <Button fx:id="closeButton" alignment="CENTER" layoutX="704.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickCloseButton" prefHeight="22.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Close" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="BAN" size="17" />
+                     </graphic>
                   </Button>
                   <Button fx:id="likeButton" layoutX="86.0" layoutY="337.0" mnemonicParsing="false" onAction="#onClickLikeButton" prefHeight="18.0" prefWidth="65.0" style="-fx-background-color: #182E58;" text="Like" textFill="WHITE">
                      <font>
