@@ -9,12 +9,10 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -26,12 +24,12 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
+
 
 @Component
 public class ControllerViewDetailsPostPage implements Initializable {
@@ -80,17 +78,15 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
-    private PostDBNeo4j postDBNeo4j;
-    @Autowired
     private ControllerObjectComment controllerObjectComment;
     @Autowired
     private ModelBean modelBean;
     @Autowired
     private UserDBNeo4j userNeo4jDB;
     @Autowired
-    private CommentDBNeo4j commentDBNeo4j;
-    @Autowired
     private CommentService serviceComment;
+    @Autowired
+    private PostService postService;
 
     private List<CommentModelMongo> comments = new ArrayList<>();
 
@@ -185,13 +181,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
 
         try {
-            // Delete post from neo4j and its comments
-            commentDBNeo4j.deleteByPost(post.getId());
-            postDBNeo4j.deletePost(post.getId());
-
-            // Delete post from mongodb and its comments
-            postDBMongo.deletePost(post);
-            commentDBMongo.deleteByPost(post.getId());
+            // Delete Neo4J post node + MongoDB post document + all its comments
+            postService.deletePost(post);
 
             System.out.println("[INFO] A post has been successfully deleted.");
 
