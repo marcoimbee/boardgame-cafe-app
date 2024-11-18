@@ -87,7 +87,7 @@ public enum FxmlView {
         }
 
         @Override
-        public String getFxmlFile() { return "/viewBoardgameDetails.fxml"; }
+        public String getFxmlFile() { return "/viewDetailsBoardgame.fxml"; }
     }, OBJECTBOARDGAME {
         @Override
         public String getTitle() {
