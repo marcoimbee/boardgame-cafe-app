@@ -111,12 +111,14 @@ public class ControllerObjectPost {
         //updateLikeButton(post.getUsername(), post.getId());
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
 
-        // Buttons settings
-        if (!currentUser.getUsername().equals(post.getUsername())) {
-            deleteButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
-        } else {
-            deleteButton.setVisible(true);
-            deleteButton.setDisable(false);
+        if(post != null && currentUser != null){
+            // Buttons settings
+            if (!currentUser.getUsername().equals(post.getUsername())) {
+                deleteButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
+            } else {
+                deleteButton.setVisible(true);
+                deleteButton.setDisable(false);
+            }
         }
 
         this.deletedPostCallback = deletedPostCallback;
