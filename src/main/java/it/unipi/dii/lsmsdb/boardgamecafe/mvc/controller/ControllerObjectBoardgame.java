@@ -103,7 +103,7 @@ public class ControllerObjectBoardgame implements Initializable {
 
     }
 
-    private Image getImageFromCache(String imageURL) {
+    public static Image getImageFromCache(String imageURL) {
         return imageCache.get(imageURL);
     }
 
