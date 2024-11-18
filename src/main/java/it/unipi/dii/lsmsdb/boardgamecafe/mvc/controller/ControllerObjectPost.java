@@ -86,16 +86,7 @@ public class ControllerObjectPost {
         this.likeButton.setDisable(true);
         this.commentButton.setDisable(true);
 
-         String creationDate = post.getTimestamp().toString();
-//        String commentsCounter = "";
-//        if (commentCache.containsKey(post.getId())) {
-//            commentsCounter = commentCache.get(post.getId());
-//        } else {
-//            // Calcola e memorizza il conteggio dei commenti
-//            int sizeCommentsList = post.getComments().size();
-//            commentsCounter = String.valueOf(sizeCommentsList);
-//            commentCache.put(post.getId(), commentsCounter);
-//        }
+        String creationDate = post.getTimestamp().toString();
 
         this.authorLabel.setText(post.getUsername());
         this.timestampLabel.setText(creationDate);
