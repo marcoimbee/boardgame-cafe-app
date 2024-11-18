@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1183.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsBoardgamePage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1183.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsBoardgamePage">
    <center>
       <VBox prefHeight="770.0" prefWidth="994.0" BorderPane.alignment="CENTER">
          <children>
@@ -186,21 +186,21 @@
                      </font>
                   </Label>
                   <Separator layoutX="77.0" layoutY="343.0" orientation="VERTICAL" prefHeight="232.0" prefWidth="5.0" />
-                  <ComboBox fx:id="comboBoxFullCategories" accessibleRole="TEXT" layoutX="199.0" layoutY="367.0" prefHeight="27.0" prefWidth="146.0" promptText="See Full Categories" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <ComboBox fx:id="comboBoxFullCategories" accessibleRole="TEXT" layoutX="199.0" layoutY="367.0" prefHeight="27.0" prefWidth="146.0" promptText="See Full Categories" stylesheets="@css/style.css" />
                   <Separator layoutX="85.0" layoutY="452.0" prefHeight="4.0" prefWidth="257.0" />
                   <Label fx:id="designerTitleLabel" alignment="BASELINE_LEFT" layoutX="86.0" layoutY="428.0" prefHeight="25.0" prefWidth="83.0" text="Designer :" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="comboBoxFullDesigners" layoutX="199.0" layoutY="455.0" prefHeight="27.0" prefWidth="146.0" promptText="See Full Designers" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <ComboBox fx:id="comboBoxFullDesigners" layoutX="199.0" layoutY="455.0" prefHeight="27.0" prefWidth="146.0" promptText="See Full Designers" stylesheets="@css/style.css" />
                   <Separator layoutX="85.0" layoutY="543.0" prefHeight="4.0" prefWidth="257.0" />
                   <Label fx:id="postTitle2" alignment="BASELINE_LEFT" layoutX="85.0" layoutY="519.0" prefHeight="25.0" prefWidth="83.0" text="Publisher :" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="comboBoxFullPublishers" layoutX="198.0" layoutY="546.0" prefHeight="27.0" prefWidth="146.0" promptText="See Full Publishers" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <ComboBox fx:id="comboBoxFullPublishers" layoutX="198.0" layoutY="546.0" prefHeight="27.0" prefWidth="146.0" promptText="See Full Publishers" stylesheets="@css/style.css" />
                   <Label fx:id="firstPublisherLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="172.0" layoutY="519.0" prefHeight="25.0" prefWidth="170.0" text="firstPublisher" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="16.0" />
