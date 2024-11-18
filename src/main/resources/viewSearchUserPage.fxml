@@ -26,7 +26,7 @@
                   <Font name="System Bold Italic" size="28.0" />
                </font>
             </Text>
-            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="85.0" layoutY="602.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
+            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="95.0" layoutY="583.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>

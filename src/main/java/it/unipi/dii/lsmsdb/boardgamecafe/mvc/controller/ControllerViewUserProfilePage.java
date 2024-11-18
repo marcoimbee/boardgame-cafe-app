@@ -514,8 +514,11 @@ public class ControllerViewUserProfilePage implements Initializable{
                 }
 
                 anchorPane.getChildren().add(loadViewItem);
-                anchorPane.setOnMouseClicked(event -> {
-                    this.postListener.onClickPostListener(event, (PostModelMongo) item);});
+                if (item instanceof PostModelMongo){
+                    anchorPane.setOnMouseClicked(event -> {
+                        this.postListener.onClickPostListener(event, (PostModelMongo) item);});
+                }
+
 
                 if (columnGridPane == 1) {
                     columnGridPane = 0;

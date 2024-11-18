@@ -9,7 +9,6 @@ public class Constants {
     public static final String SELECTED_REVIEW = "selectedReview";
     public static final String IS_EMBEDDED = "isEmbedded";
     public static final String USERS_PATH = "Users_Path";
-
     public static final String BOARDGAME_LIST = "boardgameList";
 
     // ------ USER MANAGEMENT ------

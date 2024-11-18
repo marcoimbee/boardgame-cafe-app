@@ -224,6 +224,23 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
     public void onClickDeleteAccountButton() {
 
+        boolean userChoice = stageManager.showDeleteAccountInfoMessage();
+        if (!userChoice) {
+            return;
+        }
+        if (serviceUser.deleteUser(regUser)){
+            modelBean.putBean(Constants.CURRENT_USER, null);
+            stageManager.switchScene(FxmlView.WELCOMEPAGE);
+            stageManager.showInfoMessage("Delete Operation", "Your Account Was Successfully " +
+                    "Deleted From BoardGame-Cafè App." +
+                    "\n\n\t\t\tWe Hope You Can Sign-Up Again Soon.");
+        } else {
+            modelBean.putBean(Constants.CURRENT_USER, null);
+            stageManager.switchScene(FxmlView.WELCOMEPAGE);
+            stageManager.showInfoMessage("Delete Operation", "An Unexpected Error Occurred " +
+                    "While Deleting Your Account From BoardGame-Café_App." +
+                    "\n\n\t\t\tPlease contact the administrator.");
+        }
     }
     public void onClickSaveChangesButton() {
 
