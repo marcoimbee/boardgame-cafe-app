@@ -345,7 +345,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 if (savedComment) {
                     stageManager.showInfoMessage("Success", "Comment added successfully.");
 
-                    comments.addFirst(newComment);      // Adding the new comment to the comment list
+                    comments.add(0, newComment);      // Adding the new comment to the comment list
 
                     fillGridPane();             // Displaying update
 
