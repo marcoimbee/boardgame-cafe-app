@@ -153,12 +153,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             editBoardgameButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
+        prepareScene();
 
         boardgame.getReviews().sort(Comparator.comparing(ReviewModelMongo::getDateOfReview).reversed());
         reviews.addAll(boardgame.getReviews());
-
-        prepareScene();
-
         fillGridPane();
 
 
