@@ -46,7 +46,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @FXML
     private Button previousButton;
     @FXML
-    private Button exitButton;
+    private Button closeButton;
     @FXML
     private Button refreshButton;
     @FXML
@@ -211,8 +211,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
         fillGridPane();
     }
 
-    public void onClickExitButton() {
-        stageManager.closeStageButton(this.exitButton);
+    public void onClickCloseButton() {
+        stageManager.closeStageButton(this.closeButton);
     }
 
     public void onClickLikeButton() {
