@@ -9,6 +9,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -121,6 +122,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private int skipCounter = 0;
     private final static int SKIP = 10; //how many posts to skip per time
     private final static int LIMIT = 10; //how many posts to show for each page
+
+    private final String promptTextFullCategories = "See Full Categories";
+    private final String promptTextFullDesigners = "See Full Designers";
+    private final String promptTextFullPublishers = "See Full Publishers";
+
 
     @Autowired
     @Lazy
@@ -445,10 +451,49 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.comboBoxFullDesigners.getItems().addAll(designers);
         this.comboBoxFullPublishers.getItems().addAll(publishers);
 
-//        comboBoxFullCategories.getSelectionModel().selectedIndexProperty().
-//                addListener((observable, oldValue, newValue) -> {
-//                    comboBoxFullCategories.getSelectionModel().select(oldValue.intValue());
-//                });
+        comboBoxFullCategories.setPromptText(promptTextFullCategories);
+        comboBoxFullCategories.setEditable(false);
+
+        comboBoxFullDesigners.setPromptText(promptTextFullDesigners);
+        comboBoxFullDesigners.setEditable(false);
+
+        comboBoxFullPublishers.setPromptText(promptTextFullPublishers);
+        comboBoxFullPublishers.setEditable(false);
+
+        comboBoxFullCategories.getSelectionModel().selectedItemProperty().
+                addListener((observable, oldValue, newValue) -> {
+                    comboBoxFullCategories.setButtonCell(new ListCell<>() {
+                        @Override
+                        protected void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+                            setText(promptTextFullCategories);
+                        }
+                    });
+                });
+
+
+        comboBoxFullDesigners.getSelectionModel().selectedItemProperty().
+                addListener((observable, oldValue, newValue) -> {
+                    comboBoxFullDesigners.setButtonCell(new ListCell<>() {
+                        @Override
+                        protected void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+                            setText(promptTextFullDesigners);
+                        }
+                    });
+                });
+
+        comboBoxFullPublishers.getSelectionModel().selectedItemProperty().
+                addListener((observable, oldValue, newValue) -> {
+                    comboBoxFullPublishers.setButtonCell(new ListCell<>() {
+                        @Override
+                        protected void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+                            setText(promptTextFullPublishers);
+                        }
+                    });
+                });
     }
+
 
 }

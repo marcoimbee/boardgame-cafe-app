@@ -23,13 +23,13 @@
     -fx-background-color: #182E58; /* Colore al passaggio del mouse */
 }
 
-.combo-box .list-cell {
+#cboxYear .list-cell {
     -fx-background-color: #182E58;
     -fx-text-fill: white;
 }
-.combo-box
-{
-    -fx-background-color:  #182E58;
+
+#cboxYear {
+    -fx-background-color: #182E58;
     -fx-background-radius: 5px;
     -fx-border-radius: 5px;
     -fx-font-weight: bold;
@@ -37,8 +37,41 @@
     -fx-prompt-text-fill: white;
 }
 
-.combo-box .list-cell:hover {
+#cboxYear .list-cell:hover {
     -fx-background-color: white;
     -fx-text-fill: #182E58;
+}
+
+#comboBoxFullCategories,
+#comboBoxFullDesigners,
+#comboBoxFullPublishers {
+    -fx-background-color: transparent;  /* Sfondo trasparente */
+    -fx-border-color: #182E58;          /* Colore del bordo */
+    -fx-border-width: 0px 0px 2px 0px;  /* Bordo solo in basso, 2px di spessore */
+}
+
+/* Rimuovere l'effetto di focus (sfondo blu) quando la ComboBox è selezionata */
+#comboBoxFullCategories:focused,
+#comboBoxFullDesigners:focused,
+#comboBoxFullPublishers:focused {
+    -fx-background-color: transparent;  /* Rende il background trasparente quando è a fuoco */
+    -fx-border-color: #182E58;          /* Mantiene il colore del bordo blu */
+    -fx-border-width: 0px 0px 2px 0px;  /* Il bordo inferiore resta */
+}
+
+/* Aggiungi l'effetto hover per mantenere il background bianco */
+#comboBoxFullCategories .list-cell:hover,
+#comboBoxFullDesigners:hover,
+#comboBoxFullPublishers:hover {
+    -fx-background-color: transparent;  /* Rende il background trasparente durante l'hover */
+    -fx-border-width: 0px 0px 2px 0px;  /* Mantiene il bordo inferiore */
+    -fx-text-fill: black;
+}
+
+/* Testo della ComboBox in stato normale */
+#comboBoxFullCategories .text,
+#comboBoxFullDesigners .text,
+#comboBoxFullPublishers .text {
+    -fx-text-fill: #182E58;  /* Imposta il colore del testo */
 }
 
