@@ -169,7 +169,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         // Prefetch boardgame tags for the search function and init search functionalities variables
         searchResultsList.setVisible(false);
-
         long startTime = System.currentTimeMillis();
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null) {
             boardgameTags = boardgameDBMongo.getBoardgameTags();            // Fetching boardgame names as soon as the page opens
@@ -177,7 +176,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         } else {
             boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);     // Obtaining tags from the Bean, as thy had been put there before
         }
-
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
@@ -191,33 +189,49 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 Stage stage = (Stage) newScene.getWindow();
                 stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
                     if (isNowFocused) {
-                        onFocusGained();            // Update UI after post deletion
+                        // After gaining focus for a post details window closing, UI needs to be potentially updated
+                        onRegainPageFocusAfterPostDetailsWindowClosing();
                     }
                 });
             }
         });
     }
 
-    public void onFocusGained() {
+    private void onRegainPageFocusAfterPostDetailsWindowClosing() {
         // Update UI after potentially having deleted a post
-        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
+        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);          // TODO: fix this
         if (deletedPostId != null) {
             modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
-            onClickRefreshButton();             // Updating UI by refreshing
+            posts.removeIf(post -> post.getId().equals(deletedPostId));
+            fillGridPane();
         }
 
         // Update UI after potentially having added a comment to a post
         CommentModelMongo addedComment = (CommentModelMongo) modelBean.getBean(Constants.ADDED_COMMENT);
         if (addedComment != null) {
             modelBean.putBean(Constants.ADDED_COMMENT, null);
-            onClickRefreshButton();
+            fillGridPane();
         }
 
         // Update UI after potentially having deleted a comment form a post
         CommentModelMongo deletedComment = (CommentModelMongo) modelBean.getBean(Constants.DELETED_COMMENT);
         if (deletedComment != null) {
             modelBean.putBean(Constants.DELETED_COMMENT, null);
-            onClickRefreshButton();
+            for (PostModelMongo post : posts) {
+                if (post.getId().equals(deletedComment.getPost())) {
+                    post.deleteCommentInPost(deletedComment.getId());
+                    break;
+                }
+            }
+            fillGridPane();
+        }
+
+        // Update UI after potentially having updated a post
+        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
+        if (updatedPost != null) {
+            modelBean.putBean(Constants.UPDATED_POST, null);
+            posts.replaceAll(post -> post.getId().equals(updatedPost.getId()) ? updatedPost : post);
+            fillGridPane();
         }
     }
 
@@ -360,25 +374,17 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 387));
     }
 
-    private void updateUIAfterPostDeletion(String postId) {
-        resetPageVars();
-        List<PostModelMongo> retrievedPosts = fetchPosts(currentUser);
-        if (retrievedPosts.isEmpty()) {
+    private void updateUIAfterPostDeletion(String postId) {         // TODO: fix this
+        posts.removeIf(post -> post.getId().equals(postId));
+        if (posts.isEmpty()) {
             loadViewMessageInfo();
         } else {
-            posts.addAll(retrievedPosts);
             fillGridPane();
-            prevNextButtonsCheck(retrievedPosts.size());
         }
     }
 
     @FXML
     void fillGridPane() {
-        // Setting up what should be called upon post deletion using the delete post button, without opening the post's details
-        deletedPostCallback = postId -> {
-            updateUIAfterPostDeletion(postId);
-        };
-
         if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
             rowGridPane = 0;
@@ -410,61 +416,67 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
                 for (int i = startPost; i <= endPost; i++) {
                     PostModelMongo post = posts.get(i);
-
-                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
-
-                    AnchorPane anchorPane = new AnchorPane();
-                    anchorPane.getChildren().add(loadViewItem);
-
-                    controllerObjectPost.setData(post, postListener, deletedPostCallback);
-
-                    anchorPane.setOnMouseClicked(event -> {
-                        this.postListener.onClickPostListener(event, post);});
-
-                    //choice number of column
-                    if (columnGridPane == 1) {
-                        columnGridPane = 0;
-                        rowGridPane++;
-                    }
-
-                    postGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
-                    //DISPLAY SETTINGS
-                    //set grid width
-                    postGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                    postGridPane.setPrefWidth(500);
-                    postGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                    //set grid height
-                    postGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                    postGridPane.setPrefHeight(400);
-                    postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                    //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 190));
+                    AnchorPane postNode = createPostViewNode(post);
+                    addPostToGridPane(postNode);
                 }
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "An error occurred while retrieving posts. Try again in a while.");
+            stageManager.showInfoMessage("INFO", "An error occurred while retrieving posts. Please try again in a while.");
             System.err.println("[ERROR] fillGridPane@ControllerViewRegUserPostsPage.java raised an exception: " + ex.getMessage());
-            ex.printStackTrace();
-            ex.getCause();
         }
     }
 
-    public void onClickLogout(ActionEvent event) {
+    private void addPostToGridPane(AnchorPane postNode) {
+        if (columnGridPane == 1) {
+            columnGridPane = 0;
+            rowGridPane++;
+        }
+
+        postGridPane.add(postNode, columnGridPane++, rowGridPane); //(child,column,row)
+
+        postGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+        postGridPane.setPrefWidth(500);
+        postGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        postGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+        postGridPane.setPrefHeight(400);
+        postGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        GridPane.setMargin(postNode, new Insets(15, 5, 15, 190));
+    }
+
+    private AnchorPane createPostViewNode(PostModelMongo post) {
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.getChildren().add(loadViewItem);
+
+        // Setting up what should be called upon post deletion using the delete post button, without opening the post's details
+        deletedPostCallback = this::updateUIAfterPostDeletion;
+
+        controllerObjectPost.setData(post, postListener, deletedPostCallback);
+
+        anchorPane.setOnMouseClicked(event -> {
+            this.postListener.onClickPostListener(event, post);});
+
+        return anchorPane;
+    }
+
+    public void onClickLogout() {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickYourProfileButton(ActionEvent event) {
+    public void onClickYourProfileButton() {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.yourProfileButton);
     }
 
-    public void onClickAccountInfoButton(ActionEvent event) {
+    public void onClickAccountInfoButton() {
         stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
         stageManager.closeStageButton(this.accountInfoButton);
     }
 
-    public void onClickSearchUserButton(ActionEvent event) {
+    public void onClickSearchUserButton() {
         stageManager.showWindow(FxmlView.SEARCHUSER);
         stageManager.closeStageButton(this.searchButton);
     }
@@ -569,12 +581,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         if (savedPost != null) {
             System.out.println("[INFO] New post added");
-            stageManager.showInfoMessage("Success", "Your post has been added successfully! You're being redirected to the 'All posts' page.");
             handleSuccessfulPostAddition(savedPost);
             this.newPostButton.setDisable(false);
         } else {
             System.out.println("[INFO] An error occurred while adding a new post");
-            stageManager.showInfoMessage("Error", "Failed to add comment. Try again in a while.");
+            stageManager.showInfoMessage("INFO", "Failed to add post. Please try again in a while.");
             fillGridPane();             // Restoring GridPane if anything went wrong
         }
     }
@@ -586,8 +597,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             fillGridPane();
             prevNextButtonsCheck(posts.size() <= LIMIT ? posts.size() : LIMIT);
         } else {
+            stageManager.showInfoMessage("Success", "Your post has been added successfully! You're being redirected to the 'All posts' page.");
             currentlyShowing = PostsToFetch.ALL_POSTS;          // get back to ALL_POSTS page, show the new post first
-            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(whatPostsToShowList.size() -1));       // Setting string inside choice box
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(whatPostsToShowList.size() - 1));       // Setting string inside choice box
             onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
         }
 

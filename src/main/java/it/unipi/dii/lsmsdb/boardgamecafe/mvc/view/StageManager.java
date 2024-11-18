@@ -29,8 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 // Fornisce metodi per caricare le viste, mostrare le finestre e visualizzare eventuali messaggi di errore.
 // Utilizza la classe SpringFXMLLoader per caricare i file FXML e creare scene per le viste dell'applicazione ---
 public class StageManager {
-
     private final Stage primaryStage;
+
     private final SpringFXMLLoader springFXMLLoader;
     private final static Logger logger = LoggerFactory.getLogger(StageManager.class);
 
@@ -158,6 +158,15 @@ public class StageManager {
         String message = "Discard changes? Your updates will be lost.";
         String okButtonString = "Discard changes";
         String backButtonString = "Return to editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDiscardCommentInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard changes? What you wrote will be lost.";
+        String okButtonString = "Discard comment";
+        String backButtonString = "Return to comment";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }

@@ -242,7 +242,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
                 AnchorPane anchorPane = new AnchorPane();
                 anchorPane.getChildren().add(loadViewItem);
 
-                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane);
+                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane, null);
 
                 anchorPane.setOnMouseClicked(event ->{
                     this.boardgameListener.onClickBoardgameListener(event,boardgame);} );

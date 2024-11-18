@@ -117,7 +117,7 @@ public class ControllerViewEditPostPage implements Initializable {
             postDBMongo.updatePost(selectedPost.getId(), updatedPost);
 
             // Setting updated in model bean to retrieve them in post details page for UI update
-            modelBean.putBean(Constants.SELECTED_POST, updatedPost);
+            modelBean.putBean(Constants.UPDATED_POST, updatedPost);
 
             System.out.println("[INFO] Successfully updated a post.");
             stageManager.closeStage();
