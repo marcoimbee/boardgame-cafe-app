@@ -1,11 +1,44 @@
 .choice-box {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: white; /* Colore del testo principale */
+}
+
+.choice-box > .label
+{
+    -fx-text-fill: white;
+    -fx-background-color: #182E58;
+}
+
+/* Stile per gli elementi del menu a tendina */
+.choice-box .list-cell {
+    -fx-background-color: #182E58; /* Sfondo degli elementi */
+    -fx-text-fill: white; /* Colore del testo */
+}
+
+.choice-box .menu-item:hover {
+    -fx-background-color: #182E58; /* Colore al passaggio del mouse */
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #182E58;
+    -fx-text-fill: white;
+}
+.combo-box
+{
     -fx-background-color:  #182E58;
     -fx-background-radius: 5px;
     -fx-border-radius: 5px;
-}
-
-.choice-box > .label {
-    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 15px;
+    -fx-prompt-text-fill: white;
 }
+
+.combo-box .list-cell:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #182E58;
+}
+
