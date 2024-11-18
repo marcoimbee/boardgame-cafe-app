@@ -124,7 +124,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     };
     private BgameToFetch currentlyShowing;
 
-    private LinkedHashMap<BoardgameModelMongo, Double> topRatedBoardgamePairList; // Hash <Nome gioco, Rating>
+    private static LinkedHashMap<BoardgameModelMongo, Double> topRatedBoardgamePairList; // Hash <gioco, Rating>
 
     @Autowired
     @Lazy
@@ -135,7 +135,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.topRatedBoardgamePairList = new LinkedHashMap<>(); // In questo modo, viene preservato l'ordine di inserimento che è fondamentale!
+
+        topRatedBoardgamePairList = new LinkedHashMap<>(); // Con la linkedHM, viene preservato l'ordine di inserimento che è fondamentale!
         this.boardgamesCollectionButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
@@ -155,12 +156,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             yearsToShow.add(i);
 
         this.cboxYear.setItems(yearsToShow);
-        this.cboxYear.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        this.cboxYear.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+        {
             if (!(newValue instanceof Integer))
                 return;
             int selectedYear = (int)newValue;
-            this.topRatedBoardgamePairList = this.reviewService.getTopRatedBoardgamePerYear(5, 4, selectedYear);
-            this.topRatedBoardgamePairList.keySet().forEach(key -> System.out.println("Chiave --> " + key.getBoardgameName()));
+            topRatedBoardgamePairList = this.reviewService.getTopRatedBoardgamePerYear(5, 4, selectedYear);
+            //topRatedBoardgamePairList.keySet().forEach(key -> System.out.println("Chiave --> " + key.getBoardgameName()));
             initPage();
         });
 
@@ -360,6 +362,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         }
     }
 
+    public static Double getBgameRating(BoardgameModelMongo bgame)
+    {
+        return topRatedBoardgamePairList.get(bgame);
+    }
 
     public void onClickLogout(ActionEvent event) {
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
