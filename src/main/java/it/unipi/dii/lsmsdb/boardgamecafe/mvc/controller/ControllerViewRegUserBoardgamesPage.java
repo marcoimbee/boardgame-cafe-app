@@ -152,7 +152,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         });
 
         ObservableList<Integer> yearsToShow = FXCollections.observableArrayList();
-        for (int i = 2000; i <= LocalDate.now().getYear(); i++)
+        for (int i = LocalDate.now().getYear(); i >= 2000 ; i--)
             yearsToShow.add(i);
 
         this.cboxYear.setItems(yearsToShow);
