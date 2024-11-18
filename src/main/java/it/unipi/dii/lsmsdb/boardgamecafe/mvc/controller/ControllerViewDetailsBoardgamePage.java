@@ -442,10 +442,26 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.comboBoxFullDesigners.getItems().addAll(designers);
         this.comboBoxFullPublishers.getItems().addAll(publishers);
 
-//        comboBoxFullCategories.getSelectionModel().selectedIndexProperty().
-//                addListener((observable, oldValue, newValue) -> {
-//                    comboBoxFullCategories.getSelectionModel().select(oldValue.intValue());
-//                });
+        // Testo fisso che vuoi mostrare sempre nella parte visibile
+        String fixedText = "See Full Categoires";
+
+        // Imposta il testo fisso iniziale
+        comboBoxFullCategories.setPromptText(fixedText);
+        comboBoxFullCategories.setEditable(false);
+
+        // Listener per mantenere sempre il testo fisso
+        comboBoxFullCategories.getSelectionModel().selectedItemProperty().
+                addListener((observable, oldValue, newValue) -> {
+            // Ignora la selezione e ripristina il promptText
+            comboBoxFullCategories.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(fixedText); // Mostra il testo fisso nella parte visibile
+                }
+            });
+        });
     }
+
 
 }

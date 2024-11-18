@@ -124,7 +124,7 @@
                      </graphic>
                   </Button>
                   <Separator layoutX="378.0" layoutY="319.0" prefHeight="7.0" prefWidth="747.0" />
-                  <ImageView fx:id="imageBoardgame" fitHeight="276.0" fitWidth="261.0" layoutX="78.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="imageBoardgame" fitHeight="276.0" fitWidth="261.0" layoutX="78.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true" />
                   <Label fx:id="minPlayerLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="412.0" layoutY="242.0" prefHeight="30.0" prefWidth="36.0" text="2" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold Italic" size="20.0" />
