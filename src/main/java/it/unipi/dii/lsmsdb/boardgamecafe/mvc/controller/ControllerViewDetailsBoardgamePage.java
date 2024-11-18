@@ -170,8 +170,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void prepareScene() {
-        //ToDo:
-//        this.averageRatingLabel.setText(("7.2"));
+        Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
+        if (ratingFromTop == null)
+            ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
+        String ratingAsString = String.format("%.1f", ratingFromTop);
+        this.averageRatingLabel.setText(ratingAsString);
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
         this.descriptionTextArea.setText(this.boardgame.getDescription());

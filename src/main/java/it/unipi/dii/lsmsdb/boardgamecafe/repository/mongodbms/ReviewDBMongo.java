@@ -303,4 +303,32 @@ public class ReviewDBMongo {
 
         return results.getRawResults();
     }
+
+    public Double getAvgRatingByBoardgameName(String boardgameName)
+    {
+        MatchOperation matchByName = match(Criteria.where("boardgameName").is(boardgameName));
+
+        GroupOperation groupByBoardgameName = group("boardgameName")
+                .avg("rating").as("avgRating");
+
+        ProjectionOperation projectFinalResult = project()
+                .and("_id").as("boardgameName")
+                .and("avgRating").as("avgRating");
+
+        Aggregation aggregation = newAggregation(
+                matchByName,
+                groupByBoardgameName,
+                projectFinalResult
+        );
+
+        AggregationResults<Document> results = mongoOperations.aggregate(
+                aggregation,
+                "reviews",
+                Document.class
+        );
+
+        Document docResult = results.getUniqueMappedResult();
+        System.out.println("Risultato " + docResult.toJson());
+        return docResult.getDouble("avgRating");
+    }
 }
