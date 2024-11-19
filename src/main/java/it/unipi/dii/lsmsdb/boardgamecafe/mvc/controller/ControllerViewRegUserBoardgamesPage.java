@@ -329,7 +329,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             boardgameGridPane.getChildren().clear();
             boardgameGridPane.add(noBoardgamesFount, 0, 1);
         }
-        GridPane.setMargin(noBoardgamesFount, new Insets(100, 200, 200, 345));
+        GridPane.setMargin(noBoardgamesFount, new Insets(100, 200, 200, 350));
     }
 
     @FXML
