@@ -198,6 +198,16 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewObjectInfoReviewsMsg.fxml";
         }
+    }, INFOMSGBOARDGAMES {
+        @Override
+        public String getTitle() {
+            return "Info Boardgames Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectInfoBoardgamesMsg.fxml";
+        }
     }, SEARCHUSER {
         @Override
         public String getTitle() {
