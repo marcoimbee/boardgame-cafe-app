@@ -22,8 +22,8 @@ public interface BoardgameRepoMongo extends MongoRepository<BoardgameModelMongo,
 
     Optional<BoardgameModelMongo> findById(String id);
 
-    @Query(value = "{'name': {$regex : ?0, $options: 'i'}}")
-    List<BoardgameModelMongo> findByNameRegexOrderByYearPublicationDesc(String name, Sort sort);
+    @Query(value = "{'boardgameName': {$regex : ?0, $options: 'i'}}")
+    List<BoardgameModelMongo> findByNameRegexOrderByYearPublicationDesc(String boardgameName, Sort sort);
 
     @Aggregation(pipeline = { "{ $project: { boardgameName: 1, _id: 0 } }" })
     List<String> findAllBoardgameNames();
