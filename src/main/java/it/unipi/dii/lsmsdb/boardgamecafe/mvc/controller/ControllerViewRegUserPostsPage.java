@@ -155,6 +155,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
+        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
+
         // Choice box init
         whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
         whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
@@ -180,8 +182,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         long elapsedTime = stopTime - startTime;
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
         selectedSearchTag = null;
-
-        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
 
         // Post details listener - used to display post details once a post is clicked on
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
