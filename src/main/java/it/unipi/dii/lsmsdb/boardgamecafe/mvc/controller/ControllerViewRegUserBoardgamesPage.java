@@ -320,6 +320,18 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         return boardgames;
     }
 
+    private void loadViewMessageInfo(){
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGBOARDGAMES.getFxmlFile());
+        AnchorPane noBoardgamesFount = new AnchorPane();
+        noBoardgamesFount.getChildren().add(loadViewItem);
+
+        if (boardgames.isEmpty()){
+            boardgameGridPane.getChildren().clear();
+            boardgameGridPane.add(noBoardgamesFount, 0, 1);
+        }
+        GridPane.setMargin(noBoardgamesFount, new Insets(100, 200, 200, 345));
+    }
+
     @FXML
     void fillGridPane() {
         columnGridPane = 0;
@@ -332,6 +344,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
+        if (boardgames.isEmpty()){
+            loadViewMessageInfo();
+            return;
+        }
         try {
             for (BoardgameModelMongo boardgame : boardgames) {
 

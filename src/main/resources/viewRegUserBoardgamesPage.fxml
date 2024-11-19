@@ -87,17 +87,17 @@
                         <Insets />
                      </opaqueInsets>
                   </HBox>
-                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="351.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="328.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="480.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="refreshButton" layoutX="458.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                  <Button fx:id="refreshButton" layoutX="435.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
