@@ -99,6 +99,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private ObservableList<BoardgameModelMongo> boardgames = FXCollections.observableArrayList();
     private BoardgameListener boardgameListener;
 
+    private UserModelMongo currentUser;
+
     //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
@@ -176,6 +178,14 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     public void initPage()
     {
         resetPage();
+
+        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+
+        if (currentUser != null && currentUser.get_class().equals("admin")){
+            this.newBoardgameButton.setVisible(true);
+        } else {
+            this.newBoardgameButton.setVisible(false);
+        }
 
         boardgames.addAll(getBoardgamesByChoice());
         // Come mostro nessun boardgame ??
