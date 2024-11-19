@@ -100,7 +100,8 @@ public class ControllerObjectBoardgame implements Initializable {
                 Image downloadedImage = imageDownloadTask.getValue();
                 ImageView bgameImage =((ImageView)anchorPane.lookup("#bgameImage"));
                 bgameImage.setImage(downloadedImage);
-                bgameImage.setAccessibleText(boardgame.getDescription());
+                bgameImage.setAccessibleText(boardgame.getDescription()
+                        .replaceAll("&#[0-9]+;", "").replaceAll("&[a-zA-Z0-9]+;", ""));
                 ((Label)anchorPane.lookup("#lblBoardgameName")).setText(nameBoardgameResource);
             });
             imageDownloadTask.setOnFailed(e -> System.out.println("Eccezione Download image -> " + imageDownloadTask.getException().getMessage()) );

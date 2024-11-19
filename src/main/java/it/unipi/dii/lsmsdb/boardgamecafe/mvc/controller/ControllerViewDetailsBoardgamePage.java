@@ -194,7 +194,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
-        this.descriptionTextArea.setText(this.boardgame.getDescription());
+        this.descriptionTextArea.setText(this.boardgame.getDescription()
+                .replaceAll("&#[0-9]+;", "").replaceAll("&[a-zA-Z0-9]+;", ""));
         this.minPlayerLabel.setText(String.valueOf(this.boardgame.getMinPlayers()));
         this.maxPlayerLabel.setText(String.valueOf(this.boardgame.getMaxPlayers()));
         this.playingTimeLabel.setText(String.valueOf(this.boardgame.getPlayingTime()));
