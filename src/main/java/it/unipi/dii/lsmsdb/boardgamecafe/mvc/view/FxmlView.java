@@ -258,6 +258,16 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewEditCommentPage.fxml";
         }
+    }, OBJECTCREATEBOARDGAME {
+        @Override
+        public String getTitle() {
+            return "Boardgame Creation and Upload";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectCreateBoardgame.fxml";
+        }
     };
 
     public abstract String getTitle();
