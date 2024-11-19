@@ -128,8 +128,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.counterLikesLabel.setText(String.valueOf(post.getLikeCount()));
         this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));
 
-        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
-        comments.addAll(post.getComments());
+        comments.addAll(getData(this.post.getId()));
         fillGridPane();
 
         // Setting up buttons depending on if the current user is who created the post that's being visualized
@@ -294,10 +293,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private List<CommentModelMongo> getData(String postId){
 
-        List<CommentModelMongo> comments = commentDBMongo.findByPost(postId);
-        if (comments.isEmpty()) {
-            stageManager.showInfoMessage("Info Comments", "No Comments Yet");
-        }
+        List<CommentModelMongo> comments = commentDBMongo.
+                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
         prevNextButtonsCheck(comments);
         return comments;
     }

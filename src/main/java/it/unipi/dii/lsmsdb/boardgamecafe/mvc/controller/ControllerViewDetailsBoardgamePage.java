@@ -61,6 +61,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @FXML
     protected Label boardgameNameLabel;
     @FXML
+    private Label counterReviewsLabel;
+    @FXML
     protected TextArea descriptionTextArea;
     @FXML
     protected Label minPlayerLabel;
@@ -155,10 +157,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         prepareScene();
 
-        boardgame.getReviews().sort(Comparator.comparing(ReviewModelMongo::getDateOfReview).reversed());
-        reviews.addAll(boardgame.getReviews());
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
-
 
 //        // Page focus listener - needed to potentially update UI when coming back from a post update window
 //        reviewsGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
@@ -179,6 +179,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
         String ratingAsString = String.format("%.1f", ratingFromTop);
         this.averageRatingLabel.setText(ratingAsString);
+        this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
         this.descriptionTextArea.setText(this.boardgame.getDescription());
@@ -279,7 +280,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         skipCounter += SKIP;
 
         //retrieve boardgames
-        reviews.addAll(getData(this.boardgame.getId()));
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -295,7 +296,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        reviews.addAll(getData(this.boardgame.getId()));
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
