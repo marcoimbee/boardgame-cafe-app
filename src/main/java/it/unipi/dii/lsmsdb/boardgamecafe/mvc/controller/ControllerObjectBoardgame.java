@@ -48,7 +48,7 @@ public class ControllerObjectBoardgame implements Initializable {
 
     // Caching in memory per le immagini, migliora l'efficienza dell'applicazione ed evita l'eventuale
     // scaricamento multiplo di una stessa immagine dal server
-    private static final Map<String, Image> imageCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Image> imageCache = new ConcurrentHashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
