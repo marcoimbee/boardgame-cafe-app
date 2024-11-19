@@ -24,6 +24,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -183,6 +184,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (ratingFromTop == null)
             ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
         String ratingAsString = (ratingFromTop != null) ? String.format("%.1f", ratingFromTop) : NO_RATING;
+
+        if (ratingAsString.equals(NO_RATING))
+            this.tooltipLblRating.setShowDelay(Duration.ZERO);
+        else
+            this.averageRatingLabel.setTooltip(null);
+
         this.averageRatingLabel.setText(ratingAsString);
         this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
         this.setImage();
@@ -212,6 +219,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (imageInCache != null)
         {
             this.imageBoardgame.setImage(imageInCache);
+            System.out.println("Trovaya in cache");
             return;
         }
         try {
@@ -319,6 +327,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     void resetPage() {
         //clear variables
+        this.tooltipLblRating.hide();
         reviewsGridPane.getChildren().clear();
         reviews.clear();
         categories.clear();
@@ -508,21 +517,4 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     });
                 });
     }
-
-    public void onMouseOverLblRating(MouseEvent event)
-    {
-        if (this.averageRatingLabel.getText().equals(NO_RATING))
-        {
-            Bounds labelBounds = this.averageRatingLabel.localToScreen(this.averageRatingLabel.getBoundsInLocal());
-            double tooltipX = labelBounds.getMinX();
-            double tooltipY = labelBounds.getMaxY();
-            this.tooltipLblRating.show(this.averageRatingLabel, tooltipX, tooltipY);
-        }
-    }
-
-    public void onMouseExitedLblRating(MouseEvent event)
-    {
-        this.tooltipLblRating.hide();
-    }
-
 }

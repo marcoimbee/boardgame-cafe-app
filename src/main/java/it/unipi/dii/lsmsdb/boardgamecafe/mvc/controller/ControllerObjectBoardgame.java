@@ -53,7 +53,8 @@ public class ControllerObjectBoardgame implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        tooltipBoardgameText.hide();
+        this.lblBoardgameName.setTooltip(null);
+        this.lblRating.setTooltip(null);
     }
 
     public void setData(BoardgameModelMongo boardgame, BoardgameListener listener, AnchorPane anchorPane, Double ratingForThisGame) {
@@ -68,7 +69,7 @@ public class ControllerObjectBoardgame implements Initializable {
         else
             this.lblRating.setVisible(false);
 
-        String imageBoardgameURL = boardgame.getThumbnail();//.getImage(); // URL dell'immagine
+        String imageBoardgameURL = boardgame.getImage(); // URL dell'immagine
         String nameBoardgameResource = boardgame.getBoardgameName();
 
         Image image = getImageFromCache(imageBoardgameURL); // Tenta di recuperare l'immagine dalla cache
@@ -135,14 +136,14 @@ public class ControllerObjectBoardgame implements Initializable {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public void onMouseEnteredOnImageBoardgame(MouseEvent event)
-    {
-        //System.out.println("Evento entered");
-        ImageView imageEvent = (ImageView)event.getSource();
-        tooltipBoardgameText.setText(imageEvent.getAccessibleText()); // Truncate the description to 50 characters.
-        tooltipBoardgameText.show(imageEvent, event.getSceneX(), event.getSceneY());
-    }
-
+//    public void onMouseEnteredOnImageBoardgame(MouseEvent event)
+//    {
+//        //System.out.println("Evento entered");
+//        ImageView imageEvent = (ImageView)event.getSource();
+//        tooltipBoardgameText.setText(imageEvent.getAccessibleText()); // Truncate the description to 50 characters.
+//        tooltipBoardgameText.show(imageEvent, event.getSceneX(), event.getSceneY());
+//    }
+//
     public void onMouseExitedFromImageBoardgame(MouseEvent event)
     {
         tooltipBoardgameText.hide();
@@ -150,7 +151,8 @@ public class ControllerObjectBoardgame implements Initializable {
 
     public void onMouseMovedOnImageBoardgame(MouseEvent event)
     {
-        tooltipBoardgameText.setShowDelay(javafx.util.Duration.ZERO); // Mostra subito la tooltip
+        ImageView imageEvent = (ImageView)event.getSource();
+        tooltipBoardgameText.setText(imageEvent.getAccessibleText()); // Truncate the description to 50 characters.
         tooltipBoardgameText.show(bgameImage, event.getScreenX() + 10, event.getScreenY() + 10); // Offset di 10px
     }
 
