@@ -451,7 +451,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         prevNextButtonsCheck(reviews);
         return reviews;
     }
-
     private void loadViewMessageInfo(Parent whatToLoad){
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
