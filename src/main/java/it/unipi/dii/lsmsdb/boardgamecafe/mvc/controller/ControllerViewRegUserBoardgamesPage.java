@@ -67,6 +67,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button clearFieldButton;
     @FXML
+    private Button newBoardgameButton;
+    @FXML
     private TextField textFieldSearch;
     @FXML
     private GridPane boardgameGridPane;
@@ -462,6 +464,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     public void handleChoiceBoardgame(String boardgameName)
     {
         System.out.println("Scelto -> " + boardgameName);
+    }
+
+    public void onClickNewBoardgameButton(){
+
     }
 
 }

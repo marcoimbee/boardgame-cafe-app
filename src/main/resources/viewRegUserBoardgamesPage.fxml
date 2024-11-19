@@ -113,6 +113,14 @@
                      </font>
                   </Label>
                   <ComboBox fx:id="cboxYear" layoutX="732.0" layoutY="81.0" prefHeight="25.0" prefWidth="176.0" promptText="Select the year" stylesheets="@css/style.css" />
+                  <Button fx:id="newBoardgameButton" layoutX="749.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNewBoardgameButton" prefHeight="31.0" prefWidth="159.0" style="-fx-background-color: #182E58;" text="New Boardgame" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="EDIT" />
+                     </graphic>
+                  </Button>
                </children>
                <padding>
                   <Insets bottom="30.0" />
