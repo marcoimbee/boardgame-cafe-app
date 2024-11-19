@@ -62,7 +62,7 @@ public class ControllerObjectBoardgame implements Initializable {
         this.boardgameClickListener = listener;
         if (ratingForThisGame != null)
         {
-            this.lblRating.setText("Rating: " + ratingForThisGame);
+            this.lblRating.setText("Rating: " + String.format("%.1f", ratingForThisGame));
             this.lblRating.setVisible(true);
         }
         else
