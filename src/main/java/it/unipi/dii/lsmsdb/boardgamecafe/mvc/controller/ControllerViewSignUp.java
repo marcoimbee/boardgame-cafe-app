@@ -246,7 +246,7 @@ public class ControllerViewSignUp implements Initializable {
     }
 
     private void initComboBox() {
-        this.comboBoxGender.getItems().addAll("Male","Female", "Other");
+        this.comboBoxGender.getItems().addAll("Male","Female", "Prefer Not To Say");
         this.comboBoxNationality.getItems().addAll("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica",
                 "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas",
                 "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan",
