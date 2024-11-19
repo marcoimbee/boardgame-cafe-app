@@ -225,6 +225,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 Image downloadedImage = new Image(new ByteArrayInputStream(imageBytes));
                 this.imageBoardgame.setImage(downloadedImage);
             }
+            catch (Exception e)
+            {
+                String imagePath = getClass().getResource("/images/noImage.jpg").toExternalForm();
+                Image image = new Image(imagePath);
+                this.imageBoardgame.setImage(image);
+            }
         } catch (Exception e) {
             System.out.println("ControllerViewBoardgameDetails: download boardgame image failed");
         }
