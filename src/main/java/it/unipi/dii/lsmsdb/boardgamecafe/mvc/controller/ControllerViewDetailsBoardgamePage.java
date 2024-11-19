@@ -13,11 +13,13 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -39,6 +41,7 @@ import java.util.function.Consumer;
 @Component
 public class ControllerViewDetailsBoardgamePage implements Initializable {
 
+    private final String NO_RATING = "-----";
     //********** Buttons **********
     @FXML
     private Button editBoardgameButton;
@@ -108,6 +111,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private ModelBean modelBean;
     @Autowired
     private ReviewService serviceReview;
+    @FXML
+    protected Tooltip tooltipLblRating;
 
     private List<ReviewModelMongo> reviews = new ArrayList<>();
     private List<String> categories = new ArrayList<>();
@@ -177,7 +182,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         if (ratingFromTop == null)
             ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
-        String ratingAsString = String.format("%.1f", ratingFromTop);
+        String ratingAsString = (ratingFromTop != null) ? String.format("%.1f", ratingFromTop) : NO_RATING;
         this.averageRatingLabel.setText(ratingAsString);
         this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
         this.setImage();
@@ -192,9 +197,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.categories.addAll(boardgame.getBoardgameCategory());
         this.designers.addAll(boardgame.getBoardgameDesigner());
         this.publishers.addAll(boardgame.getBoardgamePublisher());
-        this.firstCategoryLabel.setText(categories.get(0));
-        this.firstDesignerLabel.setText(designers.get(0));
-        this.firstPublisherLabel.setText(publishers.get(0));
+
+        if (!categories.isEmpty())
+            this.firstCategoryLabel.setText(categories.get(0));
+        if (!designers.isEmpty())
+            this.firstDesignerLabel.setText(designers.get(0));
+        if (!publishers.isEmpty())
+            this.firstPublisherLabel.setText(publishers.get(0));
         initComboBox(categories, designers, publishers);
     }
 
@@ -494,5 +503,20 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 });
     }
 
+    public void onMouseOverLblRating(MouseEvent event)
+    {
+        if (this.averageRatingLabel.getText().equals(NO_RATING))
+        {
+            Bounds labelBounds = this.averageRatingLabel.localToScreen(this.averageRatingLabel.getBoundsInLocal());
+            double tooltipX = labelBounds.getMinX();
+            double tooltipY = labelBounds.getMaxY();
+            this.tooltipLblRating.show(this.averageRatingLabel, tooltipX, tooltipY);
+        }
+    }
+
+    public void onMouseExitedLblRating(MouseEvent event)
+    {
+        this.tooltipLblRating.hide();
+    }
 
 }
