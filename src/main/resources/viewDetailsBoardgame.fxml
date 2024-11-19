@@ -140,10 +140,7 @@
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                      <tooltip>
-                        <Tooltip fx:id="tooltipLblRating" text="No rating for this game" wrapText="true">
-                           <font>
-                              <Font size="11.0" />
-                           </font></Tooltip>
+                        <Tooltip fx:id="tooltipLblRating" text="No rating for this game" wrapText="true" />
                      </tooltip>
                   </Label>
                   <Separator layoutX="529.0" layoutY="234.0" orientation="VERTICAL" prefHeight="40.0" prefWidth="8.0" />
