@@ -42,6 +42,25 @@
     -fx-text-fill: #182E58;
 }
 
+#cboxCategory .list-cell {
+    -fx-background-color: #182E58;
+    -fx-text-fill: white;
+}
+
+#cboxCategory {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-prompt-text-fill: white;
+}
+
+#cboxCategory .list-cell:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #182E58;
+}
+
 #comboBoxFullCategories,
 #comboBoxFullDesigners,
 #comboBoxFullPublishers {
