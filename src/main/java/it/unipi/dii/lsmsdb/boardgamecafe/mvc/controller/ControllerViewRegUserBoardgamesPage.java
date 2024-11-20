@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -69,7 +70,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private ListView listViewBoardgames;
     @FXML
-    private Button onClickRefreshButton;
+    private Button refreshButton;
     @FXML
     private ChoiceBox<String> whatBgameToShowChoiceBox;
     @FXML
@@ -97,7 +98,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     //Utils Variables
     private int columnGridPane = 0;
-    private int rowGridPane = 0;
+    private int rowGridPane = 1;
     private int skipCounter = 0;
     private final static int SKIP = 12; //how many boardgame to skip per time
     private final static int LIMIT = 12; //how many boardgame to show for each page
@@ -502,9 +503,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         System.out.println("[INFO] Starting new boardgame creation procedure");
         try {
             this.newBoardgameButton.setDisable(true);
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEBOARDGAME.getFxmlFile()); // Load boardgame creation FXML
+            setDisablePreviousNextRefresh(true);
+            // Load boardgame creation FXML
+            Parent loadViewItem = stageManager.
+                    loadViewNode(FxmlView.OBJECTCREATEBOARDGAME.getFxmlFile());
 
             // Recupera i controlli dall'interfaccia di creazione del boardgame
+            TextField descriptionField = (TextField) loadViewItem.lookup("#descriptionTextField");
             TextField boardgameNameField = (TextField) loadViewItem.lookup("#boardgameNameTextField");
             TextField yearField = (TextField) loadViewItem.lookup("#yearOfPublicationTextField");
             TextField playingTimeField = (TextField) loadViewItem.lookup("#playingTimeTextField");
@@ -517,42 +522,71 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             Button uploadBoardgameButton = (Button) loadViewItem.lookup("#uploadButton");
             Button cancelBoardgameButton = (Button) loadViewItem.lookup("#cancelButton");
 
-            // Imposta il comportamento del pulsante "Submit"
+            // Imposta il comportamento del pulsante "Upload"
             uploadBoardgameButton.setOnAction(e -> {
+                String description = descriptionField.getText();
                 String name = boardgameNameField.getText();
+                String imageLink = imageLinkField.getText();
+                String thumbnailLink = thumbnailLinkField.getText();
                 String year = yearField.getText();
                 String playingTime = playingTimeField.getText();
                 String minPlayers = minPlayersField.getText();
                 String maxPlayers = maxPlayersField.getText();
                 String minAge = minAgeField.getText();
-                String imageLink = imageLinkField.getText();
-                String thumbnailLink = thumbnailLinkField.getText();
 
                 // Recupera le liste di categorie, designer e publisher
                 List<String> categories = controllerCreateBoardgame.getCategories();
                 List<String> designers = controllerCreateBoardgame.getDesigners();
                 List<String> publishers = controllerCreateBoardgame.getPublishers();
 
-                if (name.isEmpty() || year.isEmpty() || minPlayers.isEmpty() || maxPlayers.isEmpty()) {
-                    stageManager.showInfoMessage("INFO", "Please fill all required fields (name, year, players).");
-                }
-//                } else {
-//                    addNewBoardgame(name, year, playingTime, minPlayers, maxPlayers, minAge, imageLink,
-//                            thumbnailLink, categories, designers, publishers);
-//                    removeBoardgameInsertionPanel();
+//                // Verifica che i campi richiesti siano compilati
+//                if (name.isEmpty() || imageLink.isEmpty() || categories.isEmpty() || description.isEmpty()
+//                        || year.isEmpty() || minPlayers.isEmpty() || maxPlayers.isEmpty() || minAge.isEmpty())
+//                {
+//                    stageManager.showInfoMessage("Empty Fields",
+//                            "\t\t\t\tPlease fill all required fields:" +
+//                            "\n\n(Description, Name, Year, Players, Age, Image, Categories).");
+//                    return;
 //                }
-                System.out.println("\n" + categories + "\n" + designers +  "\n" + publishers);
-            });
 
+                // Verifica che i campi numerici siano validi
+                try {
+                    int yearInt = Integer.parseInt(year);
+                    int playingTimeInt = Integer.parseInt(playingTime);
+                    int minPlayersInt = Integer.parseInt(minPlayers);
+                    int maxPlayersInt = Integer.parseInt(maxPlayers);
+                    int minAgeInt = Integer.parseInt(minAge);
+
+                    // Se arriviamo qui, significa che tutti i campi numerici sono validi
+                    addNewBoardgame(description, name, yearInt, playingTimeInt, minPlayersInt,
+                                    maxPlayersInt, minAgeInt, imageLink, thumbnailLink,
+                                    categories, designers, publishers);
+
+//                    removeBoardgameCreationPanel();
+//                    fillGridPane();
+//                    scrollSet.setVvalue(0);
+//                    setDisablePreviousNextRefresh(false);
+//                    prevNextButtonsCheck(boardgames);
+
+                } catch (NumberFormatException ex) {
+                    stageManager.showInfoMessage("ERROR",
+                            "Please enter valid numbers for year, playing time, " +
+                                    "min players, max players, and min age.");
+                }
+            });
 
              //Imposta il comportamento del pulsante "Cancel"
             cancelBoardgameButton.setOnAction(e -> {
-//                boolean discardBoardgame = stageManager.showDiscardBoardgameInfoMessage();
-//                if (discardBoardgame) {
-//                    removeBoardgameInsertionPanel();
-//                }
-//                newBoardgameButton.setDisable(false);
-                System.out.println("\nciao");
+                boolean discardBoardgame = stageManager.showDiscardBoardgameInfoMessage();
+                if (discardBoardgame) {
+                    removeBoardgameCreationPanel();
+                    fillGridPane();
+                    scrollSet.setVvalue(0);
+                }
+                this.newBoardgameButton.setDisable(false);
+                setDisablePreviousNextRefresh(false);
+                prevNextButtonsCheck(boardgames);
+                whatBgameToShowChoiceBox.setDisable(false);
             });
 
             // Aggiunge il pannello per creare un nuovo boardgame
@@ -560,13 +594,126 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             addBoardgameBox.setId("newBoardgameBox");
             addBoardgameBox.getChildren().add(loadViewItem);
 
-            boardgameGridPane.getChildren().clear();
-            boardgameGridPane.add(addBoardgameBox, 0, 1); // Aggiunge il pannello alla griglia
+            if (!boardgames.isEmpty()){
+                boardgameGridPane.getChildren().clear();
+                boardgameGridPane.add(addBoardgameBox, 0, 1);
+            } else {
+                boardgameGridPane.add(addBoardgameBox, 0, rowGridPane);
+            }
             GridPane.setMargin(addBoardgameBox, new Insets(5, 5, 15, 130));
 
         } catch (Exception e) {
             stageManager.showInfoMessage("INFO", "An error occurred while creating the boardgame. Try again in a while.");
             System.err.println("[ERROR] onClickNewBoardgameButton raised an exception: " + e.getMessage());
         }
+    }
+
+    private void removeBoardgameCreationPanel() {
+        boardgameGridPane.getChildren().removeIf(elem -> {
+            String elemId = elem.getId();
+            if (elemId != null) {
+                return elemId.equals("newBoardgameBox");
+            }
+            return false;
+        });
+    }
+
+    private void addNewBoardgame(String description, String boardgameName, int yearPublished,
+                                 int playingTime, int minPlayers, int maxPlayers, int minAge,
+                                 String imageLink, String thumbnailLink, List<String> categories,
+                                 List<String> designers, List<String> publishers) {
+
+        if (boardgameName.isEmpty()) {
+            stageManager.showInfoMessage("Error", "Boardgame Name Field Cannot Be Empty.");
+            return;
+        }
+        if (description.isEmpty()) {
+            stageManager.showInfoMessage("Error", "Description Field Cannot Be Empty.");
+            return;
+        }
+        if (yearPublished == 0){
+            stageManager.showInfoMessage("Error", "The Year Of Publication Cannot be 0 (Zero).");
+            return;
+        }
+        if (playingTime == 0) {
+            stageManager.showInfoMessage("Error", "The Playing Time Cannot be 0 (Zero).");
+            return;
+        }
+        if (minPlayers == 0){
+            stageManager.showInfoMessage("Error", "The Minimum # Players Cannot be 0 (Zero).");
+            return;
+        }
+        if (maxPlayers == 0) {
+            stageManager.showInfoMessage("Error", "The Maximum # Players Cannot be 0 (Zero).");
+            return;
+        }
+        if (minAge == 0){
+            stageManager.showInfoMessage("Error", "The Minimum Age Cannot be 0 (Zero).");
+            return;
+        }
+        if (imageLink.isEmpty()) {
+            stageManager.showInfoMessage("Error", "Image Link Field Cannot Be Empty.");
+            return;
+        }
+        if (categories.isEmpty()){
+            stageManager.showInfoMessage("Error", "Categories List Cannot Be Empty. At Least 1 Element");
+            return;
+        }
+
+        //ToDO:
+        BoardgameModelMongo newBoardgame = new BoardgameModelMongo(
+                                                boardgameName, thumbnailLink,
+                                                imageLink, description,
+                                                yearPublished, minPlayers,
+                                                maxPlayers, playingTime, minAge,
+                                                categories, designers, publishers);
+
+        //ToDo: Analizzare e Testare
+//        boolean savedBoardgame = boardgameService.insertBoardgame(newBoardgame);   // MongoDB + Neo4J insertion
+//
+//        if (savedBoardgame) {
+//            System.out.println("[INFO] New Boardgame added");
+//            handleSuccessfulBoardgameAddition(newBoardgame);
+//            this.newBoardgameButton.setDisable(false);
+//        } else {
+//            System.out.println("[INFO] An error occurred while adding a new boardgame");
+//            stageManager.showInfoMessage("INFO", "Failed to add boardgame. Please try again in a while.");
+//            fillGridPane();             // Restoring GridPane if anything went wrong
+//            scrollSet.setVvalue(0);
+//        }
+
+    }
+
+    private void handleSuccessfulBoardgameAddition(BoardgameModelMongo newlyInsertedBoardgame) {
+        if (currentlyShowing == BgameToFetch.ALL_BOARDGAMES) {
+            boardgames.remove(boardgames.size() - 1);         // Alter Boardgames collection but keep it compliant to posts displaying rules
+            boardgames.add(0, newlyInsertedBoardgame);  //Put New Bordgame at Top
+            fillGridPane();
+            prevNextButtonsCheck(boardgames);
+        } else {
+            stageManager.showInfoMessage("Success", "Your Boardgame has been added successfully! You're being redirected to the 'All Boardgames' page.");
+            currentlyShowing = BgameToFetch.ALL_BOARDGAMES;          // get back to ALL_POSTS page, show the new post first
+            whatBgameToShowChoiceBox.setValue(whatBgameToShowList.get(whatBgameToShowList.size() - 1));       // Setting string inside choice box
+            onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
+        }
+
+        this.newBoardgameButton.setDisable(false);
+        setDisablePreviousNextRefresh(false);
+        whatBgameToShowChoiceBox.setDisable(false);
+    }
+
+    public void onSelectChoiceBoxOption() {
+        resetPage();
+        //selectedSearchTag = null;
+        List<BoardgameModelMongo> retrievedBoardgames = getBoardgamesByChoice();
+        boardgames.addAll(retrievedBoardgames);            // Add new LIMIT posts (at most)
+        fillGridPane();
+        prevNextButtonsCheck(retrievedBoardgames);            // Initialize buttons
+    }
+
+    public void setDisablePreviousNextRefresh(boolean isVisible){
+        this.previousButton.setDisable(isVisible);
+        this.nextButton.setDisable(isVisible);
+        this.refreshButton.setDisable(isVisible);
     }
 }
