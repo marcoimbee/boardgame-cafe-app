@@ -19,15 +19,23 @@ public class ControllerObjectCreateBoardgame {
     @FXML
     private Button addCategoryButton;
     @FXML
+    private Button removeCategoryButton;
+    @FXML
     private Button addDesignerButton;
     @FXML
+    private Button removeDesignerButton;
+    @FXML
     private Button addPublisherButton;
+    @FXML
+    private Button removePublisherButton;
     @FXML
     private Button uploadButton;
     @FXML
     private Button cancelButton;
 
     // *********** Text Fields ***********
+    @FXML
+    private TextField descriptionTextField;
     @FXML
     private TextField boardgameNameTextField;
     @FXML
@@ -77,11 +85,23 @@ public class ControllerObjectCreateBoardgame {
 
     @FXML
     private void initialize() {
+
+        // Filtro numerico per i campi che devono contenere solo numeri
+        addNumericValidation(yearOfPublicationTextField);
+        addNumericValidation(playingTimeTextField);
+        addNumericValidation(minPlayersTextField);
+        addNumericValidation(maxPlayersTextField);
+        addNumericValidation(minAgeTextField);
+
         // Collega i pulsanti ai metodi
         addCategoryButton.setOnAction(event -> onClickAddCategoryButton());
+        removeCategoryButton.setOnAction(event -> onClickRemoveCategoryButton());
         addDesignerButton.setOnAction(event -> onClickAddDesignerButton());
+        removeDesignerButton.setOnAction(event -> onClickRemoveDesignerButton());
         addPublisherButton.setOnAction(event -> onClickAddPublisherButton());
+        removePublisherButton.setOnAction(event -> onClickRemovePublisherButton());
     }
+
 
     public void onClickAddCategoryButton() {
         String category = categoryTextField.getText().trim();
@@ -91,6 +111,15 @@ public class ControllerObjectCreateBoardgame {
             categoryTextField.clear();
         } else {
             stageManager.showInfoMessage("INFO", "Category field cannot be empty.");
+        }
+    }
+    public void onClickRemoveCategoryButton() {
+        String selectedCategory = categoriesListView.getSelectionModel().getSelectedItem();
+        if (selectedCategory != null) {
+            listViewCategories.remove(selectedCategory);
+            categoriesListView.getItems().remove(selectedCategory);
+        } else {
+            stageManager.showInfoMessage("INFO", "Please select a category to remove.");
         }
     }
 
@@ -104,6 +133,15 @@ public class ControllerObjectCreateBoardgame {
             stageManager.showInfoMessage("INFO", "Designer field cannot be empty.");
         }
     }
+    public void onClickRemoveDesignerButton() {
+        String selectedDesigner = designersListView.getSelectionModel().getSelectedItem();
+        if (selectedDesigner != null) {
+            listViewDesigners.remove(selectedDesigner);
+            designersListView.getItems().remove(selectedDesigner);
+        } else {
+            stageManager.showInfoMessage("INFO", "Please select a designer to remove.");
+        }
+    }
 
     public void onClickAddPublisherButton() {
         String publisher = publisherTextField.getText().trim();
@@ -115,9 +153,27 @@ public class ControllerObjectCreateBoardgame {
             stageManager.showInfoMessage("INFO", "Publisher field cannot be empty.");
         }
     }
+    public void onClickRemovePublisherButton() {
+        String selectedPublisher = publishersListView.getSelectionModel().getSelectedItem();
+        if (selectedPublisher != null) {
+            listViewPublishers.remove(selectedPublisher);
+            publishersListView.getItems().remove(selectedPublisher);
+        } else {
+            stageManager.showInfoMessage("INFO", "Please select a publisher to remove.");
+        }
+    }
 
     public void onClickCancelButton(){};
     public void onClickUploadButton(){};
+
+    private void addNumericValidation(TextField textField) {
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) { // Permette solo numeri
+                textField.setText(oldValue); // Ripristina il valore precedente
+            }
+        });
+    }
+
 
     // Metodo per ottenere le liste
     public List<String> getCategories() {
