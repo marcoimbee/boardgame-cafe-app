@@ -152,7 +152,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         this.whatBgameToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.currentlyShowing = BgameToFetch.values()[this.whatBgameToShowList.indexOf(newValue)];
-            // Solamente se hai selezionato TOP_RATED... mostra la listViewYears
+            this.textFieldSearch.clear();
             initPage();
         });
 
@@ -163,6 +163,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         this.cboxYear.setItems(yearsToShow);
         this.cboxYear.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
         {
+            this.currentlyShowing = BgameToFetch.TOP_RATED_BOARDGAMES_PER_YEAR;
+            this.textFieldSearch.clear();
             if (!(newValue instanceof Integer))
                 return;
             int selectedYear = (int)newValue;
@@ -295,11 +297,12 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private List<BoardgameModelMongo> getBoardgamesByChoice()
     {
         List<BoardgameModelMongo> boardgames = null;
-        this.cboxYear.setVisible(false);
         switch (this.currentlyShowing)
         {
-            case ALL_BOARDGAMES ->
-                    boardgames = boardgameDBMongo.findRecentBoardgames(LIMIT, this.skipCounter);
+            case ALL_BOARDGAMES -> {
+                boardgames = boardgameDBMongo.findRecentBoardgames(LIMIT, this.skipCounter);
+                this.cboxYear.setVisible(false);
+            }
             case TOP_RATED_BOARDGAMES_PER_YEAR ->
             {
                 List<BoardgameModelMongo> finalBoardgames = new ArrayList<>();
@@ -307,9 +310,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 this.topRatedBoardgamePairList.keySet().forEach(finalBoardgames::add);
                 boardgames = finalBoardgames;
             }
-            case BOARDGAME_COMMENTED_BY_FOLLOWERS ->
-                    boardgames = boardgameService.suggestBoardgamesWithPostsByFollowedUsers(
-                            ((UserModelMongo)modelBean.getBean(Constants.CURRENT_USER)).getUsername(), this.skipCounter);
+            case BOARDGAME_COMMENTED_BY_FOLLOWERS -> {
+                boardgames = boardgameService.suggestBoardgamesWithPostsByFollowedUsers(
+                        ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername(), this.skipCounter);
+            }
             case BOARDGAME_GROUP_BY_CATEGORY -> {
                 // 16/11/2024 -> Da cambiare?
                 for (Integer i : this.boardgameDBMongo.getListOfPublishedYear())
