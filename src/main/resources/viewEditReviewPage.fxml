@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="317.0" prefWidth="567.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewEditReviewPage">
+<AnchorPane prefHeight="317.0" prefWidth="567.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewEditReviewPage">
     <children>
         <Label fx:id="name111" alignment="TOP_LEFT" layoutX="245.0" layoutY="24.0" prefHeight="18.0" prefWidth="111.0" text="Edit review" textFill="#182e58">
             <font>
@@ -16,9 +19,6 @@
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>
-            <graphic>
-                <FontAwesomeIconView fill="WHITE" glyphName="TRASH" size="14" />
-            </graphic>
         </Button>
         <Separator layoutX="12.0" layoutY="18.0" orientation="VERTICAL" prefHeight="30.0" prefWidth="6.0" />
         <Separator layoutX="13.0" layoutY="47.0" prefHeight="3.0" prefWidth="537.0" />
@@ -28,9 +28,6 @@
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>
-            <graphic>
-                <FontAwesomeIconView fill="WHITE" glyphName="SEND" size="14" />
-            </graphic>
         </Button>
         <TextField fx:id="bodyTextLabel" alignment="TOP_LEFT" layoutX="14.0" layoutY="152.0" prefHeight="104.0" prefWidth="540.0" />
         <Separator layoutX="15.0" layoutY="144.0" prefHeight="9.0" prefWidth="538.0" />
@@ -39,7 +36,7 @@
                 <Font name="Calibri Bold" size="18.0" />
             </font>
         </Label>
-      <Slider fx:id="ratingSlider" blockIncrement="1.0" layoutX="14.0" layoutY="93.0" max="10.0" prefHeight="14.0" prefWidth="538.0" snapToTicks="true" />
+      <Slider fx:id="ratingSlider" blockIncrement="1.0" layoutX="14.0" layoutY="93.0" majorTickUnit="1.0" max="10.0" minorTickCount="0" prefHeight="14.0" prefWidth="538.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
       <Separator layoutX="13.0" layoutY="74.0" prefHeight="9.0" prefWidth="538.0" />
       <Label fx:id="titleBodyText1" alignment="BASELINE_LEFT" layoutX="11.0" layoutY="56.0" prefHeight="22.0" prefWidth="83.0" text="Rating:" textFill="#182e58">
          <font>
