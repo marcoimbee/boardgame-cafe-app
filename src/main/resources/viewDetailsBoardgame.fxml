@@ -135,12 +135,12 @@
                      </font>
                   </Label>
                   <Separator layoutX="356.0" layoutY="233.0" prefHeight="3.0" prefWidth="745.0" />
-                  <Label fx:id="averageRatingLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="361.0" layoutY="55.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" onMouseEntered="#onMouseOverLblRating" onMouseExited="#onMouseExitedLblRating" prefHeight="30.0" prefWidth="30.0" text="7.5" textAlignment="CENTER" textFill="WHITE">
+                  <Label fx:id="averageRatingLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="361.0" layoutY="55.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" prefHeight="30.0" prefWidth="30.0" text="7.5" textAlignment="CENTER" textFill="WHITE">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                      <tooltip>
-                        <Tooltip fx:id="tooltipLblRating" text="No rating for this game" wrapText="true" />
+                        <Tooltip fx:id="tooltipLblRating" autoHide="true" text="No rating for this game" wrapText="true" />
                      </tooltip>
                   </Label>
                   <Separator layoutX="529.0" layoutY="234.0" orientation="VERTICAL" prefHeight="40.0" prefWidth="8.0" />
