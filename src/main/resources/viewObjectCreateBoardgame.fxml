@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="565.0" prefWidth="698.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #cda434; -fx-border-radius: 10; -fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectCreateComment">
+<AnchorPane prefHeight="565.0" prefWidth="698.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #cda434; -fx-border-radius: 10; -fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectCreateBoardgame">
    <children>
       <Label fx:id="name111" alignment="TOP_LEFT" layoutX="192.0" layoutY="29.0" prefHeight="18.0" prefWidth="340.0" text="Enter The Boardgame Information And Upload it." textFill="#182e58">
          <font>
@@ -29,7 +29,7 @@
       <FontAwesomeIconView fill="#182e58" glyphName="PLAY" layoutX="172.0" layoutY="44.0" size="18" />
       <Separator layoutX="36.0" layoutY="18.0" prefHeight="9.0" prefWidth="620.0" />
       <Separator layoutX="654.0" layoutY="23.0" orientation="VERTICAL" prefHeight="30.0" prefWidth="6.0" />
-      <Button fx:id="submitButton" layoutX="364.0" layoutY="511.0" mnemonicParsing="false" onAction="#onClickSubmitButton" prefHeight="30.0" prefWidth="89.0" style="-fx-background-color: #182E58;" text="Upload" textFill="WHITE">
+      <Button fx:id="uploadButton" layoutX="364.0" layoutY="511.0" mnemonicParsing="false" onAction="#onClickUploadButton" prefHeight="30.0" prefWidth="89.0" style="-fx-background-color: #182E58;" text="Upload" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -38,96 +38,96 @@
          </graphic>
       </Button>
       <TextField fx:id="bodyTextLabel" alignment="TOP_LEFT" layoutX="37.0" layoutY="84.0" opacity="0.8" prefHeight="59.0" prefWidth="623.0" />
-      <Label fx:id="referredBoardgameLabel" alignment="BASELINE_LEFT" layoutX="57.0" layoutY="58.0" prefHeight="25.0" prefWidth="79.0" text="Description:" textFill="#182e58">
+      <Label fx:id="descriptionTitleLabel" alignment="BASELINE_LEFT" layoutX="57.0" layoutY="58.0" prefHeight="25.0" prefWidth="79.0" text="Description:" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="38.0" layoutY="77.0" size="15" />
       <Separator layoutX="37.0" layoutY="80.0" prefHeight="3.0" prefWidth="623.0" />
-      <TextField fx:id="tagBoardgameText1" alignment="TOP_LEFT" layoutX="39.0" layoutY="175.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
+      <TextField fx:id="boardgameNameTextField" alignment="TOP_LEFT" layoutX="39.0" layoutY="175.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
       <Separator layoutX="40.0" layoutY="169.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel11" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="150.0" prefHeight="25.0" prefWidth="127.0" text="Boardgame Name :" textFill="#182e58">
+      <Label fx:id="boardgameNameTitleLabel" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="150.0" prefHeight="25.0" prefWidth="127.0" text="Boardgame Name :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="169.0" size="15" />
-      <TextField fx:id="tagBoardgameText11" alignment="TOP_LEFT" layoutX="349.0" layoutY="229.0" opacity="0.8" prefHeight="25.0" prefWidth="313.0" />
+      <TextField fx:id="thumbnailLinkTextField" alignment="TOP_LEFT" layoutX="349.0" layoutY="229.0" opacity="0.8" prefHeight="25.0" prefWidth="313.0" />
       <Separator layoutX="349.0" layoutY="223.0" prefHeight="9.0" prefWidth="313.0" />
-      <Label fx:id="referredBoardgameLabel111" alignment="BASELINE_LEFT" layoutX="368.0" layoutY="204.0" prefHeight="25.0" prefWidth="161.0" text="Thumbnail (Server Link) :" textFill="#182e58">
+      <Label fx:id="thumbnailLinkTitleLabel" alignment="BASELINE_LEFT" layoutX="368.0" layoutY="204.0" prefHeight="25.0" prefWidth="161.0" text="Thumbnail (Server Link) :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="349.0" layoutY="223.0" size="15" />
-      <TextField fx:id="tagBoardgameText12" alignment="TOP_LEFT" layoutX="348.0" layoutY="175.0" opacity="0.8" prefHeight="25.0" prefWidth="313.0" />
+      <TextField fx:id="imageLinkTextField" alignment="TOP_LEFT" layoutX="348.0" layoutY="175.0" opacity="0.8" prefHeight="25.0" prefWidth="313.0" />
       <Separator layoutX="348.0" layoutY="169.0" prefHeight="9.0" prefWidth="313.0" />
-      <Label fx:id="referredBoardgameLabel112" alignment="BASELINE_LEFT" layoutX="366.0" layoutY="150.0" prefHeight="25.0" prefWidth="127.0" text="Image (Server Link):" textFill="#182e58">
+      <Label fx:id="imageLinkTitleLabel" alignment="BASELINE_LEFT" layoutX="366.0" layoutY="150.0" prefHeight="25.0" prefWidth="127.0" text="Image (Server Link):" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="348.0" layoutY="169.0" size="15" />
-      <TextField fx:id="tagBoardgameText13" alignment="TOP_LEFT" layoutX="203.0" layoutY="219.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
+      <TextField fx:id="yearOfPublicationTextField" alignment="TOP_LEFT" layoutX="203.0" layoutY="219.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
       <Separator layoutX="40.0" layoutY="243.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel113" alignment="BASELINE_LEFT" layoutX="59.0" layoutY="219.0" prefHeight="25.0" prefWidth="139.0" text="Year Of Pubblication :" textFill="#182e58">
+      <Label fx:id="yearOfPublicationTitleLabel" alignment="BASELINE_LEFT" layoutX="59.0" layoutY="219.0" prefHeight="25.0" prefWidth="139.0" text="Year Of Publication :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="238.0" size="15" />
-      <TextField fx:id="tagBoardgameText19" alignment="TOP_LEFT" layoutX="350.0" layoutY="283.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
+      <TextField fx:id="categoryTextField" alignment="TOP_LEFT" layoutX="350.0" layoutY="283.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
       <Separator layoutX="350.0" layoutY="277.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel119" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="258.0" prefHeight="25.0" prefWidth="79.0" text="Categories :" textFill="#182e58">
+      <Label fx:id="categoriesLabel" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="258.0" prefHeight="25.0" prefWidth="79.0" text="Categories :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="350.0" layoutY="277.0" size="15" />
-      <TextField fx:id="tagBoardgameText110" alignment="TOP_LEFT" layoutX="350.0" layoutY="356.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
+      <TextField fx:id="designerTextField" alignment="TOP_LEFT" layoutX="350.0" layoutY="356.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
       <Separator layoutX="350.0" layoutY="350.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel1110" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="331.0" prefHeight="25.0" prefWidth="79.0" text="Designers :" textFill="#182e58">
+      <Label fx:id="designersTitleLabel" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="331.0" prefHeight="25.0" prefWidth="79.0" text="Designers :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="350.0" layoutY="350.0" size="15" />
-      <TextField fx:id="tagBoardgameText111" alignment="TOP_LEFT" layoutX="351.0" layoutY="429.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
+      <TextField fx:id="publisherTextField" alignment="TOP_LEFT" layoutX="351.0" layoutY="429.0" opacity="0.8" prefHeight="25.0" prefWidth="233.0" />
       <Separator layoutX="351.0" layoutY="423.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel1111" alignment="BASELINE_LEFT" layoutX="370.0" layoutY="404.0" prefHeight="25.0" prefWidth="79.0" text="Publishers :" textFill="#182e58">
+      <Label fx:id="publishersTitleLabel" alignment="BASELINE_LEFT" layoutX="370.0" layoutY="404.0" prefHeight="25.0" prefWidth="79.0" text="Publishers :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="351.0" layoutY="423.0" size="15" />
-      <TextField fx:id="tagBoardgameText131" alignment="TOP_LEFT" layoutX="203.0" layoutY="273.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
+      <TextField fx:id="playingTimeTextField" alignment="TOP_LEFT" layoutX="203.0" layoutY="273.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
       <Separator layoutX="40.0" layoutY="297.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel1131" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="273.0" prefHeight="25.0" prefWidth="96.0" text="Playing Time :" textFill="#182e58">
+      <Label fx:id="playingTimeTitleLabel" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="273.0" prefHeight="25.0" prefWidth="96.0" text="Playing Time :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="292.0" size="15" />
-      <TextField fx:id="tagBoardgameText132" alignment="TOP_LEFT" layoutX="203.0" layoutY="328.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
+      <TextField fx:id="minPlayersTextField" alignment="TOP_LEFT" layoutX="203.0" layoutY="328.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
       <Separator layoutX="40.0" layoutY="352.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel1132" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="328.0" prefHeight="25.0" prefWidth="139.0" text="Minimum # Players :" textFill="#182e58">
+      <Label fx:id="minPlayersTitleLabel" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="328.0" prefHeight="25.0" prefWidth="139.0" text="Minimum # Players :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="347.0" size="15" />
-      <TextField fx:id="tagBoardgameText133" alignment="TOP_LEFT" layoutX="203.0" layoutY="384.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
+      <TextField fx:id="maxPlayersTextField" alignment="TOP_LEFT" layoutX="203.0" layoutY="384.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
       <Separator layoutX="40.0" layoutY="408.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel1133" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="384.0" prefHeight="25.0" prefWidth="139.0" text="Maximum # Players :" textFill="#182e58">
+      <Label fx:id="maxPlayersTitleLabel" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="384.0" prefHeight="25.0" prefWidth="139.0" text="Maximum # Players :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="403.0" size="15" />
-      <TextField fx:id="tagBoardgameText134" alignment="TOP_LEFT" layoutX="203.0" layoutY="439.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
+      <TextField fx:id="minAgeTextField" alignment="TOP_LEFT" layoutX="203.0" layoutY="439.0" opacity="0.8" prefHeight="25.0" prefWidth="69.0" />
       <Separator layoutX="40.0" layoutY="463.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="referredBoardgameLabel1134" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="439.0" prefHeight="25.0" prefWidth="102.0" text="Minimum Age :" textFill="#182e58">
+      <Label fx:id="minAgeTitleLabel" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="439.0" prefHeight="25.0" prefWidth="102.0" text="Minimum Age :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
@@ -149,7 +149,7 @@
             <FontAwesomeIconView fill="WHITE" glyphName="PLUS" size="12" />
          </graphic>
       </Button>
-      <Button fx:id="addPublisherButton" alignment="CENTER" layoutX="534.0" layoutY="456.0" mnemonicParsing="false" onAction="#onClickAddPublishersButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
+      <Button fx:id="addPublisherButton" alignment="CENTER" layoutX="534.0" layoutY="456.0" mnemonicParsing="false" onAction="#onClickAddPublisherButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>
@@ -157,8 +157,8 @@
             <FontAwesomeIconView fill="WHITE" glyphName="PLUS" size="12" />
          </graphic>
       </Button>
-      <ListView layoutX="350.0" layoutY="309.0" prefHeight="25.0" prefWidth="180.0" />
-      <ListView layoutX="351.0" layoutY="382.0" prefHeight="25.0" prefWidth="180.0" />
-      <ListView layoutX="352.0" layoutY="455.0" prefHeight="25.0" prefWidth="180.0" />
+      <ListView fx:id="categoriesListView" layoutX="350.0" layoutY="309.0" prefHeight="25.0" prefWidth="180.0" />
+      <ListView fx:id="designersListView" layoutX="351.0" layoutY="382.0" prefHeight="25.0" prefWidth="180.0" />
+      <ListView fx:id="publishersListView" layoutX="352.0" layoutY="455.0" prefHeight="25.0" prefWidth="180.0" />
    </children>
 </AnchorPane>
