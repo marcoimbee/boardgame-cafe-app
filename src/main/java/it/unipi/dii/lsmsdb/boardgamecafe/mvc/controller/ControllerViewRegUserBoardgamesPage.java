@@ -7,22 +7,17 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -32,8 +27,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.util.Duration;
-import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +36,6 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class ControllerViewRegUserBoardgamesPage implements Initializable {
@@ -93,6 +85,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private ControllerObjectBoardgame controllerObjectBoardgame;
     @Autowired
     private ModelBean modelBean;
+    @Autowired
+    private ControllerObjectCreateBoardgame controllerCreateBoardgame;
     private final StageManager stageManager;
 
     //Boardgame Variables
@@ -186,7 +180,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
-        if (currentUser != null && currentUser.get_class().equals("admin")){
+        if (currentUser != null && currentUser.get_class().equals("user")){
             this.newBoardgameButton.setVisible(true);
         } else {
             this.newBoardgameButton.setVisible(false);
@@ -504,8 +498,75 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         this.initPage();
     }
 
-    public void onClickNewBoardgameButton(){
+    public void onClickNewBoardgameButton() {
+        System.out.println("[INFO] Starting new boardgame creation procedure");
+        try {
+            this.newBoardgameButton.setDisable(true);
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEBOARDGAME.getFxmlFile()); // Load boardgame creation FXML
 
+            // Recupera i controlli dall'interfaccia di creazione del boardgame
+            TextField boardgameNameField = (TextField) loadViewItem.lookup("#boardgameNameTextField");
+            TextField yearField = (TextField) loadViewItem.lookup("#yearOfPublicationTextField");
+            TextField playingTimeField = (TextField) loadViewItem.lookup("#playingTimeTextField");
+            TextField minPlayersField = (TextField) loadViewItem.lookup("#minPlayersTextField");
+            TextField maxPlayersField = (TextField) loadViewItem.lookup("#maxPlayersTextField");
+            TextField minAgeField = (TextField) loadViewItem.lookup("#minAgeTextField");
+            TextField imageLinkField = (TextField) loadViewItem.lookup("#imageLinkTextField");
+            TextField thumbnailLinkField = (TextField) loadViewItem.lookup("#thumbnailLinkTextField");
+
+            Button uploadBoardgameButton = (Button) loadViewItem.lookup("#uploadButton");
+            Button cancelBoardgameButton = (Button) loadViewItem.lookup("#cancelButton");
+
+            // Imposta il comportamento del pulsante "Submit"
+            uploadBoardgameButton.setOnAction(e -> {
+                String name = boardgameNameField.getText();
+                String year = yearField.getText();
+                String playingTime = playingTimeField.getText();
+                String minPlayers = minPlayersField.getText();
+                String maxPlayers = maxPlayersField.getText();
+                String minAge = minAgeField.getText();
+                String imageLink = imageLinkField.getText();
+                String thumbnailLink = thumbnailLinkField.getText();
+
+                // Recupera le liste di categorie, designer e publisher
+                List<String> categories = controllerCreateBoardgame.getCategories();
+                List<String> designers = controllerCreateBoardgame.getDesigners();
+                List<String> publishers = controllerCreateBoardgame.getPublishers();
+
+                if (name.isEmpty() || year.isEmpty() || minPlayers.isEmpty() || maxPlayers.isEmpty()) {
+                    stageManager.showInfoMessage("INFO", "Please fill all required fields (name, year, players).");
+                }
+//                } else {
+//                    addNewBoardgame(name, year, playingTime, minPlayers, maxPlayers, minAge, imageLink,
+//                            thumbnailLink, categories, designers, publishers);
+//                    removeBoardgameInsertionPanel();
+//                }
+                System.out.println("\n" + categories + "\n" + designers +  "\n" + publishers);
+            });
+
+
+             //Imposta il comportamento del pulsante "Cancel"
+            cancelBoardgameButton.setOnAction(e -> {
+//                boolean discardBoardgame = stageManager.showDiscardBoardgameInfoMessage();
+//                if (discardBoardgame) {
+//                    removeBoardgameInsertionPanel();
+//                }
+//                newBoardgameButton.setDisable(false);
+                System.out.println("\nciao");
+            });
+
+            // Aggiunge il pannello per creare un nuovo boardgame
+            AnchorPane addBoardgameBox = new AnchorPane();
+            addBoardgameBox.setId("newBoardgameBox");
+            addBoardgameBox.getChildren().add(loadViewItem);
+
+            boardgameGridPane.getChildren().clear();
+            boardgameGridPane.add(addBoardgameBox, 0, 1); // Aggiunge il pannello alla griglia
+            GridPane.setMargin(addBoardgameBox, new Insets(5, 5, 15, 130));
+
+        } catch (Exception e) {
+            stageManager.showInfoMessage("INFO", "An error occurred while creating the boardgame. Try again in a while.");
+            System.err.println("[ERROR] onClickNewBoardgameButton raised an exception: " + e.getMessage());
+        }
     }
-
 }
