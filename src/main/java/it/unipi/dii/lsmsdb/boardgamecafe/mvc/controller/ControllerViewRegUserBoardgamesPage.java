@@ -289,6 +289,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     }
     private List<BoardgameModelMongo> getBoardgamesByChoice()
     {
+        this.newBoardgameButton.setDisable(false);
+        setDisablePreviousNextRefresh(false);
         List<BoardgameModelMongo> boardgames = null;
         this.cboxYear.setVisible(false);
         switch (this.currentlyShowing)
@@ -502,7 +504,9 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     public void onClickNewBoardgameButton() {
         System.out.println("[INFO] Starting new boardgame creation procedure");
         try {
+            this.whatBgameToShowChoiceBox.setDisable(true);
             this.newBoardgameButton.setDisable(true);
+            this.cboxYear.setDisable(true);
             setDisablePreviousNextRefresh(true);
             // Load boardgame creation FXML
             Parent loadViewItem = stageManager.
@@ -539,15 +543,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 List<String> designers = controllerCreateBoardgame.getDesigners();
                 List<String> publishers = controllerCreateBoardgame.getPublishers();
 
-//                // Verifica che i campi richiesti siano compilati
-//                if (name.isEmpty() || imageLink.isEmpty() || categories.isEmpty() || description.isEmpty()
-//                        || year.isEmpty() || minPlayers.isEmpty() || maxPlayers.isEmpty() || minAge.isEmpty())
-//                {
-//                    stageManager.showInfoMessage("Empty Fields",
-//                            "\t\t\t\tPlease fill all required fields:" +
-//                            "\n\n(Description, Name, Year, Players, Age, Image, Categories).");
-//                    return;
-//                }
 
                 // Verifica che i campi numerici siano validi
                 try {
@@ -579,14 +574,20 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             cancelBoardgameButton.setOnAction(e -> {
                 boolean discardBoardgame = stageManager.showDiscardBoardgameInfoMessage();
                 if (discardBoardgame) {
+                    this.cboxYear.setDisable(false);
+                    this.newBoardgameButton.setDisable(false);
+                    setDisablePreviousNextRefresh(false);
+                    prevNextButtonsCheck(boardgames);
+                    this.whatBgameToShowChoiceBox.setDisable(false);
                     removeBoardgameCreationPanel();
                     fillGridPane();
                     scrollSet.setVvalue(0);
+                } else {
+                    this.cboxYear.setDisable(true);
+                    this.newBoardgameButton.setDisable(true);
+                    setDisablePreviousNextRefresh(true);
+                    this.whatBgameToShowChoiceBox.setDisable(true);
                 }
-                this.newBoardgameButton.setDisable(false);
-                setDisablePreviousNextRefresh(false);
-                prevNextButtonsCheck(boardgames);
-                whatBgameToShowChoiceBox.setDisable(false);
             });
 
             // Aggiunge il pannello per creare un nuovo boardgame
