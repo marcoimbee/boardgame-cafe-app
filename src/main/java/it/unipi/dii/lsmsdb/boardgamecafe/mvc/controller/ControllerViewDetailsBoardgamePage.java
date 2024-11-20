@@ -208,10 +208,16 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
         if (!categories.isEmpty())
             this.firstCategoryLabel.setText(categories.get(0));
+        else
+            this.firstCategoryLabel.setText("");
         if (!designers.isEmpty())
             this.firstDesignerLabel.setText(designers.get(0));
+        else
+            this.firstDesignerLabel.setText("");
         if (!publishers.isEmpty())
             this.firstPublisherLabel.setText(publishers.get(0));
+        else
+            this.firstPublisherLabel.setText("");
         initComboBox(categories, designers, publishers);
     }
 
@@ -401,7 +407,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             reviewsGridPane.add(noContentsYet, 0, 0);
         }
 
-        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 265));
+        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 287));
     }
 
     @FXML
@@ -460,10 +466,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private void cleanFetchAndFill() {
         resetPage();
-        Optional<BoardgameModelMongo> postFromMongo = boardgameDBMongo.findBoardgameById(this.boardgame.getId());
-        postFromMongo.ifPresent(boardgameMongo -> boardgame = boardgameMongo);
-        boardgame.getReviews().sort(Comparator.comparing(ReviewModelMongo::getDateOfReview).reversed());
-        reviews.addAll(boardgame.getReviews());
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
     }
 
