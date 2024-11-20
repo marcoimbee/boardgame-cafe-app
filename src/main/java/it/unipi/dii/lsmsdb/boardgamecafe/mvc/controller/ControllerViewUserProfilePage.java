@@ -36,13 +36,14 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
+
 @Component
 public class ControllerViewUserProfilePage implements Initializable{
 
     public enum ContentType {
         POSTS, REVIEWS;
     }
-    //********* Buttons *********
+
     @FXML
     private Button yourProfileButton;
     @FXML
@@ -66,7 +67,6 @@ public class ControllerViewUserProfilePage implements Initializable{
     @FXML
     private Button logoutButton;
 
-    // ********** Llabels *********
     @FXML
     private Label firstNameLabel;
     @FXML
@@ -84,7 +84,6 @@ public class ControllerViewUserProfilePage implements Initializable{
     @FXML
     private Label counterReviewsLabel;
 
-    //********* Other Components *********
     @FXML
     private ImageView profileImage;
     @FXML
@@ -92,13 +91,10 @@ public class ControllerViewUserProfilePage implements Initializable{
     @FXML
     private ScrollPane scrollSet;
 
-    //********* Autowireds *********
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
     private ReviewDBMongo reviewMongoOp;
-    @Autowired
-    private UserDBMongo userMongoOp;
     @Autowired
     private UserDBNeo4j userDBNeo;
     @Autowired
@@ -108,19 +104,14 @@ public class ControllerViewUserProfilePage implements Initializable{
     @Autowired
     private ModelBean modelBean;
 
-    //Stage Manager
     private final StageManager stageManager;
 
-    //Posts/Reviews Lists
     private List<PostModelMongo> postsUser = new ArrayList<>();
     private List<ReviewModelMongo> reviewsUser = new ArrayList<>();
     private UserModelMongo openUserProfile;     // The user whose profile is open right now
-    private static boolean openUserProfileIsCurrentUsers;       // The profile we're looking at is the current user's one
 
-    //Listeners
     private PostListener postListener;
 
-    //Useful Variables
     private int totalFollowerUsers;
     private int totalFollowingUsers;
     private int totalPosts;
@@ -140,6 +131,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     public ControllerViewUserProfilePage(StageManager stageManager) {
         this.stageManager = stageManager;
     }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("[INFO] Loaded ControllerViewUserProfilePage");
@@ -167,8 +159,7 @@ public class ControllerViewUserProfilePage implements Initializable{
 
         postsUser.addAll(getPosts(openUserProfile.getUsername()));
         if (this.postsUser.isEmpty()) {
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-            loadViewMessageInfo(loadViewItem);
+            loadViewMessageInfo();
         }
         this.firstNameLabel.setText(openUserProfile.getName());
         this.lastNameLabel.setText(openUserProfile.getSurname());
@@ -200,20 +191,38 @@ public class ControllerViewUserProfilePage implements Initializable{
             }
         }
 
+        // Post details listener - used to display post details once a post is clicked on
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
+        };
+
         // Page focus listener - needed to potentially update UI when coming back from a post detail window
         gridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
             if (newScene != null) {
                 Stage stage = (Stage) newScene.getWindow();
                 stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
                     if (isNowFocused) {
-                        onFocusGained();            // Update UI after post deletion
+                        // After gaining focus for a post details window closing or a review update window closing,
+                        // UI needs to be potentially updated
+                        if (selectedContentType == ContentType.POSTS) {
+                            onRegainPageFocusAfterPostDetailsWindowClosing();
+                        } else {
+                            onRegainPageFocusAfterReviewWindowClosing();
+                        }
                     }
                 });
             }
         });
     }
 
-    public void onFocusGained() {
+    private void onRegainPageFocusAfterReviewWindowClosing() {
+        // Potentially update UI after review deletion
+
+        // Potentially update UI after review editing
+    }
+
+    private void onRegainPageFocusAfterPostDetailsWindowClosing() {
         // Potentially update UI after post deletion
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
         if (deletedPostId != null) {
@@ -222,8 +231,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
             this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
             if (retrievedPosts.isEmpty()) {
-                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-                loadViewMessageInfo(loadViewItem);
+                loadViewMessageInfo();
             } else {
                 postsUser.addAll(retrievedPosts);
                 fillGridPane(postsUser);
@@ -246,20 +254,13 @@ public class ControllerViewUserProfilePage implements Initializable{
             List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
             this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
             if (retrievedPosts.isEmpty()) {
-                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-                loadViewMessageInfo(loadViewItem);
+                loadViewMessageInfo();
             } else {
                 postsUser.addAll(retrievedPosts);
                 fillGridPane(postsUser);
                 prevNextButtonsCheck(postsUser);
             }
         }
-
-        // Potentially update UI after comment editing
-//        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.SELECTED_COMMENT);
-//        if (updatedComment != null) {
-//            loadContent();
-//        }
     }
 
 
@@ -282,6 +283,8 @@ public class ControllerViewUserProfilePage implements Initializable{
         try {
             boolean following = currentUserFollowedList.contains(selectedUser.getUsername());  // Tells if the current use is following or not the user he's looking at
             if (!following) {
+                // TODO: turn this into a UserService method
+
                 // Add new Neo4J relationship
                 userDBNeo.followUser(currentUser.getUsername(), selectedUser.getUsername());
 
@@ -298,6 +301,8 @@ public class ControllerViewUserProfilePage implements Initializable{
 
                 System.out.println("[INFO] " + currentUser.getUsername() + " followed " + selectedUser.getUsername());
             } else {
+                // TODO: turn this into a UserService method
+
                 // Remove Neo4J relationship
                 userDBNeo.unfollowUser(currentUser.getUsername(), selectedUser.getUsername());
 
@@ -336,13 +341,12 @@ public class ControllerViewUserProfilePage implements Initializable{
         scrollSet.setVvalue(0);
     }
 
-    // Metodo per caricare il contenuto in base a `selectedContentType`
     private void loadContent() {
+        // Loading content depending on selectedContentType
         if (selectedContentType.equals(ContentType.POSTS)) {
             List<?> items = getPosts(this.usernameLabel.getText());
             if (items.isEmpty()) {
-                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-                loadViewMessageInfo(loadViewItem);
+                loadViewMessageInfo();
             } else {
                 gridPane.getChildren().clear();
                 fillGridPane(items);
@@ -350,8 +354,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         } else if (selectedContentType.equals(ContentType.REVIEWS)){
             List<?> items = getReviews(this.usernameLabel.getText());
             if (items.isEmpty()) {
-                Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
-                loadViewMessageInfo(loadViewItem);
+                loadViewMessageInfo();
             } else {
                 gridPane.getChildren().clear();
                 fillGridPane(items);
@@ -408,7 +411,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         scrollSet.setVvalue(0);
     }
 
-
     private void prevNextButtonsCheck(List<?> contentList) {
         if (contentList.size() > 0) {
             if (contentList.size() < LIMIT) {
@@ -445,13 +447,22 @@ public class ControllerViewUserProfilePage implements Initializable{
         prevNextButtonsCheck(posts);
         return posts;
     }
+
     private List<ReviewModelMongo> getReviews(String username) {
         List<ReviewModelMongo> reviews = reviewMongoOp.
                 findRecentReviewsByUsername(username, LIMIT, skipCounter);
         prevNextButtonsCheck(reviews);
         return reviews;
     }
-    private void loadViewMessageInfo(Parent whatToLoad){
+
+    private void loadViewMessageInfo(){
+        Parent whatToLoad;
+        if (selectedContentType == ContentType.POSTS) {
+            whatToLoad = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
+        } else {
+            whatToLoad = stageManager.loadViewNode(FxmlView.INFOMSGREVIEWS.getFxmlFile());
+        }
+
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(whatToLoad);
 
@@ -471,8 +482,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
         this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
         if (retrievedPosts.isEmpty()) {
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());
-            loadViewMessageInfo(loadViewItem);
+            loadViewMessageInfo();
         } else {
             postsUser.addAll(retrievedPosts);
             fillGridPane(postsUser);
@@ -483,24 +493,16 @@ public class ControllerViewUserProfilePage implements Initializable{
     @FXML
     private void fillGridPane(List<?> items) {
         // Setting up what should be called upon post deletion
-        deletedPostCallback = postId -> {
-            updateUIAfterPostDeletion(postId);
-        };
+        deletedPostCallback = this::updateUIAfterPostDeletion;
 
         columnGridPane = 0; rowGridPane = 0;
         if (postsUser.size() > 1 || reviewsUser.size() > 1){
             rowGridPane++;
         }
 
-        // Logica per mostrare i dettagli del post usando StageManager sfruttando il listener sul post
-        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.showWindow(FxmlView.DETAILS_POST);
-        };
-
         try {
             for (Object item : items) {
-                Parent loadViewItem;
+                Parent loadViewItem = null;
                 AnchorPane anchorPane = new AnchorPane();
                 if (item instanceof PostModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
@@ -508,8 +510,6 @@ public class ControllerViewUserProfilePage implements Initializable{
                 } else if (item instanceof ReviewModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
                     controllerObjectReview.setData((ReviewModelMongo) item);
-                } else {
-                    continue;
                 }
 
                 anchorPane.getChildren().add(loadViewItem);
@@ -517,7 +517,6 @@ public class ControllerViewUserProfilePage implements Initializable{
                     anchorPane.setOnMouseClicked(event -> {
                         this.postListener.onClickPostListener(event, (PostModelMongo) item);});
                 }
-
 
                 if (columnGridPane == 1) {
                     columnGridPane = 0;
@@ -532,8 +531,9 @@ public class ControllerViewUserProfilePage implements Initializable{
                 gridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
                 GridPane.setMargin(anchorPane, new Insets(23,5,5,130));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("INFO", "An error occurred while retrieving content. Please try again in a while.");
+            System.err.println("[ERROR] fillGridPane@ControllerViewUserProfile.java raised an exception: " + ex.getMessage());
         }
     }
 
