@@ -392,6 +392,72 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     public void onClickAddReviewButton() {
+        try {
+            this.addReviewButton.setDisable(true);
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEREVIEW.getFxmlFile());
+
+            Slider ratingSlider = (Slider) loadViewItem.lookup("#ratingSlider");
+            TextField reviewBodyArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
+            Button submitReviewButton = (Button) loadViewItem.lookup("#submitButton");
+            Button cancelReviewButton = (Button) loadViewItem.lookup("#cancelButton");
+
+            AnchorPane addReviewBox = new AnchorPane();
+            addReviewBox.getChildren().add(loadViewItem);
+
+            if (reviews.isEmpty()) {
+                resetPage();
+                reviewsGridPane.add(addReviewBox, 0, rowGridPane);
+            } else {
+                resetPage();
+                reviewsGridPane.add(addReviewBox, 0, 0);
+            }
+            GridPane.setMargin(addReviewBox, new Insets(8, 5, 10, 90));
+
+            // Submit review button behavior
+            submitReviewButton.setOnAction(e -> {
+                String reviewText = reviewBodyArea.getText();
+                int reviewRating = (int) ratingSlider.getValue();
+
+                ReviewModelMongo newReview = new ReviewModelMongo(
+                        boardgame.getBoardgameName(),
+                        currentUser.getUsername(),
+                        reviewRating,
+                        reviewText,
+                        new Date()
+                );
+
+                boolean savedReview = serviceReview.insertReview(
+                        newReview,
+                        boardgame,
+                        currentUser
+                );
+
+                if (savedReview) {
+                    stageManager.showInfoMessage("Success", "Review added successfully");
+
+                    reviews.add(0, newReview);
+                    fillGridPane();
+
+                    this.addReviewButton.setDisable(false);
+                    modelBean.putBean(Constants.ADDED_REVIEW, newReview);
+
+                    this.counterReviewsLabel.setText(String.valueOf(reviews.size()));
+                }
+            });
+
+            // Discard review button behavior
+            cancelReviewButton.setOnAction(e -> {
+                boolean userChoice = stageManager.showDiscardReviewInfoMessage();
+                if (userChoice) {
+                    this.addReviewButton.setDisable(false);
+                    resetPage();
+                    fillGridPane();
+                }
+            });
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("ERROR", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickAddReviewButton@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
+        }
     }
 
     private void loadViewMessageInfo() {
@@ -436,7 +502,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     anchorPane.getChildren().add(loadViewItem);
 
                     // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
-                    controllerObjectReview.setData(review);
+                     // controllerObjectReview.setData(review);         // TODO: restore this!!!
 
                     //choice number of column
                     if (columnGridPane == 1) {

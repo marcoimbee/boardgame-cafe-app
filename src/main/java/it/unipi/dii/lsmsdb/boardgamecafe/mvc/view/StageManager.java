@@ -162,6 +162,15 @@ public class StageManager {
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
 
+    public boolean showDiscardReviewInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard changes? What you wrote will be lost.";
+        String okButtonString = "Discard review";
+        String backButtonString = "Return to review";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
     public boolean showDiscardCommentInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? What you wrote will be lost.";
@@ -176,6 +185,15 @@ public class StageManager {
         String message = "Are you sure you want to delete this comment?";
         String okButtonString = "Delete Comment";
         String backButtonString = "Return to Comments";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDeleteReviewInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to delete this review?";
+        String okButtonString = "Delete Review";
+        String backButtonString = "Return to Reviews";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
