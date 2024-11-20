@@ -326,9 +326,10 @@ public class ReviewDBMongo {
                 "reviews",
                 Document.class
         );
-
+        //System.out.println("Risultato " + docResult.toJson());
         Document docResult = results.getUniqueMappedResult();
-        System.out.println("Risultato " + docResult.toJson());
-        return docResult.getDouble("avgRating");
+        if (docResult != null && docResult.containsKey("avgRating"))
+            return docResult.getDouble("avgRating");
+        return null;
     }
 }

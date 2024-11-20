@@ -180,101 +180,18 @@ public class BoardgameDBMongo {
         return boardgames;
     }
 
-
-    //ToCheck
-    public List<BoardgameModelMongo> findBoardgames(String name, String param, int limit, int skip) {
-        List<BoardgameModelMongo> boardgames = new ArrayList<>();
+    public List<BoardgameModelMongo> findBoardgamesStartingWith(String namePrefix, int limit, int skip) {
+        List<BoardgameModelMongo> boardgames = null;
         try {
-            if (name.isEmpty()) {
-                boardgames.addAll(findRecentBoardgames(limit, skip));
-            } else if (param.equals("Name")){
-                boardgames.addAll(boardgameRepoMongoOp.findByNameRegexOrderByYearPublicationDesc(name,
-                        Sort.by(Sort.Direction.DESC, "yearPublished"))); }
-        } catch (Exception e) {
-            e.printStackTrace();
+            Query query = new Query(); // ricordati che la 'i', serve per ignorare minuscole e maiuscole nella ricerca
+            query.addCriteria(Criteria.where("boardgameName").regex("^" + namePrefix, "i"));
+            query.with(Sort.by(Sort.Order.desc("yearPublished"), Sort.Order.asc("_id")));
+            query.skip(skip).limit(limit);
+            boardgames = mongoOperations.find(query, BoardgameModelMongo.class);
         }
+        catch (Exception e) { e.printStackTrace(); }
         return boardgames;
     }
-
-    public Document findTopRatedBoardgamesPerYear(int minReviews, int results, int skipCounter) {
-        // Step 1: Scomponi il campo delle recensioni
-        UnwindOperation unwindOperation = unwind("reviews");
-
-        // (Stage_1) Step 2: Raggruppa per anno di rilascio e per ID del gioco
-        GroupOperation groupOperation = group("$yearPublished")
-                .avg("$reviews.rating").as("avgRating")
-                .count().as("numReviews")
-                .first("boardgameName").as("name");
-
-        // (Stage_2) Step 3: Filtra solo i giochi con un numero minimo di recensioni
-        MatchOperation matchOperation = match(new Criteria("numReviews").gte(minReviews));
-
-        // (Stage_3) Step 4: Proietta i risultati per ottenere il nome del gioco, l'anno e il numero di recensioni
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("year")
-                .andExpression("name").as("name")
-                .andExclude("_id").andExpression("numReviews").as("reviews")
-                .and(ArithmeticOperators.Round.roundValueOf("avgRating").place(1)).as("rating");
-
-        // (Stage_4) Step 5: Ordina per punteggio medio e numero di recensioni in ordine decrescente
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "year","rating", "reviews"));
-
-        SkipOperation skipOperation = skip(skipCounter);
-
-        // Step 6: Limita i risultati a un certo numero (es. i top risultati)
-        LimitOperation limitOperation = limit(results);
-
-        // Step 7: Definisci l'aggregazione completa
-        Aggregation aggregation = newAggregation(unwindOperation, groupOperation, matchOperation, projectionOperation, sortOperation, skipOperation, limitOperation);
-
-        // Step 8: Esegui l'aggregazione sulla collezione di giochi da tavolo
-        AggregationResults<BoardgameModelMongo> result = mongoOperations.aggregate(aggregation, "boardgames", BoardgameModelMongo.class);
-
-        //result.getMappedResults().stream().filter(boardgameModelMongo ->
-        //        (boardgameModelMongo.getId() != null)).forEach(resultset::add); // serve per evitare di inserire nel resultset degli oggetti che hanno
-                                                                                // tutti i campi a null quando il result non ha boardgames
-
-        return result.getRawResults();
-    }
-
-    public Document findTopRatedBoardgames(int minReviews, int results) {
-        // Step 1: Scomponi il campo delle recensioni
-        UnwindOperation unwindOperation = unwind("reviews");
-
-        // Step 2: Raggruppa per il nome del gioco (non usando l'_id)
-        GroupOperation groupOperation = group("boardgameName")  // Raggruppa per nome del gioco
-                .avg("$reviews.rating").as("avgRating")        // Calcola la media dei punteggi
-                .count().as("numReviews")                     // Conta il numero di recensioni
-                .first("yearPublished").as("year");
-
-        MatchOperation matchOperation = match(new Criteria("numReviews").gte(minReviews));
-
-        // Step 3: Proietta i risultati per ottenere il nome del gioco, il numero di recensioni e il punteggio medio
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("name")
-                .andExpression("year").as("year") // Usa _id per rappresentare il nome del gioco
-                .andExpression("numReviews").as("reviews")       // Assegna il numero di recensioni
-                .and(ArithmeticOperators.Round.roundValueOf("avgRating").place(1)).as("rating");  // Arrotonda il punteggio medio
-
-        // Step 4: Ordina per punteggio medio (rating) e in caso di parità, per numero di recensioni (reviews)
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "rating")
-                .and(Sort.by(Sort.Direction.DESC, "reviews"))
-                .and(Sort.by(Sort.Direction.DESC, "year")));
-
-        // Step 5: Limita i risultati a 1 per ottenere il gioco con il punteggio più alto
-        LimitOperation limitOperation = limit(results);
-
-        // Step 6: Definisci l'aggregazione completa
-        Aggregation aggregation = newAggregation(unwindOperation, groupOperation, matchOperation, projectionOperation, sortOperation, limitOperation);
-
-        // Step 7: Esegui l'aggregazione sulla collezione di giochi da tavolo
-        AggregationResults<BoardgameModelMongo> result = mongoOperations.aggregate(aggregation, "boardgames", BoardgameModelMongo.class);
-
-        // Step 8: Restituisci i risultati grezzi
-        return result.getRawResults();
-    }
-
-
     public Optional<BoardgameModelMongo> findBoardgameById(String boardgameId) {
         Optional<BoardgameModelMongo> boardgame = Optional.empty();
         try {

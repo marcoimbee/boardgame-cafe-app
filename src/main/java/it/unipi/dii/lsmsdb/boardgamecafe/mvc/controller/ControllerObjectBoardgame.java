@@ -48,7 +48,7 @@ public class ControllerObjectBoardgame implements Initializable {
 
     // Caching in memory per le immagini, migliora l'efficienza dell'applicazione ed evita l'eventuale
     // scaricamento multiplo di una stessa immagine dal server
-    private static final Map<String, Image> imageCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Image> imageCache = new ConcurrentHashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
@@ -62,13 +62,13 @@ public class ControllerObjectBoardgame implements Initializable {
         this.boardgameClickListener = listener;
         if (ratingForThisGame != null)
         {
-            this.lblRating.setText("Rating: " + ratingForThisGame);
+            this.lblRating.setText("Rating: " + String.format("%.1f", ratingForThisGame));
             this.lblRating.setVisible(true);
         }
         else
             this.lblRating.setVisible(false);
 
-        String imageBoardgameURL = boardgame.getImage(); // URL dell'immagine
+        String imageBoardgameURL = boardgame.getThumbnail();//.getImage(); // URL dell'immagine
         String nameBoardgameResource = boardgame.getBoardgameName();
 
         Image image = getImageFromCache(imageBoardgameURL); // Tenta di recuperare l'immagine dalla cache
@@ -81,14 +81,17 @@ public class ControllerObjectBoardgame implements Initializable {
                     URL url = uri.toURL(); // Converti a URL
                     URLConnection connection = url.openConnection();
                     connection.setRequestProperty("User-Agent", "JavaFX Application");
-
-                    System.out.println("Parrito tjread per -> " + boardgame.getBoardgameName());
-
                     try (InputStream inputStream = connection.getInputStream()) {
                         byte[] imageBytes = readFullInputStream(inputStream);
                         Image downloadedImage = new Image(new ByteArrayInputStream(imageBytes));
                         addImageToCache(imageBoardgameURL, downloadedImage); // Cache l'immagine scaricata
                         return downloadedImage;
+                    }
+                    catch (Exception e) // Se il link è sbagliato, si mostra un'immagine di default
+                    {
+                        String imagePath = getClass().getResource("/images/noImage.jpg").toExternalForm();
+                        Image image = new Image(imagePath);
+                        return image;
                     }
                 }
             };

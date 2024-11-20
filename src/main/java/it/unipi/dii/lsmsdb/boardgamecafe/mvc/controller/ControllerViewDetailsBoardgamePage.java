@@ -13,11 +13,13 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -39,6 +41,7 @@ import java.util.function.Consumer;
 @Component
 public class ControllerViewDetailsBoardgamePage implements Initializable {
 
+    private final String NO_RATING = "-----";
     //********** Buttons **********
     @FXML
     private Button editBoardgameButton;
@@ -60,6 +63,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     protected Label averageRatingLabel;
     @FXML
     protected Label boardgameNameLabel;
+    @FXML
+    private Label counterReviewsLabel;
     @FXML
     protected TextArea descriptionTextArea;
     @FXML
@@ -106,6 +111,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private ModelBean modelBean;
     @Autowired
     private ReviewService serviceReview;
+    @FXML
+    protected Tooltip tooltipLblRating;
 
     private List<ReviewModelMongo> reviews = new ArrayList<>();
     private List<String> categories = new ArrayList<>();
@@ -155,10 +162,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         prepareScene();
 
-        boardgame.getReviews().sort(Comparator.comparing(ReviewModelMongo::getDateOfReview).reversed());
-        reviews.addAll(boardgame.getReviews());
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
-
 
 //        // Page focus listener - needed to potentially update UI when coming back from a post update window
 //        reviewsGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
@@ -177,8 +182,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         if (ratingFromTop == null)
             ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
-        String ratingAsString = String.format("%.1f", ratingFromTop);
+        String ratingAsString = (ratingFromTop != null) ? String.format("%.1f", ratingFromTop) : NO_RATING;
         this.averageRatingLabel.setText(ratingAsString);
+        this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
         this.descriptionTextArea.setText(this.boardgame.getDescription());
@@ -191,9 +197,19 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.categories.addAll(boardgame.getBoardgameCategory());
         this.designers.addAll(boardgame.getBoardgameDesigner());
         this.publishers.addAll(boardgame.getBoardgamePublisher());
-        this.firstCategoryLabel.setText(categories.get(0));
-        this.firstDesignerLabel.setText(designers.get(0));
-        this.firstPublisherLabel.setText(publishers.get(0));
+
+        if (!categories.isEmpty())
+            this.firstCategoryLabel.setText(categories.get(0));
+        else
+            this.firstCategoryLabel.setText("");
+        if (!designers.isEmpty())
+            this.firstDesignerLabel.setText(designers.get(0));
+        else
+            this.firstDesignerLabel.setText("");
+        if (!publishers.isEmpty())
+            this.firstPublisherLabel.setText(publishers.get(0));
+        else
+            this.firstPublisherLabel.setText("");
         initComboBox(categories, designers, publishers);
     }
 
@@ -214,6 +230,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 byte[] imageBytes = readFullInputStream(inputStream);
                 Image downloadedImage = new Image(new ByteArrayInputStream(imageBytes));
                 this.imageBoardgame.setImage(downloadedImage);
+            }
+            catch (Exception e)
+            {
+                String imagePath = getClass().getResource("/images/noImage.jpg").toExternalForm();
+                Image image = new Image(imagePath);
+                this.imageBoardgame.setImage(image);
             }
         } catch (Exception e) {
             System.out.println("ControllerViewBoardgameDetails: download boardgame image failed");
@@ -279,7 +301,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         skipCounter += SKIP;
 
         //retrieve boardgames
-        reviews.addAll(getData(this.boardgame.getId()));
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -295,7 +317,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        reviews.addAll(getData(this.boardgame.getId()));
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -375,7 +397,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             reviewsGridPane.add(noContentsYet, 0, 0);
         }
 
-        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 265));
+        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 287));
     }
 
     @FXML
@@ -434,10 +456,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private void cleanFetchAndFill() {
         resetPage();
-        Optional<BoardgameModelMongo> postFromMongo = boardgameDBMongo.findBoardgameById(this.boardgame.getId());
-        postFromMongo.ifPresent(boardgameMongo -> boardgame = boardgameMongo);
-        boardgame.getReviews().sort(Comparator.comparing(ReviewModelMongo::getDateOfReview).reversed());
-        reviews.addAll(boardgame.getReviews());
+        reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
     }
 
@@ -493,5 +512,20 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 });
     }
 
+    public void onMouseOverLblRating(MouseEvent event)
+    {
+        if (this.averageRatingLabel.getText().equals(NO_RATING))
+        {
+            Bounds labelBounds = this.averageRatingLabel.localToScreen(this.averageRatingLabel.getBoundsInLocal());
+            double tooltipX = labelBounds.getMinX();
+            double tooltipY = labelBounds.getMaxY();
+            this.tooltipLblRating.show(this.averageRatingLabel, tooltipX, tooltipY);
+        }
+    }
+
+    public void onMouseExitedLblRating(MouseEvent event)
+    {
+        this.tooltipLblRating.hide();
+    }
 
 }
