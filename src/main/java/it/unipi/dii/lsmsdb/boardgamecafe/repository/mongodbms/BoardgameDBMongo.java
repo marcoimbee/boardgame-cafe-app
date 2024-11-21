@@ -221,23 +221,29 @@ public class BoardgameDBMongo {
         }
     }
 
-    public List<Integer> getListOfPublishedYear()
-    { // 16/11/2024 -> Da eliminare?
-        ProjectionOperation projectionOperation = project()
-                .andExpression("yearPublished").as("year");
+    public List<String> getBoardgamesCategoriest()
+    {
+        List<String> categories = new ArrayList<>();
+        try {
+            categories = mongoOperations.getCollection("boardgames")
+                    .distinct("boardgameCategory", String.class)
+                    .into(new ArrayList<>());
+            categories.removeIf(String::isEmpty);
+        }
+        catch (Exception e) { System.out.println("Exception getBoardgamesCategoriest() -> " + e.getMessage()); }
+        return categories;
+    }
 
-        GroupOperation groupOperation = group("year");
-
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.ASC, "_id")); // Ordine crescente
-
-        Aggregation aggregation = newAggregation(projectionOperation, groupOperation, sortOperation);
-
-        AggregationResults<Document> result = mongoOperations.aggregate(aggregation, "boardgames", Document.class);
-
-        List<Integer> years = result.getMappedResults().stream()
-                .map(doc -> doc.getInteger("_id"))
-                .collect(Collectors.toList());
-
-        return years;
+    public List<BoardgameModelMongo> findBoardgamesByCategory(String category, int limit, int skip)
+    {
+        List<BoardgameModelMongo> boardgameOfThisCategory = new ArrayList<>();
+        try
+        {
+            Query query = new Query(Criteria.where("boardgameCategory").is(category));
+            query.limit(limit).skip(skip);
+            boardgameOfThisCategory = mongoOperations.find(query, BoardgameModelMongo.class, "boardgames");
+        }
+        catch (Exception e) { System.out.println("Exception findBoardgamesByCategory() -> " + e.getMessage()); }
+        return boardgameOfThisCategory;
     }
 }
