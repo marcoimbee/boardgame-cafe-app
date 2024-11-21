@@ -582,7 +582,7 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     public void checkSelectedUser() {
         UserModelMongo selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
-        if (selectedUser == openUserProfile) {              // User found his profile and clicked on it while searching for a user
+        if (selectedUser.getUsername().equals(currentUser.getUsername())) {   // User found his profile and clicked on it while searching for a user
             modelBean.putBean(Constants.SELECTED_USER, null);
             resetToCurrent();
         } else {
