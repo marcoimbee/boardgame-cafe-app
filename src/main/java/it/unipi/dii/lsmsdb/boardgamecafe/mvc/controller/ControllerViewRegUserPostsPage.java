@@ -408,12 +408,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 // Creating an item for each post: displaying posts in [skipCounter, skipCounter + LIMIT - 1]
                 int startPost = skipCounter;
                 int endPost = skipCounter + LIMIT - 1;
-                if (endPost > posts.size()) {
+                if (endPost >= posts.size()) {
                     endPost = posts.size() - 1;
                     visualizedLastPost = true;
                 }
 
-                System.out.println("[DEBUG] [startPost, endPost]: [" + startPost + ", " + endPost + "]");
+                //System.out.println("[DEBUG] [post.size(), startPost, endPost]: [" + posts.size() + ", " + startPost + ", " + endPost + "]");
 
                 for (int i = startPost; i <= endPost; i++) {
                     PostModelMongo post = posts.get(i);
