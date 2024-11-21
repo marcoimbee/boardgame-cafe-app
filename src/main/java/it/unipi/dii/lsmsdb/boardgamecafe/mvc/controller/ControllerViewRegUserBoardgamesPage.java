@@ -451,6 +451,9 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     public void onMouseClickedListView()
     {
         hideListViewBoardgames();
+        this.whatBgameToShowChoiceBox.setValue(this.whatBgameToShowList.get(0));
+        this.cboxCategory.setVisible(false);
+        this.cboxYear.setVisible(false);
         String selectedSearchTag = listViewBoardgames.getSelectionModel().getSelectedItem().toString();
         textFieldSearch.setText(selectedSearchTag);
         handleChoiceBoardgame(selectedSearchTag);
