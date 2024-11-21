@@ -7,6 +7,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
@@ -107,6 +108,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
+    private BoardgameService serviceBoardgame;
+    @Autowired
     private ControllerObjectReview controllerObjectReview;
     @Autowired
     private ModelBean modelBean;
@@ -157,7 +160,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
 
         // Setting up buttons depending on if the current user is who created the post that's being visualized
-        if (!currentUser.get_class().equals("admin")) {
+        if (!currentUser.get_class().equals("user")) {
             editBoardgameButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
@@ -285,7 +288,27 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 //    }
 
     public void onClickDeleteButton() {
-
+        boolean userChoice = stageManager.showDeleteBoardgameInfoMessage();
+        if (!userChoice) {
+            return;
+        }
+        try {
+            if (serviceBoardgame.deleteBoardgame(this.boardgame)){
+                modelBean.putBean(Constants.DELETED_BOARDGAME, this.boardgame.getBoardgameName());
+                stageManager.closeStage();
+                stageManager.showInfoMessage("Delete Operation",
+                        "The Boardgame Was Successfully Deleted From BoardGame-Cafè App.");
+            } else {
+                modelBean.putBean(Constants.SELECTED_BOARDGAME, null);
+                stageManager.closeStage();
+                stageManager.showInfoMessage("Delete Operation",
+                        "An Unexpected Error Occurred While Deleting The Boardgame From BoardGame-Café_App." +
+                        "\n\n\t\t\tPlease contact the administrator.");
+            }
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("Exception Info", "Something went wrong. Try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
+        }
     }
 
     public void onClickEditBoardgameButton() {
