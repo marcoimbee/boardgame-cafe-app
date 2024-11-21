@@ -171,6 +171,16 @@ public class StageManager {
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
 
+    public boolean showDiscardBoardgameInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard changes? What you wrote will be lost.";
+        String okButtonString = "Discard Boardgame Creation";
+        String backButtonString = "Return To Boardgame Creation";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+
     public boolean showDeleteCommentInfoMessage() {
         String title = "ATTENTION";
         String message = "Are you sure you want to delete this comment?";

@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 public class ControllerObjectCreateComment {
 
     @FXML
-    private Button cacnelButton;
-    @FXML
     protected Label usernameLabel;
     @FXML
     protected Label timestampLabel;

@@ -111,7 +111,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 1;
-    private int skipCounter = 0;            // Ho many times the user clicked on the 'Next' button
+    private int skipCounter = 0;            // How many times the user clicked on the 'Next' button
     private final static int SKIP = 10;     // How many posts to skip each time
     private final static int LIMIT = 10;    // How many posts to show in each page
 
@@ -155,6 +155,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
 
+        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
+
         // Choice box init
         whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
         whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
@@ -181,7 +183,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
         selectedSearchTag = null;
 
-        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
+        // Post details listener - used to display post details once a post is clicked on
+        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            modelBean.putBean(Constants.SELECTED_POST, post);
+            stageManager.showWindow(FxmlView.DETAILS_POST);
+        };
 
         // Page focus listener - needed to potentially update UI when coming back from a post detail window
         postGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
@@ -199,11 +205,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
         // Update UI after potentially having deleted a post
-        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);          // TODO: fix this
+        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
         if (deletedPostId != null) {
             modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
             posts.removeIf(post -> post.getId().equals(deletedPostId));
-            fillGridPane();
+            onSelectChoiceBoxOption();
         }
 
         // Update UI after potentially having added a comment to a post
@@ -374,12 +380,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 387));
     }
 
-    private void updateUIAfterPostDeletion(String postId) {         // TODO: fix this
+    private void updateUIAfterPostDeletion(String postId) {
         posts.removeIf(post -> post.getId().equals(postId));
         if (posts.isEmpty()) {
             loadViewMessageInfo();
         } else {
-            fillGridPane();
+            onSelectChoiceBoxOption();          // Reloading page
         }
     }
 
@@ -393,11 +399,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             rowGridPane++;
         }
 
-        // Logica per mostrare i dettagli del post usando StageManager
-        postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
-            modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.showWindow(FxmlView.DETAILS_POST);
-        };
         postGridPane.getChildren().clear();         // Removing old posts
 
         try {
