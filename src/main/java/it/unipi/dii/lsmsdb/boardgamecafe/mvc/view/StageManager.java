@@ -153,6 +153,15 @@ public class StageManager {
         window.show();
     }
 
+
+    public boolean showDeleteBoardgameInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are You Sure You Want To Delete This Boardgame from BoardGame-Cafè_App Collection?";
+        String okButtonString = "Delete Boardgame";
+        String backButtonString = "Return Boardgames Page";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
     public boolean showUpdatePostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? Your updates will be lost.";
