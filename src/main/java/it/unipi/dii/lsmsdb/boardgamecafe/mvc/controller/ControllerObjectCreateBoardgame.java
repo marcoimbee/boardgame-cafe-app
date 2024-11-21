@@ -108,7 +108,6 @@ public class ControllerObjectCreateBoardgame {
         removePublisherButton.setOnAction(event -> onClickRemovePublisherButton());
     }
 
-
     public void onClickAddCategoryButton() {
         String category = categoryTextField.getText().trim();
         if (!category.isEmpty()) {
@@ -119,6 +118,7 @@ public class ControllerObjectCreateBoardgame {
             stageManager.showInfoMessage("INFO", "Category field cannot be empty.");
         }
     }
+
     public void onClickRemoveCategoryButton() {
         String selectedCategory = categoriesListView.getSelectionModel().getSelectedItem();
         if (selectedCategory != null) {
@@ -139,6 +139,7 @@ public class ControllerObjectCreateBoardgame {
             stageManager.showInfoMessage("INFO", "Designer field cannot be empty.");
         }
     }
+
     public void onClickRemoveDesignerButton() {
         String selectedDesigner = designersListView.getSelectionModel().getSelectedItem();
         if (selectedDesigner != null) {
@@ -159,6 +160,7 @@ public class ControllerObjectCreateBoardgame {
             stageManager.showInfoMessage("INFO", "Publisher field cannot be empty.");
         }
     }
+
     public void onClickRemovePublisherButton() {
         String selectedPublisher = publishersListView.getSelectionModel().getSelectedItem();
         if (selectedPublisher != null) {
@@ -168,9 +170,6 @@ public class ControllerObjectCreateBoardgame {
             stageManager.showInfoMessage("INFO", "Please select a publisher to remove.");
         }
     }
-
-    public void onClickCancelButton(){};
-    public void onClickUploadButton(){};
 
     private void addNumericValidation(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -206,6 +205,8 @@ public class ControllerObjectCreateBoardgame {
         alert.showAndWait();
     }
 
+    public void onClickCancelButton(){};
+    public void onClickUploadButton(){};
 
     // Metodo per ottenere le liste
     public List<String> getCategories() {
