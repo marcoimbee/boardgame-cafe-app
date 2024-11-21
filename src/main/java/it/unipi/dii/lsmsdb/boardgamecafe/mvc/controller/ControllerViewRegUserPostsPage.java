@@ -283,15 +283,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         stageManager.closeStageButton(this.boardgamesCollectionButton);
     }
 
-    public void onClickSearch() {
-        currentlyShowing = PostsToFetch.SEARCH_RESULTS;
-        resetPageVars();
-        List<PostModelMongo> retrievedPosts = fetchPosts(selectedSearchTag);
-        posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
-        fillGridPane();
-        prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
-    }
-
     public void onClickClearField() {
         this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown posts
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
@@ -673,5 +664,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         selectedSearchTag = searchResultsList.getSelectionModel().getSelectedItem().toString();
         textFieldSearch.setText(selectedSearchTag);
+
+        searchPosts();
+    }
+
+    public void searchPosts() {
+        currentlyShowing = PostsToFetch.SEARCH_RESULTS;
+        resetPageVars();
+        List<PostModelMongo> retrievedPosts = fetchPosts(selectedSearchTag);
+        posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
+        fillGridPane();
+        prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
     }
 }

@@ -48,8 +48,6 @@ public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     private Button previousButton;
     @FXML
-    private Button searchButton;
-    @FXML
     private Button clearFieldButton;
     @FXML
     private Button searchUserButton;
@@ -209,15 +207,6 @@ public class ControllerViewSearchUserPage implements Initializable {
     public void onClickPostsFeedButton() {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.postsFeedButton);
-    }
-
-    public void onClickSearch() {
-        currentlyShowing = UsersToFetch.SEARCH_RESULTS;
-        resetPageVars();
-        List<UserModelMongo> retrievedUsers = fetchUsers(selectedSearchUser);
-        users.addAll(retrievedUsers);            // Add new LIMIT users (at most)
-        fillGridPane();
-        prevNextButtonsCheck(retrievedUsers.size());            // Initialize buttons
     }
 
     public void onClickClearField() {
@@ -465,5 +454,16 @@ public class ControllerViewSearchUserPage implements Initializable {
 
         selectedSearchUser = searchResultsList.getSelectionModel().getSelectedItem().toString();
         textFieldSearch.setText(selectedSearchUser);
+
+        searchUsers();
+    }
+
+    private void searchUsers() {
+        currentlyShowing = UsersToFetch.SEARCH_RESULTS;
+        resetPageVars();
+        List<UserModelMongo> retrievedUsers = fetchUsers(selectedSearchUser);
+        users.addAll(retrievedUsers);            // Add new LIMIT users (at most)
+        fillGridPane();
+        prevNextButtonsCheck(retrievedUsers.size());            // Initialize buttons
     }
 }
