@@ -83,7 +83,7 @@ public class ControllerObjectPost {
         this.post = post;
         this.postListener = listener;
 
-        this.likeButton.setDisable(true);
+        // this.likeButton.setDisable(true); Da eliminare a fine test
         this.commentButton.setDisable(true);
 
         String creationDate = post.getTimestamp().toString();
@@ -123,8 +123,10 @@ public class ControllerObjectPost {
         String username = "CurrentUsername"; // Ottieni l'username attuale, ad esempio dal contesto dell'app
         String postId = "CurrentPostId"; // Ottieni l'ID del post attuale
 
+        System.out.println("click like or dislike");
+
         // Effettua l'operazione di like/dislike
-        postService.likeOrDislikePost(username, postId);
+        //postService.likeOrDislikePost(username, postId);
 
         // Aggiorna il conteggio dei like
         // updateLikesLabel(postId);
