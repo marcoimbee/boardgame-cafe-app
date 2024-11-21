@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -93,6 +94,11 @@ public class ControllerObjectCreateBoardgame {
         addNumericValidation(maxPlayersTextField);
         addNumericValidation(minAgeTextField);
 
+        // Valida e formatta i campi di input per categorie, designer e publisher
+        setupTextFieldValidation(categoryTextField);
+        setupTextFieldValidation(designerTextField);
+        setupTextFieldValidation(publisherTextField);
+
         // Collega i pulsanti ai metodi
         addCategoryButton.setOnAction(event -> onClickAddCategoryButton());
         removeCategoryButton.setOnAction(event -> onClickRemoveCategoryButton());
@@ -172,6 +178,32 @@ public class ControllerObjectCreateBoardgame {
                 textField.setText(oldValue); // Ripristina il valore precedente
             }
         });
+    }
+
+    private void setupTextFieldValidation(TextField textField) {
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("^[a-zA-Z]*$")) {
+                textField.setText(oldValue); // Ripristina il valore precedente
+                showErrorMessage("Invalid input!", "Only a single string with letters is allowed.");
+            } else if (!newValue.isEmpty()) {
+                textField.setText(capitalizeFirstLetter(newValue)); // Capitalizza la prima lettera
+            }
+        });
+    }
+
+    private String capitalizeFirstLetter(String input) {
+        if (input == null || input.isEmpty()) {
+            return input; // Ritorna il testo com'è se è vuoto o nullo
+        }
+        return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
+    }
+
+    private void showErrorMessage(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 
