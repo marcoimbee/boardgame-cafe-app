@@ -113,18 +113,16 @@ public class ControllerViewUserProfilePage implements Initializable{
     private PostListener postListener;
 
     private int totalFollowerUsers;
-    private int totalFollowingUsers;
-    private int totalPosts;
     private int columnGridPane = 0;
     private int rowGridPane = 1;
     private int skipCounter = 0;
-    private final static int SKIP = 10; //how many posts to skip per time
-    private final static int LIMIT = 10; //how many posts to show for each page
-    private ContentType selectedContentType; // variabile di stato per tipo di contenuto
+    private final static int SKIP = 10;
+    private final static int LIMIT = 10;
+    private ContentType selectedContentType;
     private static List<String> currentUserFollowedList;
     private static UserModelMongo currentUser;
     private static UserModelMongo selectedUser;
-    private Consumer<String> deletedPostCallback;
+    private Consumer<String> deletedContentCallback;
 
     @Autowired
     @Lazy
@@ -152,12 +150,12 @@ public class ControllerViewUserProfilePage implements Initializable{
             this.followButton.setDisable(true);
         }
 
-        List<PostModelMongo> fullPosts = postDBMongo.findByUsername(openUserProfile.getUsername());
-        totalPosts = fullPosts.size();
-        totalFollowerUsers = userDBNeo.getCountFollowers(openUserProfile.getUsername());
-        totalFollowingUsers = userDBNeo.getCountFollowing(openUserProfile.getUsername());
+        int postsCount = postDBMongo.findByUsername(openUserProfile.getUsername()).size();
+        int totalFollowers = userDBNeo.getCountFollowers(openUserProfile.getUsername());
+        int totalFollowing = userDBNeo.getCountFollowing(openUserProfile.getUsername());
+        int reviewsCount = reviewMongoOp.findReviewByUsername(openUserProfile.getUsername()).size();
 
-        postsUser.addAll(getPosts(openUserProfile.getUsername()));
+        postsUser.addAll(getPosts(openUserProfile.getUsername()));          // TODO: CHECK, maybe use data from above
         if (this.postsUser.isEmpty()) {
             loadViewMessageInfo();
         }
@@ -165,10 +163,10 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.lastNameLabel.setText(openUserProfile.getSurname());
         this.nationalityLabel.setText(openUserProfile.getNationality());
         this.usernameLabel.setText(openUserProfile.getUsername());
-        this.followerLabel.setText(String.valueOf(totalFollowerUsers));
-        this.followingLabel.setText(String.valueOf(totalFollowingUsers));
-        this.counterPostsLabel.setText(String.valueOf(totalPosts));
-        this.counterReviewsLabel.setText(String.valueOf(openUserProfile.getReviews().size()));
+        this.followerLabel.setText(String.valueOf(totalFollowers));
+        this.followingLabel.setText(String.valueOf(totalFollowing));
+        this.counterPostsLabel.setText(String.valueOf(postsCount));
+        this.counterReviewsLabel.setText(String.valueOf(reviewsCount));
         Image image = new Image(Objects.requireNonNull(getClass().
                                 getResource("/user.png")).toExternalForm());
         this.profileImage.setImage(image);
@@ -197,6 +195,9 @@ public class ControllerViewUserProfilePage implements Initializable{
             stageManager.showWindow(FxmlView.DETAILS_POST);
         };
 
+        // Setting up what should be called upon post or review deletion
+        deletedContentCallback = this::updateUIAfterPostOrReviewDeletion;
+
         // Page focus listener - needed to potentially update UI when coming back from a post detail window
         gridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
             if (newScene != null) {
@@ -208,7 +209,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                         if (selectedContentType == ContentType.POSTS) {
                             onRegainPageFocusAfterPostDetailsWindowClosing();
                         } else {
-                            onRegainPageFocusAfterReviewWindowClosing();
+                            onRegainPageFocusAfterEditReviewWindowClosing();
                         }
                     }
                 });
@@ -216,13 +217,25 @@ public class ControllerViewUserProfilePage implements Initializable{
         });
     }
 
-    private void onRegainPageFocusAfterReviewWindowClosing() {
-        // Potentially update UI after review deletion
-
+    private void onRegainPageFocusAfterEditReviewWindowClosing() {
         // Potentially update UI after review editing
+        ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
+        if (updatedReview != null) {
+            modelBean.putBean(Constants.UPDATED_REVIEW, null);
+            reviewsUser.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            fillGridPane(reviewsUser);
+        }
+
+        // No need to handle review deletion here, as that operation is only viable by using the 'Delete' button on the review card
     }
 
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
+        // Once regaining focus on profile page after a post details page has been closed, the user could have:
+        //      Deleted the entire post
+        //      Edited the post
+        //      Added a comment
+        //      Deleted a comment
+
         // Potentially update UI after post deletion
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
         if (deletedPostId != null) {
@@ -246,19 +259,20 @@ public class ControllerViewUserProfilePage implements Initializable{
             fillGridPane(postsUser);
         }
 
+        // Update UI after potentially having added a comment to a post
+        CommentModelMongo addedComment = (CommentModelMongo) modelBean.getBean(Constants.ADDED_COMMENT);
+        if (addedComment != null) {
+            modelBean.putBean(Constants.ADDED_COMMENT, null);
+            fillGridPane(postsUser);
+        }
+
         // Potentially update UI after comment deletion under a post
         CommentModelMongo deletedComment = (CommentModelMongo) modelBean.getBean(Constants.DELETED_COMMENT);
         if (deletedComment != null) {
             modelBean.putBean(Constants.DELETED_COMMENT, null);
-            resetPage();
-            List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
-            this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
-            if (retrievedPosts.isEmpty()) {
-                loadViewMessageInfo();
-            } else {
-                postsUser.addAll(retrievedPosts);
+            for (PostModelMongo post : postsUser) {
+                post.getComments().remove(deletedComment);
                 fillGridPane(postsUser);
-                prevNextButtonsCheck(postsUser);
             }
         }
     }
@@ -283,8 +297,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         try {
             boolean following = currentUserFollowedList.contains(selectedUser.getUsername());  // Tells if the current use is following or not the user he's looking at
             if (!following) {
-                // TODO: turn this into a UserService method
-
                 // Add new Neo4J relationship
                 userDBNeo.followUser(currentUser.getUsername(), selectedUser.getUsername());
 
@@ -301,8 +313,6 @@ public class ControllerViewUserProfilePage implements Initializable{
 
                 System.out.println("[INFO] " + currentUser.getUsername() + " followed " + selectedUser.getUsername());
             } else {
-                // TODO: turn this into a UserService method
-
                 // Remove Neo4J relationship
                 userDBNeo.unfollowUser(currentUser.getUsername(), selectedUser.getUsername());
 
@@ -477,27 +487,54 @@ public class ControllerViewUserProfilePage implements Initializable{
         GridPane.setMargin(noContentsYet, new Insets(100, 200, 200, 331));
     }
 
-    private void updateUIAfterPostDeletion(String postId) {
+    // This method gets called whenever the author decides to delete a comment or a
+    // review by using the 'Delete' button in the comment/review card
+    private void updateUIAfterPostOrReviewDeletion(String contentId) {
         resetPage();
-        List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
-        this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
-        if (retrievedPosts.isEmpty()) {
-            loadViewMessageInfo();
-        } else {
-            postsUser.addAll(retrievedPosts);
-            fillGridPane(postsUser);
-            prevNextButtonsCheck(postsUser);
+        switch (selectedContentType) {
+            case POSTS:
+                List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+                this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
+                if (retrievedPosts.isEmpty()) {
+                    loadViewMessageInfo();
+                } else {
+                    postsUser.addAll(retrievedPosts);
+                    fillGridPane(postsUser);
+                    prevNextButtonsCheck(postsUser);
+                }
+                break;
+            case REVIEWS:
+                List<ReviewModelMongo> retrievedReviews = getReviews(currentUser.getUsername());
+                this.counterReviewsLabel.setText(String.valueOf(retrievedReviews.size()));
+                if (retrievedReviews.isEmpty()) {
+                    loadViewMessageInfo();
+                } else {
+                    reviewsUser.addAll(retrievedReviews);
+                    fillGridPane(reviewsUser);
+                    prevNextButtonsCheck(reviewsUser);
+                }
+                break;
         }
     }
 
     @FXML
     private void fillGridPane(List<?> items) {
-        // Setting up what should be called upon post deletion
-        deletedPostCallback = this::updateUIAfterPostDeletion;
-
-        columnGridPane = 0; rowGridPane = 0;
-        if (postsUser.size() > 1 || reviewsUser.size() > 1){
-            rowGridPane++;
+        if (selectedContentType == ContentType.POSTS) {
+            if (postsUser.size() == 1) {
+                columnGridPane = 0;
+                rowGridPane = 0;
+            } else {
+                columnGridPane = 0;
+                rowGridPane = 1;
+            }
+        } else {
+            if (reviewsUser.size() == 1) {
+                columnGridPane = 0;
+                rowGridPane = 0;
+            } else {
+                columnGridPane = 0;
+                rowGridPane = 1;
+            }
         }
 
         try {
@@ -506,10 +543,10 @@ public class ControllerViewUserProfilePage implements Initializable{
                 AnchorPane anchorPane = new AnchorPane();
                 if (item instanceof PostModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
-                    controllerObjectPost.setData((PostModelMongo) item, postListener, deletedPostCallback);
+                    controllerObjectPost.setData((PostModelMongo) item, postListener, deletedContentCallback);
                 } else if (item instanceof ReviewModelMongo) {
                     loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
-                    controllerObjectReview.setData((ReviewModelMongo) item);
+                    controllerObjectReview.setData((ReviewModelMongo) item, deletedContentCallback);
                 }
 
                 anchorPane.getChildren().add(loadViewItem);

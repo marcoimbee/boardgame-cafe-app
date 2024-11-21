@@ -124,6 +124,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private static UserModelMongo currentUser;
 
+    private static int totalReviewsCounter;
+
     //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
@@ -140,7 +142,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Lazy
     private StageManager stageManager;
 
-    private Consumer<String> deletedCommentCallback;
+    private Consumer<String> deletedReviewCallback;
 
     public ControllerViewDetailsBoardgamePage() {
     }
@@ -161,22 +163,27 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             editBoardgameButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
-        prepareScene();
 
+        totalReviewsCounter = boardgame.getReviews().size();
+        System.out.println("[INFO] Found " + totalReviewsCounter + " reviews for '" + boardgame.getBoardgameName() + "'");
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
+        prepareScene();
         fillGridPane();
 
-//        // Page focus listener - needed to potentially update UI when coming back from a post update window
-//        reviewsGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
-//            if (newScene != null) {
-//                Stage stage = (Stage) newScene.getWindow();
-//                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
-//                    if (isNowFocused) {
-//                        onFocusGained();            // Update UI after post updates
-//                    }
-//                });
-//            }
-//        });
+        // Setting up what should be called upon review deletion using the delete review button
+        deletedReviewCallback = this::updateUIAfterReviewDeletion;
+
+        // Page focus listener - needed to potentially update UI when coming back from a review update window
+        reviewsGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        onFocusGained();            // Update UI after review updates
+                    }
+                });
+            }
+        });
     }
 
     private void prepareScene() {
@@ -191,7 +198,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             this.averageRatingLabel.setTooltip(null);
 
         this.averageRatingLabel.setText(ratingAsString);
-        this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
+        this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
         this.descriptionTextArea.setText(this.boardgame.getDescription()
@@ -226,7 +233,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (imageInCache != null)
         {
             this.imageBoardgame.setImage(imageInCache);
-            System.out.println("Trovaya in cache");
+            System.out.println("[INFO] Image loaded from cache.");
             return;
         }
         try {
@@ -261,42 +268,37 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         return byteArrayOutputStream.toByteArray();
     }
 
-//    public void onFocusGained() {
-//        BoardgameModelMongo updatedBoardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
-//        this.tagBoardgameLabel.setText(updatedPost.getTag());
-//        this.postTitleTextArea.setText(updatedPost.getTitle());
-//        this.postBodyTextArea.setText(updatedPost.getText());
-//
-//        // Potentially update a comment
-//        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.UPDATED_COMMENT);
-//        if (updatedComment != null) {
-//            modelBean.putBean(Constants.UPDATED_COMMENT, null);
-//
-//            reviews.replaceAll(comment -> comment.getId().equals(updatedComment.getId()) ? updatedComment : comment);
-//            fillGridPane();
-//        }
-//    }
+    private void onFocusGained() {
+        // Potentially update a review
+        ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
+        if (updatedReview != null) {
+            modelBean.putBean(Constants.UPDATED_REVIEW, null);
+            reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            fillGridPane();
+        }
+    }
 
-    // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
-//    public void updateUIAfterCommentDeletion(String deletedCommentId) {
-//        reviews.removeIf(comment -> comment.getId().equals(deletedCommentId));
-//        this.counterCommentsLabel.setText(String.valueOf(reviews.size()));
-//        fillGridPane();
-//    }
+    // Called whenever the author user of a review decides to delete that review. This method updates the review list and updates UI
+    public void updateUIAfterReviewDeletion(String deletedReviewId) {
+        reviews.removeIf(review -> review.getId().equals(deletedReviewId));
+        totalReviewsCounter--;
+        this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
+        fillGridPane();
+    }
 
     public void onClickDeleteButton() {
-
+        // TODO: delete boardgame (admin only action)
     }
 
     public void onClickEditBoardgameButton() {
 //        stageManager.showWindow(FxmlView.EDIT_POST);            // Do not close underlying page, just show the little post editing window
     }
 
-    public void onClickRefreshButton(ActionEvent event) {
+    public void onClickRefreshButton() {
         cleanFetchAndFill();
     }
 
-    public void onClickCloseButton(ActionEvent event) {
+    public void onClickCloseButton() {
         stageManager.closeStageButton(this.closeButton);
     }
 
@@ -377,18 +379,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private List<ReviewModelMongo> getData(String boardgameName) {
-
         List<ReviewModelMongo> reviews = reviewMongoOp.
                 findRecentReviewsByBoardgame(boardgameName, LIMIT, skipCounter);
         prevNextButtonsCheck(reviews);
 
         return reviews;
-    }
-
-    void setGridPaneColumnAndRow() {
-
-        columnGridPane = 0;
-        rowGridPane = 1;
     }
 
     public void onClickAddReviewButton() {
@@ -436,12 +431,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     stageManager.showInfoMessage("Success", "Review added successfully");
 
                     reviews.add(0, newReview);
-                    fillGridPane();
+                    cleanFetchAndFill();
 
                     this.addReviewButton.setDisable(false);
                     modelBean.putBean(Constants.ADDED_REVIEW, newReview);
 
-                    this.counterReviewsLabel.setText(String.valueOf(reviews.size()));
+                    totalReviewsCounter++;
+                    this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
                 }
             });
 
@@ -450,8 +446,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 boolean userChoice = stageManager.showDiscardReviewInfoMessage();
                 if (userChoice) {
                     this.addReviewButton.setDisable(false);
-                    resetPage();
-                    fillGridPane();
+                    cleanFetchAndFill();
                 }
             });
         } catch (Exception ex) {
@@ -478,17 +473,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     @FXML
     void fillGridPane() {
-        // Setting up what method should be called upon comment deletion
-        //deletedCommentCallback = this::updateUIAfterCommentDeletion;
-
         reviewsGridPane.getChildren().clear();
 
-        //per mettere un solo elemento correttamente nel gridpane
+        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
         if (reviews.size() == 1) {
-            columnGridPane = 0;
             rowGridPane = 0;
         } else {
-            setGridPaneColumnAndRow();
+            rowGridPane = 1;
         }
 
         try {
@@ -501,8 +492,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     AnchorPane anchorPane = new AnchorPane();
                     anchorPane.getChildren().add(loadViewItem);
 
-                    // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
-                     // controllerObjectReview.setData(review);         // TODO: restore this!!!
+                    // Setting review data - including callbacks for actions to be taken upon review deletion
+                    controllerObjectReview.setData(review, deletedReviewCallback);
 
                     //choice number of column
                     if (columnGridPane == 1) {
