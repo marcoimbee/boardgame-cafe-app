@@ -219,11 +219,9 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     private void onRegainPageFocusAfterEditReviewWindowClosing() {
-        System.out.println("[DEBUG] reviews: " + reviewsUser.size());
         // Potentially update UI after review editing
         ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
         if (updatedReview != null) {
-            System.out.println("[DEBUG] updated review: " + updatedReview);
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviewsUser.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
             fillGridPane(reviewsUser);
