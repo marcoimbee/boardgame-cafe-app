@@ -55,8 +55,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Button previousButton;
     @FXML
-    private Button searchButton;
-    @FXML
     private Button newPostButton;
     @FXML
     private Button yourProfileButton;
@@ -185,6 +183,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         // Post details listener - used to display post details once a post is clicked on
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
+            searchResultsList.setVisible(false);
             modelBean.putBean(Constants.SELECTED_POST, post);
             stageManager.showWindow(FxmlView.DETAILS_POST);
         };
@@ -283,7 +282,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         stageManager.closeStageButton(this.boardgamesCollectionButton);
     }
 
-    public void onClickSearch() {
+    public void startSearch() {
+        searchResultsList.setVisible(false);
         currentlyShowing = PostsToFetch.SEARCH_RESULTS;
         resetPageVars();
         List<PostModelMongo> retrievedPosts = fetchPosts(selectedSearchTag);
@@ -293,6 +293,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickClearField() {
+        searchResultsList.setVisible(false);
         this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown posts
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
         whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));
@@ -391,6 +392,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     @FXML
     void fillGridPane() {
+        searchResultsList.setVisible(false);
         if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
             columnGridPane = 0;
             rowGridPane = 0;
@@ -479,7 +481,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickSearchUserButton() {
         stageManager.showWindow(FxmlView.SEARCHUSER);
-        stageManager.closeStageButton(this.searchButton);
+        stageManager.closeStageButton(this.searchUserButton);
     }
 
     public void onClickNewPostButton() {
@@ -670,8 +672,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     public void onMouseClickedListView() {
         searchResultsList.setVisible(false);
-
         selectedSearchTag = searchResultsList.getSelectionModel().getSelectedItem().toString();
         textFieldSearch.setText(selectedSearchTag);
+        startSearch();
+    }
+
+    public void onClickAnchorPane()
+    {
+        this.searchResultsList.setVisible(false);
     }
 }
