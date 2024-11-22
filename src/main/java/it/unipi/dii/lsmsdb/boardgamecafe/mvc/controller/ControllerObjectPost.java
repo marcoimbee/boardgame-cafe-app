@@ -115,6 +115,13 @@ public class ControllerObjectPost {
             }
         }
 
+        if (currentUser == null)
+        {
+            likeButton.setDisable(true);
+            deleteButton.setDisable(true);
+            return;
+        }
+
         this.deletedPostCallback = deletedPostCallback;
         updateLikesLabel(null, post);
         setTextLikeButton(post.getId(), currentUser.getUsername(), null, null);
