@@ -178,7 +178,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
-        System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
+        //System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
         selectedSearchTag = null;
 
         // Post details listener - used to display post details once a post is clicked on
