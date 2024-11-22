@@ -121,7 +121,7 @@
                         <FontAwesomeIconView fill="WHITE" glyphName="EDIT" />
                      </graphic>
                   </Button>
-                  <ComboBox fx:id="cboxCategory" layoutX="732.0" layoutY="81.0" prefHeight="25.0" prefWidth="176.0" promptText="Choice the category" stylesheets="@css/style.css" visible="false" />
+                  <ComboBox fx:id="cboxCategory" layoutX="732.0" layoutY="81.0" prefHeight="25.0" prefWidth="176.0" promptText="Choose the category" stylesheets="@css/style.css" visible="false" />
                </children>
                <padding>
                   <Insets bottom="30.0" />
