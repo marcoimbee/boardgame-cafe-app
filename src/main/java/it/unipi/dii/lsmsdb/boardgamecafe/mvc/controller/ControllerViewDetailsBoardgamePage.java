@@ -112,6 +112,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Autowired
     private ControllerObjectReview controllerObjectReview;
     @Autowired
+    private ControllerObjectReviewBlankBody controllerObjectReviewBlankBody;
+    @Autowired
     private ModelBean modelBean;
     @Autowired
     private ReviewService serviceReview;
@@ -275,6 +277,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void onFocusGained() {
+        System.out.println("[DEBUG] reviews size: " + reviews.size());
         // Potentially update a review
         ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
         if (updatedReview != null) {
@@ -526,15 +529,21 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private AnchorPane createReviewViewNode(ReviewModelMongo review) {
-        Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
+        Parent loadViewItem;
+        if (review.getBody().isEmpty()) {
+            loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEWBLANKBODY.getFxmlFile());
+            // Setting review data - including callbacks for actions to be taken upon review deletion
+            controllerObjectReviewBlankBody.setData(review, deletedReviewCallback);
+        } else {
+            loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
+            // Setting review data - including callbacks for actions to be taken upon review deletion
+            controllerObjectReview.setData(review, deletedReviewCallback);
+        }
         AnchorPane anchorPane = new AnchorPane();
         anchorPane.getChildren().add(loadViewItem);
 
         // Setting up what should be called upon review deletion using the delete review button
         deletedReviewCallback = this::updateUIAfterReviewDeletion;
-
-        // Setting review data - including callbacks for actions to be taken upon review deletion
-        controllerObjectReview.setData(review, deletedReviewCallback);
 
         return anchorPane;
     }

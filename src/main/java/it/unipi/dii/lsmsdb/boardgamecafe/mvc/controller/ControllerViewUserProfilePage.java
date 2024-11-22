@@ -10,7 +10,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
@@ -101,6 +100,8 @@ public class ControllerViewUserProfilePage implements Initializable{
     private ControllerObjectPost controllerObjectPost;
     @Autowired
     private ControllerObjectReview controllerObjectReview;
+    @Autowired
+    private ControllerObjectReviewBlankBody controllerObjectReviewBlankBody;
     @Autowired
     private ModelBean modelBean;
 
@@ -218,9 +219,11 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     private void onRegainPageFocusAfterEditReviewWindowClosing() {
+        System.out.println("[DEBUG] reviews: " + reviewsUser.size());
         // Potentially update UI after review editing
         ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
         if (updatedReview != null) {
+            System.out.println("[DEBUG] updated review: " + updatedReview);
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviewsUser.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
             fillGridPane(reviewsUser);
@@ -358,6 +361,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             if (items.isEmpty()) {
                 loadViewMessageInfo();
             } else {
+                postsUser.addAll((Collection<? extends PostModelMongo>) items);
                 gridPane.getChildren().clear();
                 fillGridPane(items);
             }
@@ -366,6 +370,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             if (items.isEmpty()) {
                 loadViewMessageInfo();
             } else {
+                reviewsUser.addAll((Collection<? extends ReviewModelMongo>) items);
                 gridPane.getChildren().clear();
                 fillGridPane(items);
             }
@@ -520,58 +525,75 @@ public class ControllerViewUserProfilePage implements Initializable{
     @FXML
     private void fillGridPane(List<?> items) {
         if (selectedContentType == ContentType.POSTS) {
+            columnGridPane = 0;
             if (postsUser.size() == 1) {
-                columnGridPane = 0;
                 rowGridPane = 0;
             } else {
-                columnGridPane = 0;
                 rowGridPane = 1;
             }
         } else {
+            columnGridPane = 0;
             if (reviewsUser.size() == 1) {
-                columnGridPane = 0;
                 rowGridPane = 0;
             } else {
-                columnGridPane = 0;
                 rowGridPane = 1;
             }
         }
 
         try {
             for (Object item : items) {
-                Parent loadViewItem = null;
-                AnchorPane anchorPane = new AnchorPane();
-                if (item instanceof PostModelMongo) {
-                    loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
-                    controllerObjectPost.setData((PostModelMongo) item, postListener, deletedContentCallback);
-                } else if (item instanceof ReviewModelMongo) {
-                    loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
-                    controllerObjectReview.setData((ReviewModelMongo) item, deletedContentCallback);
-                }
-
-                anchorPane.getChildren().add(loadViewItem);
-                if (item instanceof PostModelMongo){
-                    anchorPane.setOnMouseClicked(event -> {
-                        this.postListener.onClickPostListener(event, (PostModelMongo) item);});
-                }
-
-                if (columnGridPane == 1) {
-                    columnGridPane = 0;
-                    rowGridPane++;
-                }
-                gridPane.add(anchorPane, columnGridPane++, rowGridPane);
-                gridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                gridPane.setPrefWidth(500);
-                gridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                gridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                gridPane.setPrefHeight(400);
-                gridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                GridPane.setMargin(anchorPane, new Insets(23,5,5,130));
+                AnchorPane itemNode = createItemViewNode(item);
+                addItemToGridPane(itemNode);
             }
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "An error occurred while retrieving content. Please try again in a while.");
             System.err.println("[ERROR] fillGridPane@ControllerViewUserProfile.java raised an exception: " + ex.getMessage());
         }
+    }
+
+    private AnchorPane createItemViewNode(Object item) {
+        Parent loadViewItem = null;
+        AnchorPane anchorPane = new AnchorPane();
+        if (item instanceof PostModelMongo) {
+            loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
+            controllerObjectPost.setData((PostModelMongo) item, postListener, deletedContentCallback);
+        } else if (item instanceof ReviewModelMongo) {
+            if (((ReviewModelMongo) item).getBody().isEmpty()) {
+                loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEWBLANKBODY.getFxmlFile());
+                controllerObjectReviewBlankBody.setData((ReviewModelMongo) item, deletedContentCallback);
+            } else {
+                loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
+                controllerObjectReview.setData((ReviewModelMongo) item, deletedContentCallback);
+            }
+        }
+
+        anchorPane.getChildren().add(loadViewItem);
+        if (item instanceof PostModelMongo) {
+            anchorPane.setOnMouseClicked(event -> {
+                this.postListener.onClickPostListener(event, (PostModelMongo) item);
+            });
+        }
+
+        return anchorPane;
+    }
+
+    private void addItemToGridPane(AnchorPane itemNode) {
+        if (columnGridPane == 1) {
+            columnGridPane = 0;
+            rowGridPane++;
+        }
+
+        gridPane.add(itemNode, columnGridPane++, rowGridPane);
+
+        gridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+        gridPane.setPrefWidth(500);
+        gridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        gridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+        gridPane.setPrefHeight(400);
+        gridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        GridPane.setMargin(itemNode, new Insets(23,5,5,130));
     }
 
     public void onClickLogout(ActionEvent event) {
