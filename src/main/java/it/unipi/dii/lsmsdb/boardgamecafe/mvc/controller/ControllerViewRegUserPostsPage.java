@@ -528,7 +528,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 postGridPane.add(addPostBox, 0, rowGridPane+1);
             }
 
-            GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 180));
+            GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 190));
 
         } catch (Exception e) {
             stageManager.showInfoMessage("INFO", "An error occurred while creating the post. Try again in a while.");
