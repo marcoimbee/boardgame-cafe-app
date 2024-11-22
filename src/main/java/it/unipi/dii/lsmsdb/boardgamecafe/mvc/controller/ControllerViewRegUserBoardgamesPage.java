@@ -3,27 +3,23 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -33,8 +29,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.util.Duration;
-import javafx.util.Pair;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +39,6 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class ControllerViewRegUserBoardgamesPage implements Initializable {
@@ -104,6 +98,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private ObservableList<BoardgameModelMongo> boardgames = FXCollections.observableArrayList();
     private BoardgameListener boardgameListener;
 
+    List<String> boardgameNames;
     private UserModelMongo currentUser;
 
     //Utils Variables
@@ -187,8 +182,19 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         });
 
         initPage();
-
-        //pause.setOnFinished(event -> performSearch());
+        // Page focus listener - needed to potentially update UI when coming back from a post detail window
+        boardgameGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        // After gaining focus for a post details window closing,
+                        // UI needs to be potentially updated
+                        onRegainPageFocusAfterDetailsBoardgameWindowClosing();
+                    }
+                });
+            }
+        });
     }
 
     public void initPage()
@@ -197,7 +203,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
-        if (currentUser != null && currentUser.get_class().equals("admin")){
+        if (currentUser != null && currentUser.get_class().equals("user")){
             this.newBoardgameButton.setVisible(true);
         } else {
             this.newBoardgameButton.setVisible(false);
@@ -208,11 +214,24 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
         {
-            List<String> boardgameNames = boardgameDBMongo.getBoardgameTags();
+            boardgameNames = boardgameDBMongo.getBoardgameTags();
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
         }
 
         fillGridPane();
+    }
+
+    private void onRegainPageFocusAfterDetailsBoardgameWindowClosing() {
+        // Update UI after potentially having deleted a Boardgame
+        String deletedBoardgameName = (String) modelBean.getBean(Constants.DELETED_BOARDGAME);
+        if (deletedBoardgameName != null) {
+            boardgameNames.remove(deletedBoardgameName);
+            modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
+            modelBean.putBean(Constants.DELETED_BOARDGAME, null);  // Deleting bean for consistency
+            boardgames.removeIf(boardgame -> boardgame.getBoardgameName().equals(deletedBoardgameName));
+            currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
+            viewCurrentlyShowing();
+        }
     }
 
     public void onClickBoardgamePosts(ActionEvent actionEvent) {
@@ -302,6 +321,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         boardgameGridPane.getChildren().clear();
         boardgames.clear();
         skipCounter = 0;
+        scrollSet.setVvalue(0);
     }
     private List<BoardgameModelMongo> getBoardgamesByChoice()
     {
@@ -584,7 +604,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                                     maxPlayersInt, minAgeInt, imageLink, thumbnailLink,
                                     categories, designers, publishers);
 
-//                    removeBoardgameCreationPanel();
+                    removeBoardgameCreationPanel();
 //                    fillGridPane();
 //                    scrollSet.setVvalue(0);
 //                    setDisablePreviousNextRefresh(false);
@@ -688,7 +708,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             return;
         }
 
-        //ToDO:
         BoardgameModelMongo newBoardgame = new BoardgameModelMongo(
                                                 boardgameName, thumbnailLink,
                                                 imageLink, description,
@@ -696,43 +715,43 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                                                 maxPlayers, playingTime, minAge,
                                                 categories, designers, publishers);
 
-        //ToDo: Analizzare e Testare
-//        boolean savedBoardgame = boardgameService.insertBoardgame(newBoardgame);   // MongoDB + Neo4J insertion
-//
-//        if (savedBoardgame) {
-//            System.out.println("[INFO] New Boardgame added");
-//            handleSuccessfulBoardgameAddition(newBoardgame);
-//            this.newBoardgameButton.setDisable(false);
-//        } else {
-//            System.out.println("[INFO] An error occurred while adding a new boardgame");
-//            stageManager.showInfoMessage("INFO", "Failed to add boardgame. Please try again in a while.");
-//            fillGridPane();             // Restoring GridPane if anything went wrong
-//            scrollSet.setVvalue(0);
-//        }
+        boolean savedBoardgame = boardgameService.insertBoardgame(newBoardgame);   // MongoDB + Neo4J insertion
+
+        if (savedBoardgame) {
+            System.out.println("[INFO] New Boardgame added");
+            handleSuccessfulBoardgameAddition(newBoardgame);
+            this.newBoardgameButton.setDisable(false);
+        } else {
+            System.out.println("[INFO] An error occurred while adding a new boardgame");
+            stageManager.showInfoMessage("INFO", "Failed to add boardgame. Please try again in a while.");
+            fillGridPane();             // Restoring GridPane if anything went wrong
+            scrollSet.setVvalue(0);
+        }
 
     }
 
     private void handleSuccessfulBoardgameAddition(BoardgameModelMongo newlyInsertedBoardgame) {
         if (currentlyShowing == BgameToFetch.ALL_BOARDGAMES) {
-            boardgames.remove(boardgames.size() - 1);         // Alter Boardgames collection but keep it compliant to posts displaying rules
-            boardgames.add(0, newlyInsertedBoardgame);  //Put New Bordgame at Top
+            stageManager.showInfoMessage("Success", "Your Boardgame has been added successfully!");
+            boardgames.remove(boardgames.size() - 1); //removes the last item by temporarily resizing the boardgames list
+            boardgames.add(0, newlyInsertedBoardgame);  //adds boardgame at top and the size of the list is restored
             fillGridPane();
             prevNextButtonsCheck(boardgames);
+            scrollSet.setVvalue(0);
         } else {
             stageManager.showInfoMessage("Success", "Your Boardgame has been added successfully! You're being redirected to the 'All Boardgames' page.");
             currentlyShowing = BgameToFetch.ALL_BOARDGAMES;          // get back to ALL_POSTS page, show the new post first
-            whatBgameToShowChoiceBox.setValue(whatBgameToShowList.get(whatBgameToShowList.size() - 1));       // Setting string inside choice box
-            onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
+            whatBgameToShowChoiceBox.setValue(whatBgameToShowList.get(0));  // Setting string inside choice box
+            viewCurrentlyShowing();
         }
-
-        this.newBoardgameButton.setDisable(false);
+        boardgameNames.add(newlyInsertedBoardgame.getBoardgameName());
+        modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
         setDisablePreviousNextRefresh(false);
         whatBgameToShowChoiceBox.setDisable(false);
     }
 
-    public void onSelectChoiceBoxOption() {
+    public void viewCurrentlyShowing() {
         resetPage();
-        //selectedSearchTag = null;
         List<BoardgameModelMongo> retrievedBoardgames = getBoardgamesByChoice();
         boardgames.addAll(retrievedBoardgames);            // Add new LIMIT posts (at most)
         fillGridPane();

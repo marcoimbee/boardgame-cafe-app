@@ -23,6 +23,6 @@ public interface PostRepoMongo extends MongoRepository<PostModelMongo, String>{
 
     void deleteByUsername(String username);
 
-    @Query("{tag: $bgName}")
-    List<PostModelMongo> findByTag(@Param("tag") String bgName);
+//    @Query("{tag: $bgName}")
+    List<PostModelMongo> findByTag(String bgName);
 }

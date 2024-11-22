@@ -80,14 +80,10 @@ public class ControllerObjectUser {
     public void setData(UserModelMongo user) {
         this.user = user;
 
-        // UserModelMongo currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         currentUserFollowedList = (List<String>) modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST);
 
-        if (currentUser == null){
-            System.out.println("\n\n current user missed");
-        }
-        if (user.getUsername() == currentUser.getUsername()){
+        if (Objects.equals(user.getUsername(), currentUser.getUsername())){
             this.followButton.setDisable(true);
         }
         if(user.get_class().equals("user")){
