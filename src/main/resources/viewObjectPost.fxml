@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="prova" prefHeight="208.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
+<AnchorPane prefHeight="208.0" prefWidth="570.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #708090; -fx-border-radius: 10; -fx-background-color: #708090;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectPost">
    <children>
       <Label fx:id="name111" alignment="TOP_LEFT" layoutX="37.0" layoutY="12.0" prefHeight="33.0" prefWidth="76.0" text="Posted By: " textFill="WHITE">
          <font>
@@ -45,7 +45,7 @@
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="likesLabel" alignment="BASELINE_LEFT" layoutX="142.0" layoutY="168.0" prefHeight="25.0" prefWidth="35.0" text="10" textFill="WHITE">
+      <Label fx:id="counterLikesLabel" alignment="BASELINE_LEFT" layoutX="142.0" layoutY="168.0" prefHeight="25.0" prefWidth="35.0" text="10" textFill="WHITE">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
