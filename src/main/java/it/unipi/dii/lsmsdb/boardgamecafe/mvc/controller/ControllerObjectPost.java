@@ -42,7 +42,7 @@ public class ControllerObjectPost {
     @FXML
     protected Label commentsLabel;
     @FXML
-    protected Label likesLabel;
+    protected Label counterLikesLabel;
     @FXML
     protected TextArea textTitleLabel;
     @FXML
@@ -91,13 +91,9 @@ public class ControllerObjectPost {
         this.post = post;
         this.postListener = listener;
 
-        System.out.println("€€€€€€€€€€€€€€€ ID post -> " + post.getId());
-
-        // this.likeButton.setDisable(true); Da eliminare a fine test
         this.commentButton.setDisable(true);
 
         String creationDate = post.getTimestamp().toString();
-
         this.authorLabel.setText(post.getUsername());
         this.timestampLabel.setText(creationDate);
         this.commentsLabel.setText(String.valueOf(post.getComments().size()));
@@ -107,9 +103,6 @@ public class ControllerObjectPost {
             this.tagBoardgameLabel.setText(post.getTag());
         }
 
-
-
-        //updateLikeButton(post.getUsername(), post.getId());
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
 
         if(post != null && currentUser != null){
@@ -123,9 +116,8 @@ public class ControllerObjectPost {
         }
 
         this.deletedPostCallback = deletedPostCallback;
-        updateLikesLabel(post);
+        updateLikesLabel(null, post);
         setTextLikeButton(post.getId(), currentUser.getUsername(), null, null);
-        // Setting up remove button listener
         deleteButton.setOnAction(event -> onClickDeleteButton(post));
         likeButton.setOnAction(event -> onClickLikeButton(post, event));
     }
@@ -147,15 +139,16 @@ public class ControllerObjectPost {
         postService.likeOrDislikePost(username, postId);
         FontAwesomeIconView icon = (FontAwesomeIconView) ((Button)event.getSource()).getGraphic();
         setTextLikeButton(post.getId(), username, (Button) event.getSource(), icon);
-
-        // Aggiorna il conteggio dei like
-        // updateLikesLabel(postId);
-        //updateLikeButton(username, postId);
+        updateLikesLabel(event, post);
     }
 
-    private void updateLikesLabel(PostModelMongo post) {
-        //int likeCount = postDBNeo4j.findTotalLikesByPostID(postId);
-        likesLabel.setText(String.valueOf(post.getLikeCount()));
+    private void updateLikesLabel(ActionEvent event, PostModelMongo post)
+    {
+        Label workingLikeCountLbl = (event == null) ?
+                this.counterLikesLabel : (Label) ((Button) event.getSource()).getParent().lookup("#counterLikesLabel");
+        int likeCount = (event == null) ?
+                post.getLikeCount() : postDBNeo4j.findTotalLikesByPostID(post.getId());
+        workingLikeCountLbl.setText(String.valueOf(likeCount));
     }
 
     public void onClickDeleteButton(PostModelMongo post) {
