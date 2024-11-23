@@ -2,7 +2,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -10,21 +9,17 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -43,7 +38,66 @@ import java.util.function.Consumer;
 @Component
 public class ControllerViewDetailsBoardgamePage implements Initializable {
 
+    public enum UserActivity {
+        EDIT_INFO, NO_EDIT
+    }
     private final String NO_RATING = "-----";
+
+    //********** Edit Operation Components **********
+    @FXML
+    private Button addCategoryButton;
+    @FXML
+    private Button removeCategoryButton;
+    @FXML
+    private Button addDesignerButton;
+    @FXML
+    private Button removeDesignerButton;
+    @FXML
+    private Button addPublisherButton;
+    @FXML
+    private Button removePublisherButton;
+    @FXML
+    private Button saveChangesButton;
+    @FXML
+    private Button cancelButton;
+
+    // *********** Text Fields ***********
+    @FXML
+    private TextField updateDescriptionTextField;
+    @FXML
+    private TextField updateBgNameTextField;
+    @FXML
+    private TextField updateYearOfPublicationTextField;
+    @FXML
+    private TextField updatePlayingTimeTextField;
+    @FXML
+    private TextField updateMinPlayersTextField;
+    @FXML
+    private TextField updateMaxPlayersTextField;
+    @FXML
+    private TextField updateMinAgeTextField;
+    @FXML
+    private TextField updateImageLinkTextField;
+    @FXML
+    private TextField updateCategoryTextField;
+    @FXML
+    private TextField updateDesignerTextField;
+    @FXML
+    private TextField updatePublisherTextField;
+
+    // *********** List Views ***********
+    @FXML
+    private ListView<String> categoriesListView;
+    @FXML
+    private ListView<String> designersListView;
+    @FXML
+    private ListView<String> publishersListView;
+
+    // *********** Utils ***********
+    private final List<String> listStringsCategories = new ArrayList<>();
+    private final List<String> listStringsDesigners = new ArrayList<>();
+    private final List<String> listStringsPublishers = new ArrayList<>();
+
     //********** Buttons **********
     @FXML
     private Button editBoardgameButton;
@@ -85,7 +139,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     protected Label firstDesignerLabel;
     @FXML
     protected Label firstPublisherLabel;
-
+    @FXML
+    protected Label minutesLabel;
+    @FXML
+    protected Label plusLabel;
     //********** Combo Boxes **********
     @FXML
     private ComboBox<String> comboBoxFullCategories;
@@ -138,12 +195,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private final String promptTextFullDesigners = "See Full Designers";
     private final String promptTextFullPublishers = "See Full Publishers";
 
+    private UserActivity selectedOperation;
+
 
     @Autowired
     @Lazy
     private StageManager stageManager;
-
-    private Consumer<String> deletedCommentCallback;
 
     public ControllerViewDetailsBoardgamePage() {
     }
@@ -165,24 +222,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
         prepareScene();
-
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
-
-//        // Page focus listener - needed to potentially update UI when coming back from a post update window
-//        reviewsGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
-//            if (newScene != null) {
-//                Stage stage = (Stage) newScene.getWindow();
-//                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
-//                    if (isNowFocused) {
-//                        onFocusGained();            // Update UI after post updates
-//                    }
-//                });
-//            }
-//        });
     }
 
     private void prepareScene() {
+
+        this.selectedOperation = UserActivity.NO_EDIT;
         Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         if (ratingFromTop == null)
             ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
@@ -209,19 +255,29 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.designers.addAll(boardgame.getBoardgameDesigner());
         this.publishers.addAll(boardgame.getBoardgamePublisher());
 
-        if (!categories.isEmpty())
+        if (!categories.isEmpty()){
             this.firstCategoryLabel.setText(categories.get(0));
-        else
+            this.categoriesListView.getItems().addAll(categories);
+            this.listStringsCategories.addAll(categories);
+        } else {
             this.firstCategoryLabel.setText("");
-        if (!designers.isEmpty())
+        }
+        if (!designers.isEmpty()) {
             this.firstDesignerLabel.setText(designers.get(0));
-        else
+            this.designersListView.getItems().addAll(designers);
+            this.listStringsDesigners.addAll(designers);
+        } else {
             this.firstDesignerLabel.setText("");
-        if (!publishers.isEmpty())
+        }
+        if (!publishers.isEmpty()) {
             this.firstPublisherLabel.setText(publishers.get(0));
-        else
+            this.publishersListView.getItems().addAll(publishers);
+            this.listStringsPublishers.addAll(publishers);
+        } else {
             this.firstPublisherLabel.setText("");
+        }
         initComboBox(categories, designers, publishers);
+        setEditFieldsVisibility(false);
     }
 
     private void setImage() {
@@ -229,7 +285,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (imageInCache != null)
         {
             this.imageBoardgame.setImage(imageInCache);
-            System.out.println("Trovaya in cache");
+            System.out.println("Trovata in cache");
             return;
         }
         try {
@@ -264,29 +320,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         return byteArrayOutputStream.toByteArray();
     }
 
-//    public void onFocusGained() {
-//        BoardgameModelMongo updatedBoardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
-//        this.tagBoardgameLabel.setText(updatedPost.getTag());
-//        this.postTitleTextArea.setText(updatedPost.getTitle());
-//        this.postBodyTextArea.setText(updatedPost.getText());
-//
-//        // Potentially update a comment
-//        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.UPDATED_COMMENT);
-//        if (updatedComment != null) {
-//            modelBean.putBean(Constants.UPDATED_COMMENT, null);
-//
-//            reviews.replaceAll(comment -> comment.getId().equals(updatedComment.getId()) ? updatedComment : comment);
-//            fillGridPane();
-//        }
-//    }
-
-    // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
-//    public void updateUIAfterCommentDeletion(String deletedCommentId) {
-//        reviews.removeIf(comment -> comment.getId().equals(deletedCommentId));
-//        this.counterCommentsLabel.setText(String.valueOf(reviews.size()));
-//        fillGridPane();
-//    }
-
     public void onClickDeleteButton() {
         boolean userChoice = stageManager.showDeleteBoardgameInfoMessage();
         if (!userChoice) {
@@ -311,10 +344,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
     }
 
-    public void onClickEditBoardgameButton() {
-//        stageManager.showWindow(FxmlView.EDIT_POST);            // Do not close underlying page, just show the little post editing window
-    }
-
     public void onClickRefreshButton(ActionEvent event) {
         cleanFetchAndFill();
     }
@@ -328,10 +357,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         //clear variables
         reviewsGridPane.getChildren().clear();
         reviews.clear();
-
         //update the skipcounter
         skipCounter += SKIP;
-
         //retrieve boardgames
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
         //put all boardgames in the Pane
@@ -344,10 +371,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         //clear variables
         reviewsGridPane.getChildren().clear();
         reviews.clear();
-
         //update the skipcounter
         skipCounter -= SKIP;
-
         //retrieve boardgames
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
         //put all boardgames in the Pane
@@ -409,7 +434,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     void setGridPaneColumnAndRow() {
-
         columnGridPane = 0;
         rowGridPane = 1;
     }
@@ -429,16 +453,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             resetPage();
             reviewsGridPane.add(noContentsYet, 0, 0);
         }
-
         GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 287));
     }
 
     @FXML
     void fillGridPane() {
-        // Setting up what method should be called upon comment deletion
-        //deletedCommentCallback = this::updateUIAfterCommentDeletion;
-
-        reviewsGridPane.getChildren().clear();
 
         //per mettere un solo elemento correttamente nel gridpane
         if (reviews.size() == 1) {
@@ -454,7 +473,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             } else {
                 for (ReviewModelMongo review : reviews) {
                     Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
-
                     AnchorPane anchorPane = new AnchorPane();
                     anchorPane.getChildren().add(loadViewItem);
 
@@ -466,7 +484,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                         columnGridPane = 0;
                         rowGridPane++;
                     }
-
                     reviewsGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
                     //DISPLAY SETTINGS
                     //set grid width
@@ -497,16 +514,17 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                               List<String> designers,
                               List<String> publishers) {
 
+        this.comboBoxFullCategories.getItems().clear();
         this.comboBoxFullCategories.getItems().addAll(categories);
+        this.comboBoxFullDesigners.getItems().clear();
         this.comboBoxFullDesigners.getItems().addAll(designers);
+        this.comboBoxFullPublishers.getItems().clear();
         this.comboBoxFullPublishers.getItems().addAll(publishers);
 
         comboBoxFullCategories.setPromptText(promptTextFullCategories);
         comboBoxFullCategories.setEditable(false);
-
         comboBoxFullDesigners.setPromptText(promptTextFullDesigners);
         comboBoxFullDesigners.setEditable(false);
-
         comboBoxFullPublishers.setPromptText(promptTextFullPublishers);
         comboBoxFullPublishers.setEditable(false);
 
@@ -520,7 +538,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                         }
                     });
                 });
-
 
         comboBoxFullDesigners.getSelectionModel().selectedItemProperty().
                 addListener((observable, oldValue, newValue) -> {
@@ -544,4 +561,173 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     });
                 });
     }
+
+    public void onClickSaveChangesButton(){
+
+        //ToDo: Implementazione salvataggio dati e aggiornamento grafica
+    }
+
+    public void onClickEditBoardgameButton() {
+        this.selectedOperation = UserActivity.EDIT_INFO;
+        this.cancelButton.setVisible(true);
+        this.saveChangesButton.setVisible(true);
+        scrollSet.setVvalue(0);
+        setEditFieldsVisibility(true);
+    }
+
+    public void onClickCancelButton(){
+        clearFields();
+        prepareScene();
+        prevNextButtonsCheck(reviews);
+    }
+    public void onClickAddCategoryButton() {
+        String category = updateCategoryTextField.getText().trim();
+        if (!category.isEmpty()) {
+            listStringsCategories.add(0, category);
+            categoriesListView.getItems().add(0, category);
+            updateCategoryTextField.clear();
+        } else {
+            stageManager.showInfoMessage("INFO", "Category field cannot be empty.");
+        }
+    }
+
+    public void onClickRemoveCategoryButton() {
+        String selectedCategory = categoriesListView.getSelectionModel().getSelectedItem();
+        if (selectedCategory != null) {
+            listStringsCategories.remove(selectedCategory);
+            categoriesListView.getItems().remove(selectedCategory);
+        } else {
+            stageManager.showInfoMessage("INFO", "Please select a category to remove.");
+        }
+    }
+
+    public void onClickAddDesignerButton() {
+        String designer = updateDesignerTextField.getText().trim();
+        if (!designer.isEmpty()) {
+            listStringsDesigners.add(0, designer);
+            designersListView.getItems().add(0, designer);
+            updateDesignerTextField.clear();
+        } else {
+            stageManager.showInfoMessage("INFO", "Designer field cannot be empty.");
+        }
+    }
+
+    public void onClickRemoveDesignerButton() {
+        String selectedDesigner = designersListView.getSelectionModel().getSelectedItem();
+        if (selectedDesigner != null) {
+            listStringsDesigners.remove(selectedDesigner);
+            designersListView.getItems().remove(selectedDesigner);
+        } else {
+            stageManager.showInfoMessage("INFO", "Please select a designer to remove.");
+        }
+    }
+
+    public void onClickAddPublisherButton() {
+        String publisher = updatePublisherTextField.getText().trim();
+        if (!publisher.isEmpty()) {
+            listStringsPublishers.add(0, publisher);
+            publishersListView.getItems().add(0, publisher);
+            updatePublisherTextField.clear();
+        } else {
+            stageManager.showInfoMessage("INFO", "Publisher field cannot be empty.");
+        }
+    }
+
+    public void onClickRemovePublisherButton() {
+        String selectedPublisher = publishersListView.getSelectionModel().getSelectedItem();
+        if (selectedPublisher != null) {
+            listStringsPublishers.remove(selectedPublisher);
+            publishersListView.getItems().remove(selectedPublisher);
+        } else {
+            stageManager.showInfoMessage("INFO", "Please select a publisher to remove.");
+        }
+    }
+
+    private void setEditFieldsVisibility(boolean isVisible) {
+
+        if(isVisible){
+            Image tempImage = new Image("/images/noImage.jpg");
+            this.imageBoardgame.setImage(tempImage);
+        }
+        //********** Actual Labels **********
+        this.averageRatingLabel.setDisable(isVisible);
+        this.boardgameNameLabel.setDisable(isVisible);
+        this.descriptionTextArea.setDisable(isVisible);
+        this.minPlayerLabel.setDisable(isVisible);
+        this.maxPlayerLabel.setDisable(isVisible);
+        this.playingTimeLabel.setDisable(isVisible);
+        this.minutesLabel.setDisable(isVisible);
+        this.yearPublishedLabel.setDisable(isVisible);
+        this.minAgeLabel.setDisable(isVisible);
+        this.plusLabel.setDisable(isVisible);
+        this.firstCategoryLabel.setDisable(isVisible);
+        this.firstDesignerLabel.setDisable(isVisible);
+        this.firstPublisherLabel.setDisable(isVisible);
+        this.comboBoxFullCategories.setDisable(isVisible);
+        this.comboBoxFullDesigners.setDisable(isVisible);
+        this.comboBoxFullPublishers.setDisable(isVisible);
+        //********** Others Actual Components **********
+        this.scrollSet.setDisable(isVisible);
+        this.nextButton.setDisable(isVisible);
+        this.previousButton.setDisable(isVisible);
+        this.refreshButton.setDisable(isVisible);
+        this.addReviewButton.setDisable(isVisible);
+        this.deleteButton.setDisable(isVisible);
+        this.closeButton.setDisable(isVisible);
+        this.editBoardgameButton.setDisable(isVisible);
+        //********** Update Related TextFields **********
+        this.updateDescriptionTextField.setVisible(isVisible);
+        this.updateBgNameTextField.setVisible(isVisible);
+        this.updateYearOfPublicationTextField.setVisible(isVisible);
+        this.updatePlayingTimeTextField.setVisible(isVisible);
+        this.updateMinPlayersTextField.setVisible(isVisible);
+        this.updateMaxPlayersTextField.setVisible(isVisible);
+        this.updateMinAgeTextField.setVisible(isVisible);
+        this.updateImageLinkTextField.setVisible(isVisible);
+        this.updateCategoryTextField.setVisible(isVisible);
+        this.updateDesignerTextField.setVisible(isVisible);
+        this.updatePublisherTextField.setVisible(isVisible);
+        this.categoriesListView.setVisible(isVisible);
+        this.designersListView.setVisible(isVisible);
+        this.publishersListView.setVisible(isVisible);
+        //********** Update Related Buttons **********
+        this.cancelButton.setVisible(isVisible);
+        this.saveChangesButton.setVisible(isVisible);
+        this.addCategoryButton.setVisible(isVisible);
+        this.removeCategoryButton.setVisible(isVisible);
+        this.addDesignerButton.setVisible(isVisible);
+        this.removeDesignerButton.setVisible(isVisible);
+        this.addPublisherButton.setVisible(isVisible);
+        this.removePublisherButton.setVisible(isVisible);
+    }
+
+    public void clearFields(){
+        //********** TextFields & SubLabels **********
+        this.updateDescriptionTextField.clear();
+        this.updateDescriptionTextField.setPromptText("Write the Boardgame description here...");
+        this.updateBgNameTextField.clear();
+        this.updateBgNameTextField.setPromptText("Write the Boardgame name here...");
+        this.updateYearOfPublicationTextField.clear();
+        this.updateYearOfPublicationTextField.setPromptText("YYYY");
+        this.updatePlayingTimeTextField.clear();
+        this.updatePlayingTimeTextField.setPromptText("Minutes");
+        this.updateMinPlayersTextField.clear();
+        this.updateMinPlayersTextField.setPromptText("Min #");
+        this.updateMaxPlayersTextField.clear();
+        this.updateMaxPlayersTextField.setPromptText("Max #");
+        this.updateMinAgeTextField.clear();
+        this.updateMinAgeTextField.setPromptText("Age");
+        this.updateImageLinkTextField.clear();
+        this.updateImageLinkTextField.setPromptText("Write the Image link address here...");
+        this.updateCategoryTextField.clear();
+        this.updateCategoryTextField.setPromptText("Write the Category here...");
+        this.updateDesignerTextField.clear();
+        this.updateDesignerTextField.setPromptText("Write the Designer here...");
+        this.updatePublisherTextField.clear();
+        this.updatePublisherTextField.setPromptText("Write the Publisher here...");
+        this.categoriesListView.getItems().clear();
+        this.designersListView.getItems().clear();
+        this.publishersListView.getItems().clear();
+    }
+
 }
