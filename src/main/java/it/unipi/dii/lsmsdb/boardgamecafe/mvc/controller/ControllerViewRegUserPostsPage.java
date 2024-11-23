@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
@@ -112,6 +114,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private int skipCounter = 0;            // How many times the user clicked on the 'Next' button
     private final static int SKIP = 10;     // How many posts to skip each time
     private final static int LIMIT = 10;    // How many posts to show in each page
+    private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
 
     private enum PostsToFetch {
         POSTS_BY_FOLLOWED_USERS,
@@ -185,7 +188,18 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
             searchResultsList.setVisible(false);
             modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.showWindow(FxmlView.DETAILS_POST);
+            Stage detailsStage = stageManager.showWindow(FxmlView.DETAILS_POST);
+            detailsStage.setOnHidden(windowEvent -> {
+                String lastPostId = ((PostModelMongo)modelBean.getBean(Constants.SELECTED_POST)).getId();
+                AnchorPane eventAnchorPanePost = (AnchorPane) (mouseEvent.getSource());
+                ((Label)eventAnchorPanePost.lookup("#counterLikesLabel")).setText(
+                        String.valueOf(postDBNeo4j.findTotalLikesByPostID(lastPostId)));
+                Button workingButton = ((Button)eventAnchorPanePost.lookup("#likeButton"));
+                FontAwesomeIconView workingIcon = (FontAwesomeIconView) workingButton.getGraphic();
+                boolean likeIsPresent = this.postService.hasLikedPost(currentUser, lastPostId);
+                workingIcon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
+                workingButton.setText((this.buttonLikeMessages.get((likeIsPresent) ? 1 : 0)));
+            });
         };
 
         // Page focus listener - needed to potentially update UI when coming back from a post detail window
@@ -625,7 +639,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(
                 ((List<String>)modelBean.getBean(Constants.BOARDGAME_LIST)).stream()
                 .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
-        System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
+        //System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
 
         searchResultsList.setItems(tagsContainingSearchString);
         int LIST_ROW_HEIGHT = 24;
