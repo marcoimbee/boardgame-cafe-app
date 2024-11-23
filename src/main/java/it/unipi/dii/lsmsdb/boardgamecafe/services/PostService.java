@@ -154,7 +154,7 @@ public class PostService {
             {
                 // System.out.println("PostService: Il post non ha il Like. Aggiungo...");
                 if (postDBMongo.updateLikeCount(postId, true))
-                    postDBNeo4j.addLikePost(username, postId);
+                    postDBNeo4j.addLikePost(username, postId, true);
                 else
                     throw new RuntimeException("Problem with Mongo adding like count");
             }
