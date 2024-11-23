@@ -1,16 +1,21 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -89,7 +94,10 @@ public class ControllerViewUserProfilePage implements Initializable{
     private GridPane gridPane;
     @FXML
     private ScrollPane scrollSet;
-
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private PostDBNeo4j postDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
@@ -124,7 +132,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private static UserModelMongo currentUser;
     private static UserModelMongo selectedUser;
     private Consumer<String> deletedContentCallback;
-
+    private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
     @Autowired
     @Lazy
     public ControllerViewUserProfilePage(StageManager stageManager) {
@@ -193,7 +201,18 @@ public class ControllerViewUserProfilePage implements Initializable{
         // Post details listener - used to display post details once a post is clicked on
         postListener = (MouseEvent mouseEvent, PostModelMongo post) -> {
             modelBean.putBean(Constants.SELECTED_POST, post);
-            stageManager.showWindow(FxmlView.DETAILS_POST);
+            Stage detailsStage = stageManager.showWindow(FxmlView.DETAILS_POST);
+            detailsStage.setOnHidden(windowEvent -> {
+                String lastPostId = ((PostModelMongo)modelBean.getBean(Constants.SELECTED_POST)).getId();
+                AnchorPane eventAnchorPanePost = (AnchorPane) (mouseEvent.getSource());
+                ((Label)eventAnchorPanePost.lookup("#counterLikesLabel")).setText(
+                        String.valueOf(postDBNeo4j.findTotalLikesByPostID(lastPostId)));
+                Button workingButton = ((Button)eventAnchorPanePost.lookup("#likeButton"));
+                FontAwesomeIconView workingIcon = (FontAwesomeIconView) workingButton.getGraphic();
+                boolean likeIsPresent = this.postService.hasLikedPost(currentUser.getUsername(), lastPostId);
+                workingIcon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
+                workingButton.setText((this.buttonLikeMessages.get((likeIsPresent) ? 1 : 0)));
+            });
         };
 
         // Setting up what should be called upon post or review deletion
