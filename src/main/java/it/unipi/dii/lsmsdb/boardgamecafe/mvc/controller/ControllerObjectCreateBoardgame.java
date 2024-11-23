@@ -6,6 +6,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -181,21 +183,16 @@ public class ControllerObjectCreateBoardgame {
 
     private void setupTextFieldValidation(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("^[a-zA-Z]*$")) {
+            if (!newValue.matches("^[a-zA-Z\\s\\-\\'&/_]*$") || newValue.contains(",")) {
+                // Permette lettere, spazi, trattini (-), apostrofi ('), punti (.), punti esclamativi (!) e interrogativi (?), blocca la virgola
                 textField.setText(oldValue); // Ripristina il valore precedente
-                showErrorMessage("Invalid input!", "Only a single string with letters is allowed.");
-            } else if (!newValue.isEmpty()) {
-                textField.setText(capitalizeFirstLetter(newValue)); // Capitalizza la prima lettera
+                showErrorMessage("Invalid input!",
+                        "Only letters, spaces, and common special characters (-'&/_) are allowed. " +
+                                "Commas are not allowed.");
             }
         });
     }
 
-    private String capitalizeFirstLetter(String input) {
-        if (input == null || input.isEmpty()) {
-            return input; // Ritorna il testo com'è se è vuoto o nullo
-        }
-        return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
-    }
 
     private void showErrorMessage(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
