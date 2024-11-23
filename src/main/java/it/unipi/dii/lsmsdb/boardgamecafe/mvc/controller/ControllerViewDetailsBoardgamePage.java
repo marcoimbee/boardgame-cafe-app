@@ -201,7 +201,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
         this.averageRatingLabel.setText(ratingAsString);
 
-        System.out.println("[DEBUG] avg rating set to: " + ratingAsString);
+        //System.out.println("[DEBUG] avg rating set to: " + ratingAsString);
     }
 
     private void prepareScene() {
