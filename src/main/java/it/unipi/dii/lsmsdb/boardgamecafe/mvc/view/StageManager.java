@@ -111,7 +111,7 @@ public class StageManager {
         return scene;
     }
 
-    public void showWindow(final FxmlView window) {
+    public Stage showWindow(final FxmlView window) {
 
         try {
             Parent viewRoot = loadViewNode(window.getFxmlFile());
@@ -120,9 +120,10 @@ public class StageManager {
             stage.setTitle(window.getTitle());
             stage.setScene(new Scene(viewRoot));
             stage.show();
-
+            return stage;
         } catch (Exception e) {
             logger.error("Exception occurred: " + e.getLocalizedMessage());
+            return null;
         }
     }
 
