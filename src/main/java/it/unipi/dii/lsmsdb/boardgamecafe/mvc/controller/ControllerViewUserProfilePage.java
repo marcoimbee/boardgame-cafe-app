@@ -70,6 +70,8 @@ public class ControllerViewUserProfilePage implements Initializable{
     private Button yourReviewsButton;
     @FXML
     private Button logoutButton;
+    @FXML
+    private Button statisticsButton;
 
     @FXML
     private Label firstNameLabel;
@@ -674,6 +676,10 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     public void onClickAccountInfoButton(ActionEvent event) {
         stageManager.switchScene(FxmlView.ACCOUNTINFOPAGE);
+    }
+
+    public void onClickStatisticsButton() {
+        stageManager.switchScene(FxmlView.STATISTICS);
     }
 
 }

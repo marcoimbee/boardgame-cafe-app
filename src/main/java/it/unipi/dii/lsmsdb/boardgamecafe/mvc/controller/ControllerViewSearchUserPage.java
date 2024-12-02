@@ -60,6 +60,8 @@ public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     private Button refreshButton;
     @FXML
+    private Button statisticsButton;
+    @FXML
     private ChoiceBox<String> whatUsersToShowChoiceBox;
     @FXML
     private TextField textFieldSearch;
@@ -199,7 +201,9 @@ public class ControllerViewSearchUserPage implements Initializable {
         scrollSet.setVvalue(0);
         textFieldSearch.setText(null);
     }
-
+    public void onClickStatisticsButton() {
+        stageManager.switchScene(FxmlView.STATISTICS);
+    }
     public void onClickBoardgamesButton() {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
         stageManager.closeStageButton(this.boardgamesButton);

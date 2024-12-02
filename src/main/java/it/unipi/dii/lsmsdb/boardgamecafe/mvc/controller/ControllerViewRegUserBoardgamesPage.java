@@ -74,6 +74,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button refreshButton;
     @FXML
+    private Button statisticsButton;
+    @FXML
     private ChoiceBox<String> whatBgameToShowChoiceBox;
     @FXML
     private ComboBox cboxYear;
@@ -232,6 +234,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
             viewCurrentlyShowing();
         }
+    }
+
+    public void onClickStatisticsButton() {
+        stageManager.switchScene(FxmlView.STATISTICS);
     }
 
     public void onClickBoardgamePosts(ActionEvent actionEvent) {

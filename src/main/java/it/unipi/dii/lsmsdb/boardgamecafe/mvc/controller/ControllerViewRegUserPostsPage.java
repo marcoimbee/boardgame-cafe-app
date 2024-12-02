@@ -66,7 +66,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private Button searchUserButton;
     @FXML
     private Button logoutButton;
-
+    @FXML
+    private Button statisticsButton;
     @FXML
     private Button accountInfoButton;
     @FXML
@@ -289,6 +290,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         visitedPages.add(0);
         visualizedLastPost = false;
         scrollSet.setVvalue(0);
+    }
+
+    public void onClickStatisticsButton() {
+        stageManager.switchScene(FxmlView.STATISTICS);
     }
 
     public void onClickBoardgamesCollection() {
