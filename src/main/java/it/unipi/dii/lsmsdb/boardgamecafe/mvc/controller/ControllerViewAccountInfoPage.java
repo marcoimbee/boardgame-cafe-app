@@ -75,6 +75,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private Button editAccountInfoButton;
     @FXML
     private Button clearFieldsButton;
+    @FXML
+    private Button statisticsButton;
 
     // ********** Llabels *********
     @FXML
@@ -215,6 +217,10 @@ public class ControllerViewAccountInfoPage implements Initializable{
         modelBean.putBean(Constants.CURRENT_USER, null);
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
         stageManager.closeStageButton(this.logoutButton);
+    }
+
+    public void onClickStatisticsButton() {
+        stageManager.switchScene(FxmlView.STATISTICS);
     }
     public void onClickCancelButton() {
         clearFields(); initDisplay();
