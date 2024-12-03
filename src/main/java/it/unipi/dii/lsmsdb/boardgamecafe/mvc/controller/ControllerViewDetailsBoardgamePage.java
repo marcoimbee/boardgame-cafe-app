@@ -214,8 +214,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.nextButton.setDisable(true);
         resetPage();
 
-        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
-
         // Setting up buttons depending on if the current user is who created the post that's being visualized
         if (!currentUser.get_class().equals("user")) {
             editBoardgameButton.setVisible(false);       // Making the edit button invisible
@@ -227,7 +225,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void prepareScene() {
-
+        clearFields();
+        resetPage();
+        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
         this.selectedOperation = UserActivity.NO_EDIT;
         Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         if (ratingFromTop == null)
@@ -251,28 +251,31 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.yearPublishedLabel.setText(String.valueOf(this.boardgame.getYearPublished()));
         this.minAgeLabel.setText(String.valueOf(this.boardgame.getMinAge()));
         //*********** Categories, Designers and Publishers management ***********
-        this.categories.addAll(boardgame.getBoardgameCategory());
-        this.designers.addAll(boardgame.getBoardgameDesigner());
-        this.publishers.addAll(boardgame.getBoardgamePublisher());
 
-        if (!categories.isEmpty()){
-            this.firstCategoryLabel.setText(categories.get(0));
+        // Popolamento delle liste e delle ListView
+        if (!boardgame.getBoardgameCategory().isEmpty()) {
+            this.categories.addAll(boardgame.getBoardgameCategory());
             this.categoriesListView.getItems().addAll(categories);
             this.listStringsCategories.addAll(categories);
+            this.firstCategoryLabel.setText(categories.get(0));
         } else {
             this.firstCategoryLabel.setText("");
         }
-        if (!designers.isEmpty()) {
-            this.firstDesignerLabel.setText(designers.get(0));
+
+        if (!boardgame.getBoardgameDesigner().isEmpty()) {
+            this.designers.addAll(boardgame.getBoardgameDesigner());
             this.designersListView.getItems().addAll(designers);
             this.listStringsDesigners.addAll(designers);
+            this.firstDesignerLabel.setText(designers.get(0));
         } else {
             this.firstDesignerLabel.setText("");
         }
-        if (!publishers.isEmpty()) {
-            this.firstPublisherLabel.setText(publishers.get(0));
+
+        if (!boardgame.getBoardgamePublisher().isEmpty()) {
+            this.publishers.addAll(boardgame.getBoardgamePublisher());
             this.publishersListView.getItems().addAll(publishers);
             this.listStringsPublishers.addAll(publishers);
+            this.firstPublisherLabel.setText(publishers.get(0));
         } else {
             this.firstPublisherLabel.setText("");
         }
@@ -383,7 +386,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     void resetPage() {
         //clear variables
         this.tooltipLblRating.hide();
-        reviewsGridPane.getChildren().clear();
         reviews.clear();
         categories.clear();
         designers.clear();
@@ -392,6 +394,16 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         previousButton.setDisable(true);
         nextButton.setDisable(true);
         scrollSet.setVvalue(0);
+        // Pulizia delle liste e delle ListView
+        this.categories.clear();
+        this.designers.clear();
+        this.publishers.clear();
+        this.categoriesListView.getItems().clear();
+        this.designersListView.getItems().clear();
+        this.publishersListView.getItems().clear();
+        this.listStringsCategories.clear();
+        this.listStringsDesigners.clear();
+        this.listStringsPublishers.clear();
     }
 
     void prevNextButtonsCheck(List<ReviewModelMongo> reviews) {
@@ -459,6 +471,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @FXML
     void fillGridPane() {
 
+//        reviewsGridPane.getChildren().clear();
         //per mettere un solo elemento correttamente nel gridpane
         if (reviews.size() == 1) {
             columnGridPane = 0;
@@ -562,10 +575,208 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 });
     }
 
-    public void onClickSaveChangesButton(){
+    public void onClickSaveChangesButton() {
 
-        //ToDo: Implementazione salvataggio dati e aggiornamento grafica
+        //ToDo: Controllare perchè con i giochi appena inseriti, solo per la prima volta,
+        //      quando si clicca si "Edit Boardgame" non si vede la lista anche se piena.
+        //      Strano perchè se si fa "cancel" e poi si clicca nuovamente su "Edit Boardgame"
+        //      tutto funziona come previsto. Inoltre verificare che se vengono aggiunte reviews
+        //      la lista rimane aggiornata anche dopo l'aggiornamento.
+
+        if (boardgame != null) {
+            // Ottenere i dati dai campi di input
+            String boardgameName = this.updateBgNameTextField.getText();
+            String description = this.updateDescriptionTextField.getText()
+                    .replaceAll("&#[0-9]+;", "")
+                    .replaceAll("&[a-zA-Z0-9]+;", "");
+            String minPlayerStr = this.updateMinPlayersTextField.getText();
+            String maxPlayerStr = this.updateMaxPlayersTextField.getText();
+            String playingTimeStr = this.updatePlayingTimeTextField.getText();
+            String yearPublishedStr = this.updateYearOfPublicationTextField.getText();
+            String minAgeStr = this.updateMinAgeTextField.getText();
+            String image = this.updateImageLinkTextField.getText();
+
+            // Verifica se la lista delle categorie è cambiata
+            boolean isCategoryListChanged = !new HashSet<>(listStringsCategories).
+                    containsAll(boardgame.getBoardgameCategory())
+                    || !new HashSet<>(boardgame.getBoardgameCategory()).
+                    containsAll(listStringsCategories);
+            // Verifica se la lista dei designer è cambiata
+            boolean isDesignerListChanged = !new HashSet<>(listStringsDesigners).
+                    containsAll(boardgame.getBoardgameDesigner())
+                    || !new HashSet<>(boardgame.getBoardgameDesigner()).
+                    containsAll(listStringsDesigners);
+            // Verifica se la lista dei publisher è cambiata
+            boolean isPublisherListChanged = !new HashSet<>(listStringsPublishers).
+                    containsAll(boardgame.getBoardgamePublisher())
+                    || !new HashSet<>(boardgame.getBoardgamePublisher()).
+                    containsAll(listStringsPublishers);
+
+
+            // Creare un elenco di stringhe delle liste modificate per recuperare il
+            List<String> modifiedLists = new ArrayList<>();
+            if (isCategoryListChanged) modifiedLists.add("Categories List");
+            if (isDesignerListChanged) modifiedLists.add("Designer List");
+            if (isPublisherListChanged) modifiedLists.add("Publisher List");
+
+            // Verifica se tutti i campi sono vuoti (escludendo le liste)
+            if (boardgameName.isEmpty() && description.isEmpty() && minPlayerStr.isEmpty() &&
+                    maxPlayerStr.isEmpty() && playingTimeStr.isEmpty() && yearPublishedStr.isEmpty() &&
+                    minAgeStr.isEmpty() && image.isEmpty() && modifiedLists.isEmpty()) {
+
+                stageManager.showInfoMessage("Update Error",
+                        "All fields and lists are unchanged. " +
+                                "Please modify at least one field or list.");
+                return;
+            }
+
+            // Identifica se ci sono campi vuoti
+            boolean hasEmptyFields = boardgameName.isEmpty() || description.isEmpty()
+                    || minPlayerStr.isEmpty() || maxPlayerStr.isEmpty()
+                    || playingTimeStr.isEmpty() || yearPublishedStr.isEmpty()
+                    || minAgeStr.isEmpty() || image.isEmpty();
+
+            // Messaggio relativizzato al caso di aggiornamento di solo liste
+            if (hasEmptyFields && !modifiedLists.isEmpty()) {
+                String modifiedListName = modifiedLists.size() == 1
+                        ? modifiedLists.get(0)
+                        : modifiedLists.size() == 3
+                        ? "All Lists"
+                        : String.join(", ", modifiedLists);
+                boolean userConfirmed = stageManager.
+                                        showConfirmUpdateBoardgameListInfoMessage(modifiedListName);
+                if (!userConfirmed) {
+                    return;
+                }
+            } else if (hasEmptyFields) {
+                boolean userConfirmed = stageManager.showConfirmUpdateBoardgameInfoMessage();
+                if (!userConfirmed) {
+                    return;
+                }
+            }
+
+            // Validazione e conversione dei campi numerici
+            Integer minPlayer = validateIntegerField(minPlayerStr, "Minimum Players");
+            Integer maxPlayer = validateIntegerField(maxPlayerStr, "Maximum Players");
+            Integer playingTime = validateIntegerField(playingTimeStr, "Playing Time");
+            Integer yearPublished = validateIntegerField(yearPublishedStr, "Year Published");
+            Integer minAge = validateIntegerField(minAgeStr, "Minimum Age");
+
+            // Variabile di validazione
+            boolean isValid = true;
+
+            // Controlla se un campo numerico contiene un valore non valido (ad es. testo non numerico)
+            if (minPlayerStr.isEmpty() && maxPlayerStr.isEmpty()&& playingTimeStr.isEmpty()
+                    && yearPublishedStr.isEmpty() && minAgeStr.isEmpty()) {
+                // Passa direttamente senza errori
+                isValid = true;
+            } else {
+                if (yearPublished != null && yearPublishedStr.length() > 4) {
+                    stageManager.showInfoMessage("Validation Error",
+                            "Year Published cannot contain more than 4 digits.");
+                    isValid = false;
+                }
+                if (minPlayer != null && minPlayer == 0 || maxPlayer != null && maxPlayer == 0 ||
+                        playingTime != null && playingTime == 0 || minAge != null && minAge == 0) {
+                    stageManager.showInfoMessage("Validation Error",
+                            "Numeric fields cannot contain the value 0.");
+                    isValid = false;
+                }
+                if (minAge != null && minAge > 100) {
+                    stageManager.showInfoMessage("Validation Error",
+                            "Minimum Age cannot exceed 100.");
+                    isValid = false;
+                }
+                if (minPlayer != null && maxPlayer != null && minPlayer > maxPlayer) {
+                    stageManager.showInfoMessage("Validation Error",
+                            "Minimum Players cannot be greater than Maximum Players.");
+                    isValid = false;
+                }
+            }
+
+            if (isValid) {
+                // Esegui l'aggiornamento del modello del gioco
+                BoardgameModelMongo updatedBoardgame = new BoardgameModelMongo();
+                updatedBoardgame.setId(boardgame.getId()); // Mantieni lo stesso ID
+                updatedBoardgame.setThumbnail(boardgame.getThumbnail());
+                updatedBoardgame.setReviews(boardgame.getReviews());
+
+                // Aggiorna solo i campi riempiti o modificati
+                updatedBoardgame.setImage(image.isEmpty()
+                                                  ? boardgame.getImage() : image);
+                updatedBoardgame.setBoardgameName(boardgameName.isEmpty()
+                                                  ? boardgame.getBoardgameName() : boardgameName);
+                updatedBoardgame.setDescription(description.isEmpty()
+                                                  ? boardgame.getDescription() : description);
+                updatedBoardgame.setMinPlayers(minPlayer != null
+                                                  ? minPlayer : boardgame.getMinPlayers());
+                updatedBoardgame.setMaxPlayers(maxPlayer != null
+                                                  ? maxPlayer : boardgame.getMaxPlayers());
+                updatedBoardgame.setPlayingTime(playingTime != null
+                                                  ? playingTime : boardgame.getPlayingTime());
+                updatedBoardgame.setYearPublished(yearPublished != null
+                                                  ? yearPublished : boardgame.getYearPublished());
+                updatedBoardgame.setMinAge(minAge != null
+                                                  ? minAge : boardgame.getMinAge());
+
+                updatedBoardgame.setBoardgameCategory(
+                        isCategoryListChanged ? new ArrayList<>(listStringsCategories)
+                                              : boardgame.getBoardgameCategory());
+                updatedBoardgame.setBoardgameDesigner(
+                        isDesignerListChanged ? new ArrayList<>(listStringsDesigners)
+                                              : boardgame.getBoardgameDesigner());
+                updatedBoardgame.setBoardgamePublisher(
+                        isPublisherListChanged ? new ArrayList<>(listStringsPublishers)
+                                               : boardgame.getBoardgamePublisher());
+
+
+                modelBean.putBean(Constants.UPDATED_BOARDGAME, updatedBoardgame);
+                BoardgameModelMongo newBoardgame = (BoardgameModelMongo)
+                                                    modelBean.getBean(Constants.UPDATED_BOARDGAME);
+
+                // Esegui l'aggiornamento verso il database e in Grafica se tutto va bene
+                if (updateDbms(newBoardgame)) {
+                    modelBean.putBean(Constants.SELECTED_BOARDGAME, newBoardgame);
+                    stageManager.showInfoMessage("Update Info",
+                            "The boardgame information has been successfully updated!");
+                    prepareScene();
+                }
+            }
+        } else {
+            stageManager.showInfoMessage("Update Error",
+                    "There is no selected boardgame to update.");
+        }
     }
+
+    private boolean updateDbms(BoardgameModelMongo newBoardgame){
+
+        boolean updateBoardgameOperation = serviceBoardgame.updateBoardgame(newBoardgame);
+
+        if (!updateBoardgameOperation) {
+            modelBean.putBean(Constants.UPDATED_BOARDGAME, null);
+            stageManager.showInfoMessage("Update Error: ",
+                    "There was an error updating Boardgame information. " +
+                            "Please try again.");
+            prepareScene();
+            return false;
+        }
+        return true;
+    }
+
+    // Metodo per validare e convertire i campi numerici
+    private Integer validateIntegerField(String value, String fieldName) {
+        if (value.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            stageManager.showInfoMessage("Validation Error",
+                    fieldName + " must be a valid number.");
+            return null;
+        }
+    }
+
 
     public void onClickEditBoardgameButton() {
         this.selectedOperation = UserActivity.EDIT_INFO;
@@ -576,6 +787,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     public void onClickCancelButton(){
+        boolean userConfirmed = stageManager.showConfirmDiscardEditBoardgameInfoMessage();
+        if (!userConfirmed) {
+            return;
+        }
         clearFields();
         prepareScene();
         prevNextButtonsCheck(reviews);
