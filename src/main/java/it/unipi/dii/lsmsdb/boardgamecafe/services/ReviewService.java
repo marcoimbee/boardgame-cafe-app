@@ -181,7 +181,7 @@ public class ReviewService {
 
     public boolean updateReviewInUser(ReviewModelMongo selectedReview) {
         Optional<GenericUserModelMongo> userResult =
-                userMongoOp.findByUsername(selectedReview.getUsername());
+                userMongoOp.findByUsername(selectedReview.getUsername(), false);
 
         if (userResult.isPresent()) {
             GenericUserModelMongo genericUser = userResult.get();

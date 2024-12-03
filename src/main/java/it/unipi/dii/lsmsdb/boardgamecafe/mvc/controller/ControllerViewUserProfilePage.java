@@ -2,10 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
@@ -28,9 +25,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Executable;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
@@ -109,7 +108,7 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     private List<PostModelMongo> postsUser = new ArrayList<>();
     private List<ReviewModelMongo> reviewsUser = new ArrayList<>();
-    private UserModelMongo openUserProfile;     // The user whose profile is open right now
+    private GenericUserModelMongo openUserProfile;     // The user whose profile is open right now
 
     private PostListener postListener;
 
@@ -121,7 +120,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private final static int LIMIT = 10;
     private ContentType selectedContentType;
     private static List<String> currentUserFollowedList;
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
     private static UserModelMongo selectedUser;
     private Consumer<String> deletedContentCallback;
 
@@ -133,7 +132,6 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("[INFO] Loaded ControllerViewUserProfilePage");
         this.yourProfileButton.setDisable(true);
         this.yourPostsButton.setDisable(true);
         this.previousButton.setDisable(true);
@@ -141,13 +139,23 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.selectedContentType = ContentType.POSTS;
         this.resetPage();
 
-        selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        // TODO: delete labels if user is admin
 
-        if (selectedUser != null){          // User is looking at another user's profile
-            checkSelectedUser();
+        selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
+        if (modelBean.getBean(Constants.IS_ADMIN) != null) {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);          // The logged user is an admin
         } else {
-            openUserProfile = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // The logged user is a regular user
+        }
+
+        if (selectedUser != null) {          // User is looking at another user's profile
+            checkSelectedUser();
+        } else {                            // User is looking at his own profile
+            if (modelBean.getBean(Constants.IS_ADMIN) != null) {
+                openUserProfile = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page and he is an admin
+            } else {
+                openUserProfile = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page and he is a regular user
+            }
             this.followButton.setDisable(true);
         }
 
@@ -156,20 +164,37 @@ public class ControllerViewUserProfilePage implements Initializable{
         int totalFollowing = userDBNeo.getCountFollowing(openUserProfile.getUsername());
         int reviewsCount = reviewMongoOp.findReviewByUsername(openUserProfile.getUsername()).size();
 
+        // Retrieving user posts
         postsUser.addAll(getPosts(openUserProfile.getUsername()));          // TODO: CHECK, maybe use data from above
         if (this.postsUser.isEmpty()) {
             loadViewMessageInfo();
         }
-        this.firstNameLabel.setText(openUserProfile.getName());
-        this.lastNameLabel.setText(openUserProfile.getSurname());
-        this.nationalityLabel.setText(openUserProfile.getNationality());
+
+        // Setting profile data
+        if (openUserProfile instanceof UserModelMongo userModel) {
+            this.firstNameLabel.setText(userModel.getName());
+            this.lastNameLabel.setText(userModel.getSurname());
+            this.nationalityLabel.setText(userModel.getNationality());
+        } else {
+            this.firstNameLabel.setVisible(false);
+            this.lastNameLabel.setVisible(false);
+            this.nationalityLabel.setVisible(false);
+        }
         this.usernameLabel.setText(openUserProfile.getUsername());
         this.followerLabel.setText(String.valueOf(totalFollowers));
         this.followingLabel.setText(String.valueOf(totalFollowing));
         this.counterPostsLabel.setText(String.valueOf(postsCount));
         this.counterReviewsLabel.setText(String.valueOf(reviewsCount));
-        Image image = new Image(Objects.requireNonNull(getClass().
-                                getResource("/user.png")).toExternalForm());
+        String profileImageFilename;
+        Image image;
+        // Disabling follow/unfollow button based on if the selected user is banned or not - only admins can visit the profile of a banned user
+        if (selectedUser != null && selectedUser.isBanned()) {
+            this.followButton.setDisable(true);
+            profileImageFilename = "/images/bannedUser.png";
+        } else {
+            profileImageFilename = "/images/user.png";
+        }
+        image = new Image(Objects.requireNonNull(getClass().getResource(profileImageFilename)).toExternalForm());
         this.profileImage.setImage(image);
 
         fillGridPane(postsUser);
@@ -620,21 +645,23 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     private void resetToCurrent(){
         UserModelMongo currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (currentUser != null  ) {
+        if (currentUser != null) {
             openUserProfile = currentUser;
 
             // Aggiorna le etichette con le informazioni dell'utente corrente
-            this.firstNameLabel.setText(openUserProfile.getName());
-            this.lastNameLabel.setText(openUserProfile.getSurname());
-            this.nationalityLabel.setText(openUserProfile.getNationality());
+            if (openUserProfile instanceof UserModelMongo userModel) {
+                this.firstNameLabel.setText(userModel.getName());
+                this.lastNameLabel.setText(userModel.getSurname());
+                this.nationalityLabel.setText(userModel.getNationality());
+                this.counterReviewsLabel.setText(String.valueOf(userModel.getReviews().size()));
+            }
             this.usernameLabel.setText(openUserProfile.getUsername());
             this.followerLabel.setText(String.valueOf(userDBNeo.getCountFollowers(openUserProfile.getUsername())));
             this.followingLabel.setText(String.valueOf(userDBNeo.getCountFollowing(openUserProfile.getUsername())));
             this.counterPostsLabel.setText(String.valueOf(postDBMongo.findByUsername(openUserProfile.getUsername()).size()));
-            this.counterReviewsLabel.setText(String.valueOf(openUserProfile.getReviews().size()));
 
             // Imposta l'immagine del profilo
-            Image image = new Image(Objects.requireNonNull(getClass().getResource("/user.png")).toExternalForm());
+            Image image = new Image(Objects.requireNonNull(getClass().getResource("/images/user.png")).toExternalForm());
             this.profileImage.setImage(image);
 
             // Ripristina i post o le recensioni a seconda del tipo di contenuto selezionato

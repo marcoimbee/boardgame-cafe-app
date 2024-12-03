@@ -153,7 +153,6 @@ public class StageManager {
         window.show();
     }
 
-
     public boolean showDeleteBoardgameInfoMessage() {
         String title = "ATTENTION";
         String message = "Are You Sure You Want To Delete This Boardgame from BoardGame-Cafè_App Collection?";
@@ -162,6 +161,7 @@ public class StageManager {
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
+
     public boolean showUpdatePostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? Your updates will be lost.";
@@ -194,6 +194,33 @@ public class StageManager {
         String message = "Discard changes? What you wrote will be lost.";
         String okButtonString = "Discard Boardgame Creation";
         String backButtonString = "Return To Boardgame Creation";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDeleteUserInfoMessage() {
+        String title = "ATTENTION";
+        String message = "This user will be deleted. This action cannot be undone.";
+        String okButtonString = "Delete User";
+        String backButtonString = "Cancel";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showBanUserInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Ban this user?";
+        String okButtonString = "Ban User";
+        String backButtonString = "Cancel";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showUnBanUserInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Unban this user?";
+        String okButtonString = "Unban User";
+        String backButtonString = "Cancel";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }

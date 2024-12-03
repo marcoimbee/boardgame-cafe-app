@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="222.0" prefWidth="511.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #cda434; -fx-border-radius: 10; -fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectUser">
+<AnchorPane fx:id="userCardAnchorPane" prefHeight="222.0" prefWidth="511.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #cda434; -fx-border-radius: 10; -fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectUser">
    <children>
       <Label fx:id="firstNameTitle" alignment="TOP_LEFT" layoutX="226.0" layoutY="33.0" prefHeight="18.0" prefWidth="88.0" text="First Name:" textFill="#182e58">
          <font>
@@ -72,7 +72,7 @@
       <FontAwesomeIconView fill="#182e58" glyphName="USER" layoutX="206.0" layoutY="140.0" size="19" text="" />
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="205.0" layoutY="46.0" size="14" />
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="205.0" layoutY="76.0" size="14" />
-      <Button fx:id="deleteUserButton" alignment="CENTER" graphicTextGap="2.0" layoutX="19.0" layoutY="170.0" mnemonicParsing="false" onAction="#onClickDeleteUserButton" prefHeight="35.0" prefWidth="135.0" style="-fx-background-color: #182E58;" text="Delete User" textFill="WHITE">
+      <Button fx:id="deleteUserButton" alignment="CENTER" graphicTextGap="2.0" layoutX="19.0" layoutY="170.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" style="-fx-background-color: #182E58;" text="Delete User" textFill="WHITE">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>
@@ -80,7 +80,7 @@
             <FontAwesomeIconView fill="WHITE" glyphName="TRASH" size="16" />
          </graphic>
       </Button>
-      <Button fx:id="banUserButton" alignment="CENTER" graphicTextGap="2.0" layoutX="381.0" layoutY="170.0" mnemonicParsing="false" onAction="#onClickBanUserButton" prefHeight="35.0" prefWidth="110.0" style="-fx-background-color: #182E58;" text="Ban User" textFill="WHITE">
+      <Button fx:id="banUserButton" alignment="CENTER" graphicTextGap="2.0" layoutX="381.0" layoutY="170.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="110.0" style="-fx-background-color: #182E58;" text="Ban User" textFill="WHITE">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>

@@ -227,7 +227,7 @@ public class ControllerViewSignUp implements Initializable {
 
         //se username già presente: messaggio di errore.
         Optional<GenericUserModelMongo> user = userDBMongo.
-                                               findByUsername(this.textFieldUsername.getText());
+                                               findByUsername(this.textFieldUsername.getText(), false);
 
         if (user.isPresent()) { return "already_used"; }
         return this.textFieldUsername.getText();

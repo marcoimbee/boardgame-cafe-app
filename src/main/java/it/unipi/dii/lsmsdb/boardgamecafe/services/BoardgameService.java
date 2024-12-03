@@ -133,7 +133,7 @@ public class BoardgameService {
         } else {
             // Delete reviews in user collection
             for (ReviewModelMongo review : boardgameReviewsList) {
-                UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername()).get();
+                UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername(), false).get();
                 user.deleteReview(review.getId());
                 if (!userMongoOp.updateUser(user.getId(), user, "user")) {
                     logger.error("Error in deleting reviews about boardgame in user collection");
