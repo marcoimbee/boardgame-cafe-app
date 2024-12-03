@@ -128,11 +128,11 @@ public class PostDBNeo4j {
         return posts;
     }
 
-    public void addLikePost(String username, String postId)
+    public void addLikePost(String username, String postId, boolean likeAction)
     {
         try
         {
-            likedPostsCache.addInfoLike(postId, true); // AutoIncrement inside
+            likedPostsCache.addInfoLike(postId, true, likeAction); // AutoIncrement inside
             postRepoNeo4j.addLike(username, postId); // Create the relationship on Neo
         } catch (Exception ex) {
             // Log dell'eccezione
@@ -144,7 +144,7 @@ public class PostDBNeo4j {
     {
         try
         {
-            likedPostsCache.addInfoLike(postId, false);// AutoDecrement inside
+            likedPostsCache.addInfoLike(postId, false, true);// AutoDecrement inside
             postRepoNeo4j.removeLike(username, postId);
         } catch (Exception ex) {
             // Log dell'eccezione
@@ -164,7 +164,7 @@ public class PostDBNeo4j {
             else // Se non è in cache, controlla il database Neo4j
             {
                 boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
-                likedPostsCache.addInfoLike(postId, hasLiked);
+                likedPostsCache.addInfoLike(postId, hasLiked, false);
                 return hasLiked;
             }
 

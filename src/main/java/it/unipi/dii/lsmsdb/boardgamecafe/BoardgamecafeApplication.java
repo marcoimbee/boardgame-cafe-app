@@ -61,7 +61,7 @@ public class BoardgamecafeApplication extends Application {
 
     //Useful Methods
     protected void displayInitStage() {
-        stageManager.switchScene(FxmlView.GUESTPOSTS);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
     private ConfigurableApplicationContext bootStrapSpringAppContext() {
         SpringApplicationBuilder builder = new SpringApplicationBuilder(BoardgamecafeApplication.class);

@@ -116,8 +116,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     //• Suggerisci Boardgame su cui hanno fatto post utenti che segui ---> Boargames commentati da utenti che segui
 
     private ObservableList<String> whatBgameToShowList = FXCollections.observableArrayList(
-            "All bordgames",
-            "Boardgames commented by followed users",
+            "All boardgames",
+            "Boardgames posted by followed users",
             "Top rated Boardgames per year",
             "Boardgames group by category"
     );

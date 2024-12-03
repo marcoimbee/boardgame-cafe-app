@@ -27,4 +27,9 @@ public class Constants {
     public static final String DELETED_COMMENT = "deletedComment";
     public static final String UPDATED_COMMENT = "updatedComment";
     public static final String ADDED_COMMENT = "addedComment";
+
+    // ------ REVIEW MANAGEMENT ------
+    public static final String ADDED_REVIEW = "addedReview";
+    public static final String UPDATED_REVIEW = "updatedReview";
+    public static final String DELETED_REVIEW = "deletedReview";
 }

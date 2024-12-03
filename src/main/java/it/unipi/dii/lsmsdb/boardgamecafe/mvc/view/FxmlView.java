@@ -278,6 +278,36 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewStatisticsPage.fxml";
         }
+    }, EDIT_REVIEW {
+        @Override
+        public String getTitle() {
+            return "Review Editing";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewEditReviewPage.fxml";
+        }
+    }, OBJECTCREATEREVIEW {
+        @Override
+        public String getTitle() {
+            return "Review Creation";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectCreateReview.fxml";
+        }
+    }, OBJECTREVIEWBLANKBODY {
+        @Override
+        public String getTitle() {
+            return "Review Creation";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewObjectReviewBlankBody.fxml";
+        }
     };
 
     public abstract String getTitle();

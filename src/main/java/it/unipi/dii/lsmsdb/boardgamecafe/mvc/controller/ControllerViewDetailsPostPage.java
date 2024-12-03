@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
@@ -9,10 +11,12 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -36,7 +40,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     //********** Buttons **********
     @FXML
-    private Button likdeButton;
+    private Button likeButton;
     @FXML
     private Button editButton;
     @FXML
@@ -78,6 +82,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
+    private PostDBNeo4j postDBNeo4j;
+    @Autowired
     private ControllerObjectComment controllerObjectComment;
     @Autowired
     private ModelBean modelBean;
@@ -100,6 +106,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private int skipCounter = 0;
     private final static int SKIP = 10; //how many posts to skip per time
     private final static int LIMIT = 10; //how many posts to show for each page
+    private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
 
     @Autowired
     @Lazy
@@ -120,6 +127,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         comments.clear();
 
         post = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+        this.setTextLikeButton(currentUser.getUsername(), post.getId());
         this.usernameLabel.setText(post.getUsername());
         this.tagBoardgameLabel.setText(post.getTag());
         this.timestampLabel.setText(post.getTimestamp().toString());
@@ -214,7 +222,23 @@ public class ControllerViewDetailsPostPage implements Initializable {
         stageManager.closeStageButton(this.closeButton);
     }
 
-    public void onClickLikeButton() {
+    public void onClickLikeButton(ActionEvent event)
+    {
+        String username = currentUser.getUsername();
+        String postId = post.getId();
+        postService.likeOrDislikePost(username, postId);
+        this.setTextLikeButton(username, postId);
+    }
+
+    public void setTextLikeButton(String username, String postId)
+    {
+        FontAwesomeIconView icon = (FontAwesomeIconView)this.likeButton.getGraphic();
+        boolean likeIsPresent = this.postService.hasLikedPost(username, postId);
+        icon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
+        this.likeButton.setText(this.buttonLikeMessages.get((likeIsPresent) ? 1 : 0));
+        int likeCount = this.postDBNeo4j.findTotalLikesByPostID(postId);
+        post.setLikeCount(likeCount);
+        this.counterLikesLabel.setText(String.valueOf(likeCount));
     }
     @FXML
     void onClickNext() {

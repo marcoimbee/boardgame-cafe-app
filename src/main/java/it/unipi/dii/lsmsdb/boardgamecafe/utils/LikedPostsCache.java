@@ -20,14 +20,15 @@ public class LikedPostsCache {
     //<postId, likesNumber>
     private final ConcurrentHashMap<String, Integer> likeCounts = new ConcurrentHashMap<>();
 
-    public void addInfoLike(String postId, boolean infoLike)
+    public void addInfoLike(String postId, boolean infoLike, boolean likeAction)
     {
         // Aggiungi un'informazione di un like (Presente o Assente), nella cache
+        if ((likeAction) && (this.likedPosts.containsKey(postId)))
+            if (infoLike)
+                this.incLikeCount(postId);
+            else
+                this.decLikeCount(postId);
         this.likedPosts.put(postId, infoLike);
-        if (infoLike)
-            this.incLikeCount(postId);
-        else
-            this.decLikeCount(postId);
     }
 
     public int hasLiked(String postId)

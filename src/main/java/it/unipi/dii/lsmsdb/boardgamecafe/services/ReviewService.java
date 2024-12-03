@@ -38,42 +38,17 @@ public class ReviewService {
                                 BoardgameModelMongo boardgame,
                                 UserModelMongo user) {
         try {
-            String usernameCreatorReview = user.getUsername();
-            String boardgameToBeReviewdName = boardgame.getBoardgameName();
-
             if (!reviewMongoOp.addReview(review)) {
-                throw new RuntimeException("\nError in adding the review to the collection of Reviews.");
+                throw new RuntimeException("Error while adding the review to the Reviews collection.");
             }
-
-            //Recupero la review appena aggiunta alla collection Reviews considerando
-            // il gioco a cui fa riferimento l'utente che l'ha creata
-            Optional<ReviewModelMongo> reviewFromMongo = reviewMongoOp.
-                                       findByUsernameAndBoardgameName(
-                                               usernameCreatorReview,
-                                               boardgameToBeReviewdName);
-
-            if(reviewFromMongo.isPresent()){
-
-                ReviewModelMongo newReview = reviewFromMongo.get();
-
-                if (!addReviewToUser(user, newReview)) {
-                    throw new RuntimeException("\nError in adding the review to the collection of Users. " +
-                            "Rollabck performed for review in Reviews Collection into MongoDB");
-                }
-                if (!addReviewToBoardgame(boardgame, newReview)) {
-                    throw new RuntimeException("\nError in adding the review to the collection of Boardgames. " +
-                            "Rollabck performed for review in Reviews Collection into MongoDB");
-                }
-                System.out.println("\nNew Review ID: " + newReview.getId());
-                System.out.println("\nReview inserted into MongoDB dbms for Users, Reviews and Boardgames collections.");
-
-            } else {
-                throw new RuntimeException("\nReview created by " + usernameCreatorReview +" " +
-                        "for te Boardgame -> " + boardgameToBeReviewdName + " not found!");
+            if (!addReviewToUser(user, review)) {
+                throw new RuntimeException("Error while adding the review to the Users collection. Rolling back...");
             }
-
+            if (!addReviewToBoardgame(boardgame, review)) {
+                throw new RuntimeException("Error while adding the review to the Boardgames collection. Rolling back...");
+            }
         } catch (Exception e) {
-            System.err.println("[ERROR] " + e.getMessage());
+            System.err.println("[ERROR] insertReview@ReviewService.java raised an exception: " + e.getMessage());
             return false;
         }
         return true;
@@ -110,127 +85,97 @@ public class ReviewService {
     }
 
     @Transactional
-    // Eliminare la review dalla collection REVIEWS -> USERS -> BOARDGAMES
-    public boolean deleteReview(ReviewModelMongo selectedReview, UserModelMongo loggedUser) //BoardgameModelMongo boardgame,
-    {
-        try
-        {
-            // Solamente l'utente che ha scritto la review può cancellarla. Da grafica dovrebbe già essere verificato,
-            // ma un controllo in più non fa male.
+    public boolean deleteReview(ReviewModelMongo selectedReview, UserModelMongo loggedUser) {
+        // This method needs to delete a specific review from the following collections:
+        //      - Reviews
+        //      - Users
+        //      - Boardgames
+        try {
             if (!selectedReview.getUsername().equals(loggedUser.getUsername()))
-                throw new RuntimeException("deleteReview(): You don't have the permission to delete this review");
-
-            String reviewId = selectedReview.getId();
-            String boardgameName = selectedReview.getBoardgameName();
-
-            if (boardgameName.isEmpty())
-                throw new RuntimeException("This review is not refered to a boardgame!");
+                throw new RuntimeException("Permission denied.");
 
             if (!deleteReviewInBoardgame(selectedReview))
-                throw new RuntimeException("deleteReviewInBoardgame(): -> deleteReviewInBoardgame failed");
+                throw new RuntimeException("Failed to delete a review from the Boardgames collection");
 
             if (!deleteReviewInUser(loggedUser, selectedReview)) {
-                throw new RuntimeException("deleteReviewInUser(): -> deleteReviewInBoardgame failed");
-                //logger.error("Error in deleting the review from the collection of users");
+                throw new RuntimeException("Failed to delete a review from the Users collection");
             }
-            // cancellare la reviews nelle review dello user in locale
 
             if (!reviewMongoOp.deleteReview(selectedReview)) {
-                throw new RuntimeException("deleteReviewById(): -> deleteReviewInBoardgame failed");
+                throw new RuntimeException("Failed to delete a review in the Reviews collection");
             }
-
-        }
-        catch (RuntimeException e)
-        {
-            System.out.println("DeleteReview Exception: " + e.getMessage());
+        } catch (RuntimeException e) {
+            System.out.println("[ERROR] deleteReview@ReviewService.java raised an exception: " + e.getMessage());
             return false;
         }
         return true;
     }
 
-    private boolean deleteReviewInBoardgame(ReviewModelMongo selectedReview) // Cancella sia da mongo che in locale
-    {
+    private boolean deleteReviewInBoardgame(ReviewModelMongo selectedReview) {
         Optional<BoardgameModelMongo> boardgameResult =
                 boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
         if (boardgameResult.isEmpty())
-            throw new RuntimeException("deleteReviewInBoardgame Exception: The referred boardgame not exists in DB. Name: " + selectedReview.getBoardgameName());
+            throw new RuntimeException("The referred boardgame does not exists in the database");
 
         BoardgameModelMongo referredBoardgame = boardgameResult.get();
-        if (boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) // Cancella da Mongo
-            if(referredBoardgame.deleteReview(selectedReview.getId())) // Cancella da locale
+        if (boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) { // MongoDB deletion
+            if (referredBoardgame.deleteReview(selectedReview.getId())) { // Local copy deletion
                 return true;
-            else
-            {
-                System.out.println("deleteReviewInBoardgame Exception: The reviews was on Mongo but not in local");
+            } else {
+                System.out.println("[WARNING] The review was found in MongoDB but not locally");
                 return false;
             }
-        else
-            throw new RuntimeException("The referred boardgame ON MONGO doesn't have this review -> ******\n" + selectedReview + "\n******\n");
+        } else {
+            throw new RuntimeException("The referred boardgame doesn't have the selected review: " + selectedReview);
+        }
     }
 
-    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) // Cancella sia da Mongo che in locale
-    {
-        if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId()))
-        {
+    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) {      // MongoDB deletion and local deletion
+        if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId())) {
             if (user.deleteReview(selectedReview.getId()))
                 return true;
-            else
-            {
-                System.out.println("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| present in Mongo but non in local");
+            else {
+                System.out.println("[WARNING] The review was found in MongoDB but not locally");
                 return false;
             }
         }
-        throw new RuntimeException("deleteReviewInUser Exception: Review |" + selectedReview.getId() + "| not present in Mongo");
+        throw new RuntimeException("The selected review was not present in MongoDB");
     }
 
     @Transactional
     public boolean updateReview(ReviewModelMongo selectedReview) {
         try {
             if (!reviewMongoOp.updateReview(selectedReview.getId(), selectedReview)) {
-                throw new RuntimeException("\nError in updating the review in the collection of reviews");
+                throw new RuntimeException("Error while updating a review in the Reviews collection");
             }
             if (!updateReviewInUser(selectedReview)) {
-                throw new RuntimeException("\nError in updating the review in the collection of users");
+                throw new RuntimeException("Error while updating a review in Users collection");
             }
             if (!updateReviewInBoardgame(selectedReview)) {
-                throw new RuntimeException("\nError in updating the review in the collection of Board Games");
+                throw new RuntimeException("Error while updating a review in the Boardgames collection");
             }
         } catch (Exception e) {
-            System.err.println("[ERROR] " + e.getMessage());
+            System.err.println("[ERROR] updateReview@ReviewService.java raised an exception: " + e.getMessage());
             return false;
         }
         return true;
     }
 
     private boolean updateReviewInBoardgame(ReviewModelMongo selectedReview) {
-
         Optional<BoardgameModelMongo> boardgameResult =
                 boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
         if (boardgameResult.isPresent()) {
             BoardgameModelMongo boardgame = boardgameResult.get();
 
-            //Local object state management
-            if (boardgame.deleteReview(selectedReview.getId())) {
+            if (boardgame.deleteReview(selectedReview.getId())) {       //Local object state management
                 boardgame.addReview(selectedReview);
             }
 
             return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
-
-            //******************************************************************************************
-            // Valutare l'uso di questa variante, potrebbe non essere necessario fare delete/add nell'array
-            // dell'oggetto locale dato che si andrebbe ad agire direttamente su MongoDB
-
-//            //delete implementata da fra - pullare
-//            if (!boardgameMongoOp.deleteReviewInBoardgameArray(boardgame, selectedReview)) {
-//
-//                return boardgameMongoOp.addReviewInBoardgameArray(boardgame, selectedReview);
-//            }
-            //******************************************************************************************
         }
-        System.out.println("\nError: There is not present a bordgame with the name: " +
-                              boardgameResult.get().getBoardgameName());
+        System.out.println("[WARNING] No boardgame named '" + selectedReview.getBoardgameName() + "' is present in the DB.");
         return false;
     }
 
@@ -243,7 +188,7 @@ public class ReviewService {
             String _classValue = genericUser.get_class();
 
             if (!_classValue.equals("user")) {
-                logger.error("Error: selected user is not a common user");
+                System.out.println("[ERROR] The target user is not a common user.");
                 return false;
             }
             UserModelMongo user = (UserModelMongo) genericUser;
@@ -253,20 +198,8 @@ public class ReviewService {
                 user.addReview(selectedReview);
             }
             return userMongoOp.updateUser(user.getId(), user, "user");
-
-            //******************************************************************************************
-            // Valutare l'uso di questa variante, potrebbe non essere necessario fare delete/add nell'array
-            // dell'oggetto locale dato che si andrebbe ad agire direttamente su MongoDB
-
-//            //delete implementata da fra - pullare
-//            if (!userMongoOp.deleteReviewInUserArray(user, selectedReview)) {
-//
-//                return userMongoOp.addReviewInUserArray(user, selectedReview);
-//            }
-            //******************************************************************************************
         }
-        System.out.println("\nError: There is not present a User with the username: " +
-                              userResult.get().getUsername());
+        System.out.println("[WARNING] No user named '" + selectedReview.getUsername() + "' is present in the DB.");
         return false;
     }
 
@@ -303,37 +236,6 @@ public class ReviewService {
             }
         }
     }
-    // END - ************************* To_Check *************************
-
-
-
-//    //TO_CHECK -> GUI
-//    public ReviewModelMongo getSelectedReview(int counterPages, int tableIndex,
-//                                              UserModelMongo user, BoardgameModelMongo boardagme,
-//                                              List<ReviewModelMongo> reviews) {
-//        boolean isEmbedded = true;
-//        int index;
-//
-//        ReviewModelMongo review;
-//        if (counterPages > 4) {
-//            index = tableIndex + (counterPages * 10 - 50);
-//            review = reviews.get(index);
-//            isEmbedded = false;
-//        } else {
-//            index = tableIndex + (counterPages * 10);
-//            if (boardagme == null) {
-//                review = user.getReviews().get(index);
-//            } else {
-//                review = boardagme.getReviews().get(index);
-//            }
-//        }
-//        if (review == null) {
-//            logger.error("Review null, not found ");
-//            return null;
-//        }
-//        BoardgamecafeApplication.getInstance().getModelBean().putBean(Symbols.IS_EMBEDDED, isEmbedded);
-//        return review;
-//    }
 
     private String getReviewId(ReviewModelMongo review) {
 

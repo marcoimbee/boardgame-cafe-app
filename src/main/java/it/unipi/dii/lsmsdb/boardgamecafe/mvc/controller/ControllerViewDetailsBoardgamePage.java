@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -9,17 +10,21 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -169,6 +174,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Autowired
     private ControllerObjectReview controllerObjectReview;
     @Autowired
+    private ControllerObjectReviewBlankBody controllerObjectReviewBlankBody;
+    @Autowired
     private ModelBean modelBean;
     @Autowired
     private ReviewService serviceReview;
@@ -183,6 +190,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private BoardgameModelMongo boardgame;
 
     private static UserModelMongo currentUser;
+
+    private static int totalReviewsCounter;
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -202,6 +211,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Lazy
     private StageManager stageManager;
 
+    private Consumer<String> deletedReviewCallback;
+
     public ControllerViewDetailsBoardgamePage() {
     }
 
@@ -220,15 +231,31 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
         prepareScene();
+
+        totalReviewsCounter = boardgame.getReviews().size();
+        System.out.println("[INFO] Found " + totalReviewsCounter + " reviews for '" + boardgame.getBoardgameName() + "'");
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
+
         fillGridPane();
+
+        // Page focus listener - needed to potentially update UI when coming back from a review update window
+        reviewsGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        onFocusGained();            // Update UI after review updates
+                    }
+                });
+            }
+        });
     }
 
-    private void prepareScene() {
-        clearFields();
-        resetPage();
-        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
-        this.selectedOperation = UserActivity.NO_EDIT;
+
+
+
+
+    private void setAverageRating() {
         Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         if (ratingFromTop == null)
             ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
@@ -240,7 +267,17 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             this.averageRatingLabel.setTooltip(null);
 
         this.averageRatingLabel.setText(ratingAsString);
-        this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviews().size()));
+
+        //System.out.println("[DEBUG] avg rating set to: " + ratingAsString);
+    }
+
+    private void prepareScene() {
+        clearFields();
+        resetPage();
+        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
+        this.selectedOperation = UserActivity.NO_EDIT;
+        setAverageRating();
+        this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
         this.descriptionTextArea.setText(this.boardgame.getDescription()
@@ -288,7 +325,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (imageInCache != null)
         {
             this.imageBoardgame.setImage(imageInCache);
-            System.out.println("Trovata in cache");
+            System.out.println("[INFO] Image loaded from cache.");
             return;
         }
         try {
@@ -323,6 +360,26 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         return byteArrayOutputStream.toByteArray();
     }
 
+    private void onFocusGained() {
+        System.out.println("[DEBUG] reviews size: " + reviews.size());
+        // Potentially update a review
+        ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
+        if (updatedReview != null) {
+            modelBean.putBean(Constants.UPDATED_REVIEW, null);
+            reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            fillGridPane();
+        }
+    }
+
+    // Called whenever the author user of a review decides to delete that review. This method updates the review list and updates UI
+    public void updateUIAfterReviewDeletion(String deletedReviewId) {
+        reviews.removeIf(review -> review.getId().equals(deletedReviewId));
+        totalReviewsCounter--;
+        this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
+        fillGridPane();
+        setAverageRating();
+    }
+
     public void onClickDeleteButton() {
         boolean userChoice = stageManager.showDeleteBoardgameInfoMessage();
         if (!userChoice) {
@@ -351,7 +408,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         cleanFetchAndFill();
     }
 
-    public void onClickCloseButton(ActionEvent event) {
+    public void onClickCloseButton() {
         stageManager.closeStageButton(this.closeButton);
     }
 
@@ -451,6 +508,73 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     public void onClickAddReviewButton() {
+        try {
+            this.addReviewButton.setDisable(true);
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEREVIEW.getFxmlFile());
+
+            Slider ratingSlider = (Slider) loadViewItem.lookup("#ratingSlider");
+            TextField reviewBodyArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
+            Button submitReviewButton = (Button) loadViewItem.lookup("#submitButton");
+            Button cancelReviewButton = (Button) loadViewItem.lookup("#cancelButton");
+
+            AnchorPane addReviewBox = new AnchorPane();
+            addReviewBox.getChildren().add(loadViewItem);
+
+            if (reviews.isEmpty()) {
+                resetPage();
+                reviewsGridPane.add(addReviewBox, 0, rowGridPane);
+            } else {
+                resetPage();
+                reviewsGridPane.add(addReviewBox, 0, 0);
+            }
+            GridPane.setMargin(addReviewBox, new Insets(8, 5, 10, 90));
+
+            // Submit review button behavior
+            submitReviewButton.setOnAction(e -> {
+                String reviewText = reviewBodyArea.getText();
+                int reviewRating = (int) ratingSlider.getValue();
+
+                ReviewModelMongo newReview = new ReviewModelMongo(
+                        boardgame.getBoardgameName(),
+                        currentUser.getUsername(),
+                        reviewRating,
+                        reviewText,
+                        new Date()
+                );
+
+                boolean savedReview = serviceReview.insertReview(
+                        newReview,
+                        boardgame,
+                        currentUser
+                );
+
+                if (savedReview) {
+                    stageManager.showInfoMessage("Success", "Review added successfully");
+
+                    setAverageRating();
+                    reviews.add(0, newReview);
+                    cleanFetchAndFill();
+
+                    this.addReviewButton.setDisable(false);
+                    modelBean.putBean(Constants.ADDED_REVIEW, newReview);
+
+                    totalReviewsCounter++;
+                    this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
+                }
+            });
+
+            // Discard review button behavior
+            cancelReviewButton.setOnAction(e -> {
+                boolean userChoice = stageManager.showDiscardReviewInfoMessage();
+                if (userChoice) {
+                    this.addReviewButton.setDisable(false);
+                    cleanFetchAndFill();
+                }
+            });
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("ERROR", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickAddReviewButton@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
+        }
     }
 
     private void loadViewMessageInfo() {
@@ -470,51 +594,67 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     @FXML
     void fillGridPane() {
-
-//        reviewsGridPane.getChildren().clear();
-        //per mettere un solo elemento correttamente nel gridpane
+        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
         if (reviews.size() == 1) {
-            columnGridPane = 0;
             rowGridPane = 0;
         } else {
-            setGridPaneColumnAndRow();
+            rowGridPane = 1;
         }
+
+        reviewsGridPane.getChildren().clear();
 
         try {
             if (reviews.isEmpty()) {
                 loadViewMessageInfo();
             } else {
                 for (ReviewModelMongo review : reviews) {
-                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
-                    AnchorPane anchorPane = new AnchorPane();
-                    anchorPane.getChildren().add(loadViewItem);
-
-                    // Setting comment data - including callbacks for actions to be taken upon comment modification or deletion
-                    controllerObjectReview.setData(review);
-
-                    //choice number of column
-                    if (columnGridPane == 1) {
-                        columnGridPane = 0;
-                        rowGridPane++;
-                    }
-                    reviewsGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
-                    //DISPLAY SETTINGS
-                    //set grid width
-                    reviewsGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                    reviewsGridPane.setPrefWidth(500);
-                    reviewsGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                    //set grid height
-                    reviewsGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                    reviewsGridPane.setPrefHeight(400);
-                    reviewsGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                    //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(4, 5, 10, 90));
+                    AnchorPane reviewNode = createReviewViewNode(review);
+                    addReviewToGridPane(reviewNode);
                 }
             }
         } catch (Exception e) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
             System.err.println("[ERROR] fillGridPane@ControllerViewDetailsBoardgamePage.java raised an exception: " + e.getMessage());
         }
+    }
+
+    private AnchorPane createReviewViewNode(ReviewModelMongo review) {
+        Parent loadViewItem;
+        if (review.getBody().isEmpty()) {
+            loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEWBLANKBODY.getFxmlFile());
+            // Setting review data - including callbacks for actions to be taken upon review deletion
+            controllerObjectReviewBlankBody.setData(review, deletedReviewCallback);
+        } else {
+            loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEW.getFxmlFile());
+            // Setting review data - including callbacks for actions to be taken upon review deletion
+            controllerObjectReview.setData(review, deletedReviewCallback);
+        }
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.getChildren().add(loadViewItem);
+
+        // Setting up what should be called upon review deletion using the delete review button
+        deletedReviewCallback = this::updateUIAfterReviewDeletion;
+
+        return anchorPane;
+    }
+
+    private void addReviewToGridPane(AnchorPane reviewNode) {
+        if (columnGridPane == 1) {
+            columnGridPane = 0;
+            rowGridPane++;
+        }
+
+        reviewsGridPane.add(reviewNode, columnGridPane++, rowGridPane); //(child,column,row)
+
+        reviewsGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+        reviewsGridPane.setPrefWidth(500);
+        reviewsGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        reviewsGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+        reviewsGridPane.setPrefHeight(400);
+        reviewsGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        GridPane.setMargin(reviewNode, new Insets(4, 5, 10, 90));
     }
 
     private void cleanFetchAndFill() {

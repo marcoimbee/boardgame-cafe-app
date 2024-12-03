@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewRegUserPostsPage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewRegUserPostsPage">
    <left>
       <AnchorPane prefHeight="677.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
          <children>
@@ -68,14 +68,9 @@
    <center>
       <VBox prefHeight="677.0" prefWidth="783.0" BorderPane.alignment="CENTER">
          <children>
-            <AnchorPane>
+            <AnchorPane onMouseClicked="#onClickAnchorPane">
                <children>
-                  <Button fx:id="searchButton" contentDisplay="CENTER" layoutX="380.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickSearch" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Search" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="15.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="clearFieldButton" contentDisplay="CENTER" layoutX="486.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickClearField" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Clear Field" textFill="WHITE">
+                  <Button fx:id="clearFieldButton" contentDisplay="CENTER" layoutX="380.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickClearField" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Clear Field" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>

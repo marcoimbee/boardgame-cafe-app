@@ -3,10 +3,10 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,6 +14,9 @@ import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.util.function.Consumer;
+
 
 @Component
 public class ControllerObjectReview {
@@ -33,33 +36,34 @@ public class ControllerObjectReview {
     @FXML
     protected TextArea bodyTextLabel;
 
-    private ReviewModelMongo review;
 
     @Autowired
-    private ReviewService reviewService; // Iniezione del servizio
-
-    private static UserModelMongo currentUser;
-
+    private ReviewService reviewService;
     @Autowired
     private ModelBean modelBean;
-
-    private StageManager stageManager;
     @Autowired
     @Lazy
-    public ControllerObjectReview(StageManager stageManager) {
-        this.stageManager = stageManager;
-    }
+    private StageManager stageManager;
+
+
+    private ReviewModelMongo review;
+    private static UserModelMongo currentUser;
+    private Consumer<String> deletedReviewCallback;
+
 
     public ControllerObjectReview() {
     }
 
-    public void setData(ReviewModelMongo review) {
+    public void setData(ReviewModelMongo review, Consumer<String> deletedReviewCallback) {
         currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.review = review;
         this.editButton.setDisable(false);
         this.deleteButton.setDisable(false);
         String creationDate = review.getDateOfReview().toString();
+
+        // Setting up callback functions
+        this.deletedReviewCallback = deletedReviewCallback;
 
         this.authorLabel.setText(review.getUsername());
         this.dateOfReviewLabel.setText(creationDate);
@@ -72,24 +76,35 @@ public class ControllerObjectReview {
             editButton.setVisible(false);
             deleteButton.setVisible(false);
         }
+
+        // Setting up button listeners
+        deleteButton.setOnAction(event -> onClickDeleteButton(review));
+        editButton.setOnAction(event -> onClickEditButton(review));
     }
 
     @FXML
-    public void onClickEditButton(ActionEvent event) {
-        // Implementazione per rimuovere il post
-        String title = "Work in Progress";
-        String message = "" +
-                "A breve verrai reindirizzato alla pagina in cui puoi modificare la review.\n";
-        stageManager.showInfoMessage(title, message);
+    public void onClickEditButton(ReviewModelMongo review) {
+        modelBean.putBean(Constants.SELECTED_REVIEW, review);
+        stageManager.showWindow(FxmlView.EDIT_REVIEW);            // Do not close underlying page, just show the little review editing window
     }
 
     @FXML
-    public void onClickDeleteButton(ActionEvent event) {
-        // Implementazione per commentare il post
-        String title = "Work in Progress";
-        String message = "" +
-                "A breve avrai la possibilità di eliminare la Review.\n";
-        stageManager.showInfoMessage(title, message);
-    }
+    public void onClickDeleteButton(ReviewModelMongo review) {
+        boolean userChoice = stageManager.showDeleteReviewInfoMessage();
+        if (!userChoice) {
+            return;
+        }
 
+        try {
+            reviewService.deleteReview(review, currentUser);
+
+            System.out.println("[INFO] Successfully deleted a review.");
+
+            modelBean.putBean(Constants.DELETED_REVIEW, review);
+            deletedReviewCallback.accept(review.getId());
+        } catch (Exception ex) {
+            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton@ControllerObjectReview.java raised an exception: " + ex.getMessage());
+        }
+    }
 }

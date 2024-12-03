@@ -111,7 +111,7 @@ public class StageManager {
         return scene;
     }
 
-    public void showWindow(final FxmlView window) {
+    public Stage showWindow(final FxmlView window) {
 
         try {
             Parent viewRoot = loadViewNode(window.getFxmlFile());
@@ -120,9 +120,10 @@ public class StageManager {
             stage.setTitle(window.getTitle());
             stage.setScene(new Scene(viewRoot));
             stage.show();
-
+            return stage;
         } catch (Exception e) {
             logger.error("Exception occurred: " + e.getLocalizedMessage());
+            return null;
         }
     }
 
@@ -197,6 +198,15 @@ public class StageManager {
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
 
+    public boolean showDiscardReviewInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Discard changes? What you wrote will be lost.";
+        String okButtonString = "Discard review";
+        String backButtonString = "Return to review";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
     public boolean showDiscardCommentInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? What you wrote will be lost.";
@@ -221,6 +231,15 @@ public class StageManager {
         String message = "Are you sure you want to delete this comment?";
         String okButtonString = "Delete Comment";
         String backButtonString = "Return to Comments";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDeleteReviewInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to delete this review?";
+        String okButtonString = "Delete Review";
+        String backButtonString = "Return to Reviews";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
