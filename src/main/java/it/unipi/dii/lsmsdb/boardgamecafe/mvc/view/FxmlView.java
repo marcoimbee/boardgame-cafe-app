@@ -298,7 +298,18 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewObjectReviewBlankBody.fxml";
         }
-    };
+    }, STATISTICS {
+        @Override
+        public String getTitle() {
+            return "BoardgameCafe_App Statistics Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewStatisticsPage.fxml";
+        }
+    }
+    ;
 
     public abstract String getTitle();
     public abstract String getFxmlFile();
