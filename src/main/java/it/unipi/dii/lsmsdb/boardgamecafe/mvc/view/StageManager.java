@@ -162,6 +162,32 @@ public class StageManager {
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
+
+    public boolean showConfirmUpdateBoardgameInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Some fields are empty. Do you want to update only the filled fields?";
+        String okButtonString = "Save Changes";
+        String backButtonString = "Return to Editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showConfirmUpdateBoardgameListInfoMessage(String listName) {
+        String title = "ATTENTION";
+        String message = "Some fields are empty. Do you want to update only "+listName +" and filled fields?";
+        String okButtonString = "Save Changes";
+        String backButtonString = "Return to Editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+    public boolean showConfirmDiscardEditBoardgameInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to discard changes? Your updates will be lost.";
+        String okButtonString = "Discard changes";
+        String backButtonString = "Return to editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
     public boolean showUpdatePostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? Your updates will be lost.";
