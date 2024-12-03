@@ -17,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -64,6 +65,14 @@ public class ControllerViewUserProfilePage implements Initializable{
     private Button yourReviewsButton;
     @FXML
     private Button logoutButton;
+    @FXML
+    private Label firstName;
+    @FXML
+    private Label lastName;
+    @FXML
+    private Label nationality;
+    @FXML
+    private Separator separator;
 
     @FXML
     private Label firstNameLabel;
@@ -139,8 +148,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.selectedContentType = ContentType.POSTS;
         this.resetPage();
 
-        // TODO: delete labels if user is admin
-
         selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
         if (modelBean.getBean(Constants.IS_ADMIN) != null) {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);          // The logged user is an admin
@@ -179,6 +186,11 @@ public class ControllerViewUserProfilePage implements Initializable{
             this.firstNameLabel.setVisible(false);
             this.lastNameLabel.setVisible(false);
             this.nationalityLabel.setVisible(false);
+
+            this.firstName.setVisible(false);
+            this.lastName.setVisible(false);
+            this.nationality.setVisible(false);
+            this.separator.setVisible(false);
         }
         this.usernameLabel.setText(openUserProfile.getUsername());
         this.followerLabel.setText(String.valueOf(totalFollowers));
