@@ -4,7 +4,6 @@ public class Constants {
     public static final String CURRENT_USER = "currentUser";
     public static final String SELECTED_BOARDGAME = "selectedBoardgame";
     public static final String SELECTED_USER = "selectedUser" ;
-    public static final String SELECTED_STATISTIC = "selectedStatistic";
     public static final String IS_UPDATE = "isUpdate";
     public static final String SELECTED_REVIEW = "selectedReview";
     public static final String IS_EMBEDDED = "isEmbedded";
@@ -31,4 +30,7 @@ public class Constants {
     public static final String ADDED_REVIEW = "addedReview";
     public static final String UPDATED_REVIEW = "updatedReview";
     public static final String DELETED_REVIEW = "deletedReview";
+
+    // ------ ADMIN MANAGEMENT ------
+    public static final String SELECTED_ANALYTICS = "";
 }
