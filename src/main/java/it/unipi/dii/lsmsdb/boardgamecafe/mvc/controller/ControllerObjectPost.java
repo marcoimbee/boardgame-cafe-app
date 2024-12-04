@@ -124,17 +124,19 @@ public class ControllerObjectPost {
 
         this.deletedPostCallback = deletedPostCallback;
         updateLikesLabel(null, post);
-        setTextLikeButton(post.getId(), currentUser.getUsername(), null, null);
+        setTextLikeButton(post, currentUser.getUsername(), null, null);
         deleteButton.setOnAction(event -> onClickDeleteButton(post));
         likeButton.setOnAction(event -> onClickLikeButton(post, event));
     }
 
-    public void setTextLikeButton(String postId, String currentUser, Button button, FontAwesomeIconView icon)
+    public void setTextLikeButton(PostModelMongo post, String currentUser, Button button, FontAwesomeIconView icon)
     // Se il like c'è, il button ha funzione dislike. Il contrario altrimenti
     {
         Button workingButton = (button != null) ? button : this.likeButton;
         FontAwesomeIconView workingIcon = (icon != null) ? icon : this.iconLikeButton;
-        this.likeIsPresent = this.postService.hasLikedPost(currentUser, postId);
+        this.likeIsPresent = this.postService.hasLikedPost(currentUser, post.getId());
+        if (button == null && icon == null) // if it's the first call...
+            this.postDBNeo4j.setLikeCount(post.getId(), post.getLikeCount());
         workingIcon.setIcon((this.likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
         workingButton.setText((this.buttonLikeMessages.get((this.likeIsPresent) ? 1 : 0)));
     }
@@ -145,7 +147,7 @@ public class ControllerObjectPost {
         String postId = post.getId();
         postService.likeOrDislikePost(username, postId);
         FontAwesomeIconView icon = (FontAwesomeIconView) ((Button)event.getSource()).getGraphic();
-        setTextLikeButton(post.getId(), username, (Button) event.getSource(), icon);
+        setTextLikeButton(post, username, (Button) event.getSource(), icon);
         updateLikesLabel(event, post);
     }
 
