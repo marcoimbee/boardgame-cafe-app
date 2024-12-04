@@ -101,16 +101,6 @@ public class ControllerViewStatisticsPage implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
         this.initComboBox();
         this.statisticsButton.setDisable(true);
-
-        //this.comboBoxStatistics.setItems(this.whatStatisticToShow);
-
-
-        /*
-        this.comboBoxStatistics.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.currentlyShowing = ControllerViewRegUserBoardgamesPage.statisticsToShow.values()[this.whatStatisticToShow.indexOf(newValue)];
-            this.textFieldSearch.clear();
-            initPage();
-        });*/
     }
 
     //********** On Click Button Methods **********
@@ -139,13 +129,15 @@ public class ControllerViewStatisticsPage implements Initializable{
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickShowCountriesButton(ActionEvent event) {
-
+    public void onClickShowCountriesButton(ActionEvent event)
+    {
+        //String selectedAnalytics = this.
+        modelBean.putBean(Constants.SELECTED_ANALYTICS, "");
     }
 
 
     //********** Internal Methods **********
-    private void initDisplay(){
+    private void initDisplay() {
 
     }
 
