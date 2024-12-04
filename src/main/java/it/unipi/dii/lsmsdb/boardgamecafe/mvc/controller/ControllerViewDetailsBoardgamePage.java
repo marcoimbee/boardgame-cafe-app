@@ -251,10 +251,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         });
     }
 
-
-
-
-
     private void setAverageRating() {
         Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         if (ratingFromTop == null)
@@ -461,6 +457,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.listStringsCategories.clear();
         this.listStringsDesigners.clear();
         this.listStringsPublishers.clear();
+        //this.totalReviewsCounter = boardgame.getReviews().size();
     }
 
     void prevNextButtonsCheck(List<ReviewModelMongo> reviews) {
