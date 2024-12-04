@@ -234,6 +234,17 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
             viewCurrentlyShowing();
         }
+
+        // Update UI after potentially having updated a Boardgame
+        BoardgameModelMongo updatedBoardgame = (BoardgameModelMongo) modelBean.
+                                                getBean(Constants.UPDATED_BOARDGAME);
+        if (updatedBoardgame != null) {
+            boardgames.removeIf(boardgame -> boardgame.getBoardgameName().
+                                             equals(updatedBoardgame.getBoardgameName()));
+            boardgames.add(updatedBoardgame);
+            currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
+            viewCurrentlyShowing();
+        }
     }
 
     public void onClickStatisticsButton() {

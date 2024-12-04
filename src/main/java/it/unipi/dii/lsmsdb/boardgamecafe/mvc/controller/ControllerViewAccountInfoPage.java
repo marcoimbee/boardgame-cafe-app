@@ -1,33 +1,20 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -36,7 +23,6 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -391,6 +377,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 newUser.setId(regUser.getId());
                 newUser.setUsername(regUser.getUsername());
                 newUser.setBanned(regUser.isBanned());
+                newUser.setReviews(regUser.getReviews());
 
                 if (updateDbms(newUser)){
                     modelBean.putBean(Constants.CURRENT_USER, newUser);
@@ -415,7 +402,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
 
         String formattedDate = regUser.getDateOfBirth().format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
         Image image = new Image(Objects.requireNonNull(getClass().
-                getResource("/user.png")).toExternalForm());
+                getResource("/images/user.png")).toExternalForm());
         this.profileImage.setImage(image);
 
         this.firstNameLabel.setText(regUser.getName());

@@ -118,7 +118,7 @@ public class UserService {
     @Transactional
     public boolean insertUser(UserModelMongo user) {
         try {
-            if (userMongoDB.findByUsername(user.getUsername()).isPresent()) {       // Username uniqueness check
+            if (userMongoDB.findByUsername(user.getUsername(), false).isPresent()) {       // Username uniqueness check
                 throw new Exception("Unable to insert an already existing user");
             }
 
@@ -128,7 +128,7 @@ public class UserService {
             }
 
             // Getting the ID of the newly created user from MongoDB
-            Optional<GenericUserModelMongo> createdUserOptional = userMongoDB.findByUsername(user.getUsername());
+            Optional<GenericUserModelMongo> createdUserOptional = userMongoDB.findByUsername(user.getUsername(), false);
             if (createdUserOptional.isEmpty()) {
                 userMongoDB.deleteUser(user);
                 throw new Exception("Failed to retrieve newly inserted user from MongoDB");
@@ -305,10 +305,14 @@ public class UserService {
             List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username, limit, skipCounter);
             List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
             for (String suggestedUsername : suggestedNeo4jUsers) {
-                Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername);
-                suggestedMongoUser.ifPresent(       // suggestedMongoUser is found, it gets added to the suggestedMongoUsers list
-                        genericUserModelMongo ->
-                                suggestedMongoUsers.add((UserModelMongo) genericUserModelMongo)
+                Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername, false);
+                suggestedMongoUser.ifPresent(
+                        genericUserModelMongo -> {
+                            UserModelMongo user = (UserModelMongo) genericUserModelMongo;
+                            if (!"admin".equals(user.get_class())) {        // Exclude users with _class = "admin"
+                                suggestedMongoUsers.add(user);
+                            }
+                        }
                 );
             }
             return suggestedMongoUsers;
@@ -338,10 +342,14 @@ public class UserService {
 
             List<UserModelMongo> suggestedInfluencers = new ArrayList<>();
             for (String influencerUsername : mostFollowedUsersWithHighestAvgLikeCountIdsMongo) {
-                Optional<GenericUserModelMongo> suggestedInfluencer = userMongoDB.findByUsername(influencerUsername);
+                Optional<GenericUserModelMongo> suggestedInfluencer = userMongoDB.findByUsername(influencerUsername, false);
                 suggestedInfluencer.ifPresent(
-                        genericUserModelMongo ->
-                                suggestedInfluencers.add((UserModelMongo) genericUserModelMongo)
+                        genericUserModelMongo -> {
+                            UserModelMongo user = (UserModelMongo) genericUserModelMongo;
+                            if (!"admin".equals(user.get_class())) {        // Exclude users with _class = "admin"
+                                suggestedInfluencers.add(user);
+                            }
+                        }
                 );
             }
             return suggestedInfluencers;
@@ -357,10 +365,14 @@ public class UserService {
             List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersBySameLikedPosts(username, limit, skipCounter);
             List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
             for (String suggestedUsername : suggestedNeo4jUsers) {
-                Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername);
-                suggestedMongoUser.ifPresent(           // suggestedMongoUser is found, it gets added to the suggestedMongoUsers list
-                        genericUserModelMongo ->
-                                suggestedMongoUsers.add((UserModelMongo) genericUserModelMongo)
+                Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername, false);
+                suggestedMongoUser.ifPresent(
+                        genericUserModelMongo -> {
+                            UserModelMongo user = (UserModelMongo) genericUserModelMongo;
+                            if (!"admin".equals(user.get_class())) {            // Exclude users with _class = "admin"
+                                suggestedMongoUsers.add(user);
+                            }
+                        }
                 );
             }
             return suggestedMongoUsers;

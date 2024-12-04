@@ -154,7 +154,6 @@ public class StageManager {
         window.show();
     }
 
-
     public boolean showDeleteBoardgameInfoMessage() {
         String title = "ATTENTION";
         String message = "Are You Sure You Want To Delete This Boardgame from BoardGame-Cafè_App Collection?";
@@ -163,6 +162,33 @@ public class StageManager {
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
+
+    public boolean showConfirmUpdateBoardgameInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Some fields are empty. Do you want to update only the filled fields?";
+        String okButtonString = "Save Changes";
+        String backButtonString = "Return to Editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showConfirmUpdateBoardgameListInfoMessage(String listName) {
+        String title = "ATTENTION";
+        String message = "Some fields are empty. Do you want to update only "+listName +" and filled fields?";
+        String okButtonString = "Save Changes";
+        String backButtonString = "Return to Editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+    public boolean showConfirmDiscardEditBoardgameInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Are you sure you want to discard changes? Your updates will be lost.";
+        String okButtonString = "Discard changes";
+        String backButtonString = "Return to editing";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
     public boolean showUpdatePostInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? Your updates will be lost.";
@@ -195,6 +221,33 @@ public class StageManager {
         String message = "Discard changes? What you wrote will be lost.";
         String okButtonString = "Discard Boardgame Creation";
         String backButtonString = "Return To Boardgame Creation";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showDeleteUserInfoMessage() {
+        String title = "ATTENTION";
+        String message = "This user will be deleted. This action cannot be undone.";
+        String okButtonString = "Delete User";
+        String backButtonString = "Cancel";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showBanUserInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Ban this user?";
+        String okButtonString = "Ban User";
+        String backButtonString = "Cancel";
+
+        return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
+    }
+
+    public boolean showUnBanUserInfoMessage() {
+        String title = "ATTENTION";
+        String message = "Unban this user?";
+        String okButtonString = "Unban User";
+        String backButtonString = "Cancel";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }

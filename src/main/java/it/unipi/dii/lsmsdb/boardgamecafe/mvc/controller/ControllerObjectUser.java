@@ -1,41 +1,26 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.UserListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
-import java.util.ResourceBundle;
 
 @Component
 public class ControllerObjectUser {
-
     @FXML
     private Button followButton;
     @FXML
@@ -52,8 +37,8 @@ public class ControllerObjectUser {
     protected Label nationalityLabel;
     @FXML
     protected ImageView profileImage;
-
-    private AnchorPane anchorPaneSelected;
+    @FXML
+    protected AnchorPane userCardAnchorPane;
 
     private UserModelMongo user;
 
@@ -62,11 +47,13 @@ public class ControllerObjectUser {
 
     private StageManager stageManager;
 
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
     private static List<String> currentUserFollowedList;
 
     @Autowired
-    UserDBNeo4j userDBNeo4j;
+    private UserDBNeo4j userDBNeo4j;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     @Lazy
@@ -80,19 +67,25 @@ public class ControllerObjectUser {
     public void setData(UserModelMongo user) {
         this.user = user;
 
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (modelBean.getBean(Constants.IS_ADMIN) == null) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        }
         currentUserFollowedList = (List<String>) modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST);
 
         if (Objects.equals(user.getUsername(), currentUser.getUsername())){
             this.followButton.setDisable(true);
+        } else {
+            this.followButton.setDisable(false);
         }
-        if(user.get_class().equals("user")){
+
+        if(modelBean.getBean(Constants.IS_ADMIN) == null){        // Ban and delete buttons are only visible to admin users
             this.banUserButton.setVisible(false);
             this.deleteUserButton.setVisible(false);
         } else {
-            this.banUserButton.setDisable(false);
-            this.deleteUserButton.setDisable(false);
-            this.followButton.setDisable(true);
+            this.banUserButton.setVisible(true);
+            this.deleteUserButton.setVisible(true);
         }
 
         if (currentUserFollowedList.contains(user.getUsername())) {
@@ -101,15 +94,23 @@ public class ControllerObjectUser {
             followButton.setText(" Follow");
         }
 
+        String profileImageFilename = user.isBanned() ? "/images/bannedUser.png" : "/images/user.png";
         Image image = new Image(Objects.requireNonNull(getClass().
-                                getResource("/user.png")).toExternalForm());
+                                getResource(profileImageFilename)).toExternalForm());
         this.profileImage.setImage(image);
         this.firstNameLabel.setText(user.getName());
         this.lastNameLabel.setText(user.getSurname());
         this.nationalityLabel.setText(user.getNationality());
         this.usernameLabel.setText(user.getUsername());
 
+        if (user.isBanned()) {      // We're creating the card of a banned user - only admins can see these cards
+            this.followButton.setDisable(true);
+            this.banUserButton.setText(" Unban");
+        }
+
         followButton.setOnAction(event -> onClickFollowButton(user, (Button) event.getSource()));
+        banUserButton.setOnAction(event -> onClickBanUserButton(user));
+        deleteUserButton.setOnAction(event -> onClickDeleteUserButton(user));
     }
 
     public void onClickFollowButton(UserModelMongo selectedUser, Button clickedButton) {
@@ -150,10 +151,47 @@ public class ControllerObjectUser {
         }
     }
 
-    public void onClickDeleteUserButton(){
+    public void onClickDeleteUserButton(UserModelMongo user){
+        boolean adminChoice = stageManager.showDeleteUserInfoMessage();
+        if (!adminChoice) {
+            return;
+        }
 
+        if (!userService.deleteUser(user)) {
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+        } else {
+            stageManager.showInfoMessage("INFO", "'" + user.getUsername() + "' has been successfully deleted from the application.");
+            modelBean.putBean(Constants.DELETED_USER, user);
+        }
     }
-    public void onClickBanUserButton(){
 
+    public void onClickBanUserButton(UserModelMongo user){
+        boolean adminChoice;
+
+        if (user.isBanned()) {              // User already banned - unban him
+            adminChoice = stageManager.showUnBanUserInfoMessage();
+            if (!adminChoice) {
+                return;
+            }
+
+            if (!userService.unbanUser(user)) {
+                stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            } else {
+                stageManager.showInfoMessage("INFO", "'" + user.getUsername() + "' has been successfully unbanned from the application.");
+                modelBean.putBean(Constants.UNBANNED_USER, user);
+            }
+        } else {                // Banning user
+            adminChoice = stageManager.showBanUserInfoMessage();
+            if (!adminChoice) {
+                return;
+            }
+
+            if (!userService.banUser(user)) {
+                stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            } else {
+                stageManager.showInfoMessage("INFO", "'" + user.getUsername() + "' has been successfully banned from the application.");
+                modelBean.putBean(Constants.BANNED_USER, user);
+            }
+        }
     }
 }

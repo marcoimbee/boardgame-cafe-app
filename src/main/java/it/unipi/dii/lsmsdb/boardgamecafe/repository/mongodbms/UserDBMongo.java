@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
@@ -55,9 +53,13 @@ public class UserDBMongo {
         }
     }
 
-    public Optional<GenericUserModelMongo> findByUsername(String username) {
+    public Optional<GenericUserModelMongo> findByUsername(String username, boolean includeAdmins) {
         try {
-            return userRepoMongo.findByUsername(username);
+            if (includeAdmins) {
+                return userRepoMongo.findByUsername(username, true);
+            } else {
+                return userRepoMongo.findByUsername(username);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
@@ -110,6 +112,7 @@ public class UserDBMongo {
         List<UserModelMongo> users = null;
         try {
             Query query = new Query();
+            query.addCriteria(Criteria.where("_class").ne("admin")); // Exclude documents with _class = admin
             query.skip(skip).limit(limit);
             users = mongoOperations.find(query, UserModelMongo.class);
         } catch (Exception e) {
@@ -117,6 +120,7 @@ public class UserDBMongo {
         }
         return users;
     }
+
 
 
     public boolean updateUser(String id,
@@ -364,5 +368,15 @@ public class UserDBMongo {
             ex.printStackTrace();
             return new ArrayList<>();
         }
+    }
+
+    public List<GenericUserModelMongo> getBannedUsers() {
+        List<GenericUserModelMongo> bannedUsers = null;
+        try {
+            bannedUsers = userRepoMongo.getBannedUsers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bannedUsers;
     }
 }

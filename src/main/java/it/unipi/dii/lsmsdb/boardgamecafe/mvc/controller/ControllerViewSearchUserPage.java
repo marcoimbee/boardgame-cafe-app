@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.UserListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -14,6 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -25,7 +27,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -90,6 +94,8 @@ public class ControllerViewSearchUserPage implements Initializable {
 
     private List<UserModelMongo> users = new ArrayList<>();
 
+    private List<GenericUserModelMongo> bannedUsers = new ArrayList<>();
+
     //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
@@ -114,7 +120,7 @@ public class ControllerViewSearchUserPage implements Initializable {
     private List<String> userUsernames;
     private static String selectedSearchUser;
 
-    private static String currentUser;
+    private static GenericUserModelMongo currentUser;
 
     @Autowired
     @Lazy
@@ -125,43 +131,99 @@ public class ControllerViewSearchUserPage implements Initializable {
     @Override
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        visitedPages = new ArrayList<>();
+        try {
+            if (modelBean.getBean(Constants.IS_ADMIN) == null) {
+                currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            } else {
+                currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            }
 
-        this.searchUserButton.setDisable(true);
-        this.previousButton.setDisable(true);
-        this.nextButton.setDisable(true);
-        resetPageVars();
+            visitedPages = new ArrayList<>();
 
-        currentlyShowing = UsersToFetch.ALL_USERS;      // Static var init
+            this.searchUserButton.setDisable(true);
+            this.previousButton.setDisable(true);
+            this.nextButton.setDisable(true);
+            resetPageVars();
 
-        // Choice box init
-        whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(0));
-        whatUsersToShowChoiceBox.setItems(whatUsersToShowList);
+            currentlyShowing = UsersToFetch.ALL_USERS;      // Static var init
 
-        // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
-        whatUsersToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateCurrentlyShowing(newValue);
+            // Choice box init
+            whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(0));
+            whatUsersToShowChoiceBox.setItems(whatUsersToShowList);
+
+            // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
+            whatUsersToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                updateCurrentlyShowing(newValue);
+                onSelectChoiceBoxOption();
+            });
+
             onSelectChoiceBoxOption();
-        });
 
-        onSelectChoiceBoxOption();
+            // Prefetch usernames for the search function and init search functionalities variables
+            searchResultsList.setVisible(false);
 
-        // Prefetch usernames for the search function and init search functionalities variables
-        searchResultsList.setVisible(false);
+            long startTime = System.currentTimeMillis();
+            if (modelBean.getBean(Constants.USERS_USERNAMES) == null) {
+                userUsernames = userDBMongo.getUserUsernames();       // Fetching usernames as soon as the page opens
+                modelBean.putBean(Constants.USERS_USERNAMES, userUsernames);       // Saving them in the Bean, so they'll be always available from now on in the whole app
+            } else {
+                userUsernames = (List<String>) modelBean.getBean(Constants.USERS_USERNAMES);    // Obtaining usernames from the Bean, as thy had been put there before
+            }
+            long stopTime = System.currentTimeMillis();
+            long elapsedTime = stopTime - startTime;
+            System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
+            selectedSearchUser = null;
 
-        long startTime = System.currentTimeMillis();
-        if (modelBean.getBean(Constants.USERS_USERNAMES) == null) {
-            userUsernames = userDBMongo.getUserUsernames();       // Fetching usernames as soon as the page opens
-            modelBean.putBean(Constants.USERS_USERNAMES, userUsernames);       // Saving them in the Bean, so they'll be always available from now on in the whole app
-        } else {
-            userUsernames = (List<String>) modelBean.getBean(Constants.USERS_USERNAMES);    // Obtaining usernames from the Bean, as thy had been put there before
+            // Setting up admin tools - list of banned users, needed to set up ban/unban buttons
+            if (currentUser.get_class().equals("admin")) {
+                if (modelBean.getBean(Constants.BANNED_USERS_LIST) == null) {
+                    bannedUsers = userDBMongo.getBannedUsers();
+                    modelBean.putBean(Constants.BANNED_USERS_LIST, bannedUsers);
+                } else {
+                    bannedUsers = (List<GenericUserModelMongo>) modelBean.getBean(Constants.BANNED_USERS_LIST);
+                }
+            }
+
+            // Page focus listener - needed to potentially update UI when coming back from a user ban or delete operation by the admin
+            usersGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+                if (newScene != null) {
+                    Stage stage = (Stage) newScene.getWindow();
+                    stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                        if (isNowFocused) {
+                            // After gaining focus for user ban or delete window closing (admin-only operations),
+                            // UI needs to be potentially updated
+                            onRegainPageFocusAfterUserBanOrDeletion();
+                        }
+                    });
+                }
+            });
+        } catch (Exception ex) {
+            System.out.println("[ERROR] exception: " + ex.getMessage());
+            ex.printStackTrace();
         }
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
-        selectedSearchUser = null;
+    }
 
-        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
+    private void onRegainPageFocusAfterUserBanOrDeletion() {
+        // Potentially update UI after user deletion
+        UserModelMongo deletedUser = (UserModelMongo) modelBean.getBean(Constants.DELETED_USER);
+        if (deletedUser != null) {
+            modelBean.putBean(Constants.DELETED_USER, null);
+            onClickRefreshButton();
+        }
+
+        // Potentially update UI after user ban
+        UserModelMongo bannedUser = (UserModelMongo) modelBean.getBean(Constants.BANNED_USER);
+        if (bannedUser != null) {
+            modelBean.putBean(Constants.BANNED_USER, null);
+            onClickRefreshButton();
+        }
+
+        // Potentially update UI after user unban
+        UserModelMongo unbannedUser = (UserModelMongo) modelBean.getBean(Constants.UNBANNED_USER);
+        if (unbannedUser != null) {
+            modelBean.putBean(Constants.UNBANNED_USER, null);
+            onClickRefreshButton();
+        }
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
@@ -274,13 +336,13 @@ public class ControllerViewSearchUserPage implements Initializable {
             case ALL_USERS:
                 return userDBMongo.findAllUsersWithLimit(LIMIT, skipCounter);
             case USERS_WITH_COMMON_BOARDGAMES_POSTED:
-                return userService.suggestUsersByCommonBoardgamePosted(currentUser, LIMIT, skipCounter);
+                return userService.suggestUsersByCommonBoardgamePosted(currentUser.getUsername(), LIMIT, skipCounter);
             case USERS_WITH_COMMON_LIKED_POSTS:
-                return userService.suggestUsersByCommonLikedPosts(currentUser, LIMIT, skipCounter);
+                return userService.suggestUsersByCommonLikedPosts(currentUser.getUsername(), LIMIT, skipCounter);
             case INFLUENCER_USERS:
                 return userService.suggestInfluencerUsers(10, 10, 10, 10);
             case SEARCH_RESULTS:
-                GenericUserModelMongo searchResult = userDBMongo.findByUsername(username).get();
+                GenericUserModelMongo searchResult = userDBMongo.findByUsername(username, false).get();
                 System.out.println("[DEBUG] searchResult: " + searchResult);
                 return List.of((UserModelMongo) searchResult);
         }
@@ -336,44 +398,60 @@ public class ControllerViewSearchUserPage implements Initializable {
                 }
 
                 System.out.println("[DEBUG] [startUser, endUser]: [" + startUser + ", " + endUser + "]");
+                int counter = 0;
 
                 for (int i = startUser; i <= endUser; i++) {
                     UserModelMongo user = users.get(i);
-
-                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTUSER.getFxmlFile());
-
-                    AnchorPane anchorPane = new AnchorPane();
-                    anchorPane.getChildren().add(loadViewItem);
-
-                    controllerObjectUser.setData(user);
-
-                    anchorPane.setOnMouseClicked(event -> {
-                        this.userListener.onClickUserListener(event, user);});
-
-                    //choice number of column
-                    if (columnGridPane == 1) {
-                        columnGridPane = 0;
-                        rowGridPane++;
+                    if (currentUser.get_class().equals("user")) {      // Only show users which are not banned
+                        if (!user.isBanned()) {
+                            AnchorPane userNode = createUserViewNode(user);
+                            addUserToGridPane(userNode);
+                            counter++;
+                        }
+                    } else {            // Show all users (also banned ones)
+                        AnchorPane userNode = createUserViewNode(user);
+                        addUserToGridPane(userNode);
+                        counter++;
                     }
-
-                    usersGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
-                    //DISPLAY SETTINGS
-                    //set grid width
-                    usersGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                    usersGridPane.setPrefWidth(500);
-                    usersGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                    //set grid height
-                    usersGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                    usersGridPane.setPrefHeight(400);
-                    usersGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                    //GridPane.setMargin(anchorPane, new Insets(25));
-                    GridPane.setMargin(anchorPane, new Insets(15, 5, 15, 215));
                 }
             }
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "An error occurred while retrieving users. Try again in a while.");
             System.err.println("[ERROR] fillGridPane@ControllerViewSearchUserPage.java raised an exception: " + ex.getMessage());
+            ex.printStackTrace();
         }
+    }
+
+    private AnchorPane createUserViewNode(UserModelMongo user) {
+        Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTUSER.getFxmlFile());
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.getChildren().add(loadViewItem);
+
+        controllerObjectUser.setData(user);
+
+        anchorPane.setOnMouseClicked(event -> {
+            this.userListener.onClickUserListener(event, user);});
+
+        return anchorPane;
+    }
+
+    private void addUserToGridPane(AnchorPane userNode) {
+        if (columnGridPane == 1) {
+            columnGridPane = 0;
+            rowGridPane++;
+        }
+
+        usersGridPane.add(userNode, columnGridPane++, rowGridPane); //(child,column,row)
+
+        usersGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+        usersGridPane.setPrefWidth(500);
+        usersGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        usersGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+        usersGridPane.setPrefHeight(400);
+        usersGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        GridPane.setMargin(userNode, new Insets(15, 5, 15, 215));
     }
 
     public void onClickLogout() {
