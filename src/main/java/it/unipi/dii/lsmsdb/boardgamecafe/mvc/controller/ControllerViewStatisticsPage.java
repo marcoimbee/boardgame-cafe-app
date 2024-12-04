@@ -9,6 +9,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -50,10 +52,14 @@ public class ControllerViewStatisticsPage implements Initializable{
     @FXML
     private Button logoutButton;
     @FXML
-    private Button showCountriesButton;
+    private Button countriesAnalyticsBtn;
+    @FXML
+    private Button avgAgeAnalyticsBtn;
+    @FXML
+    private Button mostActiveUsersAnalyticsBtn;
+    @FXML
+    private Button mostPostedBGameBtn;
 
-    //********* ComboBoxes *********
-    private ComboBox<String> comboBoxCountries;
 
     //********* Autowireds *********
     @Autowired
@@ -69,6 +75,23 @@ public class ControllerViewStatisticsPage implements Initializable{
     private UserModelMongo regUser;
     //Useful Variables
 
+    private ObservableList<String> whatStatisticToShow = FXCollections.observableArrayList(
+            "Show the most posted Boardgame", // --> Show the tag of Post that is the most commented.
+            "Show average age of users per country",
+            "Show Most Active Users",
+            "Show the countries with the highest user number"
+    );
+
+    private enum statisticsToShow {
+        MOST_POSTED_BOARDGAME,
+        AVG_AGE_BY_COUNTRY,
+        MOST_ACTIVE_USER,
+        COUNTRIES_WITH_HIGHEST_USER_NUMBER,
+
+    };
+
+    private String currentlyShowing;
+
     @Autowired
     @Lazy
     public ControllerViewStatisticsPage(StageManager stageManager) {
@@ -78,6 +101,16 @@ public class ControllerViewStatisticsPage implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
         this.initComboBox();
         this.statisticsButton.setDisable(true);
+
+        //this.comboBoxStatistics.setItems(this.whatStatisticToShow);
+
+
+        /*
+        this.comboBoxStatistics.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.currentlyShowing = ControllerViewRegUserBoardgamesPage.statisticsToShow.values()[this.whatStatisticToShow.indexOf(newValue)];
+            this.textFieldSearch.clear();
+            initPage();
+        });*/
     }
 
     //********** On Click Button Methods **********
@@ -120,5 +153,25 @@ public class ControllerViewStatisticsPage implements Initializable{
 
 
     private void initComboBox() {
+    }
+
+    public void onClickCountriesAnalyticsBtn(ActionEvent event)
+    {
+        this.userDBMongo.findCountriesWithMostUsers(10);
+    }
+
+    public void onClickAvgAgeAnalyticsBtn(ActionEvent event)
+    {
+
+    }
+
+    public void onClickMostActiveUsersAnalyticsBtn(ActionEvent event)
+    {
+
+    }
+
+    public void onClickMostPostedBGamesAnalyticsBtn(ActionEvent event)
+    {
+
     }
 }
