@@ -8,28 +8,28 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="857.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsPostPage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="857.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsPostPage">
    <center>
       <VBox prefHeight="782.0" prefWidth="884.0" BorderPane.alignment="CENTER">
          <children>
-            <AnchorPane fx:id="analyticAnchorPane" prefHeight="200.0" prefWidth="200.0">
+            <AnchorPane fx:id="analyticAnchorPane" prefHeight="69.0" prefWidth="857.0">
                <children>
-                  <Label fx:id="lblQuery" alignment="BASELINE_LEFT" layoutX="55.0" layoutY="75.0" prefHeight="25.0" prefWidth="70.0" text="Query:" textFill="#182e58">
+                  <Label fx:id="lblQuery" alignment="BASELINE_LEFT" layoutX="175.0" layoutY="22.0" prefHeight="25.0" prefWidth="70.0" text="Showing:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="lblSelectedQuery" alignment="BASELINE_LEFT" layoutX="131.0" layoutY="75.0" prefHeight="25.0" prefWidth="400.0" text="Show the countries with the highest user number" textFill="#182e58">
+                  <Label fx:id="lblSelectedQuery" alignment="BASELINE_LEFT" layoutX="283.0" layoutY="22.0" prefHeight="25.0" prefWidth="400.0" text="Countries with the highest user number" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
                </children>
             </AnchorPane>
-            <TableView prefHeight="285.0" prefWidth="347.0">
+            <TableView prefHeight="418.0" prefWidth="857.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
+                <TableColumn maxWidth="428.0" minWidth="428.0" prefWidth="428.0" text="C1" />
+                <TableColumn maxWidth="428.0" minWidth="428.0" prefWidth="428.0" text="C2" />
               </columns>
             </TableView>
          </children>
