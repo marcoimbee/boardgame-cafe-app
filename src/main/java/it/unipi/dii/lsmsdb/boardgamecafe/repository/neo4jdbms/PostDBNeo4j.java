@@ -176,6 +176,11 @@ public class PostDBNeo4j {
         }
     }
 
+    public void setLikeCount(String postId, Integer likeCount)
+    {
+        this.likedPostsCache.updateLikeCount(postId, likeCount);
+    }
+
     public int findTotalLikesByPostID(String postId) {
         try {
             // Prima controlla nella cache
