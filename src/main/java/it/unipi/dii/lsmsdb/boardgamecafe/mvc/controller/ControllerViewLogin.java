@@ -80,9 +80,9 @@ public class ControllerViewLogin implements Initializable {
             return;
         }
         try {
-            Optional<GenericUserModelMongo> genericUser = userMongoOp.findByUsername(username);
+            Optional<GenericUserModelMongo> genericUser = userMongoOp.findByUsername(username, true);
             if (genericUser.isEmpty()) {
-                stageManager.showInfoMessage("ERROR", "There aren't users with this username");
+                stageManager.showInfoMessage("ERROR", "Wrong username or password");
                 this.clearFields();
                 return;
             }
@@ -99,6 +99,8 @@ public class ControllerViewLogin implements Initializable {
             if (genericUser.get().get_class().equals("admin")) {
                 AdminModelMongo admin = (AdminModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, admin);
+                modelBean.putBean(Constants.IS_ADMIN, "true");
+                System.out.println("[DEBUG] USER IS ADMIN");
             } else {
                 UserModelMongo user = (UserModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, user);
