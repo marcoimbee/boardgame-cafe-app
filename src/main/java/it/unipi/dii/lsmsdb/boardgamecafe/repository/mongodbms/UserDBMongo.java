@@ -248,69 +248,73 @@ public class UserDBMongo {
     }
 
     public Document findActiveUsersByReviews(Date startDate, Date endDate, int limitResults) {
+        try {
+            // Step 1: Filtrare le recensioni pubblicate nell'intervallo temporale specificato
+            MatchOperation matchOperation = Aggregation.match(Criteria.where("dateOfReview")
+                    .gte(startDate)
+                    .lte(endDate));
 
-        // Step 1: Filtrare le recensioni pubblicate nell'intervallo temporale specificato
-        MatchOperation matchOperation = Aggregation.match(Criteria.where("dateOfReview")
-                .gte(startDate)
-                .lte(endDate));
+            // Step 2: Raggruppare per utente, contare le recensioni e raccogliere le date delle recensioni
+            GroupOperation groupOperation = Aggregation.group("username")
+                    .count().as("reviewCount")
+                    .push("dateOfReview").as("reviewDates");
 
-        // Step 2: Raggruppare per utente, contare le recensioni e raccogliere le date delle recensioni
-        GroupOperation groupOperation = Aggregation.group("username")
-                .count().as("reviewCount")
-                .push("dateOfReview").as("reviewDates");
+            // Step 3: Filtrare solo gli utenti che hanno almeno 2 recensioni
+            MatchOperation matchReviewCount = Aggregation.match(Criteria.where("reviewCount").gte(2));
 
-        // Step 3: Filtrare solo gli utenti che hanno almeno 2 recensioni
-        MatchOperation matchReviewCount = Aggregation.match(Criteria.where("reviewCount").gte(2));
+            // Step 4: Ordinare le date
+            Document sortReviewDates = new Document("$project",
+                    new Document("reviewCount", 1)
+                            .append("orderedReviewDates", new Document("$sortArray",
+                                    new Document("input", "$reviewDates").append("sortBy", 1))));
 
-        // Step 4: Ordinare le date
-        Document sortReviewDates = new Document("$project",
-                new Document("reviewCount", 1)
-                        .append("orderedReviewDates", new Document("$sortArray",
-                                new Document("input", "$reviewDates").append("sortBy", 1))));
+            // Step 5: Calcolare le differenze tra le date (con $map)
+            Document calculateDateDifferences = new Document("$project",
+                    new Document("reviewCount", 1)
+                            .append("orderedReviewDates", 1)
+                            .append("dateDifferences", new Document("$map", new Document("input", new Document("$range", Arrays.asList(0, new Document("$subtract", Arrays.asList(new Document("$size", "$orderedReviewDates"), 1))))
+                                    ).append("as", "index")
+                                            .append("in", new Document("$dateDiff", new Document("startDate", new Document("$arrayElemAt", Arrays.asList("$orderedReviewDates", "$$index")))
+                                                    .append("endDate", new Document("$arrayElemAt", Arrays.asList("$orderedReviewDates", new Document("$add", Arrays.asList("$$index", 1)))))
+                                                    .append("unit", "day"))))
+                            ));
 
-        // Step 5: Calcolare le differenze tra le date (con $map)
-        Document calculateDateDifferences = new Document("$project",
-                new Document("reviewCount", 1)
-                        .append("orderedReviewDates", 1)
-                        .append("dateDifferences", new Document("$map", new Document("input", new Document("$range", Arrays.asList(0, new Document("$subtract", Arrays.asList(new Document("$size", "$orderedReviewDates"), 1))))
-                                ).append("as", "index")
-                                        .append("in", new Document("$dateDiff", new Document("startDate", new Document("$arrayElemAt", Arrays.asList("$orderedReviewDates", "$$index")))
-                                                .append("endDate", new Document("$arrayElemAt", Arrays.asList("$orderedReviewDates", new Document("$add", Arrays.asList("$$index", 1)))))
-                                                .append("unit", "day"))))
-                        ));
+            // Step 6: Proiettare e calcolare la media delle differenze
+            Document calculateAverageFrequency = new Document("$project",
+                    new Document("reviewCount", 1)
+                            //.append("orderedReviewDates", 1)
+                            //.append("dateDifferences", 1)
+                            .append("averageDateDifference", new Document("$avg", "$dateDifferences")));
 
-        // Step 6: Proiettare e calcolare la media delle differenze
-        Document calculateAverageFrequency = new Document("$project",
-                new Document("reviewCount", 1)
-                        //.append("orderedReviewDates", 1)
-                        //.append("dateDifferences", 1)
-                        .append("averageDateDifference", new Document("$avg", "$dateDifferences")));
-
-        // Step 7: Ordinamento risultati
-        SortOperation sortOperation = Aggregation
-                .sort(Sort.by(Sort.Direction.DESC, "reviewCount")
-                .and(Sort.by(Sort.Direction.ASC, "averageDateDifference")));
+            // Step 7: Ordinamento risultati
+            SortOperation sortOperation = Aggregation
+                    .sort(Sort.by(Sort.Direction.DESC, "reviewCount")
+                            .and(Sort.by(Sort.Direction.ASC, "averageDateDifference")));
 
 
-        // Step 8: Limitazione della quantità di risultati da visualizzare
-        LimitOperation limitOperation = Aggregation.limit(limitResults);
+            // Step 8: Limitazione della quantità di risultati da visualizzare
+            LimitOperation limitOperation = Aggregation.limit(limitResults);
 
-        // Step 9: Esecuzione dell'aggregazione
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchOperation,
-                groupOperation,
-                matchReviewCount,
-                new CustomAggregationOperation(sortReviewDates),  // Inserimento Document manuale per ordinamento
-                new CustomAggregationOperation(calculateDateDifferences),  // Inserimento Document manuale per differenze date
-                new CustomAggregationOperation(calculateAverageFrequency),  // Inserimento Document manuale per media differenze
-                sortOperation,
-                limitOperation
-        );
+            // Step 9: Esecuzione dell'aggregazione
+            Aggregation aggregation = Aggregation.newAggregation(
+                    matchOperation,
+                    groupOperation,
+                    matchReviewCount,
+                    new CustomAggregationOperation(sortReviewDates),  // Inserimento Document manuale per ordinamento
+                    new CustomAggregationOperation(calculateDateDifferences),  // Inserimento Document manuale per differenze date
+                    new CustomAggregationOperation(calculateAverageFrequency),  // Inserimento Document manuale per media differenze
+                    sortOperation,
+                    limitOperation
+            );
 
-        AggregationResults<ReviewModelMongo> results = mongoOperations.
-                aggregate(aggregation, "reviews", ReviewModelMongo.class);
+            AggregationResults<ReviewModelMongo> results = mongoOperations.
+                    aggregate(aggregation, "reviews", ReviewModelMongo.class);
 
-        return results.getRawResults();
+            return results.getRawResults();
+        } catch (Exception ex) {
+            System.err.println("[ERROR] findActiveUsersByReviews@UserDBMongo raised an exception: " + ex.getMessage());
+            return null;
+        }
     }
 
     public List<String> findMostFollowedUsersWithMinAverageLikesCountUsernames(
