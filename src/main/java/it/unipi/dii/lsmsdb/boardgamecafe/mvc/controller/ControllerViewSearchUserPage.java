@@ -10,18 +10,20 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
+import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -29,18 +31,39 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.bson.Document;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 @Component
 public class ControllerViewSearchUserPage implements Initializable {
+    @FXML
+    private Label adminInfoLabel;
+    @FXML
+    private Button applyFilterButton;
+    @FXML
+    private Label startDateFilterLabel;
+    @FXML
+    private Label endDateFilterLabel;
+    @FXML
+    private Label limitFilterLabel;
+    @FXML
+    private DatePicker endDateFilter;
+    @FXML
+    private DatePicker startDateFilter;
+    @FXML
+    private TextField limitFilter;
+
+
     @FXML
     private ListView searchResultsList;
     @FXML
@@ -103,25 +126,41 @@ public class ControllerViewSearchUserPage implements Initializable {
     private final static int SKIP = 10;     // How many users to skip each time
     private final static int LIMIT = 10;    // How many users to show in each page
 
+
+
     private enum UsersToFetch {
         ALL_USERS,
         USERS_WITH_COMMON_BOARDGAMES_POSTED,
         USERS_WITH_COMMON_LIKED_POSTS,
         INFLUENCER_USERS,
-        SEARCH_RESULTS
+        SEARCH_RESULTS,
+        ADMIN_MOST_ACTIVE_USERS;
     };
     private static UsersToFetch currentlyShowing;       // Global indicator of what type of user is being shown on the page
-
     private static int currentPage;
+
     private static List<Integer> visitedPages;
     private static boolean visualizedLastUser;      // Keeps track of whether the user has reached the last reachable page or not;
-
     // Search functionalities
+
     private List<String> userUsernames;
     private static String selectedSearchUser;
-
     private static GenericUserModelMongo currentUser;
 
+    static class TableData {
+
+        private final SimpleStringProperty username;
+        private final SimpleStringProperty reviewCount;
+        private final SimpleStringProperty avgDateDiff;
+        public TableData(String username, int reviewCount, double avgDateDiff) {
+            this.username = new SimpleStringProperty(username);
+            this.reviewCount = new SimpleStringProperty(String.valueOf(reviewCount));
+            this.avgDateDiff = new SimpleStringProperty(String.valueOf(Math.floor(avgDateDiff)));
+        }
+        public SimpleStringProperty usernameProperty() { return username; };
+        public SimpleStringProperty reviewCountProperty() { return reviewCount; };
+        public SimpleStringProperty avgDateDiffProperty() { return avgDateDiff; };
+    }
     @Autowired
     @Lazy
     public ControllerViewSearchUserPage(StageManager stageManager) {
@@ -132,10 +171,12 @@ public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            if (modelBean.getBean(Constants.IS_ADMIN) == null) {
+            currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            if (!currentUser.get_class().equals("admin")) {
                 currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             } else {
                 currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+                whatUsersToShowList.add("ADMIN: most active users");
             }
 
             visitedPages = new ArrayList<>();
@@ -242,15 +283,53 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (choiceBoxValue.equals(whatUsersToShowList.get(3))) {
             currentlyShowing = UsersToFetch.INFLUENCER_USERS;
         }
+
+        if (choiceBoxValue.equals(whatUsersToShowList.get(4))) {
+            currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
+        }
     }
 
     public void onSelectChoiceBoxOption() {
         resetPageVars();
         selectedSearchUser = null;
-        List<UserModelMongo> retrievedUsers = fetchUsers(null);
-        users.addAll(retrievedUsers);            // Add new LIMIT users (at most)
-        fillGridPane();
-        prevNextButtonsCheck(retrievedUsers.size());            // Initialize buttons
+
+        Object fetchedResults = fetchUsers(null, null, null, null);
+        if (fetchedResults instanceof Document) {
+            displayMostActiveUsers((Document) fetchedResults);
+            setAdminQueryFiltersVisibility(true);
+        } else {
+            List<UserModelMongo> fetchedUsers = (List<UserModelMongo>) fetchedResults;
+            users.addAll(fetchedUsers);            // Add new LIMIT users (at most)
+            fillGridPane();
+            prevNextButtonsCheck(fetchedUsers.size());            // Initialize buttons
+        }
+
+//        List<UserModelMongo> retrievedUsers = (List<UserModelMongo>) fetchUsers(null);
+    }
+
+    public void onClickApplyFilterButton() {
+        LocalDate startDateFilterLocaldate = this.startDateFilter.getValue();
+        Date startDateFilter = Date.from(startDateFilterLocaldate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        if (startDateFilter.compareTo(new Date()) > 0) {
+            stageManager.showInfoMessage("Invalid filter values", "Start date cannot be greater than the current date.");
+            return;
+        }
+
+        LocalDate endDateFilterLocaldate = this.endDateFilter.getValue();
+        Date endDateFilter = Date.from(endDateFilterLocaldate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        if (startDateFilter.compareTo(endDateFilter) > 0) {
+            stageManager.showInfoMessage("Invalid filter values", "Start date cannot be greater than end date.");
+            return;
+        }
+
+        int limitResultsFilter = Integer.parseInt(this.limitFilter.getText());
+        if (limitResultsFilter <= 0) {
+            stageManager.showInfoMessage("Invalid filter values", "Choose a positive non-negative integer to limit results.");
+            return;
+        }
+
+        Document fetchedResults = (Document) fetchUsers(null, startDateFilter, endDateFilter, limitResultsFilter);
+        displayMostActiveUsers(fetchedResults);
     }
 
     private void resetPageVars() {
@@ -262,19 +341,47 @@ public class ControllerViewSearchUserPage implements Initializable {
         visualizedLastUser = false;
         scrollSet.setVvalue(0);
         textFieldSearch.setText(null);
+        setAdminQueryFiltersVisibility(false);
     }
+
+    private void setAdminQueryFiltersVisibility(boolean val) {
+        this.applyFilterButton.setVisible(val);
+        this.startDateFilter.setVisible(val);
+        this.startDateFilterLabel.setVisible(val);
+        this.endDateFilter.setVisible(val);
+        this.endDateFilterLabel.setVisible(val);
+        this.limitFilter.setVisible(val);
+        this.limitFilterLabel.setVisible(val);
+        this.adminInfoLabel.setVisible(val);
+        if (val) {
+            this.startDateFilter.setValue(LocalDate.parse("01-01-2000", DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+            this.endDateFilter.setValue((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            this.limitFilter.setText(String.valueOf(10));
+
+            // Restrict limit filter to accept only integers
+            TextFormatter<Integer> integerTextFormatter = new TextFormatter<>(change -> {
+                if (change.getText().matches("\\d*")) {
+                    return change;
+                }
+                return null;
+            });
+            this.limitFilter.setTextFormatter(integerTextFormatter);
+        }
+    }
+
     public void onClickStatisticsButton() {
         stageManager.switchScene(FxmlView.STATISTICS);
     }
+
     public void onClickBoardgamesButton() {
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
         stageManager.closeStageButton(this.boardgamesButton);
     }
+
     public void onClickPostsFeedButton() {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.postsFeedButton);
     }
-
     public void onClickClearField() {
         this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown users
         currentlyShowing = UsersToFetch.ALL_USERS;
@@ -290,7 +397,13 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (!visitedPages.contains(currentPage)) {
             // New users need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedUsers = fetchUsers(selectedSearchUser);        // Fetching new users
+            retrievedUsers = (List<UserModelMongo>)
+                    fetchUsers(
+                            selectedSearchUser,
+                            null,
+                            null,
+                            null
+                    );        // Fetching new users
             users.addAll(retrievedUsers);            // Adding fetched users to the users list
             visitedPages.add(currentPage);
         } else {
@@ -330,7 +443,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         }
     }
 
-    private List<UserModelMongo> fetchUsers(String username){
+    private Object fetchUsers(String username, Date adminQueryStartDate, Date adminQueryEndDate, Integer adminQueryResultLimit){
         System.out.println("[INFO] New data has been fetched");
         switch (currentlyShowing) {             // Decide what type of users need to be fetched
             case ALL_USERS:
@@ -345,14 +458,21 @@ public class ControllerViewSearchUserPage implements Initializable {
                 GenericUserModelMongo searchResult = userDBMongo.findByUsername(username, false).get();
                 System.out.println("[DEBUG] searchResult: " + searchResult);
                 return List.of((UserModelMongo) searchResult);
+            case ADMIN_MOST_ACTIVE_USERS:
+                String startDateString = "01-01-2000";
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Date startDate;
+                try {
+                    startDate = adminQueryStartDate == null ? (simpleDateFormat.parse(startDateString)) : adminQueryStartDate;    // Get specified start date or 01-01-2000
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                Date endDate = adminQueryEndDate == null ? (new Date()) : adminQueryEndDate;                // Get specified end date or today
+                int limitResults = adminQueryResultLimit == null ? 10 : adminQueryResultLimit;          // Get specified limit or top 10
+                return userDBMongo.findActiveUsersByReviews(startDate, endDate, limitResults);
         }
 
         return new ArrayList<>();
-    }
-
-    void setGridPaneColumnAndRow(){
-        columnGridPane = 0;
-        rowGridPane = 1;
     }
 
     private void loadViewMessageInfo(){
@@ -376,7 +496,8 @@ public class ControllerViewSearchUserPage implements Initializable {
             columnGridPane = 0;
             rowGridPane = 0;
         } else {
-            setGridPaneColumnAndRow();
+            columnGridPane = 0;
+            rowGridPane = 1;
         }
 
         userListener = (MouseEvent mouseEvent, UserModelMongo user) -> {        // Show user details using StageManager
@@ -398,7 +519,6 @@ public class ControllerViewSearchUserPage implements Initializable {
                 }
 
                 System.out.println("[DEBUG] [startUser, endUser]: [" + startUser + ", " + endUser + "]");
-                int counter = 0;
 
                 for (int i = startUser; i <= endUser; i++) {
                     UserModelMongo user = users.get(i);
@@ -406,20 +526,91 @@ public class ControllerViewSearchUserPage implements Initializable {
                         if (!user.isBanned()) {
                             AnchorPane userNode = createUserViewNode(user);
                             addUserToGridPane(userNode);
-                            counter++;
                         }
                     } else {            // Show all users (also banned ones)
                         AnchorPane userNode = createUserViewNode(user);
                         addUserToGridPane(userNode);
-                        counter++;
                     }
                 }
             }
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "An error occurred while retrieving users. Try again in a while.");
             System.err.println("[ERROR] fillGridPane@ControllerViewSearchUserPage.java raised an exception: " + ex.getMessage());
-            ex.printStackTrace();
         }
+    }
+
+    private void displayMostActiveUsers(Document fetchedResults) {
+        usersGridPane.getChildren().clear();         // Removing old content
+        refreshButton.setDisable(true);
+        nextButton.setDisable(true);
+
+        columnGridPane = 1;
+        rowGridPane = 1;
+
+        ObservableList<TableData> mostActiveUsers = FXCollections.observableArrayList();
+        List<Document> results = (List<Document>) fetchedResults.get("results");
+        for (Document doc : results) {
+            String username = doc.getString("_id");
+            int reviewCount = doc.getInteger("reviewCount");
+            double avgDateDiff = doc.getDouble("averageDateDifference");
+
+            mostActiveUsers.add(new TableData(username, reviewCount, avgDateDiff));
+        }
+
+        TableView<TableData> mostAvtiveUsersTableView = createActiveUsersTableView(mostActiveUsers);
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.setCenter(mostAvtiveUsersTableView);
+        BorderPane.setMargin(mostAvtiveUsersTableView, new Insets(0, 0, 0, 10));
+        usersGridPane.add(borderPane, columnGridPane, rowGridPane);
+    }
+
+    private TableView<TableData> createActiveUsersTableView(ObservableList<TableData> mostActiveUsers) {
+        TableView<TableData> tableView = new TableView<>();
+
+        int rowHeight = 35;
+        int usernameColumnWidth = 200;
+        int reviewCountColumnWidth = 150;
+        int avgDateDiffColumnWidth = 200;
+
+        TableColumn<TableData, String> usernameColumn = new TableColumn<>("Username");
+        usernameColumn.setCellValueFactory(cellData -> cellData.getValue().usernameProperty());
+
+        TableColumn<TableData, String> reviewCountColumn = new TableColumn<>("Review count");
+        reviewCountColumn.setCellValueFactory(cellData -> cellData.getValue().reviewCountProperty());
+
+        TableColumn<TableData, String> avgDateDiffColumn = new TableColumn<>("Average days distance");
+        avgDateDiffColumn.setCellValueFactory(cellData -> cellData.getValue().avgDateDiffProperty());
+
+        tableView.getColumns().addAll(usernameColumn, reviewCountColumn, avgDateDiffColumn);
+
+        usernameColumn.setPrefWidth(usernameColumnWidth);
+        usernameColumn.setStyle("-fx-alignment: CENTER; -fx-font-weight: bold;");
+
+        reviewCountColumn.setPrefWidth(reviewCountColumnWidth);
+        reviewCountColumn.setStyle("-fx-alignment: CENTER;");
+
+        avgDateDiffColumn.setPrefWidth(avgDateDiffColumnWidth);
+        avgDateDiffColumn.setStyle("-fx-alignment: CENTER;");
+
+        tableView.setLayoutX(10);           // Left padding
+        tableView.setMinWidth(usernameColumnWidth + reviewCountColumnWidth + avgDateDiffColumnWidth + 10);
+
+        if (!mostActiveUsers.isEmpty()) {
+            tableView.setRowFactory(tv -> {
+                TableRow<TableData> row = new TableRow<>();
+                row.setPrefHeight(rowHeight);
+                return row;
+            });
+
+            tableView.setItems(mostActiveUsers);
+            tableView.setMinHeight((tableView.getItems().size() + 1) * rowHeight);
+        } else {
+            Label noResultsTablePlaceholder = new Label("No results to show with the specified filters.");
+            tableView.setPlaceholder(noResultsTablePlaceholder);
+        }
+
+        return tableView;
     }
 
     private AnchorPane createUserViewNode(UserModelMongo user) {
@@ -543,7 +734,13 @@ public class ControllerViewSearchUserPage implements Initializable {
     private void searchUsers() {
         currentlyShowing = UsersToFetch.SEARCH_RESULTS;
         resetPageVars();
-        List<UserModelMongo> retrievedUsers = fetchUsers(selectedSearchUser);
+        List<UserModelMongo> retrievedUsers = (List<UserModelMongo>)
+                fetchUsers(
+                        selectedSearchUser,
+                        null,
+                        null,
+                        null
+                );
         users.addAll(retrievedUsers);            // Add new LIMIT users (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedUsers.size());            // Initialize buttons

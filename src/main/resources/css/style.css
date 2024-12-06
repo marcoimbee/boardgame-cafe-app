@@ -130,3 +130,16 @@
 .default-color1.chart-bar {
     -fx-bar-fill: #182E58;
 }
+.table-view .table-cell {
+    -fx-alignment: CENTER;
+}
+
+.table-view .scroll-bar * {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
