@@ -91,6 +91,42 @@
 #comboBoxFullCategories .text,
 #comboBoxFullDesigners .text,
 #comboBoxFullPublishers .text {
-    -fx-text-fill: #182E58;  /* Imposta il colore del testo */
+    -fx-text-fill: #182E58;
 }
 
+.choice-box {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: white; /* Colore del testo principale */
+}
+
+#cboxLimit .list-cell {
+    -fx-background-color: #182E58;
+    -fx-text-fill: white;
+}
+
+#cboxLimit {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-prompt-text-fill: white;
+}
+
+#cboxLimit .list-cell:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #182E58;
+}
+
+
+.default-color0.chart-bar {
+    -fx-bar-fill: #182E58;
+}
+
+.default-color1.chart-bar {
+    -fx-bar-fill: #182E58;
+}

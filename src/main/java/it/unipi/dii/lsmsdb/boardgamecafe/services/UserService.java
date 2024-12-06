@@ -1,13 +1,13 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +18,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import org.neo4j.cypherdsl.core.Use;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 @Component
@@ -465,5 +464,49 @@ public class UserService {
             System.err.println("[ERROR] unbanUser@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
+    }
+
+    public HashMap<String, Double> getAvgAgeByNationality(int limit)
+    {
+        HashMap<String, Double> avgAgeByNationality = new HashMap<>();
+        try
+        {
+            Document docResult = this.userMongoDB.showUserAvgAgeByNationality(limit).get();
+
+            for (Document doc : (List<Document>)docResult.get("results"))
+            {
+                String country = doc.getString("_id");
+                Double avgAge = doc.getDouble("averageAge");
+                avgAgeByNationality.put(country, avgAge);
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Exception getAvgAgeByNationality(): " + e.getMessage());
+        }
+
+        return avgAgeByNationality;
+    }
+
+    public LinkedHashMap<String, Integer> getCountriesWithMostUsers(int minUserNumber, int limit)
+    {
+        LinkedHashMap<String, Integer> avgAgeByNationality = new LinkedHashMap<>();
+        try
+        {
+            Document docResult = this.userMongoDB.findCountriesWithMostUsers(minUserNumber, limit);
+
+            for (Document doc : (List<Document>)docResult.get("results"))
+            {
+                String country = doc.getString("_id");
+                Integer usersNumber = doc.getInteger("numUsers");
+                avgAgeByNationality.put(country, usersNumber);
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Exception getCountriesWithMostUsers(): " + e.getMessage());
+        }
+
+        return avgAgeByNationality;
     }
 }

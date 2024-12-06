@@ -39,5 +39,5 @@ public class Constants {
     public static final String UNBANNED_USER = "unbannedUser";
     public static final String BANNED_USERS_LIST = "bannedUsersList";
     public static final String SELECTED_ANALYTICS = "";
-
+    public static final Integer LIMIT_ANALYTIC = 10;
 }

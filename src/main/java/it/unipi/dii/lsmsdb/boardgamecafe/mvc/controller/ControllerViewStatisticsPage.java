@@ -63,34 +63,18 @@ public class ControllerViewStatisticsPage implements Initializable{
 
     //********* Autowireds *********
     @Autowired
-    private UserDBMongo userDBMongo;
-    @Autowired
-    private UserService serviceUser;
-    @Autowired
     private ModelBean modelBean;
 
     //Stage Manager
     private final StageManager stageManager;
     //User
     private UserModelMongo regUser;
-    //Useful Variables
 
-    private ObservableList<String> whatStatisticToShow = FXCollections.observableArrayList(
-            "Show the most posted Boardgame", // --> Show the tag of Post that is the most commented.
-            "Show average age of users per country",
-            "Show Most Active Users",
-            "Show the countries with the highest user number"
-    );
-
-    private enum statisticsToShow {
-        MOST_POSTED_BOARDGAME,
+    public static enum statisticsToShow {
         AVG_AGE_BY_COUNTRY,
-        MOST_ACTIVE_USER,
         COUNTRIES_WITH_HIGHEST_USER_NUMBER,
 
     };
-
-    private String currentlyShowing;
 
     @Autowired
     @Lazy
@@ -129,13 +113,6 @@ public class ControllerViewStatisticsPage implements Initializable{
         stageManager.closeStageButton(this.logoutButton);
     }
 
-    public void onClickShowCountriesButton(ActionEvent event)
-    {
-        //String selectedAnalytics = this.
-        modelBean.putBean(Constants.SELECTED_ANALYTICS, "");
-    }
-
-
     //********** Internal Methods **********
     private void initDisplay() {
 
@@ -147,23 +124,28 @@ public class ControllerViewStatisticsPage implements Initializable{
     private void initComboBox() {
     }
 
+    private void openSelectedAnalyticView(statisticsToShow selectedAnalytic)
+    {
+        modelBean.putBean(Constants.SELECTED_ANALYTICS, selectedAnalytic);
+        stageManager.showWindow(FxmlView.SELECTED_ANALYTIC);
+    }
     public void onClickCountriesAnalyticsBtn(ActionEvent event)
     {
-        this.userDBMongo.findCountriesWithMostUsers(10);
+        this.openSelectedAnalyticView(statisticsToShow.COUNTRIES_WITH_HIGHEST_USER_NUMBER);
     }
 
     public void onClickAvgAgeAnalyticsBtn(ActionEvent event)
     {
-
+        this.openSelectedAnalyticView(statisticsToShow.AVG_AGE_BY_COUNTRY);
     }
 
     public void onClickMostActiveUsersAnalyticsBtn(ActionEvent event)
     {
-
+        //this.openSelectedAnalyticView(statisticsToShow.MOST_ACTIVE_USER);
     }
 
     public void onClickMostPostedBGamesAnalyticsBtn(ActionEvent event)
     {
-
+        //this.openSelectedAnalyticView(statisticsToShow.MOST_POSTED_BOARDGAME);
     }
 }

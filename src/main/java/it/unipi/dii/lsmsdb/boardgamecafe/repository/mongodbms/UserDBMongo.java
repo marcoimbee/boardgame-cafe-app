@@ -168,7 +168,7 @@ public class UserDBMongo {
 
     // Show average age of users per country
 
-    public Optional<Document> showUserAvgAgeByNationality()
+    public Optional<Document> showUserAvgAgeByNationality(int limit)
     {
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
@@ -186,12 +186,15 @@ public class UserDBMongo {
                 .andExpression("averageAge").as("averageAge")
                 .and(ArithmeticOperators.Round.roundValueOf("averageAge").place(1)).as("averageAge");
 
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchOperation,
-                computeAge,
-                groupByCountry,
-                projectFields
-        );
+        List<AggregationOperation> operations = new ArrayList<>();
+        operations.add(matchOperation);
+        operations.add(computeAge);
+        operations.add(groupByCountry);
+        if (limit > 0) // limit=-1 => There is no limit
+            operations.add(Aggregation.limit(limit));
+        operations.add(projectFields);
+
+        Aggregation aggregation = Aggregation.newAggregation(operations);
 
         AggregationResults<UserModelMongo> results = mongoOperations.aggregate(aggregation, "users", UserModelMongo.class);
 
@@ -212,7 +215,7 @@ public class UserDBMongo {
         return results.getMappedResults();
     }
 
-    public Document findCountriesWithMostUsers(int number) {
+    public Document findCountriesWithMostUsers(int minUserNumber, int limit) {
 
         // Step 1: Filtro i documenti per garantire che si tratti di utenti
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
@@ -224,14 +227,19 @@ public class UserDBMongo {
         // Step 3: Ordina i paesi in base al numero di utenti in ordine decrescente
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numUsers"));
 
-        // Step 4: Limita i risultati al numero specificato
-        LimitOperation limitOperation = limit(number);
-
         ProjectionOperation projectionOperation = project()
                 .andExpression("_id").as("nationality")  // Proietta l'id come paese
                 .andExpression("numUsers").as("numUsers");  // Proietta il numero di utenti
 
-        Aggregation aggregation = newAggregation(matchOperation, groupOperation, sortOperation, limitOperation, projectionOperation);
+        List<AggregationOperation> operations = new ArrayList<>();
+        operations.add(matchOperation);
+        operations.add(groupOperation);
+        operations.add(sortOperation);
+        if (limit > 0)
+            operations.add(Aggregation.limit(limit));
+        operations.add(projectionOperation);
+
+        Aggregation aggregation = Aggregation.newAggregation(operations);
 
         AggregationResults<UserDBMongo> result = mongoOperations
                 .aggregate(aggregation, "users", UserDBMongo.class);
