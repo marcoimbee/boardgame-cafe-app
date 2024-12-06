@@ -105,6 +105,30 @@
                      </graphic>
                   </Button>
                   <ListView fx:id="searchResultsList" layoutX="80.0" layoutY="81.0" onMouseClicked="#onMouseClickedListView" prefWidth="286.0" />
+                  <Button fx:id="applyFilterButton" contentDisplay="CENTER" layoutX="740.0" layoutY="230.0" mnemonicParsing="false" onAction="#onClickApplyFilterButton" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Apply" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Label fx:id="startDateFilterLabel" layoutX="670.0" layoutY="130.0" text="Start date:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="endDateFilterLabel" layoutX="676.0" layoutY="160.0" text="End date:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="limitFilterLabel" layoutX="700.0" layoutY="190.0" text="Limit:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <DatePicker fx:id="endDateFilter" layoutX="760.0" layoutY="160.0" prefHeight="26.0" prefWidth="136.0" />
+                  <DatePicker fx:id="startDateFilter" layoutX="760.0" layoutY="130.0" prefHeight="26.0" prefWidth="136.0" />
+                  <TextField fx:id="limitFilter" layoutX="760.0" layoutY="190.0" prefHeight="26.0" prefWidth="90.0" />
+                  <Label fx:id="adminInfoLabel" layoutX="660.0" layoutY="270.0" prefHeight="36.0" prefWidth="275.0" text="By default, the top 10 most active users are shown." textAlignment="CENTER" wrapText="true" />
                </children>
                <padding>
                   <Insets bottom="30.0" />
