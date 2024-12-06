@@ -79,17 +79,17 @@
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="statisticTitle11" alignment="TOP_LEFT" layoutX="65.0" layoutY="292.0" prefHeight="29.0" prefWidth="388.0" text="Show average users age per country" textAlignment="CENTER" textFill="#182e58">
+                  <Label fx:id="statisticTitle2" alignment="TOP_LEFT" layoutX="65.0" layoutY="292.0" prefHeight="29.0" prefWidth="388.0" text="Show average users age per country" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="statisticTitle12" alignment="TOP_LEFT" layoutX="65.0" layoutY="438.0" prefHeight="29.0" prefWidth="388.0" text="Show most active users in the application" textAlignment="CENTER" textFill="#182e58">
+                  <Label fx:id="statisticTitle3" alignment="TOP_LEFT" layoutX="65.0" layoutY="438.0" prefHeight="29.0" prefWidth="388.0" text="Show most active users in the application" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="statisticTitle13" alignment="TOP_LEFT" layoutX="65.0" layoutY="600.0" prefHeight="29.0" prefWidth="388.0" text="Show the most posted Boardgame" textAlignment="CENTER" textFill="#182e58">
+                  <Label fx:id="statisticTitle4" alignment="TOP_LEFT" layoutX="65.0" layoutY="600.0" prefHeight="29.0" prefWidth="388.0" text="Show the most posted Boardgame" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
