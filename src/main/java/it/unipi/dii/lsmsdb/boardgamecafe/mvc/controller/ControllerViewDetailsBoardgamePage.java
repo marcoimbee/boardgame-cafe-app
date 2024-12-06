@@ -185,7 +185,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private BoardgameModelMongo boardgame;
 
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
 
     private static int totalReviewsCounter;
 
@@ -217,16 +217,18 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("[INFO] Loaded ControllerViewDetailsBoardgamePage");
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
         resetPage();
 
-        // Setting up buttons depending on if the current user is who created the post that's being visualized
-        if (!currentUser.get_class().equals("user")) {
+        if (!currentUser.get_class().equals("admin")) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             editBoardgameButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         }
         prepareScene();
 
@@ -364,6 +366,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
             fillGridPane();
             setAverageRating();
+            cleanFetchAndFill();
         }
     }
 
@@ -507,6 +510,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     public void onClickAddReviewButton() {
         try {
+            UserModelMongo user = (UserModelMongo) currentUser;
             scrollSet.setVvalue(0);
             this.addReviewButton.setDisable(true);
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEREVIEW.getFxmlFile());
@@ -539,16 +543,17 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
                 ReviewModelMongo newReview = new ReviewModelMongo(
                         boardgame.getBoardgameName(),
-                        currentUser.getUsername(),
+                        user.getUsername(),
                         reviewRating,
                         reviewText,
                         new Date()
                 );
 
+
                 boolean savedReview = serviceReview.insertReview(
                         newReview,
                         boardgame,
-                        currentUser
+                        user
                 );
 
                 if (savedReview) {
@@ -1019,7 +1024,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.nextButton.setDisable(isVisible);
         this.previousButton.setDisable(isVisible);
         this.refreshButton.setDisable(isVisible);
-        this.addReviewButton.setDisable(isVisible);
+        if(!isVisible && currentUser.get_class().equals("admin")){
+            this.addReviewButton.setDisable(true);
+        } else {
+            this.addReviewButton.setDisable(isVisible);
+        }
         this.deleteButton.setDisable(isVisible);
         this.closeButton.setDisable(isVisible);
         this.editBoardgameButton.setDisable(isVisible);
