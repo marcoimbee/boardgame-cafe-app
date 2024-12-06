@@ -278,7 +278,20 @@ public enum FxmlView {
         public String getFxmlFile() {
             return "/viewStatisticsPage.fxml";
         }
-    }, EDIT_REVIEW {
+    }, SELECTED_ANALYTIC {
+        @Override
+        public String getTitle() {
+            return "BoardgameCafè_App Analytic Page";
+        }
+
+        @Override
+        public String getFxmlFile() {
+            return "/viewAdminAnalytics.fxml";
+        }
+    },
+
+
+    EDIT_REVIEW {
         @Override
         public String getTitle() {
             return "Review Editing";
