@@ -35,6 +35,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -161,6 +162,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         public SimpleStringProperty reviewCountProperty() { return reviewCount; };
         public SimpleStringProperty avgDateDiffProperty() { return avgDateDiff; };
     }
+
     @Autowired
     @Lazy
     public ControllerViewSearchUserPage(StageManager stageManager) {
@@ -170,78 +172,75 @@ public class ControllerViewSearchUserPage implements Initializable {
     @Override
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            if (!currentUser.get_class().equals("admin")) {
-                currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            } else {
-                currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-                whatUsersToShowList.add("ADMIN: most active users");
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (!currentUser.get_class().equals("admin")) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            if (whatUsersToShowList.size() != 5) {
+                whatUsersToShowList.add("ADMIN: most active users");            // Adding option if not added already
             }
-
-            visitedPages = new ArrayList<>();
-
-            this.searchUserButton.setDisable(true);
-            this.previousButton.setDisable(true);
-            this.nextButton.setDisable(true);
-            resetPageVars();
-
-            currentlyShowing = UsersToFetch.ALL_USERS;      // Static var init
-
-            // Choice box init
-            whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(0));
-            whatUsersToShowChoiceBox.setItems(whatUsersToShowList);
-
-            // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
-            whatUsersToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                updateCurrentlyShowing(newValue);
-                onSelectChoiceBoxOption();
-            });
-
-            onSelectChoiceBoxOption();
-
-            // Prefetch usernames for the search function and init search functionalities variables
-            searchResultsList.setVisible(false);
-
-            long startTime = System.currentTimeMillis();
-            if (modelBean.getBean(Constants.USERS_USERNAMES) == null) {
-                userUsernames = userDBMongo.getUserUsernames();       // Fetching usernames as soon as the page opens
-                modelBean.putBean(Constants.USERS_USERNAMES, userUsernames);       // Saving them in the Bean, so they'll be always available from now on in the whole app
-            } else {
-                userUsernames = (List<String>) modelBean.getBean(Constants.USERS_USERNAMES);    // Obtaining usernames from the Bean, as thy had been put there before
-            }
-            long stopTime = System.currentTimeMillis();
-            long elapsedTime = stopTime - startTime;
-            System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
-            selectedSearchUser = null;
-
-            // Setting up admin tools - list of banned users, needed to set up ban/unban buttons
-            if (currentUser.get_class().equals("admin")) {
-                if (modelBean.getBean(Constants.BANNED_USERS_LIST) == null) {
-                    bannedUsers = userDBMongo.getBannedUsers();
-                    modelBean.putBean(Constants.BANNED_USERS_LIST, bannedUsers);
-                } else {
-                    bannedUsers = (List<GenericUserModelMongo>) modelBean.getBean(Constants.BANNED_USERS_LIST);
-                }
-            }
-
-            // Page focus listener - needed to potentially update UI when coming back from a user ban or delete operation by the admin
-            usersGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
-                if (newScene != null) {
-                    Stage stage = (Stage) newScene.getWindow();
-                    stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
-                        if (isNowFocused) {
-                            // After gaining focus for user ban or delete window closing (admin-only operations),
-                            // UI needs to be potentially updated
-                            onRegainPageFocusAfterUserBanOrDeletion();
-                        }
-                    });
-                }
-            });
-        } catch (Exception ex) {
-            System.out.println("[ERROR] exception: " + ex.getMessage());
-            ex.printStackTrace();
         }
+
+        visitedPages = new ArrayList<>();
+
+        this.searchUserButton.setDisable(true);
+        this.previousButton.setDisable(true);
+        this.nextButton.setDisable(true);
+        resetPageVars();
+
+        currentlyShowing = UsersToFetch.ALL_USERS;      // Static var init
+
+        // Choice box init
+        whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(0));
+        whatUsersToShowChoiceBox.setItems(whatUsersToShowList);
+
+        // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
+        whatUsersToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            updateCurrentlyShowing(newValue);
+            onSelectChoiceBoxOption();
+        });
+
+        onSelectChoiceBoxOption();
+
+        // Prefetch usernames for the search function and init search functionalities variables
+        searchResultsList.setVisible(false);
+
+        long startTime = System.currentTimeMillis();
+        if (modelBean.getBean(Constants.USERS_USERNAMES) == null) {
+            userUsernames = userDBMongo.getUserUsernames();       // Fetching usernames as soon as the page opens
+            modelBean.putBean(Constants.USERS_USERNAMES, userUsernames);       // Saving them in the Bean, so they'll be always available from now on in the whole app
+        } else {
+            userUsernames = (List<String>) modelBean.getBean(Constants.USERS_USERNAMES);    // Obtaining usernames from the Bean, as thy had been put there before
+        }
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
+        selectedSearchUser = null;
+
+        // Setting up admin tools - list of banned users, needed to set up ban/unban buttons
+        if (currentUser.get_class().equals("admin")) {
+            if (modelBean.getBean(Constants.BANNED_USERS_LIST) == null) {
+                bannedUsers = userDBMongo.getBannedUsers();
+                modelBean.putBean(Constants.BANNED_USERS_LIST, bannedUsers);
+            } else {
+                bannedUsers = (List<GenericUserModelMongo>) modelBean.getBean(Constants.BANNED_USERS_LIST);
+            }
+        }
+
+        // Page focus listener - needed to potentially update UI when coming back from a user ban or delete operation by the admin
+        usersGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.focusedProperty().addListener((observableFocus, wasFocused, isNowFocused) -> {
+                    if (isNowFocused) {
+                        // After gaining focus for user ban or delete window closing (admin-only operations),
+                        // UI needs to be potentially updated
+                        onRegainPageFocusAfterUserBanOrDeletion();
+                    }
+                });
+            }
+        });
     }
 
     private void onRegainPageFocusAfterUserBanOrDeletion() {
@@ -293,18 +292,30 @@ public class ControllerViewSearchUserPage implements Initializable {
         resetPageVars();
         selectedSearchUser = null;
 
-        Object fetchedResults = fetchUsers(null, null, null, null);
-        if (fetchedResults instanceof Document) {
-            displayMostActiveUsers((Document) fetchedResults);
+        ControllerViewStatisticsPage.statisticsToShow showMostActiveUsersAnalytic =     // Checking if the admin is visiting this page coming from the analytics panel
+                (ControllerViewStatisticsPage.statisticsToShow)modelBean.getBean(Constants.SELECTED_ANALYTICS);
+        if (showMostActiveUsersAnalytic != null) {                  // User is admin and he comes from the analytics panel
+            modelBean.putBean(Constants.SELECTED_ANALYTICS, null);
+            currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
+            whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(whatUsersToShowList.size() - 1));
+            Object fetchedResults = fetchUsers(null, null, null, null);
+            if (fetchedResults instanceof Document) {
+                System.out.println("[DEBUG] Displaying fetched results...");
+                displayMostActiveUsers((Document) fetchedResults);
+            }
             setAdminQueryFiltersVisibility(true);
-        } else {
-            List<UserModelMongo> fetchedUsers = (List<UserModelMongo>) fetchedResults;
-            users.addAll(fetchedUsers);            // Add new LIMIT users (at most)
-            fillGridPane();
-            prevNextButtonsCheck(fetchedUsers.size());            // Initialize buttons
+        } else {                    // Normal page setup
+            Object fetchedResults = fetchUsers(null, null, null, null);
+            if (fetchedResults instanceof Document) {
+                displayMostActiveUsers((Document) fetchedResults);
+                setAdminQueryFiltersVisibility(true);
+            } else {
+                List<UserModelMongo> fetchedUsers = (List<UserModelMongo>) fetchedResults;
+                users.addAll(fetchedUsers);            // Add new LIMIT users (at most)
+                fillGridPane();
+                prevNextButtonsCheck(fetchedUsers.size());            // Initialize buttons
+            }
         }
-
-//        List<UserModelMongo> retrievedUsers = (List<UserModelMongo>) fetchUsers(null);
     }
 
     public void onClickApplyFilterButton() {
@@ -371,6 +382,7 @@ public class ControllerViewSearchUserPage implements Initializable {
 
     public void onClickStatisticsButton() {
         stageManager.switchScene(FxmlView.STATISTICS);
+        stageManager.closeStageButton(this.statisticsButton);
     }
 
     public void onClickBoardgamesButton() {
@@ -382,6 +394,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.postsFeedButton);
     }
+
     public void onClickClearField() {
         this.textFieldSearch.clear();           // When clearing the search box, we reset the view to make it show the default shown users
         currentlyShowing = UsersToFetch.ALL_USERS;
