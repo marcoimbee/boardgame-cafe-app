@@ -364,9 +364,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (updatedReview != null) {
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            boardgame.getReviews().replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
             fillGridPane();
             setAverageRating();
-            cleanFetchAndFill();
         }
     }
 
