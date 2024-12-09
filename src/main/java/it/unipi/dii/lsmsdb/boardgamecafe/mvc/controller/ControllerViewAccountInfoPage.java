@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -160,7 +161,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
     //Stage Manager
     private final StageManager stageManager;
     //User
-    private UserModelMongo regUser;
+    private static GenericUserModelMongo currentUser;
     //Useful Variables
     private UserActivity selectedOperation;
 
@@ -173,7 +174,15 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.initComboBox();
-        initDisplay();
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if(!currentUser.get_class().equals("admin")){
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            initUserDisplay();
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            initAdminDisplay();
+        }
+
     }
 
     //********** On Click Button Methods **********
@@ -181,46 +190,49 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.selectedOperation = UserActivity.EDIT_INFO;
         this.cancelButton.setVisible(true);
         this.saveChangesButton.setVisible(true);
-        setEditFieldsVisibility(true);
+        if(currentUser.get_class().equals("admin"))
+            setEditFieldsVisibilityAdmin(true);
+        else
+            setEditFieldsVisibilityUser(true);
     }
     public void onClickYourProfileButton() {
-        stageManager.showWindow(FxmlView.USERPROFILEPAGE);
-        stageManager.closeStageButton(this.yourProfileButton);
+        stageManager.switchScene(FxmlView.USERPROFILEPAGE);
     }
     public void onClickBoardgamesButton() {
-        stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
-        stageManager.closeStageButton(this.boardgamesCollectionButton);
+        stageManager.switchScene(FxmlView.REGUSERBOARDGAMES);
     }
     public void onClickPostsFeedButton() {
-        stageManager.showWindow(FxmlView.REGUSERPOSTS);
-        stageManager.closeStageButton(this.postsFeedButton);
+        stageManager.switchScene(FxmlView.REGUSERPOSTS);
     }
     public void onClickSearchUserButton() {
-        stageManager.showWindow(FxmlView.SEARCHUSER);
-        stageManager.closeStageButton(this.searchUserButton);
+        stageManager.switchScene(FxmlView.SEARCHUSER);
     }
     public void onClickLogout(ActionEvent event) {
         modelBean.putBean(Constants.CURRENT_USER, null);
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.IS_ADMIN, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     public void onClickStatisticsButton() {
         stageManager.switchScene(FxmlView.STATISTICS);
     }
     public void onClickCancelButton() {
-        clearFields(); initDisplay();
+        clearFields();
+        if(currentUser.get_class().equals("admin"))
+            initAdminDisplay();
+        else
+            initUserDisplay();
     }
     public void onClickClearFieldsButton() {
         clearFields();
     }
     public void onClickDeleteAccountButton() {
-
+        UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         boolean userChoice = stageManager.showDeleteAccountInfoMessage();
         if (!userChoice) {
             return;
         }
-        if (serviceUser.deleteUser(regUser)){
+        if (serviceUser.deleteUser(user)){
             modelBean.putBean(Constants.CURRENT_USER, null);
             stageManager.switchScene(FxmlView.WELCOMEPAGE);
             stageManager.showInfoMessage("Delete Operation", "Your Account Was Successfully " +
@@ -236,156 +248,11 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
     public void onClickSaveChangesButton() {
 
-        if(regUser != null){
-            // Ottenere i dati dai campi di input
-            String firstName = this.textFieldFirstName.getText();
-            String lastName = this.textFieldLastName.getText();
-            String country = this.comboBoxNationality.getValue();
-            String gender = this.comboBoxGender.getValue();
-            LocalDateTime dateOfBirth = selectDate();
-            String email = selectEmail();
-            String password = this.textFieldPassword.getText();
-            String repeatedPassword = this.textFieldRepeatPassword.getText();
-            // Gestione delle checkbox
-            boolean updateFirstName = this.flagFirstName.isSelected();
-            boolean updateLastName = this.flagLastName.isSelected();
-            boolean updateNationality = this.flagNationality.isSelected();
-            boolean updateGender = this.flagGender.isSelected();
-            boolean updateDateOfBirth = this.flagDateOfBirth.isSelected();
-            boolean updateEmail = this.flagEmail.isSelected();
-            boolean updatePassword = this.flagPassword.isSelected();
-
-            // Verifica che almeno una checkbox sia selezionata
-            if (!(updateFirstName || updateLastName || updateNationality || updateGender ||
-                    updateDateOfBirth || updateEmail || updatePassword)) {
-                clearFields();
-                stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
-                return;
-            }
-
-            // Variabile di validazione
-            boolean isValid = true;
-
-            // Validazione condizionata in base alla selezione delle checkbox
-            if (updateFirstName) {
-                if (firstName.isEmpty()) {
-                    subLabelFirstName.setText("First Name is missing.");
-                    isValid = false;
-                } else {
-                    subLabelFirstName.setText("");
-                }
-            }
-            if (updateLastName) {
-                if (lastName.isEmpty()) {
-                    subLabelLastName.setText("Last Name is missing.");
-                    isValid = false;
-                } else {
-                    subLabelLastName.setText("");
-                }
-            }
-            if (updateNationality) {
-                if (country == null) {
-                    subLabelNationality.setText("Country is missing.");
-                    isValid = false;
-                } else {
-                    subLabelNationality.setText("");
-                }
-            }
-            if (updateGender) {
-                if (gender == null) {
-                    subLabelGender.setText("Gender is missing.");
-                    isValid = false;
-                } else {
-                    subLabelGender.setText("");
-                }
-            }
-            if (updateDateOfBirth) {
-                if (dateOfBirth == null) {
-                    subLabelDate.setText("Date of Birth is missing.");
-                    isValid = false;
-                } else {
-                    subLabelDate.setText("");
-                }
-            }
-            if (updateEmail) {
-                if (email.isEmpty()) {
-                    subLabelEmail.setText("E-mail is missing.");
-                    isValid = false;
-                } else if (email.equals("user_banned")) {
-                    subLabelEmail.setText("E-mail already used by banned user.");
-                    isValid = false;
-                } else if (email.equals("already_used")) {
-                    subLabelEmail.setText("E-mail already used.");
-                    isValid = false;
-                } else if (!validateEmail(email)) {
-                    subLabelEmail.setText("E-mail not valid.");
-                    isValid = false;
-                } else {
-                    subLabelEmail.setText("");
-                }
-            }
-            if (updatePassword) {
-                if (password.isEmpty()) {
-                    subLabelPassword.setText("Password is missing.");
-                    subLabelRepeatedPassword.setText("");
-                    isValid = false;
-                } else if (repeatedPassword.isEmpty()) {
-                    subLabelPassword.setText("");
-                    subLabelRepeatedPassword.setText("Repeat the password.");
-                    isValid = false;
-                } else if (!password.equals(repeatedPassword)) {
-                    subLabelPassword.setText("");
-                    subLabelRepeatedPassword.setText("The two passwords above do not match.");
-                    isValid = false;
-                } else {
-                    subLabelPassword.setText("");
-                    subLabelRepeatedPassword.setText("");
-                }
-            }
-
-            if (isValid) {
-                // Esegui l'aggiornamento del modello utente come prima
-                UserModelMongo newUser = new UserModelMongo();
-
-                if (updateFirstName) newUser.setName(firstName);
-                else newUser.setName(regUser.getName());
-
-                if (updateLastName) newUser.setSurname(lastName);
-                else newUser.setSurname(regUser.getSurname());
-
-                if (updateNationality) newUser.setNationality(country);
-                else newUser.setNationality(regUser.getNationality());
-
-                if (updateGender) newUser.setGender(gender);
-                else newUser.setGender(regUser.getGender());
-
-                if (updateDateOfBirth) newUser.setDateOfBirth(dateOfBirth.toLocalDate());
-                else newUser.setDateOfBirth(regUser.getDateOfBirth());
-
-                if (updateEmail) newUser.setEmail(email);
-                else newUser.setEmail(regUser.getEmail());
-
-                if (updatePassword) {
-                    newUser.setSalt(regUser.getSalt());
-                    String hashedPassword = serviceUser.getHashedPassword(password,newUser.getSalt());
-                    newUser.setPasswordHashed(hashedPassword);
-                } else {
-                    newUser.setSalt(regUser.getSalt());
-                    newUser.setPasswordHashed(regUser.getPasswordHashed());
-                }
-
-                newUser.setId(regUser.getId());
-                newUser.setUsername(regUser.getUsername());
-                newUser.setBanned(regUser.isBanned());
-                newUser.setReviews(regUser.getReviews());
-
-                if (updateDbms(newUser)){
-                    modelBean.putBean(Constants.CURRENT_USER, newUser);
-                    stageManager.showInfoMessage("Update Info: ",
-                            "Your account information has been successfully updated!");
-                    initDisplay();
-                }
-            }
+        if(currentUser != null) {
+            if(currentUser.get_class().equals("admin"))
+                editAdminAccount();
+            else
+                editUserAccount();
         } else {
             stageManager.showInfoMessage("Update Error: ",
                     "There Is No Logged-In User To Update ");
@@ -394,44 +261,368 @@ public class ControllerViewAccountInfoPage implements Initializable{
 
 
     //********** Internal Methods **********
-    private void initDisplay(){
+    private void initAdminDisplay(){
         clearFields();
-        regUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        AdminModelMongo admin = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         this.accountInfoButton.setDisable(true);
+        this.yourProfileButton.setVisible(false);
+        this.deleteAccountButton.setDisable(true);
         this.selectedOperation = UserActivity.NO_EDIT;
-
-        String formattedDate = regUser.getDateOfBirth().format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
         Image image = new Image(Objects.requireNonNull(getClass().
                 getResource("/images/user.png")).toExternalForm());
         this.profileImage.setImage(image);
 
-        this.firstNameLabel.setText(regUser.getName());
-        this.lastNameLabel.setText(regUser.getSurname());
-        this.nationalityLabel.setText(regUser.getNationality());
-        this.genderLabel.setText(regUser.getGender());
-        this.dateOfBirthLabel.setText(formattedDate);
-        this.emailLabel.setText(regUser.getEmail());
-        this.usernameLabel.setText(regUser.getUsername());
+        this.firstNameLabel.setText("Not Available");
+        this.lastNameLabel.setText("Not Available");
+        this.nationalityLabel.setText("Not Available");
+        this.genderLabel.setText("Not Available");
+        this.dateOfBirthLabel.setText("Not Available");
+        this.emailLabel.setText(admin.getEmail());
+        this.usernameLabel.setText(admin.getUsername());
         this.passwordLabel.setText("***************");
 
-        setEditFieldsVisibility(false);
+        setEditFieldsVisibilityAdmin(false);
+    }
+    private void initUserDisplay(){
+        clearFields();
+        UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        this.accountInfoButton.setDisable(true);
+        this.statisticsButton.setVisible(false);
+        this.selectedOperation = UserActivity.NO_EDIT;
+
+        String formattedDate = user.getDateOfBirth().format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+        Image image = new Image(Objects.requireNonNull(getClass().
+                getResource("/images/user.png")).toExternalForm());
+        this.profileImage.setImage(image);
+
+        this.firstNameLabel.setText(user.getName());
+        this.lastNameLabel.setText(user.getSurname());
+        this.nationalityLabel.setText(user.getNationality());
+        this.genderLabel.setText(user.getGender());
+        this.dateOfBirthLabel.setText(formattedDate);
+        this.emailLabel.setText(user.getEmail());
+        this.usernameLabel.setText(user.getUsername());
+        this.passwordLabel.setText("***************");
+
+        setEditFieldsVisibilityUser(false);
     }
 
-    private boolean updateDbms(UserModelMongo newUser){
+    private void editUserAccount(){
+        UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        // Ottenere i dati dai campi di input
+        String firstName = this.textFieldFirstName.getText();
+        String lastName = this.textFieldLastName.getText();
+        String country = this.comboBoxNationality.getValue();
+        String gender = this.comboBoxGender.getValue();
+        LocalDateTime dateOfBirth = selectDate();
+        String email = selectEmail();
+        String password = this.textFieldPassword.getText();
+        String repeatedPassword = this.textFieldRepeatPassword.getText();
+        // Gestione delle checkbox
+        boolean updateFirstName = this.flagFirstName.isSelected();
+        boolean updateLastName = this.flagLastName.isSelected();
+        boolean updateNationality = this.flagNationality.isSelected();
+        boolean updateGender = this.flagGender.isSelected();
+        boolean updateDateOfBirth = this.flagDateOfBirth.isSelected();
+        boolean updateEmail = this.flagEmail.isSelected();
+        boolean updatePassword = this.flagPassword.isSelected();
 
-        boolean mongoUpdateUser = userDBMongo.updateUser(newUser.getId(), newUser, "user");
+        // Verifica che almeno una checkbox sia selezionata
+        if (!(updateFirstName || updateLastName || updateNationality || updateGender ||
+                updateDateOfBirth || updateEmail || updatePassword)) {
+            clearFields();
+            stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
+            return;
+        }
+
+        // Variabile di validazione
+        boolean isValid = true;
+
+        // Validazione condizionata in base alla selezione delle checkbox
+        if (updateFirstName) {
+            if (firstName.isEmpty()) {
+                subLabelFirstName.setText("First Name is missing.");
+                isValid = false;
+            } else {
+                subLabelFirstName.setText("");
+            }
+        }
+        if (updateLastName) {
+            if (lastName.isEmpty()) {
+                subLabelLastName.setText("Last Name is missing.");
+                isValid = false;
+            } else {
+                subLabelLastName.setText("");
+            }
+        }
+        if (updateNationality) {
+            if (country == null) {
+                subLabelNationality.setText("Country is missing.");
+                isValid = false;
+            } else {
+                subLabelNationality.setText("");
+            }
+        }
+        if (updateGender) {
+            if (gender == null) {
+                subLabelGender.setText("Gender is missing.");
+                isValid = false;
+            } else {
+                subLabelGender.setText("");
+            }
+        }
+        if (updateDateOfBirth) {
+            if (dateOfBirth == null) {
+                subLabelDate.setText("Date of Birth is missing.");
+                isValid = false;
+            } else {
+                subLabelDate.setText("");
+            }
+        }
+        if (updateEmail) {
+            if (email.isEmpty()) {
+                subLabelEmail.setText("E-mail is missing.");
+                isValid = false;
+            } else if (email.equals("user_banned")) {
+                subLabelEmail.setText("E-mail already used by banned user.");
+                isValid = false;
+            } else if (email.equals("already_used")) {
+                subLabelEmail.setText("E-mail already used.");
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                subLabelEmail.setText("E-mail not valid.");
+                isValid = false;
+            } else {
+                subLabelEmail.setText("");
+            }
+        }
+        if (updatePassword) {
+            if (password.isEmpty()) {
+                subLabelPassword.setText("Password is missing.");
+                subLabelRepeatedPassword.setText("");
+                isValid = false;
+            } else if (repeatedPassword.isEmpty()) {
+                subLabelPassword.setText("");
+                subLabelRepeatedPassword.setText("Repeat the password.");
+                isValid = false;
+            } else if (!password.equals(repeatedPassword)) {
+                subLabelPassword.setText("");
+                subLabelRepeatedPassword.setText("The two passwords above do not match.");
+                isValid = false;
+            } else {
+                subLabelPassword.setText("");
+                subLabelRepeatedPassword.setText("");
+            }
+        }
+
+        if (isValid) {
+            // Esegui l'aggiornamento del modello utente come prima
+            UserModelMongo newUser = new UserModelMongo();
+
+            if (updateFirstName) newUser.setName(firstName);
+            else newUser.setName(user.getName());
+
+            if (updateLastName) newUser.setSurname(lastName);
+            else newUser.setSurname(user.getSurname());
+
+            if (updateNationality) newUser.setNationality(country);
+            else newUser.setNationality(user.getNationality());
+
+            if (updateGender) newUser.setGender(gender);
+            else newUser.setGender(user.getGender());
+
+            if (updateDateOfBirth) newUser.setDateOfBirth(dateOfBirth.toLocalDate());
+            else newUser.setDateOfBirth(user.getDateOfBirth());
+
+            if (updateEmail) newUser.setEmail(email);
+            else newUser.setEmail(user.getEmail());
+
+            if (updatePassword) {
+                newUser.setSalt(user.getSalt());
+                String hashedPassword = serviceUser.getHashedPassword(password, newUser.getSalt());
+                newUser.setPasswordHashed(hashedPassword);
+            } else {
+                newUser.setSalt(user.getSalt());
+                newUser.setPasswordHashed(user.getPasswordHashed());
+            }
+
+            newUser.setId(user.getId());
+            newUser.setUsername(user.getUsername());
+            newUser.setBanned(user.isBanned());
+            newUser.setReviews(user.getReviews());
+
+            if (updateDbms(newUser)) {
+                modelBean.putBean(Constants.CURRENT_USER, newUser);
+                stageManager.showInfoMessage("Update Info: ",
+                        "Your account information has been successfully updated!");
+                initUserDisplay();
+            }
+        }
+    }
+
+    private void editAdminAccount() {
+
+        AdminModelMongo admin = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        // Ottenere i dati dai campi di input
+        String email = selectEmail();
+        String password = this.textFieldPassword.getText();
+        String repeatedPassword = this.textFieldRepeatPassword.getText();
+        // Gestione delle checkbox
+        boolean updateEmail = this.flagEmail.isSelected();
+        boolean updatePassword = this.flagPassword.isSelected();
+
+        // Verifica che almeno una checkbox sia selezionata
+        if (!( updateEmail || updatePassword)) {
+            clearFields();
+            stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
+            return;
+        }
+
+        // Variabile di validazione
+        boolean isValid = true;
+
+        // Validazione condizionata in base alla selezione delle checkbox
+        if (updateEmail) {
+            if (email.isEmpty()) {
+                subLabelEmail.setText("E-mail is missing.");
+                isValid = false;
+            } else if (email.equals("user_banned")) {
+                subLabelEmail.setText("E-mail already used by banned user.");
+                isValid = false;
+            } else if (email.equals("already_used")) {
+                subLabelEmail.setText("E-mail already used.");
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                subLabelEmail.setText("E-mail not valid.");
+                isValid = false;
+            } else {
+                subLabelEmail.setText("");
+            }
+        }
+        if (updatePassword) {
+            if (password.isEmpty()) {
+                subLabelPassword.setText("Password is missing.");
+                subLabelRepeatedPassword.setText("");
+                isValid = false;
+            } else if (repeatedPassword.isEmpty()) {
+                subLabelPassword.setText("");
+                subLabelRepeatedPassword.setText("Repeat the password.");
+                isValid = false;
+            } else if (!password.equals(repeatedPassword)) {
+                subLabelPassword.setText("");
+                subLabelRepeatedPassword.setText("The two passwords above do not match.");
+                isValid = false;
+            } else {
+                subLabelPassword.setText("");
+                subLabelRepeatedPassword.setText("");
+            }
+        }
+
+        if (isValid) {
+
+            AdminModelMongo newAdmin = new AdminModelMongo();
+
+            if (updateEmail) newAdmin.setEmail(email);
+            else newAdmin.setEmail(admin.getEmail());
+
+            if (updatePassword) {
+                newAdmin.setSalt(admin.getSalt());
+                String hashedPassword = serviceUser.getHashedPassword(password,newAdmin.getSalt());
+                newAdmin.setPasswordHashed(hashedPassword);
+            } else {
+                newAdmin.setSalt(admin.getSalt());
+                newAdmin.setPasswordHashed(admin.getPasswordHashed());
+            }
+
+            newAdmin.setId(admin.getId());
+            newAdmin.setUsername(admin.getUsername());
+
+            if (updateDbms(newAdmin)){
+                modelBean.putBean(Constants.CURRENT_USER, newAdmin);
+                stageManager.showInfoMessage("Update Info: ",
+                        "Your account information has been successfully updated!");
+                initAdminDisplay();
+            }
+        }
+    }
+    private boolean updateDbms(GenericUserModelMongo newUser){
+        String userType;
+        if(currentUser.get_class().equals("admin"))
+            userType = "admin";
+        else
+            userType = "user";
+
+        boolean mongoUpdateUser = userDBMongo.updateUser(newUser.getId(), newUser, userType);
 
         if (!mongoUpdateUser) {
             stageManager.showInfoMessage("Update Error: ",
                     "There was an error updating your account information. " +
                             "Please try again.");
-            initDisplay();
+            if (currentUser.get_class().equals("admin"))
+                initAdminDisplay();
+            else
+                initUserDisplay();
             return false;
         }
         return true;
     }
 
-    private void setEditFieldsVisibility(boolean isVisible) {
+    private void setEditFieldsVisibilityAdmin(boolean isVisible) {
+        //********** Actual Labels **********
+        this.firstNameLabel.setDisable(isVisible);
+        this.lastNameLabel.setDisable(isVisible);
+        this.nationalityLabel.setDisable(isVisible);
+        this.genderLabel.setDisable(isVisible);
+        this.dateOfBirthLabel.setDisable(isVisible);
+        this.emailLabel.setDisable(isVisible);
+        this.usernameLabel.setDisable(isVisible);
+        this.passwordLabel.setDisable(isVisible);
+        this.reminderLabel.setVisible(isVisible);
+        //********** TextFields & SubLabels **********
+        this.textFieldFirstName.setVisible(false);
+        this.subLabelFirstName.setVisible(false);
+        this.textFieldLastName.setVisible(false);
+        this.subLabelLastName.setVisible(false);
+        this.comboBoxNationality.setVisible(false);
+        this.subLabelNationality.setVisible(false);
+        this.comboBoxGender.setVisible(false);
+        this.subLabelGender.setVisible(false);
+        this.datePickerDate.setVisible(false);
+        this.subLabelDate.setVisible(false);
+        this.textFieldEmail.setVisible(isVisible);
+        this.subLabelEmail.setVisible(isVisible);
+        this.textFieldPassword.setVisible(isVisible);
+        this.subLabelPassword.setVisible(isVisible);
+        this.textFieldRepeatPassword.setVisible(isVisible);
+        this.subLabelRepeatedPassword.setVisible(isVisible);
+        //********** Icons **********
+        this.iconFirstName.setVisible(false);
+        this.iconLastName.setVisible(false);
+        this.iconNationality.setVisible(false);
+        this.iconGender1.setVisible(false);
+        this.iconGender2.setVisible(false);
+        this.iconCalendar.setVisible(false);
+        this.iconEmail.setVisible(isVisible);
+        this.iconPassword.setVisible(isVisible);
+        this.iconRepeatPassword.setVisible(isVisible);
+        this.iconClearFields.setVisible(isVisible);
+        this.iconCancel.setVisible(isVisible);
+        this.iconSaveChanges.setVisible(isVisible);
+        //********** Related CheckBoxes **********
+        this.flagFirstName.setVisible(false);
+        this.flagLastName.setVisible(false);
+        this.flagNationality.setVisible(false);
+        this.flagGender.setVisible(false);
+        this.flagDateOfBirth.setVisible(false);
+        this.flagEmail.setVisible(isVisible);
+        this.flagPassword.setVisible(isVisible);
+        //********** Related Buttons **********
+        this.cancelButton.setVisible(isVisible);
+        this.saveChangesButton.setVisible(isVisible);
+        this.clearFieldsButton.setVisible(isVisible);
+        this.editAccountInfoButton.setDisable(isVisible);
+    }
+    private void setEditFieldsVisibilityUser(boolean isVisible) {
         //********** Actual Labels **********
         this.firstNameLabel.setDisable(isVisible);
         this.lastNameLabel.setDisable(isVisible);
