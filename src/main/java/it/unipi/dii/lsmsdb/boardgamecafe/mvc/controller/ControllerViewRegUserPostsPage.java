@@ -484,8 +484,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickLogout() {
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.CURRENT_USER, null);
+        modelBean.putBean(Constants.IS_ADMIN, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     public void onClickYourProfileButton() {
