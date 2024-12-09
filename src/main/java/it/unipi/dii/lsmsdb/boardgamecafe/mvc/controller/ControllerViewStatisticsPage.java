@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -64,6 +65,7 @@ public class ControllerViewStatisticsPage implements Initializable{
     //********* Autowireds *********
     @Autowired
     private ModelBean modelBean;
+    private GenericUserModelMongo currentUser;
 
     //Stage Manager
     private final StageManager stageManager;
@@ -83,6 +85,15 @@ public class ControllerViewStatisticsPage implements Initializable{
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (!currentUser.get_class().equals("admin")){
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.yourProfileButton.setVisible(false);
+        }
+        this.yourProfileButton.setVisible(false);
         this.initComboBox();
         this.statisticsButton.setDisable(true);
     }
@@ -109,8 +120,8 @@ public class ControllerViewStatisticsPage implements Initializable{
     }
     public void onClickLogout(ActionEvent event) {
         modelBean.putBean(Constants.CURRENT_USER, null);
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.IS_ADMIN, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     //********** Internal Methods **********

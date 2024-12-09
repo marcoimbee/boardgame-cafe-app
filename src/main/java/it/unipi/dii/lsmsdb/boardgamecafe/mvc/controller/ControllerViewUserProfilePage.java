@@ -167,6 +167,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);          // The logged user is an admin
         } else {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // The logged user is a regular user
+            this.statisticsButton.setVisible(false);
         }
 
         if (selectedUser != null) {          // User is looking at another user's profile
@@ -658,8 +659,8 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     public void onClickLogout(ActionEvent event) {
         modelBean.putBean(Constants.CURRENT_USER, null);
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.IS_ADMIN, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     public void checkSelectedUser() {
