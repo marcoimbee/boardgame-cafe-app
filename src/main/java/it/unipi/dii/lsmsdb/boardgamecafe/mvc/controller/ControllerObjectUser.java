@@ -80,12 +80,13 @@ public class ControllerObjectUser {
             this.followButton.setDisable(false);
         }
 
-        if(modelBean.getBean(Constants.IS_ADMIN) == null){        // Ban and delete buttons are only visible to admin users
+        if(modelBean.getBean(Constants.IS_ADMIN) == null){      // Ban and delete buttons are only visible to admin users + admins cannot follow other users
             this.banUserButton.setVisible(false);
             this.deleteUserButton.setVisible(false);
         } else {
             this.banUserButton.setVisible(true);
             this.deleteUserButton.setVisible(true);
+            this.followButton.setVisible(false);
         }
 
         if (currentUserFollowedList.contains(user.getUsername())) {

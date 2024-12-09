@@ -505,6 +505,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void onClickNewPostButton() {
         System.out.println("[INFO] Starting new post creation procedure");
+        scrollSet.setVvalue(0);
         try {
             this.newPostButton.setDisable(true);
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEPOST.getFxmlFile());       // Load modifiable post's FXML

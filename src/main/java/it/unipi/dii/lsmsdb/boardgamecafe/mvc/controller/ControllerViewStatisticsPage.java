@@ -73,7 +73,7 @@ public class ControllerViewStatisticsPage implements Initializable{
     public static enum statisticsToShow {
         AVG_AGE_BY_COUNTRY,
         COUNTRIES_WITH_HIGHEST_USER_NUMBER,
-
+        MOST_ACTIVE_USERS
     };
 
     @Autowired
@@ -139,9 +139,11 @@ public class ControllerViewStatisticsPage implements Initializable{
         this.openSelectedAnalyticView(statisticsToShow.AVG_AGE_BY_COUNTRY);
     }
 
-    public void onClickMostActiveUsersAnalyticsBtn(ActionEvent event)
+    public void onClickMostActiveUsersAnalyticsBtn()
     {
-        //this.openSelectedAnalyticView(statisticsToShow.MOST_ACTIVE_USER);
+        modelBean.putBean(Constants.SELECTED_ANALYTICS, statisticsToShow.MOST_ACTIVE_USERS);
+        stageManager.showWindow(FxmlView.SEARCHUSER);
+        stageManager.closeStageButton(this.searchUserButton);
     }
 
     public void onClickMostPostedBGamesAnalyticsBtn(ActionEvent event)

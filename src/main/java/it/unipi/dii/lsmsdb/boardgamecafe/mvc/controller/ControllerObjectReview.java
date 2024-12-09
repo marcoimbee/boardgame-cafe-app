@@ -1,6 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -12,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +50,7 @@ public class ControllerObjectReview {
 
 
     private ReviewModelMongo review;
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
     private Consumer<String> deletedReviewCallback;
 
 
@@ -55,7 +58,13 @@ public class ControllerObjectReview {
     }
 
     public void setData(ReviewModelMongo review, Consumer<String> deletedReviewCallback) {
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+
+        if (!currentUser.get_class().equals("admin")) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        }
 
         this.review = review;
         this.editButton.setDisable(false);
@@ -96,12 +105,16 @@ public class ControllerObjectReview {
         }
 
         try {
-            reviewService.deleteReview(review, currentUser);
+            if (currentUser.get_class().equals("user")){
+                UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+                reviewService.deleteReview(review, user);
 
-            System.out.println("[INFO] Successfully deleted a review.");
+                System.out.println("[INFO] Successfully deleted a review.");
 
-            modelBean.putBean(Constants.DELETED_REVIEW, review);
-            deletedReviewCallback.accept(review.getId());
+                modelBean.putBean(Constants.DELETED_REVIEW, review);
+                deletedReviewCallback.accept(review.getId());
+            }
+
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
             System.err.println("[ERROR] onClickDeleteButton@ControllerObjectReview.java raised an exception: " + ex.getMessage());

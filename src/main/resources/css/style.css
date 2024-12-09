@@ -94,7 +94,29 @@
     -fx-text-fill: #182E58;
 }
 
+<<<<<<<<< Temporary merge branch 1
+.table-view .table-cell {
+    -fx-alignment: CENTER;
+}
 
+.table-view .scroll-bar * {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+=========
+.choice-box {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: white; /* Colore del testo principale */
+}
 
 #cboxLimit .list-cell {
     -fx-background-color: #182E58;

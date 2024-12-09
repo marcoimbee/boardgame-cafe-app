@@ -2,10 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -34,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -101,7 +99,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private BoardgameListener boardgameListener;
 
     List<String> boardgameNames;
-    private UserModelMongo currentUser;
+    private GenericUserModelMongo currentUser;
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -202,13 +200,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     public void initPage()
     {
         resetPage();
-
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-
-        if (currentUser != null && currentUser.get_class().equals("user")){
-            this.newBoardgameButton.setVisible(true);
-        } else {
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (!currentUser.get_class().equals("admin")){
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.newBoardgameButton.setVisible(false);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.newBoardgameButton.setVisible(true);
         }
 
         boardgames.addAll(getBoardgamesByChoice());

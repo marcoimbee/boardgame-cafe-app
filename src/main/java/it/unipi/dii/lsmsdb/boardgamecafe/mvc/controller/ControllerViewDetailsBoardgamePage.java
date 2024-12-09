@@ -2,7 +2,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -10,17 +9,14 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -189,12 +185,14 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private BoardgameModelMongo boardgame;
 
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
 
     private static int totalReviewsCounter;
 
     //Utils Variables
+    private boolean shiftDownSingleObjectGridPane; // false: no - true: yes
     private int columnGridPane = 0;
+
     private int rowGridPane = 0;
     private int skipCounter = 0;
     private final static int SKIP = 10; //how many posts to skip per time
@@ -219,20 +217,21 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("[INFO] Loaded ControllerViewDetailsBoardgamePage");
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
         resetPage();
 
-        // Setting up buttons depending on if the current user is who created the post that's being visualized
-        if (!currentUser.get_class().equals("user")) {
+        if (!currentUser.get_class().equals("admin")) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             editBoardgameButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         }
         prepareScene();
 
-        totalReviewsCounter = boardgame.getReviews().size();
         System.out.println("[INFO] Found " + totalReviewsCounter + " reviews for '" + boardgame.getBoardgameName() + "'");
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
 
@@ -268,10 +267,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void prepareScene() {
+        this.shiftDownSingleObjectGridPane = false;
         clearFields();
         resetPage();
-        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
         this.selectedOperation = UserActivity.NO_EDIT;
+        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
+        totalReviewsCounter = boardgame.getReviews().size();
         setAverageRating();
         this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
         this.setImage();
@@ -363,13 +364,16 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (updatedReview != null) {
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            boardgame.getReviews().replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
             fillGridPane();
+            setAverageRating();
         }
     }
 
     // Called whenever the author user of a review decides to delete that review. This method updates the review list and updates UI
     public void updateUIAfterReviewDeletion(String deletedReviewId) {
         reviews.removeIf(review -> review.getId().equals(deletedReviewId));
+        boardgame.getReviews().removeIf(review -> review.getId().equals(deletedReviewId));
         totalReviewsCounter--;
         this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
         fillGridPane();
@@ -457,7 +461,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.listStringsCategories.clear();
         this.listStringsDesigners.clear();
         this.listStringsPublishers.clear();
-        //this.totalReviewsCounter = boardgame.getReviews().size();
+        shiftDownSingleObjectGridPane = false;
     }
 
     void prevNextButtonsCheck(List<ReviewModelMongo> reviews) {
@@ -506,6 +510,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     public void onClickAddReviewButton() {
         try {
+            UserModelMongo user = (UserModelMongo) currentUser;
+            scrollSet.setVvalue(0);
             this.addReviewButton.setDisable(true);
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATEREVIEW.getFxmlFile());
 
@@ -517,14 +523,18 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             AnchorPane addReviewBox = new AnchorPane();
             addReviewBox.getChildren().add(loadViewItem);
 
-            if (reviews.isEmpty()) {
-                resetPage();
-                reviewsGridPane.add(addReviewBox, 0, rowGridPane);
+            if (!reviews.isEmpty()) {
+                if (reviews.size() == 1)
+                    shiftDownSingleObjectGridPane = true;
+                else
+                    shiftDownSingleObjectGridPane = false;
+                fillGridPane();
+                reviewsGridPane.add(addReviewBox, 0, 1);
             } else {
-                resetPage();
-                reviewsGridPane.add(addReviewBox, 0, 0);
+                reviewsGridPane.getChildren().clear();
+                reviewsGridPane.add(addReviewBox, 0, 1);
             }
-            GridPane.setMargin(addReviewBox, new Insets(8, 5, 10, 90));
+            GridPane.setMargin(addReviewBox, new Insets(10, 5, 10, 90));
 
             // Submit review button behavior
             submitReviewButton.setOnAction(e -> {
@@ -533,16 +543,17 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
                 ReviewModelMongo newReview = new ReviewModelMongo(
                         boardgame.getBoardgameName(),
-                        currentUser.getUsername(),
+                        user.getUsername(),
                         reviewRating,
                         reviewText,
                         new Date()
                 );
 
+
                 boolean savedReview = serviceReview.insertReview(
                         newReview,
                         boardgame,
-                        currentUser
+                        user
                 );
 
                 if (savedReview) {
@@ -579,27 +590,23 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        if (!reviews.isEmpty()) {
-            resetPage();
-            reviewsGridPane.add(noContentsYet, 0, rowGridPane);
-        } else {
-            resetPage();
-            reviewsGridPane.add(noContentsYet, 0, 0);
-        }
-        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 287));
+        reviewsGridPane.add(noContentsYet, 0, 1);
+        GridPane.setMargin(noContentsYet, new Insets(18, 5, 15, 290));
     }
 
     @FXML
     void fillGridPane() {
         columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
         if (reviews.size() == 1) {
-            rowGridPane = 0;
+            if (shiftDownSingleObjectGridPane)
+                rowGridPane = 2;
+            else
+                rowGridPane = 0;
         } else {
-            rowGridPane = 1;
+            rowGridPane++;
         }
 
         reviewsGridPane.getChildren().clear();
-
         try {
             if (reviews.isEmpty()) {
                 loadViewMessageInfo();
@@ -617,6 +624,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private AnchorPane createReviewViewNode(ReviewModelMongo review) {
         Parent loadViewItem;
+        deletedReviewCallback = this::updateUIAfterReviewDeletion;
         if (review.getBody().isEmpty()) {
             loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTREVIEWBLANKBODY.getFxmlFile());
             // Setting review data - including callbacks for actions to be taken upon review deletion
@@ -628,9 +636,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         AnchorPane anchorPane = new AnchorPane();
         anchorPane.getChildren().add(loadViewItem);
-
         // Setting up what should be called upon review deletion using the delete review button
-        deletedReviewCallback = this::updateUIAfterReviewDeletion;
+
 
         return anchorPane;
     }
@@ -651,7 +658,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         reviewsGridPane.setPrefHeight(400);
         reviewsGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
 
-        GridPane.setMargin(reviewNode, new Insets(4, 5, 10, 90));
+        GridPane.setMargin(reviewNode, new Insets(10, 5, 10, 90));
     }
 
     private void cleanFetchAndFill() {
@@ -713,12 +720,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     public void onClickSaveChangesButton() {
-
-        //ToDo: Controllare perchè con i giochi appena inseriti, solo per la prima volta,
-        //      quando si clicca si "Edit Boardgame" non si vede la lista anche se piena.
-        //      Strano perchè se si fa "cancel" e poi si clicca nuovamente su "Edit Boardgame"
-        //      tutto funziona come previsto. Inoltre verificare che se vengono aggiunte reviews
-        //      la lista rimane aggiornata anche dopo l'aggiornamento.
 
         if (boardgame != null) {
             // Ottenere i dati dai campi di input
@@ -1023,7 +1024,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.nextButton.setDisable(isVisible);
         this.previousButton.setDisable(isVisible);
         this.refreshButton.setDisable(isVisible);
-        this.addReviewButton.setDisable(isVisible);
+        if(!isVisible && currentUser.get_class().equals("admin")){
+            this.addReviewButton.setDisable(true);
+        } else {
+            this.addReviewButton.setDisable(isVisible);
+        }
         this.deleteButton.setDisable(isVisible);
         this.closeButton.setDisable(isVisible);
         this.editBoardgameButton.setDisable(isVisible);
