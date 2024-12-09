@@ -100,19 +100,18 @@ public class ControllerViewLogin implements Initializable {
                 AdminModelMongo admin = (AdminModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, admin);
                 modelBean.putBean(Constants.IS_ADMIN, "true");
+                stageManager.switchScene(FxmlView.STATISTICS);
                 System.out.println("[DEBUG] USER IS ADMIN");
             } else {
                 UserModelMongo user = (UserModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, user);
+                stageManager.switchScene(FxmlView.USERPROFILEPAGE);
             }
-            stageManager.closeStageButton(this.loginButton);
-            stageManager.switchScene(FxmlView.USERPROFILEPAGE);
+
         } catch (Exception e) {
             logger.error("Exception occurred: ");
             e.printStackTrace();
         }
-//        stageManager.showWindow(FxmlView.USERPROFILEPAGE);
-//        stageManager.closeStageButton(this.loginButton);
     }
 
     private void clearFields() {
