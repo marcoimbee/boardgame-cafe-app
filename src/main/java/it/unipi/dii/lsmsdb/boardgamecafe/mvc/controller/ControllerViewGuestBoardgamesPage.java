@@ -42,13 +42,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
     @FXML
     private Button previousButton;
     @FXML
-    private Button searchButton;
-    @FXML
-    private Button clearFieldButton;
-    @FXML
     private TextField textFieldSearch;
-    @FXML
-    private Button signUpButton;
     @FXML
     private Button loginButton;
     @FXML

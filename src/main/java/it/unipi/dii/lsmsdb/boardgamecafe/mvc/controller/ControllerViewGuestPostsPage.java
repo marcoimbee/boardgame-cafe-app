@@ -45,15 +45,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
     @FXML
     private Button previousButton;
     @FXML
-    private Button searchButton;
-    @FXML
-    private Button refreshButton;
-    @FXML
-    private Button clearFieldButton;
-    @FXML
     private TextField textFieldSearch;
-    @FXML
-    private Button signUpButton;
     @FXML
     private Button loginButton;
     @FXML
@@ -62,10 +54,6 @@ public class ControllerViewGuestPostsPage implements Initializable {
     private ScrollPane scrollSet;
     @Autowired
     private PostDBMongo postDBMongo;
-    @Autowired
-    private PostDBNeo4j PostDBNeo4j;
-    @Autowired
-    private ModelBean modelBean;
     @Autowired
     private ControllerObjectPost controllerObjectPost;
     private final StageManager stageManager;
