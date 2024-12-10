@@ -99,7 +99,6 @@ public class ControllerViewLogin implements Initializable {
             if (genericUser.get().get_class().equals("admin")) {
                 AdminModelMongo admin = (AdminModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, admin);
-                modelBean.putBean(Constants.IS_ADMIN, "true");
                 stageManager.switchScene(FxmlView.STATISTICS);
                 System.out.println("[DEBUG] USER IS ADMIN");
             } else {

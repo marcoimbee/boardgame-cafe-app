@@ -661,7 +661,6 @@ public class ControllerViewSearchUserPage implements Initializable {
 
     public void onClickLogout() {
         modelBean.putBean(Constants.CURRENT_USER, null);
-        modelBean.putBean(Constants.IS_ADMIN, null);
         stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
