@@ -165,13 +165,14 @@ public class ControllerViewUserProfilePage implements Initializable{
         selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
         if (modelBean.getBean(Constants.IS_ADMIN) != null) {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);          // The logged user is an admin
+            this.yourProfileButton.setVisible(false);
         } else {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // The logged user is a regular user
             this.statisticsButton.setVisible(false);
         }
 
         if (selectedUser != null) {          // User is looking at another user's profile
-            checkSelectedUser();
+           checkSelectedUser();
         } else {                            // User is looking at his own profile
             if (modelBean.getBean(Constants.IS_ADMIN) != null) {
                 openUserProfile = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page and he is an admin
@@ -186,14 +187,14 @@ public class ControllerViewUserProfilePage implements Initializable{
         int totalFollowing = userDBNeo.getCountFollowing(openUserProfile.getUsername());
         int reviewsCount = reviewMongoOp.findReviewByUsername(openUserProfile.getUsername()).size();
 
-        // Retrieving user posts
-        postsUser.addAll(getPosts(openUserProfile.getUsername()));          // TODO: CHECK, maybe use data from above
-        if (this.postsUser.isEmpty()) {
-            loadViewMessageInfo();
-        }
 
         // Setting profile data
         if (openUserProfile instanceof UserModelMongo userModel) {
+            // Retrieving user posts
+            postsUser.addAll(getPosts(openUserProfile.getUsername()));          // TODO: CHECK, maybe use data from above
+            if (this.postsUser.isEmpty()) {
+                loadViewMessageInfo();
+            }
             this.firstNameLabel.setText(userModel.getName());
             this.lastNameLabel.setText(userModel.getSurname());
             this.nationalityLabel.setText(userModel.getNationality());
@@ -669,6 +670,12 @@ public class ControllerViewUserProfilePage implements Initializable{
             modelBean.putBean(Constants.SELECTED_USER, null);
             resetToCurrent();
         } else {
+            if (openUserProfile.get_class().equals("admin"))
+            {
+                modelBean.putBean(Constants.SELECTED_USER, null);
+                this.yourProfileButton.setVisible(false);
+                this.statisticsButton.setVisible(true);
+            }
             this.followButton.setDisable(false);        // User decided to open another user's profile
             this.yourProfileButton.setDisable(false);
             this.yourPostsButton.setDisable(true);
