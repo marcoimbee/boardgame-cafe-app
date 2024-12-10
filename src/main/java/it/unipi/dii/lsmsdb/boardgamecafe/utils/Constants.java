@@ -5,9 +5,7 @@ public class Constants {
     public static final String SELECTED_BOARDGAME = "selectedBoardgame";
     public static final String UPDATED_BOARDGAME = "updatedBoardgame";
     public static final String SELECTED_USER = "selectedUser" ;
-    public static final String IS_UPDATE = "isUpdate";
     public static final String SELECTED_REVIEW = "selectedReview";
-    public static final String IS_EMBEDDED = "isEmbedded";
     public static final String USERS_PATH = "Users_Path";
     public static final String BOARDGAME_LIST = "boardgameList";
 
