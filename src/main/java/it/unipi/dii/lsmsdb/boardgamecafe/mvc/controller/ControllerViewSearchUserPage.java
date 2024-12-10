@@ -35,7 +35,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.bson.Document;
 
-import javax.print.Doc;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,8 +126,6 @@ public class ControllerViewSearchUserPage implements Initializable {
     private final static int SKIP = 10;     // How many users to skip each time
     private final static int LIMIT = 10;    // How many users to show in each page
 
-
-
     private enum UsersToFetch {
         ALL_USERS,
         USERS_WITH_COMMON_BOARDGAMES_POSTED,
@@ -176,14 +173,17 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (currentUser == null)
             throw new RuntimeException("No logged");
 
-        if (!currentUser.get_class().equals("admin")) {
-            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        } else {
-            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            if (whatUsersToShowList.size() != 5) {
-                whatUsersToShowList.add("ADMIN: most active users");            // Adding option if not added already
+        try {
+            currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            if (!currentUser.get_class().equals("admin")) {
+                currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+                this.statisticsButton.setVisible(false);
+            } else {
+                currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+                whatUsersToShowList.add("ADMIN: most active users");
+                this.yourProfileButton.setVisible(false);
+     
             }
-        }
 
         visitedPages = new ArrayList<>();
 
@@ -385,7 +385,6 @@ public class ControllerViewSearchUserPage implements Initializable {
 
     public void onClickStatisticsButton() {
         stageManager.switchScene(FxmlView.STATISTICS);
-        stageManager.closeStageButton(this.statisticsButton);
     }
 
     public void onClickBoardgamesButton() {
@@ -662,8 +661,9 @@ public class ControllerViewSearchUserPage implements Initializable {
     }
 
     public void onClickLogout() {
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.CURRENT_USER, null);
+        modelBean.putBean(Constants.IS_ADMIN, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     public void onClickYourProfileButton() {

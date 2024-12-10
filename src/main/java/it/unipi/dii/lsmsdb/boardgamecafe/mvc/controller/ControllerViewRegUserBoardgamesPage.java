@@ -204,9 +204,11 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         if (!currentUser.get_class().equals("admin")){
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.newBoardgameButton.setVisible(false);
+            this.statisticsButton.setVisible(false);
         } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.newBoardgameButton.setVisible(true);
+            this.yourProfileButton.setVisible(false);
         }
 
         boardgames.addAll(getBoardgamesByChoice());
@@ -465,8 +467,9 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     public void onClickVBox() { hideListViewBoardgames(); }
     public void onClickLogout(ActionEvent event) {
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.CURRENT_USER, null);
+        modelBean.putBean(Constants.IS_ADMIN, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     public void onClickYourProfile(ActionEvent event) {
