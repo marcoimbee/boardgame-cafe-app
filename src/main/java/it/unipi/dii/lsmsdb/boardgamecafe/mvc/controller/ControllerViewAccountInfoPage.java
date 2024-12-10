@@ -209,7 +209,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
     public void onClickLogout(ActionEvent event) {
         modelBean.putBean(Constants.CURRENT_USER, null);
-        modelBean.putBean(Constants.IS_ADMIN, null);
         stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
