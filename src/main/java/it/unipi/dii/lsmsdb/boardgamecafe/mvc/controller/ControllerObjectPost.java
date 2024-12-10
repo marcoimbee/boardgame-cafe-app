@@ -89,14 +89,14 @@ public class ControllerObjectPost {
     public void setData(PostModelMongo post, PostListener listener, Consumer<String> deletedPostCallback) {
 
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (currentUser == null)
-            throw new RuntimeException("No logged");
-        if (!currentUser.get_class().equals("admin")) {
-            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        } else {
-            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (currentUser != null){
+            //throw new RuntimeException("No logged");
+            if (!currentUser.get_class().equals("admin")) {
+                currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            } else {
+                currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            }
         }
-
         this.post = post;
         this.postListener = listener;
 
