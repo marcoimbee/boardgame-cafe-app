@@ -279,7 +279,9 @@ public class ControllerViewUserProfilePage implements Initializable{
         if (updatedReview != null) {
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviewsUser.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            gridPane.getChildren().clear();
             fillGridPane(reviewsUser);
+            prevNextButtonsCheck(reviewsUser);
         }
 
         // No need to handle review deletion here, as that operation is only viable by using the 'Delete' button on the review card
