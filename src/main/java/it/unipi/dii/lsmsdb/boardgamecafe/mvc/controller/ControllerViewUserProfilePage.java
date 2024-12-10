@@ -163,52 +163,44 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.resetPage();
 
         selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
-        if (modelBean.getBean(Constants.IS_ADMIN) != null) {
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+
+        if (!currentUser.get_class().equals("user")) {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);          // The logged user is an admin
+            openUserProfile = null;
+            if (selectedUser != null)           // User is looking at another user's profile
+                checkSelectedUser();
             this.yourProfileButton.setVisible(false);
         } else {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // The logged user is a regular user
+            openUserProfile = currentUser;
+            if (selectedUser != null)           // User is looking at another user's profile
+                checkSelectedUser();
             this.statisticsButton.setVisible(false);
         }
 
-        if (selectedUser != null) {          // User is looking at another user's profile
-           checkSelectedUser();
-        } else {                            // User is looking at his own profile
-            if (modelBean.getBean(Constants.IS_ADMIN) != null) {
-                openUserProfile = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page and he is an admin
-            } else {
-                openUserProfile = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // User is seeing his profile page and he is a regular user
-            }
-            this.followButton.setDisable(true);
-        }
-
-        int postsCount = postDBMongo.findByUsername(openUserProfile.getUsername()).size();
-        int totalFollowers = userDBNeo.getCountFollowers(openUserProfile.getUsername());
-        int totalFollowing = userDBNeo.getCountFollowing(openUserProfile.getUsername());
-        int reviewsCount = reviewMongoOp.findReviewByUsername(openUserProfile.getUsername()).size();
-
-
         // Setting profile data
         if (openUserProfile instanceof UserModelMongo userModel) {
-            // Retrieving user posts
-            postsUser.addAll(getPosts(openUserProfile.getUsername()));          // TODO: CHECK, maybe use data from above
-            if (this.postsUser.isEmpty()) {
-                loadViewMessageInfo();
-            }
-            this.firstNameLabel.setText(userModel.getName());
-            this.lastNameLabel.setText(userModel.getSurname());
-            this.nationalityLabel.setText(userModel.getNationality());
-        } else {
-            this.firstNameLabel.setVisible(false);
-            this.lastNameLabel.setVisible(false);
-            this.nationalityLabel.setVisible(false);
-
-            this.firstName.setVisible(false);
-            this.lastName.setVisible(false);
-            this.nationality.setVisible(false);
-            this.separator.setVisible(false);
+            initPage(userModel);
         }
-        this.usernameLabel.setText(openUserProfile.getUsername());
+    }
+
+    private void initPage(UserModelMongo user){
+
+        int postsCount = postDBMongo.findByUsername(user.getUsername()).size();
+        int totalFollowers = userDBNeo.getCountFollowers(user.getUsername());
+        int totalFollowing = userDBNeo.getCountFollowing(user.getUsername());
+        int reviewsCount = reviewMongoOp.findReviewByUsername(user.getUsername()).size();
+
+        // Retrieving user posts
+        postsUser.addAll(getPosts(user.getUsername()));
+        if (this.postsUser.isEmpty()) {
+            loadViewMessageInfo();
+        }
+        this.firstNameLabel.setText(user.getName());
+        this.lastNameLabel.setText(user.getSurname());
+        this.nationalityLabel.setText(user.getNationality());
+        this.usernameLabel.setText(user.getUsername());
         this.followerLabel.setText(String.valueOf(totalFollowers));
         this.followingLabel.setText(String.valueOf(totalFollowing));
         this.counterPostsLabel.setText(String.valueOf(postsCount));
@@ -281,7 +273,6 @@ public class ControllerViewUserProfilePage implements Initializable{
             }
         });
     }
-
     private void onRegainPageFocusAfterEditReviewWindowClosing() {
         // Potentially update UI after review editing
         ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
@@ -666,26 +657,39 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     public void checkSelectedUser() {
         UserModelMongo selectedUser = (UserModelMongo) modelBean.getBean(Constants.SELECTED_USER);
-        if (selectedUser == openUserProfile) {   // User found his profile and clicked on it while searching for a user
+        // Selected User Management Check, in case Selected variable has been initialized with object different from first current user
+        if (selectedUser == openUserProfile && openUserProfile.get_class().equals("user")) {   // User found his profile and clicked on it while searching for a user
             modelBean.putBean(Constants.SELECTED_USER, null);
             resetToCurrent();
         } else {
-            if (openUserProfile.get_class().equals("admin"))
-            {
-                modelBean.putBean(Constants.SELECTED_USER, null);
+            // Selected User Management
+            if (currentUser.get_class().equals("admin")) {
+                openUserProfile = selectedUser;
                 this.yourProfileButton.setVisible(false);
                 this.statisticsButton.setVisible(true);
+                modelBean.putBean(Constants.SELECTED_USER, null);
+            } else {
+                openUserProfile = selectedUser;
+                if(currentUser.getUsername().equals(openUserProfile.getUsername()) ){
+                    this.yourProfileButton.setDisable(true);
+                    this.followButton.setDisable(true);
+                } else {
+                    this.yourProfileButton.setDisable(false);
+                    this.followButton.setDisable(false);
+                }
+                this.yourPostsButton.setDisable(true);
+                this.yourReviewsButton.setDisable(false);
+                modelBean.putBean(Constants.SELECTED_USER, null);
             }
-            this.followButton.setDisable(false);        // User decided to open another user's profile
-            this.yourProfileButton.setDisable(false);
-            this.yourPostsButton.setDisable(true);
-            this.yourReviewsButton.setDisable(false);
-            openUserProfile = selectedUser;
+
         }
     }
 
     public void onClickYourProfileButton() {
-        checkSelectedUser();
+        if (openUserProfile != currentUser)
+            resetToCurrent();
+        else
+            checkSelectedUser();
     }
 
     private void resetToCurrent(){
