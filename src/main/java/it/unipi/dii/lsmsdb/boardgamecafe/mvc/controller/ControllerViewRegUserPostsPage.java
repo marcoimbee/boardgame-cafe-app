@@ -4,9 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -134,7 +132,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private List<String> boardgameTags;
     private static String selectedSearchTag;
 
-    private static String currentUser;
+    private static GenericUserModelMongo currentUser;
 
     private Consumer<String> deletedPostCallback;       // Used when a post author decides to delete a post via the delete button without opening its details page
 
@@ -154,10 +152,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.nextButton.setDisable(true);
         this.newPostButton.setDisable(false);
         resetPageVars();
-
         currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (currentUser == null)
+            throw new RuntimeException("No logged");
 
-        currentUser = ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername();
+        if (!currentUser.get_class().equals("admin"))
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        else
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+
 
         // Choice box init
         whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
@@ -197,7 +201,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                         String.valueOf(postDBNeo4j.findTotalLikesByPostID(lastPostId)));
                 Button workingButton = ((Button)eventAnchorPanePost.lookup("#likeButton"));
                 FontAwesomeIconView workingIcon = (FontAwesomeIconView) workingButton.getGraphic();
-                boolean likeIsPresent = this.postService.hasLikedPost(currentUser, lastPostId);
+                boolean likeIsPresent = this.postService.hasLikedPost(currentUser.getUsername(), lastPostId);
                 workingIcon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
                 workingButton.setText((this.buttonLikeMessages.get((likeIsPresent) ? 1 : 0)));
             });
@@ -377,11 +381,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         System.out.println("[INFO] New data has been fetched");
         return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers(currentUser, LIMIT, skipCounter);
+                    postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers(currentUser, LIMIT, skipCounter);
+                    postService.suggestPostLikedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers(currentUser, LIMIT, skipCounter);
+                    postService.suggestPostCommentedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case SEARCH_RESULTS ->
                     postService.findPostsByTag(tag, LIMIT, skipCounter);
             case ALL_POSTS ->
@@ -593,7 +597,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
 
         PostModelMongo newPost = new PostModelMongo(    // Create a new PostModelMongo and save it in the DB
-                currentUser,
+                currentUser.getUsername(),
                 title,
                 body,
                 tag,

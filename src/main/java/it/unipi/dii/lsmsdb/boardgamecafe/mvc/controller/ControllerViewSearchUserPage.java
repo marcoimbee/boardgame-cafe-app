@@ -173,6 +173,9 @@ public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (currentUser == null)
+            throw new RuntimeException("No logged");
+
         if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         } else {

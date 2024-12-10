@@ -1,10 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
@@ -56,7 +53,7 @@ public class ControllerObjectComment {
     @Autowired
     private ModelBean modelBean;
 
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
 
     private Consumer<String> deletedCommentCallback;
 
@@ -66,8 +63,15 @@ public class ControllerObjectComment {
 
     public ControllerObjectComment() {}
 
-    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback) {
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback)
+    {
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (currentUser == null)
+            throw new RuntimeException("No logged");
+        if (!currentUser.get_class().equals("admin"))
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        else
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.comment = comment;
         this.editButton.setDisable(false);
@@ -87,6 +91,12 @@ public class ControllerObjectComment {
             editButton.setVisible(false);
             deleteButton.setVisible(false);
         }
+
+        if (currentUser.get_class().equals("admin")) {
+            editButton.setVisible(false);
+            deleteButton.setVisible(true);
+        }
+
 
         // Setting up button listeners
         deleteButton.setOnAction(event -> onClickDeleteButton(post, comment));

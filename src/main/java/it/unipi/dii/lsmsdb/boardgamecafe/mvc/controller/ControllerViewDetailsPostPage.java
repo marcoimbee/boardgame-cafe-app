@@ -3,9 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -98,7 +96,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private PostModelMongo post;
 
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
 
     //Utils Variables
     private int columnGridPane = 0;
@@ -119,7 +117,14 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("[INFO] Loaded ControllerViewDetailsPostPage");
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        // TO DO: sostituire la classe UserModelMongo in Generic...
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (currentUser == null)
+            throw new RuntimeException("No logged");
+        if (!currentUser.get_class().equals("admin"))
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        else
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
@@ -143,6 +148,13 @@ public class ControllerViewDetailsPostPage implements Initializable {
         if (!currentUser.getUsername().equals(post.getUsername())) {
             editButton.setVisible(false);       // Making the edit button invisible
             deleteButton.setVisible(false);     // Making the delete button invisible
+        }
+
+        if (currentUser.get_class().equals("admin"))
+        {
+            editButton.setVisible(false);
+            deleteButton.setVisible(true);
+            likeButton.setDisable(true);
         }
 
         // Page focus listener - needed to potentially update UI when coming back from a post update window

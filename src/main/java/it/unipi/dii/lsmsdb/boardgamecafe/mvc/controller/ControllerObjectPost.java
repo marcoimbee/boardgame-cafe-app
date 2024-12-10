@@ -3,6 +3,8 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.AdminModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -66,7 +68,7 @@ public class ControllerObjectPost {
     @Autowired
     private ModelBean modelBean;
 
-    private static UserModelMongo currentUser;
+    private static GenericUserModelMongo currentUser;
     private StageManager stageManager;
 
     private Consumer<String> deletedPostCallback;
@@ -86,12 +88,17 @@ public class ControllerObjectPost {
 
     public void setData(PostModelMongo post, PostListener listener, Consumer<String> deletedPostCallback) {
 
-        currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (currentUser == null)
+            throw new RuntimeException("No logged");
+        if (!currentUser.get_class().equals("admin")) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        }
 
         this.post = post;
         this.postListener = listener;
-
-        this.commentButton.setDisable(true);
 
         String creationDate = post.getTimestamp().toString();
         this.authorLabel.setText(post.getUsername());
@@ -104,10 +111,11 @@ public class ControllerObjectPost {
         }
 
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
-
-        if(post != null && currentUser != null){
+        boolean loggedAsAdmin = currentUser instanceof AdminModelMongo;
+        if(post != null && currentUser != null)
+        {
             // Buttons settings
-            if (!currentUser.getUsername().equals(post.getUsername())) {
+            if (!loggedAsAdmin && !currentUser.getUsername().equals(post.getUsername())) {
                 deleteButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
             } else {
                 deleteButton.setVisible(true);
@@ -126,6 +134,13 @@ public class ControllerObjectPost {
         updateLikesLabel(null, post);
         setTextLikeButton(post, currentUser.getUsername(), null, null);
         deleteButton.setOnAction(event -> onClickDeleteButton(post));
+
+        if (loggedAsAdmin)
+        {
+            likeButton.setDisable(true);
+            return;
+        }
+        // The setOnAction is avoided if you're logged as Admins
         likeButton.setOnAction(event -> onClickLikeButton(post, event));
     }
 
