@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,12 +68,13 @@ public class ControllerObjectUser {
     public void setData(UserModelMongo user) {
         this.user = user;
 
-        if (modelBean.getBean(Constants.IS_ADMIN) == null) {
+        if (modelBean.getBean(Constants.IS_ADMIN) == null)
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        } else {
+        else
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        }
+
         currentUserFollowedList = (List<String>) modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST);
+        currentUserFollowedList = (currentUserFollowedList == null) ? new ArrayList<>() : currentUserFollowedList;
 
         if (Objects.equals(user.getUsername(), currentUser.getUsername())){
             this.followButton.setDisable(true);

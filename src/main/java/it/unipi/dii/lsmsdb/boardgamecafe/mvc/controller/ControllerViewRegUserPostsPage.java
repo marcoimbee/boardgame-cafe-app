@@ -158,9 +158,15 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             throw new RuntimeException("No logged");
 
         if (!currentUser.get_class().equals("admin"))
+        {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.statisticsButton.setVisible(false);
+        }
         else
+        {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.yourProfileButton.setVisible(false);
+        }
 
 
         // Choice box init

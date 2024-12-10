@@ -173,17 +173,16 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (currentUser == null)
             throw new RuntimeException("No logged");
 
-        try {
-            currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            if (!currentUser.get_class().equals("admin")) {
-                currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-                this.statisticsButton.setVisible(false);
-            } else {
-                currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-                whatUsersToShowList.add("ADMIN: most active users");
-                this.yourProfileButton.setVisible(false);
-     
-            }
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (!currentUser.get_class().equals("admin")) {
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.statisticsButton.setVisible(false);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            whatUsersToShowList.add("ADMIN: most active users");
+            this.yourProfileButton.setVisible(false);
+
+        }
 
         visitedPages = new ArrayList<>();
 
