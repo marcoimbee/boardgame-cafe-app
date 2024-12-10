@@ -32,7 +32,6 @@ public class ControllerViewSignUp implements Initializable {
             "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     private static final Pattern pattern = Pattern.compile(EMAIL_REGEX);
 
-    @FXML private Button buttonAdminSignUp;
     @FXML private TextField textFieldFirstName;
     @FXML private Label labelFirstName;
     @FXML private TextField textFieldLastName;
@@ -236,13 +235,6 @@ public class ControllerViewSignUp implements Initializable {
     public void onClickCancel(ActionEvent actionEvent)
     {
         stageManager.closeStageButton(this.buttonCancel);
-    }
-
-    public void onClickAdminSignUp(ActionEvent actionEvent)
-    {
-        //ToDo
-        stageManager.closeStageButton(this.buttonAdminSignUp);
-        //stageManager.showWindow(FxmlView.ADMINSIGNUP);
     }
 
     private void initComboBox() {
