@@ -53,15 +53,23 @@ public class ControllerObjectReviewBlankBody {
     public void setData(ReviewModelMongo review, Consumer<String> deletedReviewCallback) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
-        if (!currentUser.get_class().equals("admin")) {
+        if (!currentUser.get_class().equals("admin"))
+        {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        } else {
+            // Removing the possibility to edit and delete a review if the current user is not the author
+            if (!currentUser.getUsername().equals(review.getUsername())) {
+                editButton.setVisible(false);
+                deleteButton.setVisible(false);
+            }
+        }
+        else
+        {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            editButton.setDisable(true);
+            deleteButton.setVisible(true);
         }
 
         this.review = review;
-        this.editButton.setDisable(false);
-        this.deleteButton.setDisable(false);
         String creationDate = review.getDateOfReview().toString();
 
         // Setting up callback functions
@@ -71,12 +79,6 @@ public class ControllerObjectReviewBlankBody {
         this.dateOfReviewLabel.setText(creationDate);
         this.tagBoardgameLabel.setText(review.getBoardgameName());
         this.ratingLabel.setText(String.valueOf(review.getRating()));
-
-        // Removing the possibility to edit and delete a review if the current user is not the author
-        if (!currentUser.getUsername().equals(review.getUsername())) {
-            editButton.setVisible(false);
-            deleteButton.setVisible(false);
-        }
 
         // Setting up button listeners
         deleteButton.setOnAction(event -> onClickDeleteButton(review));
