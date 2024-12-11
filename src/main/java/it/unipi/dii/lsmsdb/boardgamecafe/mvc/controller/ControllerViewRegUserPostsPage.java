@@ -152,26 +152,31 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.nextButton.setDisable(true);
         this.newPostButton.setDisable(false);
         resetPageVars();
-        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
+
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
 
+        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
         if (!currentUser.get_class().equals("admin"))
         {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.statisticsButton.setVisible(false);
+            currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
         }
         else
         {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.yourProfileButton.setVisible(false);
+            currentlyShowing = PostsToFetch.ALL_POSTS;            // Static var init
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(3));      // Default choice box string
         }
 
 
         // Choice box init
-        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
-        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
+
+
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
         whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

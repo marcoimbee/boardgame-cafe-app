@@ -176,6 +176,8 @@ public class ControllerViewUserProfilePage implements Initializable{
             openUserProfile = currentUser;
             if (selectedUser != null)           // User is looking at another user's profile
                 checkSelectedUser();
+            else
+                this.followButton.setDisable(true);
             this.statisticsButton.setVisible(false);
         }
 
@@ -668,6 +670,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 openUserProfile = selectedUser;
                 this.yourProfileButton.setVisible(false);
                 this.statisticsButton.setVisible(true);
+                this.followButton.setDisable(true);
                 modelBean.putBean(Constants.SELECTED_USER, null);
             } else {
                 openUserProfile = selectedUser;
