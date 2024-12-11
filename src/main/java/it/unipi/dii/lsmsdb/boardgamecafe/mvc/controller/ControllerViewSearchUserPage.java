@@ -172,7 +172,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
-
+        whatUsersToShowList.remove("ADMIN: most active users");
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
