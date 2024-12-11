@@ -173,11 +173,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(3));      // Default choice box string
         }
 
-
-        // Choice box init
-
-
-
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
         whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             updateCurrentlyShowing(newValue);

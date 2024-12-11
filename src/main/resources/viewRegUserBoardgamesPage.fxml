@@ -76,9 +76,9 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="235.0" promptText="Search Boardgames About a Bordgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="235.0" promptText="Search Boardgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
                   <FontAwesomeIconView fill="#182e58" glyphName="SEARCH" layoutX="53.0" layoutY="68.0" size="20" />
-                  <ScrollPane fx:id="scrollSet" layoutY="115.0" prefHeight="492.0" prefWidth="953.0">
+                  <ScrollPane fx:id="scrollSet" layoutY="115.0" prefHeight="495.0" prefWidth="953.0">
                      <content>
                         <GridPane fx:id="boardgameGridPane">
                           <rowConstraints>
@@ -92,17 +92,17 @@
                         <Insets />
                      </opaqueInsets>
                   </HBox>
-                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="328.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="328.0" layoutY="629.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="480.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="480.0" layoutY="629.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="refreshButton" layoutX="435.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                  <Button fx:id="refreshButton" layoutX="435.0" layoutY="629.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
@@ -118,7 +118,7 @@
                      </font>
                   </Label>
                   <ComboBox fx:id="cboxYear" layoutX="732.0" layoutY="81.0" prefHeight="25.0" prefWidth="176.0" promptText="Select the year" stylesheets="@css/style.css" />
-                  <Button fx:id="newBoardgameButton" layoutX="749.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNewBoardgameButton" prefHeight="31.0" prefWidth="159.0" style="-fx-background-color: #182E58;" text="New Boardgame" textFill="WHITE">
+                  <Button fx:id="newBoardgameButton" layoutX="749.0" layoutY="629.0" mnemonicParsing="false" onAction="#onClickNewBoardgameButton" prefHeight="31.0" prefWidth="159.0" style="-fx-background-color: #182E58;" text="New Boardgame" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
