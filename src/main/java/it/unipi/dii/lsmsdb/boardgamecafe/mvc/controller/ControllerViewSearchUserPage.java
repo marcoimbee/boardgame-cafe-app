@@ -461,12 +461,16 @@ public class ControllerViewSearchUserPage implements Initializable {
         System.out.println("[INFO] New data has been fetched");
         switch (currentlyShowing) {             // Decide what type of users need to be fetched
             case ALL_USERS:
+                this.refreshButton.setDisable(false);
                 return userDBMongo.findAllUsersWithLimit(LIMIT, skipCounter);
             case USERS_WITH_COMMON_BOARDGAMES_POSTED:
+                this.refreshButton.setDisable(false);
                 return userService.suggestUsersByCommonBoardgamePosted(currentUser.getUsername(), LIMIT, skipCounter);
             case USERS_WITH_COMMON_LIKED_POSTS:
+                this.refreshButton.setDisable(false);
                 return userService.suggestUsersByCommonLikedPosts(currentUser.getUsername(), LIMIT, skipCounter);
             case INFLUENCER_USERS:
+                this.refreshButton.setDisable(false);
                 return userService.suggestInfluencerUsers(10, 10, 10, 10);
             case SEARCH_RESULTS:
                 GenericUserModelMongo searchResult = userDBMongo.findByUsername(username, false).get();
