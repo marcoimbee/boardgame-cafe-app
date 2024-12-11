@@ -157,3 +157,9 @@
     -fx-pref-height: 0;
     -fx-max-height: 0;
 }
+
+#textFieldSearch {
+    -fx-background-color:  trasparent;
+    -fx-border-color: #182E58;
+    -fx-border-width:  0px 0px 2px 0px;
+}
