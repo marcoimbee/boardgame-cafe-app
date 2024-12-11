@@ -77,21 +77,15 @@ public class ControllerObjectReview {
         }
 
         this.review = review;
-//        this.editButton.setDisable(false);
-//        this.deleteButton.setDisable(false);
         String creationDate = review.getDateOfReview().toString();
 
         // Setting up callback functions
         this.deletedReviewCallback = deletedReviewCallback;
-
         this.authorLabel.setText(review.getUsername());
         this.dateOfReviewLabel.setText(creationDate);
         this.tagBoardgameLabel.setText(review.getBoardgameName());
         this.ratingLabel.setText(String.valueOf(review.getRating()));
         this.bodyTextLabel.setText(review.getBody());
-
-
-
         // Setting up button listeners
         deleteButton.setOnAction(event -> onClickDeleteButton(review));
         editButton.setOnAction(event -> onClickEditButton(review));

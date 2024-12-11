@@ -74,12 +74,10 @@ public class ControllerObjectReviewBlankBody {
 
         // Setting up callback functions
         this.deletedReviewCallback = deletedReviewCallback;
-
         this.authorLabel.setText(review.getUsername());
         this.dateOfReviewLabel.setText(creationDate);
         this.tagBoardgameLabel.setText(review.getBoardgameName());
         this.ratingLabel.setText(String.valueOf(review.getRating()));
-
         // Setting up button listeners
         deleteButton.setOnAction(event -> onClickDeleteButton(review));
         editButton.setOnAction(event -> onClickEditButton(review));
