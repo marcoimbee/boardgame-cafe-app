@@ -315,6 +315,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         initComboBox(categories, designers, publishers);
         setEditFieldsVisibility(false);
+        prevNextButtonsCheck(boardgame.getReviews());
     }
 
     private void setImage() {
@@ -931,7 +932,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         clearFields();
         prepareScene();
-        prevNextButtonsCheck(reviews);
+        prevNextButtonsCheck(boardgame.getReviews());
     }
     public void onClickAddCategoryButton() {
         String category = updateCategoryTextField.getText().trim();
