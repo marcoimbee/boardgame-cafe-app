@@ -8,6 +8,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -75,7 +76,14 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="285.0" promptText="Search Posts About a Bordgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="285.0" promptText="Search Posts About a Bordgame" stylesheets="@css/style.css">
+                     <tooltip>
+                        <Tooltip fx:id="tooltipAdminHint" text="Insert the Boardgame name" wrapText="true">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip></TextField>
                   <FontAwesomeIconView fill="#182e58" glyphName="SEARCH" layoutX="53.0" layoutY="68.0" size="20" />
                   <ScrollPane fx:id="scrollSet" layoutY="115.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="492.0" prefWidth="953.0">
                      <content>

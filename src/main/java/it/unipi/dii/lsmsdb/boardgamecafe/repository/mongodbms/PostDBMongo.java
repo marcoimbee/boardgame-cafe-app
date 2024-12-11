@@ -228,7 +228,11 @@ public class PostDBMongo {
     }
 
     // Show all Posts with a particular Tag (Boardgame Name) and sort them by the highest number of comments
-    public List<PostModelMongo> findMostCommentedTaggedPosts(String tag) {
+    public List<PostModelMongo> findTopCommentedTaggedPosts(String tag)
+    {
+        // Query non funzioante. I post ritornano tutti con numero commenti pari ad 1.
+        // Evitare la unwind e cercare di capire se mongo può calcolare un "size()" dell'array comments
+        // all'interno dell'entità posts, filtrando i post relativi al tag passato.
 
         MatchOperation matchOperation = match(Criteria.where("tag").is(tag));
 
