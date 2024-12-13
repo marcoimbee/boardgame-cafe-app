@@ -611,6 +611,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private AnchorPane createItemViewNode(Object item) {
         Parent loadViewItem = null;
         AnchorPane anchorPane = new AnchorPane();
+        deletedContentCallback = this::updateUIAfterPostOrReviewDeletion;
         if (item instanceof PostModelMongo) {
             loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTPOST.getFxmlFile());
             controllerObjectPost.setData((PostModelMongo) item, postListener, deletedContentCallback);
