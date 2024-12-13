@@ -329,7 +329,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
         else
         {
-            retrievedPosts = this.postDBMongo.findTopCommentedTaggedPosts(this.textFieldSearch.getText());
+            retrievedPosts = this.postDBMongo.findTopCommentedTaggedPosts(this.textFieldSearch.getText(), LIMIT, skipCounter);
             retrievedPosts.forEach(postModelMongo -> System.out.println("SIze: " + postModelMongo.getComments().size()));
         }
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
@@ -354,7 +354,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (!visitedPages.contains(currentPage)) {
             // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedPosts = fetchPosts(selectedSearchTag);        // Fetching new posts
+            if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST)
+                retrievedPosts = fetchPosts(selectedSearchTag);        // Fetching new posts
+            else
+                retrievedPosts = this.postDBMongo.findTopCommentedTaggedPosts(this.textFieldSearch.getText(), LIMIT, skipCounter);
             posts.addAll(retrievedPosts);            // Adding fetched posts to the post list
             visitedPages.add(currentPage);
         } else {
@@ -391,9 +394,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
             if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
                 nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
-            } else {
-                boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
-                nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
+            } else
+            {
+                    boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
+                    nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
             }
         }
     }
