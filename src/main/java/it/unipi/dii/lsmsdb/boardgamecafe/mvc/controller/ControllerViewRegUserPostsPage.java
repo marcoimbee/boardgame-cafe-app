@@ -98,6 +98,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private ModelBean modelBean;
     private final StageManager stageManager;
     PostListener postListener;
+    private boolean shiftDownSingleObjectGridPane;
 
     // Choice box variables
     ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
@@ -112,7 +113,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     //Utils Variables
     private int columnGridPane = 0;
-    private int rowGridPane = 1;
+    private int rowGridPane = 0;
     private int skipCounter = 0;            // How many times the user clicked on the 'Next' button
     private final static int SKIP = 10;     // How many posts to skip each time
     private final static int LIMIT = 10;    // How many posts to show in each page
@@ -150,7 +151,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         visitedPages = new ArrayList<>();
-
+        this.shiftDownSingleObjectGridPane = false;
         this.postsFeedButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
@@ -306,6 +307,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         visitedPages.add(0);
         visualizedLastPost = false;
         scrollSet.setVvalue(0);
+        this.shiftDownSingleObjectGridPane = false;
     }
 
     public void onClickStatisticsButton() {
@@ -429,8 +431,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        postGridPane.getChildren().clear();
-        resetPageVars();
         postGridPane.add(noContentsYet, 0, 1);
         GridPane.setMargin(noContentsYet, new Insets(123, 200, 200, 387));
     }
@@ -447,11 +447,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     void fillGridPane() {
         searchResultsList.setVisible(false);
-        if (posts.size() == 1 || posts.isEmpty()) {        // Needed to correctly position a single element in the GridPane
-            columnGridPane = 0;
-            rowGridPane = 0;
+        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
+        if (posts.size() == 1) {
+            if (shiftDownSingleObjectGridPane)
+                rowGridPane = 2;
+            else
+                rowGridPane = 0;
         } else {
-            columnGridPane = 0;
             rowGridPane++;
         }
 
@@ -579,6 +581,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 }
                 newPostButton.setDisable(false);
                 whatPostsToShowChoiceBox.setDisable(false);
+                fillGridPane();
             });
 
             // Displaying new post insertion box
@@ -587,11 +590,15 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             addPostBox.getChildren().add(loadViewItem);
 
             if (!posts.isEmpty()){
-                rowGridPane++;
+                if (posts.size() == 1)
+                    shiftDownSingleObjectGridPane = true;
+                else
+                    shiftDownSingleObjectGridPane = false;
                 fillGridPane();
                 postGridPane.add(addPostBox, 0, 1);
             } else {
-                postGridPane.add(addPostBox, 0, rowGridPane+1);
+                postGridPane.getChildren().clear();
+                postGridPane.add(addPostBox, 0, 1);
             }
 
             GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 190));

@@ -99,6 +99,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private static GenericUserModelMongo currentUser;
 
     //Utils Variables
+    private boolean shiftDownSingleObjectGridPane;
     private int columnGridPane = 0;
     private int rowGridPane = 0;
     private int skipCounter = 0;
@@ -117,6 +118,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("[INFO] Loaded ControllerViewDetailsPostPage");
+        this.shiftDownSingleObjectGridPane = false;
         // TO DO: sostituire la classe UserModelMongo in Generic...
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
@@ -182,6 +184,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
             modelBean.putBean(Constants.UPDATED_COMMENT, null);
 
             comments.replaceAll(comment -> comment.getId().equals(updatedComment.getId()) ? updatedComment : comment);
+            commentGridPane.getChildren().clear();
             fillGridPane();
         }
     }
@@ -190,6 +193,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     public void updateUIAfterCommentDeletion(String deletedCommentId) {
         comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
         this.counterCommentsLabel.setText(String.valueOf(comments.size()));
+        commentGridPane.getChildren().clear();
         fillGridPane();
     }
 
@@ -286,10 +290,12 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     void resetPage() {
         commentGridPane.getChildren().clear();
+        comments.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
         nextButton.setDisable(true);
         scrollSet.setVvalue(0);
+        shiftDownSingleObjectGridPane = false;
     }
 
     void prevNextButtonsCheck(List<CommentModelMongo> comments){
@@ -337,6 +343,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     public void onClickAddCommentButton() {
         try {
+            scrollSet.setVvalue(0);
             this.addCommentButton.setDisable(true);
             Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATECOMMENT.getFxmlFile());        // Loading FXML
 
@@ -348,12 +355,16 @@ public class ControllerViewDetailsPostPage implements Initializable {
             AnchorPane addCommentBox = new AnchorPane();
             addCommentBox.getChildren().add(loadViewItem);
 
-            if (comments.isEmpty()){            // Comment box displaying
-                resetPage();
-                commentGridPane.add(addCommentBox, 0, rowGridPane);
+            if (!comments.isEmpty()) {
+                if (comments.size() == 1)
+                    shiftDownSingleObjectGridPane = true;
+                else
+                    shiftDownSingleObjectGridPane = false;
+                commentGridPane.getChildren().clear();
+                fillGridPane();
+                commentGridPane.add(addCommentBox, 0, 1);
             } else {
-                resetPage();
-                commentGridPane.add(addCommentBox, 0, 0);
+                commentGridPane.add(addCommentBox, 0, 1);
             }
             GridPane.setMargin(addCommentBox, new Insets(8, 5, 10, 90));
 
@@ -380,6 +391,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
                     comments.add(0, newComment);      // Adding the new comment to the comment list
 
+                    commentGridPane.getChildren().clear();
                     fillGridPane();             // Displaying update
 
                     this.addCommentButton.setDisable(false);        // Restore button
@@ -396,8 +408,9 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 boolean userChoice = stageManager.showDiscardCommentInfoMessage();
                 if (userChoice) {
                     this.addCommentButton.setDisable(false);
-                    resetPage();
-                    fillGridPane();
+//                    commentGridPane.getChildren().clear();
+//                    fillGridPane();
+                    cleanFetchAndFill();
                 }
             });
         } catch (Exception e) {
@@ -405,32 +418,33 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
+    private void cleanFetchAndFill() {
+        resetPage();
+        comments.addAll(getData(this.post.getId()));
+        fillGridPane();
+    }
+
+
     private void loadViewMessageInfo(){
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGCOMMENTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
 
-        if (!comments.isEmpty()){
-            resetPage();
-            commentGridPane.add(noContentsYet, 0, rowGridPane);
-        } else {
-            resetPage();
-            commentGridPane.add(noContentsYet, 0, 0);
-        }
-
-        GridPane.setMargin(noContentsYet, new Insets(330, 100, 100, 265));
+        commentGridPane.add(noContentsYet, 0, 1);
+        GridPane.setMargin(noContentsYet, new Insets(18, 5, 15, 270));
     }
 
     @FXML
     void fillGridPane() {
-        commentGridPane.getChildren().clear();
 
-        if (comments.size() == 1) {         // Needed to correctly position a single element in the gridpane
-            columnGridPane = 0;
-            rowGridPane = 0;
+        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
+        if (comments.size() == 1) {
+            if (shiftDownSingleObjectGridPane)
+                rowGridPane = 2;
+            else
+                rowGridPane = 0;
         } else {
-            columnGridPane = 0;
-            rowGridPane = 1;
+            rowGridPane++;
         }
 
         try {
