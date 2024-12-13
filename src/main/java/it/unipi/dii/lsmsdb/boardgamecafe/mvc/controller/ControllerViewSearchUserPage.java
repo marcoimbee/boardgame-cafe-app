@@ -575,11 +575,11 @@ public class ControllerViewSearchUserPage implements Initializable {
             mostActiveUsers.add(new TableData(username, reviewCount, avgDateDiff));
         }
 
-        TableView<TableData> mostAvtiveUsersTableView = createActiveUsersTableView(mostActiveUsers);
+        TableView<TableData> mostActiveUsersTableView = createActiveUsersTableView(mostActiveUsers);
 
         BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(mostAvtiveUsersTableView);
-        BorderPane.setMargin(mostAvtiveUsersTableView, new Insets(0, 0, 0, 10));
+        borderPane.setCenter(mostActiveUsersTableView);
+        BorderPane.setMargin(mostActiveUsersTableView, new Insets(0, 0, 0, 10));
         usersGridPane.add(borderPane, columnGridPane, rowGridPane);
     }
 
