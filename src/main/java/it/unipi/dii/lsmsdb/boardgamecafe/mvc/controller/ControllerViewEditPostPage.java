@@ -58,6 +58,7 @@ public class ControllerViewEditPostPage implements Initializable {
         selectedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
 
         this.boardgameTextLabel.setText(selectedPost.getTag());
+        this.boardgameTextLabel.setDisable(true);
         this.titleTextLabel.setText(selectedPost.getTitle());
         this.bodyTextLabel.setText(selectedPost.getText());
 
@@ -96,12 +97,6 @@ public class ControllerViewEditPostPage implements Initializable {
 
         if (noChangesWereMade(updatedTitle, updatedBody, updatedBoardgame)) {      // Nothing was updated, ok to close and no further action
             stageManager.closeStage();
-            return;
-        }
-
-        // Checking if the updated boardgame name is a valid one
-        if (!((List<String>)modelBean.getBean(Constants.BOARDGAME_LIST)).contains(updatedBoardgame)) {
-            stageManager.showInfoMessage("INFO", "'" + updatedBoardgame + "' is not a valid boardgame name.");
             return;
         }
 
