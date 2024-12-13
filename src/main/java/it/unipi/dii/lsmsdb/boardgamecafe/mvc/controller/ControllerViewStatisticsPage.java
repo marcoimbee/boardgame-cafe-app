@@ -75,6 +75,7 @@ public class ControllerViewStatisticsPage implements Initializable{
     public static enum statisticsToShow {
         AVG_AGE_BY_COUNTRY,
         COUNTRIES_WITH_HIGHEST_USER_NUMBER,
+        MOST_POSTED_BOARDGAMES,
         MOST_ACTIVE_USERS
     };
 
@@ -156,8 +157,10 @@ public class ControllerViewStatisticsPage implements Initializable{
         stageManager.closeStageButton(this.searchUserButton);
     }
 
-    public void onClickMostPostedBGamesAnalyticsBtn(ActionEvent event)
+    public void onClickMostPostedBGamesAnalyticsBtn()
     {
-        //this.openSelectedAnalyticView(statisticsToShow.MOST_POSTED_BOARDGAME);
+        modelBean.putBean(Constants.SELECTED_ANALYTICS, statisticsToShow.MOST_POSTED_BOARDGAMES);
+        stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
+        stageManager.closeStageButton(this.postsFeedButton);
     }
 }

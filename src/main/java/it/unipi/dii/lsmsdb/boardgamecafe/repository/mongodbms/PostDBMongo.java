@@ -7,6 +7,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -261,32 +262,39 @@ public class PostDBMongo {
         return results.getMappedResults();
     }
 
-    // Show the tag of Post that is the most commented. (admin)
-    public Optional<String> getMostCommentedTag() {
-        ProjectionOperation projectionOperation = Aggregation.project("tag")
-                .and(ArrayOperators.Size.lengthOfArray("comments")).as("commentCount");
+    public Document findMostPostedAndCommentedTags(int limitResults) {
+        MatchOperation matchOperation = match(new Criteria("tag").exists(true));
 
-        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "commentCount"));
+        GroupOperation groupOperation = group("tag")
+                .count().as("postCount")
+                .sum(new AggregationExpression() {
+                    @Override
+                    public @NotNull Document toDocument(@NotNull AggregationOperationContext context) {
+                        return new Document("$size", "$comments");
+                    }
+                }).as("commentCount");
 
-        LimitOperation limitOperation = Aggregation.limit(1);
+        ProjectionOperation projectionOperation = project()
+                .and("_id").as("tag")
+                .and("postCount").as("postCount")
+                .and("commentCount").as("commentCount")
+                .andExclude("_id");
 
-        ProjectionOperation finalProjection = Aggregation.project("tag");
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "postCount", "commentCount"));
 
-        Aggregation aggregation = Aggregation.newAggregation(
+        LimitOperation limitOperation = limit(limitResults);
+
+        Aggregation aggregation = newAggregation(
+                matchOperation,
+                groupOperation,
                 projectionOperation,
                 sortOperation,
-                limitOperation,
-                finalProjection
+                limitOperation
         );
 
-        AggregationResults<Document> result = mongoOperations.aggregate(aggregation, "posts", Document.class);
+        AggregationResults<Document> results = mongoOperations.aggregate(aggregation, "posts", Document.class);
 
-        Document doc = result.getUniqueMappedResult();
-        if (doc != null) {
-            return Optional.ofNullable(doc.getString("tag"));
-        }
-
-        return Optional.empty();
+        return results.getRawResults();
     }
 
     public Document findTopPostsByBoardgameName(String boardgameName, int limit) {

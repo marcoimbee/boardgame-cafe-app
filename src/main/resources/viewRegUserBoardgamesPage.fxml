@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
@@ -19,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewRegUserBoardgamesPage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewRegUserBoardgamesPage">
    <left>
       <AnchorPane prefHeight="677.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
          <children>
@@ -76,7 +77,7 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="235.0" promptText="Search Boardgames About a Bordgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="235.0" promptText="Search Boardgames..." style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
                   <FontAwesomeIconView fill="#182e58" glyphName="SEARCH" layoutX="53.0" layoutY="68.0" size="20" />
                   <ScrollPane fx:id="scrollSet" layoutY="115.0" prefHeight="492.0" prefWidth="953.0">
                      <content>
@@ -127,6 +128,18 @@
                      </graphic>
                   </Button>
                   <ComboBox fx:id="cboxCategory" layoutX="732.0" layoutY="81.0" prefHeight="25.0" prefWidth="176.0" promptText="Choose the category" stylesheets="@css/style.css" visible="false" />
+                  <Button fx:id="applyFilterButton" contentDisplay="CENTER" layoutX="740.0" layoutY="165.0" mnemonicParsing="false" onAction="#onClickApplyFilterButton" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Apply" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Label fx:id="limitFilterLabel" layoutX="710.0" layoutY="130.0" text="Limit:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="limitFilter" layoutX="760.0" layoutY="130.0" prefHeight="18.0" prefWidth="94.0" />
+                  <Label fx:id="adminInfoLabel" layoutX="670.0" layoutY="200.0" prefHeight="46.0" prefWidth="247.0" text="By default, the top 10 most commented and posted boardgames are shown" textAlignment="CENTER" wrapText="true" />
                </children>
                <padding>
                   <Insets bottom="30.0" />

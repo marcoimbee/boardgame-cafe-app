@@ -6,9 +6,11 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,6 +21,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -27,20 +30,28 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
 public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
+    @FXML
+    private Button applyFilterButton;
+    @FXML
+    private TextField limitFilter;
+    @FXML
+    private Label limitFilterLabel;
+    @FXML
+    private Label adminInfoLabel;
     @FXML
     private Button boardgamesCollectionButton;
     @FXML
@@ -83,6 +94,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
+    private PostDBMongo postDBMongo;
+    @Autowired
     private BoardgameService boardgameService;
     @Autowired
     private ReviewService reviewService;
@@ -107,29 +120,46 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private int skipCounter = 0;
     private final static int SKIP = 12; //how many boardgame to skip per time
     private final static int LIMIT = 12; //how many boardgame to show for each page
-    private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
+    private ObservableList<String> whatBgameToShowList;
 
-    //• Show the boardgame that has the highest average score in its reviews. -----> Top rated boardgames
-    //• Show Boardgames with the highest average score in its reviews per year. --> Top rated boardgames per Year
-    //• Suggerisci Boardgame su cui hanno fatto post utenti che segui ---> Boargames commentati da utenti che segui
-
-    private ObservableList<String> whatBgameToShowList = FXCollections.observableArrayList(
+    private final List<String> availableUserQueries = Arrays.asList(
             "All boardgames",
             "Boardgames posted by followed users",
-            "Top rated Boardgames per year",
-            "Boardgames group by category"
+            "Top rated boardgames per year",
+            "Boardgames by category"
+    );
+
+    private final List<String> availableAdminQueries = Arrays.asList(
+            "All boardgames",
+            "Top rated boardgames per year",
+            "Boardgames by category",
+            "ADMIN: most posted and commented boardgames"
     );
 
     private enum BgameToFetch {
         ALL_BOARDGAMES,
-        BOARDGAME_COMMENTED_BY_FOLLOWERS,
+        BOARDGAME_POSTED_BY_FOLLOWERS,
         TOP_RATED_BOARDGAMES_PER_YEAR,
         BOARDGAME_GROUP_BY_CATEGORY,
-        SEARCH_BOARDGAME
+        SEARCH_BOARDGAME,
+        ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME;
     };
     private BgameToFetch currentlyShowing;
-
     private static LinkedHashMap<BoardgameModelMongo, Double> topRatedBoardgamePairList; // Hash <gioco, Rating>
+
+    static class TableData {
+        private final SimpleStringProperty boardgameName;
+        private final SimpleStringProperty postCount;
+        private final SimpleStringProperty commentCount;
+        public TableData(String boardgameName, int postCount, int commentCount) {
+            this.boardgameName = new SimpleStringProperty(boardgameName);
+            this.postCount = new SimpleStringProperty(String.valueOf(postCount));
+            this.commentCount = new SimpleStringProperty(String.valueOf(commentCount));
+        }
+        public SimpleStringProperty boardgameNameProperty() { return boardgameName; };
+        public SimpleStringProperty postCountProperty() { return postCount; };
+        public SimpleStringProperty commentCountProperty() { return commentCount; };
+    }
 
     @Autowired
     @Lazy
@@ -140,24 +170,41 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         topRatedBoardgamePairList = new LinkedHashMap<>(); // Con la linkedHM, viene preservato l'ordine di inserimento che è fondamentale!
         this.boardgamesCollectionButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
 
         this.currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
+
+        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        if (!currentUser.get_class().equals("admin")){
+            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.newBoardgameButton.setVisible(false);
+            this.statisticsButton.setVisible(false);
+
+            // Setting up available regular user queries
+            whatBgameToShowList = FXCollections.observableArrayList(availableUserQueries);
+        } else {
+            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.newBoardgameButton.setVisible(true);
+            this.yourProfileButton.setVisible(false);
+
+            // Setting up available admin queries
+            whatBgameToShowList = FXCollections.observableArrayList(availableAdminQueries);
+        }
+
+        whatBgameToShowChoiceBox.setItems(whatBgameToShowList);
         this.whatBgameToShowChoiceBox.setValue(this.whatBgameToShowList.get(0));
-        this.whatBgameToShowChoiceBox.setItems(this.whatBgameToShowList);
 
         this.whatBgameToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.currentlyShowing = BgameToFetch.values()[this.whatBgameToShowList.indexOf(newValue)];
+            updateCurrentlyShowing(newValue);
             this.textFieldSearch.clear();
             initPage();
         });
 
         ObservableList<Integer> yearsToShow = FXCollections.observableArrayList();
-        for (int i = LocalDate.now().getYear(); i >= 2000 ; i--)
+        for (int i = LocalDate.now().getYear(); i >= 2000; i--)
             yearsToShow.add(i);
 
         this.cboxYear.setItems(yearsToShow);
@@ -167,7 +214,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             this.textFieldSearch.clear();
             if (!(newValue instanceof Integer))
                 return;
-            int selectedYear = (int)newValue;
+            int selectedYear = (int) newValue;
             topRatedBoardgamePairList = this.reviewService.getTopRatedBoardgamePerYear(5, 4, selectedYear);
             initPage();
         });
@@ -182,6 +229,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         });
 
         initPage();
+
         // Page focus listener - needed to potentially update UI when coming back from a post detail window
         boardgameGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
             if (newScene != null) {
@@ -197,30 +245,47 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         });
     }
 
-    public void initPage()
-    {
-        resetPage();
-        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (!currentUser.get_class().equals("admin")){
-            currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            this.newBoardgameButton.setVisible(false);
-            this.statisticsButton.setVisible(false);
+    private void updateCurrentlyShowing(String choiceBoxValue) {
+        if (currentUser.get_class().equals("admin")) {
+            // Setting up admin queries correspondence
+            if (choiceBoxValue.equals(whatBgameToShowList.get(0)))      currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
+            else if (choiceBoxValue.equals(whatBgameToShowList.get(1))) currentlyShowing = BgameToFetch.TOP_RATED_BOARDGAMES_PER_YEAR;
+            else if (choiceBoxValue.equals(whatBgameToShowList.get(2))) currentlyShowing = BgameToFetch.BOARDGAME_GROUP_BY_CATEGORY;
+            else if (choiceBoxValue.equals(whatBgameToShowList.get(3))) currentlyShowing = BgameToFetch.ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME;
         } else {
-            currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            this.newBoardgameButton.setVisible(true);
-            this.yourProfileButton.setVisible(false);
+            // Setting up regular user queries correspondence
+            if (choiceBoxValue.equals(whatBgameToShowList.get(0)))      currentlyShowing = BgameToFetch.ALL_BOARDGAMES;
+            else if (choiceBoxValue.equals(whatBgameToShowList.get(1))) currentlyShowing = BgameToFetch.BOARDGAME_POSTED_BY_FOLLOWERS;
+            else if (choiceBoxValue.equals(whatBgameToShowList.get(2))) currentlyShowing = BgameToFetch.TOP_RATED_BOARDGAMES_PER_YEAR;
+            else if (choiceBoxValue.equals(whatBgameToShowList.get(3))) currentlyShowing = BgameToFetch.BOARDGAME_GROUP_BY_CATEGORY;
+        }
+    }
+
+
+    public void initPage() {
+        resetPage();
+
+        // User is admin and he comes from the analytics page OR he clicked on the admin query option
+        ControllerViewStatisticsPage.statisticsToShow showMostPostedAndCommentedBGAnalytic =
+                (ControllerViewStatisticsPage.statisticsToShow) modelBean.getBean(Constants.SELECTED_ANALYTICS);
+        if (showMostPostedAndCommentedBGAnalytic != null || currentlyShowing == BgameToFetch.ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME) {
+            modelBean.putBean(Constants.SELECTED_ANALYTICS, null);
+            whatBgameToShowChoiceBox.setValue(whatBgameToShowList.get(whatBgameToShowList.size() - 1));
+            currentlyShowing = BgameToFetch.ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME;
+
+            Document fetchedResults = postDBMongo.findMostPostedAndCommentedTags(10);
+            displayMostPostedBoardgames(fetchedResults);
+            setAdminQueryFiltersVisibility(true);
+        } else {
+            boardgames.addAll((List<BoardgameModelMongo>) getBoardgamesByChoice(null));
+            fillGridPane();
+            setAdminQueryFiltersVisibility(false);
         }
 
-        boardgames.addAll(getBoardgamesByChoice());
-
-
-        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null )
-        {
+        if (modelBean.getBean(Constants.BOARDGAME_LIST) == null ) {
             boardgameNames = boardgameDBMongo.getBoardgameTags();
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
         }
-
-        fillGridPane();
     }
 
     private void onRegainPageFocusAfterDetailsBoardgameWindowClosing() {
@@ -251,17 +316,15 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         stageManager.switchScene(FxmlView.STATISTICS);
     }
 
-    public void onClickBoardgamePosts(ActionEvent actionEvent) {
+    public void onClickBoardgamePosts() {
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.boardgamePostsButton);
-
     }
 
     public void onClickClearField() {
         this.textFieldSearch.clear();
         hideListViewBoardgames();
     }
-
 
     @FXML
     void onClickNext() {
@@ -274,7 +337,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter += SKIP;
 
         //retrieve boardgames
-        boardgames.addAll(getBoardgamesByChoice());
+        boardgames.addAll((List<BoardgameModelMongo>) getBoardgamesByChoice(null));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -291,41 +354,36 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        boardgames.addAll(getBoardgamesByChoice());
+        boardgames.addAll((List<BoardgameModelMongo>) getBoardgamesByChoice(null));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
     void prevNextButtonsCheck(List<BoardgameModelMongo> boardgames){
-        if((boardgames.size() > 0)){
-            if((boardgames.size() < LIMIT)){
-                if(skipCounter <= 0 ){
+        if (boardgames.size() > 0) {
+            if (boardgames.size() < LIMIT) {
+                if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
-                }
-                else{
+                } else {
                     previousButton.setDisable(false);
                     nextButton.setDisable(true);
                 }
-            }
-            else{
-                if(skipCounter <= 0 ){
+            } else {
+                if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(false);
-                }
-                else{
+                } else {
                     previousButton.setDisable(false);
                     nextButton.setDisable(false);
                 }
             }
-        }
-        else{
-            if(skipCounter <= 0 ){
+        } else {
+            if (skipCounter <= 0) {
                 previousButton.setDisable(true);
                 nextButton.setDisable(true);
-            }
-            else {
+            }  else {
                 previousButton.setDisable(false);
                 nextButton.setDisable(true);
             }
@@ -340,27 +398,30 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter = 0;
         scrollSet.setVvalue(0);
     }
-    private List<BoardgameModelMongo> getBoardgamesByChoice()
-    {
+
+    private Object getBoardgamesByChoice(Integer adminLimitResults) {
         this.newBoardgameButton.setDisable(false);
         setDisablePreviousNextRefresh(false);
         List<BoardgameModelMongo> boardgames = null;
-        switch (this.currentlyShowing)
-        {
+
+        switch (this.currentlyShowing) {
             case ALL_BOARDGAMES -> {
                 boardgames = boardgameDBMongo.findRecentBoardgames(LIMIT, this.skipCounter);
                 this.cboxYear.setVisible(false);
                 this.cboxCategory.setVisible(false);
+                this.clearFieldButton.setDisable(false);
+                this.textFieldSearch.setDisable(false);
             }
-            case TOP_RATED_BOARDGAMES_PER_YEAR ->
-            {
+            case TOP_RATED_BOARDGAMES_PER_YEAR -> {
                 List<BoardgameModelMongo> finalBoardgames = new ArrayList<>();
                 this.cboxYear.setVisible(true);
                 this.cboxCategory.setVisible(false);
+                this.clearFieldButton.setDisable(false);
+                this.textFieldSearch.setDisable(false);
                 this.topRatedBoardgamePairList.keySet().forEach(finalBoardgames::add);
                 boardgames = finalBoardgames;
             }
-            case BOARDGAME_COMMENTED_BY_FOLLOWERS -> {
+            case BOARDGAME_POSTED_BY_FOLLOWERS -> {
                 boardgames = boardgameService.suggestBoardgamesWithPostsByFollowedUsers(
                         ((UserModelMongo) modelBean.getBean(Constants.CURRENT_USER)).getUsername(), this.skipCounter);
                 this.cboxCategory.setVisible(false);
@@ -373,6 +434,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 }
                 this.cboxYear.setVisible(false);
                 this.cboxCategory.setVisible(true);
+                this.clearFieldButton.setDisable(false);
+                this.textFieldSearch.setDisable(false);
                 String selectedCategory = (String)this.cboxCategory.getValue();
                 if (selectedCategory != null)
                     boardgames = this.boardgameDBMongo.findBoardgamesByCategory(selectedCategory, LIMIT, this.skipCounter);
@@ -381,6 +444,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 String searchString = textFieldSearch.getText();
                 if (!searchString.isEmpty())
                     boardgames = boardgameDBMongo.findBoardgamesStartingWith(searchString, LIMIT, this.skipCounter);
+            }
+            case ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME -> {
+                int limitResults = adminLimitResults == null ? 10 : adminLimitResults;
+                return postDBMongo.findMostPostedAndCommentedTags(limitResults);            // Returning right away, as we need an Object
             }
         }
         if (boardgames == null)
@@ -402,94 +469,206 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         GridPane.setMargin(noBoardgamesFount, new Insets(100, 200, 200, 350));
     }
 
+    private void setAdminQueryFiltersVisibility(boolean val) {
+        this.applyFilterButton.setVisible(val);
+        this.limitFilter.setVisible(val);
+        this.limitFilterLabel.setVisible(val);
+        this.adminInfoLabel.setVisible(val);
+        if (val) {
+            this.limitFilter.setText(String.valueOf(10));
+
+            // Restrict limit filter to accept only integers
+            TextFormatter<Integer> integerTextFormatter = new TextFormatter<>(change -> {
+                if (change.getText().matches("\\d*")) {
+                    return change;
+                }
+                return null;
+            });
+            this.limitFilter.setTextFormatter(integerTextFormatter);
+        }
+    }
+
     @FXML
     void fillGridPane() {
         columnGridPane = 0;
         rowGridPane = 1;
-        //setGridPaneColumnAndRow();
 
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
-            // Logica per mostrare i dettagli del post usando StageManager
             modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame);
             stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
         if (boardgames.isEmpty()){
             loadViewMessageInfo();
-            return;
-        }
-        try {
-            for (BoardgameModelMongo boardgame : boardgames) {
+        } else {
+            try {
+                for (BoardgameModelMongo boardgame : boardgames) {
 
-                Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
+                    Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
 
-                AnchorPane anchorPane = new AnchorPane();
-                anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
+                    AnchorPane anchorPane = new AnchorPane();
+                    anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
 
-                anchorPane.getChildren().add(loadViewItem);
-                Double ratingForThisGame = null;
-                if (this.currentlyShowing == BgameToFetch.TOP_RATED_BOARDGAMES_PER_YEAR)
-                    ratingForThisGame = this.topRatedBoardgamePairList.get(boardgame);
-                controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane, ratingForThisGame);
-                controllerObjectBoardgame.anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
-                anchorPane.setOnMouseClicked(event -> {
-                    this.boardgameListener.onClickBoardgameListener(event, boardgame);
-                });
+                    anchorPane.getChildren().add(loadViewItem);
+                    Double ratingForThisGame = null;
+                    if (this.currentlyShowing == BgameToFetch.TOP_RATED_BOARDGAMES_PER_YEAR)
+                        ratingForThisGame = this.topRatedBoardgamePairList.get(boardgame);
+                    controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane, ratingForThisGame);
+                    controllerObjectBoardgame.anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
+                    anchorPane.setOnMouseClicked(event -> {
+                        this.boardgameListener.onClickBoardgameListener(event, boardgame);
+                    });
 
-                //choice number of column
-                if (columnGridPane == 4) {
-                    columnGridPane = 0;
-                    rowGridPane++;
+                    //choice number of column
+                    if (columnGridPane == 4) {
+                        columnGridPane = 0;
+                        rowGridPane++;
+                    }
+
+                    boardgameGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
+                    //DISPLAY SETTINGS
+                    //set grid width
+                    boardgameGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
+                    boardgameGridPane.setPrefWidth(430);
+                    boardgameGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
+                    //set grid height
+                    boardgameGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+                    boardgameGridPane.setPrefHeight(300);
+                    boardgameGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+                    GridPane.setMargin(anchorPane, new Insets(22));
+
                 }
-
-                boardgameGridPane.add(anchorPane, columnGridPane++, rowGridPane); //(child,column,row)
-                //DISPLAY SETTINGS
-                //set grid width
-                boardgameGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
-                boardgameGridPane.setPrefWidth(430);
-                boardgameGridPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
-                //set grid height
-                boardgameGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                boardgameGridPane.setPrefHeight(300);
-                boardgameGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                GridPane.setMargin(anchorPane, new Insets(22));
-
+            } catch (Exception e) {
+                System.err.println("[ERROR] fillGridPane@ControllerRegUserBoardgamePage.java raised an exception: " + e.getMessage());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    public static Double getBgameRating(BoardgameModelMongo bgame)
-    {
+    private void displayMostPostedBoardgames(Document fetchedResults) {
+        boardgameGridPane.getChildren().clear();         // Removing old content
+        refreshButton.setDisable(true);
+        nextButton.setDisable(true);
+        previousButton.setDisable(true);
+        newBoardgameButton.setDisable(true);
+        cboxYear.setVisible(false);
+        cboxCategory.setVisible(false);
+        textFieldSearch.setDisable(true);
+        clearFieldButton.setDisable(true);
+
+        columnGridPane = 1;
+        rowGridPane = 1;
+
+        ObservableList<TableData> mostPostedBoardgames = FXCollections.observableArrayList();
+        List<Document> results = (List<Document>) fetchedResults.get("results");
+        for (Document doc : results) {
+            String boardgameName = doc.getString("tag");
+            int postCount = doc.getInteger("postCount");
+            int commentCount = doc.getInteger("commentCount");
+
+            mostPostedBoardgames.add(new TableData(boardgameName, postCount, commentCount));
+        }
+
+        TableView<TableData> mostPostedBoardgamesTableView = createMostPostedBoardgamesTableView(mostPostedBoardgames);
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.setCenter(mostPostedBoardgamesTableView);
+        BorderPane.setMargin(mostPostedBoardgamesTableView, new Insets(0, 0, 0, 10));
+        boardgameGridPane.add(borderPane, columnGridPane, rowGridPane);
+    }
+
+    private TableView<TableData> createMostPostedBoardgamesTableView(ObservableList<TableData> mostPostedBoardgames) {
+        TableView<TableData> tableView = new TableView<>();
+
+        int rowHeight = 35;
+        int boardgameNameColumnWidth = 200;
+        int postCountColumnWidth = 150;
+        int commentCountColumnWidth = 200;
+
+        TableColumn<TableData, String> boardgameNameColumn = new TableColumn<>("Boardgame");
+        boardgameNameColumn.setCellValueFactory(cellData -> cellData.getValue().boardgameNameProperty());
+
+        TableColumn<TableData, String> postCountColumn = new TableColumn<>("Post count");
+        postCountColumn.setCellValueFactory(cellData -> cellData.getValue().postCountProperty());
+
+        TableColumn<TableData, String> commentCountColumn = new TableColumn<>("Comment count");
+        commentCountColumn.setCellValueFactory(cellData -> cellData.getValue().commentCountProperty());
+
+        tableView.getColumns().addAll(boardgameNameColumn, postCountColumn, commentCountColumn);
+
+        boardgameNameColumn.setPrefWidth(boardgameNameColumnWidth);
+        boardgameNameColumn.setStyle("-fx-alignment: CENTER; -fx-font-weight: bold;");
+
+        postCountColumn.setPrefWidth(postCountColumnWidth);
+        postCountColumn.setStyle("-fx-alignment: CENTER;");
+
+        commentCountColumn.setPrefWidth(commentCountColumnWidth);
+        commentCountColumn.setStyle("-fx-alignment: CENTER;");
+
+        tableView.setLayoutX(10);           // Left padding
+        tableView.setMinWidth(boardgameNameColumnWidth + postCountColumnWidth + commentCountColumnWidth + 10);
+
+        if (!mostPostedBoardgames.isEmpty()) {
+            tableView.setRowFactory(tv -> {
+                TableRow<TableData> row = new TableRow<>();
+                row.setPrefHeight(rowHeight);
+                return row;
+            });
+
+            tableView.setItems(mostPostedBoardgames);
+            tableView.setMinHeight((tableView.getItems().size() + 1) * rowHeight);
+        } else {
+            Label noResultsTablePlaceholder = new Label("No results to show with the specified filters.");
+            tableView.setPlaceholder(noResultsTablePlaceholder);
+        }
+
+        return tableView;
+    }
+
+    public void onClickApplyFilterButton() {
+        int limitResultsFilter = Integer.parseInt(this.limitFilter.getText());
+        if (limitResultsFilter <= 0) {
+            stageManager.showInfoMessage("Invalid filter values", "Choose a positive non-negative integer to limit results.");
+            return;
+        }
+
+        Document fetchedResults = (Document) getBoardgamesByChoice(limitResultsFilter);
+        displayMostPostedBoardgames(fetchedResults);
+    }
+
+    public static Double getBgameRating(BoardgameModelMongo bgame) {
         return topRatedBoardgamePairList.get(bgame);
     }
 
     public void onClickVBox() { hideListViewBoardgames(); }
+
+    public void onClickLogout() {
+        stageManager.showWindow(FxmlView.WELCOMEPAGE);
+        stageManager.closeStageButton(this.logoutButton);
+    }
+
     public void onClickLogout(ActionEvent event) {
         modelBean.putBean(Constants.CURRENT_USER, null);
         stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
-    public void onClickYourProfile(ActionEvent event) {
+    public void onClickYourProfile() {
         stageManager.showWindow(FxmlView.USERPROFILEPAGE);
         stageManager.closeStageButton(this.yourProfileButton);
     }
 
-    public void onClickAccountInfoButton(ActionEvent event) {
+    public void onClickAccountInfoButton() {
         stageManager.showWindow(FxmlView.ACCOUNTINFOPAGE);
         stageManager.closeStageButton(this.accountInfoButton);
     }
 
-    public void onClickSearchUserButton(ActionEvent event) {
+    public void onClickSearchUserButton() {
         stageManager.showWindow(FxmlView.SEARCHUSER);
         stageManager.closeStageButton(this.searchUserButton);
     }
 
     private void hideListViewBoardgames() {listViewBoardgames.setVisible(false);}
 
-    public void onMouseClickedListView()
-    {
+    public void onMouseClickedListView() {
         hideListViewBoardgames();
         this.whatBgameToShowChoiceBox.setValue(this.whatBgameToShowList.get(0));
         this.cboxCategory.setVisible(false);
@@ -499,13 +678,11 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         handleChoiceBoardgame(selectedSearchTag);
     }
 
-    public void onClickRefreshButton()
-    {
+    public void onClickRefreshButton() {
         initPage();
     }
 
-    public void onKeyTypedSearchBar()
-    {
+    public void onKeyTypedSearchBar() {
         String searchString = textFieldSearch.getText();
 
         if (searchString.isEmpty()) {
@@ -769,7 +946,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     public void viewCurrentlyShowing() {
         resetPage();
-        List<BoardgameModelMongo> retrievedBoardgames = getBoardgamesByChoice();
+        List<BoardgameModelMongo> retrievedBoardgames = (List<BoardgameModelMongo>) getBoardgamesByChoice(null);
         boardgames.addAll(retrievedBoardgames);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedBoardgames);            // Initialize buttons
