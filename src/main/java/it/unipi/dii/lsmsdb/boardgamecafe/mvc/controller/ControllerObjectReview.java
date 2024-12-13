@@ -109,7 +109,7 @@ public class ControllerObjectReview {
         }
 
         try {
-            GenericUserModelMongo targetUser = null;
+            UserModelMongo targetUser = null;
 
             if (currentUser.get_class().equals("user")) {
                 targetUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -118,18 +118,17 @@ public class ControllerObjectReview {
                 Optional<GenericUserModelMongo> optionalUser = userMongoOp.
                                                 findByUsername(authorUsername, false);
                 if (optionalUser.isPresent()) {
-                    targetUser = optionalUser.get();
+                    targetUser = (UserModelMongo) optionalUser.get();
                 }
             }
 
             if (targetUser != null) {
-                reviewService.deleteReview(review, (UserModelMongo) targetUser);
+                reviewService.deleteReview(review, targetUser);
                 System.out.println("[INFO] Successfully deleted a review.");
 
                 modelBean.putBean(Constants.DELETED_REVIEW, review);
                 deletedReviewCallback.accept(review.getId());
             }
-
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
             System.err.println("[ERROR] onClickDeleteButton@ControllerObjectReview.java raised an exception: " + ex.getMessage());
