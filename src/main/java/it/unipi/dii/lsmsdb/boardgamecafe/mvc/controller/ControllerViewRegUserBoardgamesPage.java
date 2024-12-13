@@ -642,8 +642,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     public void onClickVBox() { hideListViewBoardgames(); }
 
     public void onClickLogout() {
-        stageManager.showWindow(FxmlView.WELCOMEPAGE);
-        stageManager.closeStageButton(this.logoutButton);
+        modelBean.putBean(Constants.CURRENT_USER, null);
+        stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
 
     public void onClickLogout(ActionEvent event) {
