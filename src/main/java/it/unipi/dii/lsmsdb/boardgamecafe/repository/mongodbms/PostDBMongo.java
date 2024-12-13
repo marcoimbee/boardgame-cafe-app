@@ -228,43 +228,56 @@ public class PostDBMongo {
         return posts;
     }
 
-    // Show all Posts with a particular Tag (Boardgame Name) and sort them by the highest number of comments
-    public List<PostModelMongo> findTopCommentedTaggedPosts(String tag)
-    {
-        // Query non funzioante. I post ritornano tutti con numero commenti pari ad 1.
-        // Evitare la unwind e cercare di capire se mongo può calcolare un "size()" dell'array comments
-        // all'interno dell'entità posts, filtrando i post relativi al tag passato.
-
+    public List<PostModelMongo> findTopCommentedTaggedPosts(String tag, int limit, int skip) {
+        // Filtro per il tag
         MatchOperation matchOperation = match(Criteria.where("tag").is(tag));
 
-        UnwindOperation unwindOperation = unwind("comments");
-
-        GroupOperation groupOperation = group("_id")
-                .count().as("numComments")
-                .first("title").as("title")
-                .first("text").as("text")
-                .first("username").as("username")
-                .first("tag").as("tag")
-                .first("timestamp").as("timestamp");
-
+        // Proiezione per calcolare il numero di commenti per ogni post
         ProjectionOperation projectionOperation = project()
                 .and("_id").as("id")
                 .and("title").as("title")
-                .and("text").as("text")
                 .and("username").as("username")
-                .and("tag").as("tag")
                 .and("timestamp").as("timestamp")
-                .and("numComments").as("comments");
+                .and("tag").as("tag")
+                .and("like_count").as("like_count")
+                .and("comments").as("comments")
+                .and(ArrayOperators.Size.lengthOfArray("comments")).as("numComments");
 
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "comments"))
-                .and(Sort.by(Sort.Direction.ASC, "username"));
+        // Ordinamento per numComments (decrescente) e per _id (crescente)
+        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numComments")
+                .and(Sort.by(Sort.Direction.ASC, "_id")));  // Ordinamento per numComments e _id
 
-        Aggregation aggregation = Aggregation.newAggregation(matchOperation, unwindOperation, groupOperation, projectionOperation, sortOperation);
+        // Operazione di salto (skip)
+        SkipOperation skipOperation = skip(skip);
 
+        // Operazione di limitazione
+        LimitOperation limitOperation = limit(limit);
+
+        // Creazione della pipeline di aggregazione
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchOperation,
+                projectionOperation,  // Per calcolare il numero di commenti
+                sortOperation,
+                skipOperation,      // Aggiungi lo skip
+                limitOperation      // Aggiungi il limit
+        );
+
+        // Esegui l'aggregazione sulla collection "posts"
         AggregationResults<PostModelMongo> results = mongoOperations.aggregate(aggregation, "posts", PostModelMongo.class);
 
+        // Verifica se i risultati sono nulli
+        if (results == null || results.getMappedResults() == null) {
+            return new ArrayList<>();
+        }
+
+        // Restituisci i risultati
         return results.getMappedResults();
     }
+
+
+
+
+
 
     public Document findMostPostedAndCommentedTags(int limitResults) {
         MatchOperation matchOperation = match(new Criteria("tag").exists(true));
