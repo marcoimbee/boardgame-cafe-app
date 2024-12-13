@@ -109,27 +109,25 @@ public class ControllerObjectReview {
         }
 
         try {
-            if (currentUser.get_class().equals("user")){
-                UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-                reviewService.deleteReview(review, user);
+            GenericUserModelMongo targetUser = null;
 
-                System.out.println("[INFO] Successfully deleted a review.");
-
-                modelBean.putBean(Constants.DELETED_REVIEW, review);
-                deletedReviewCallback.accept(review.getId());
+            if (currentUser.get_class().equals("user")) {
+                targetUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             } else {
                 String authorUsername = review.getUsername();
                 Optional<GenericUserModelMongo> optionalPost = userMongoOp.
                                                 findByUsername(authorUsername, false);
                 if (optionalPost.isPresent()) {
-                    UserModelMongo authorUser = (UserModelMongo) optionalPost.get();
-
-                    reviewService.deleteReview(review, authorUser);
-                    System.out.println("[INFO] Successfully deleted a review.");
-
-                    modelBean.putBean(Constants.DELETED_REVIEW, review);
-                    deletedReviewCallback.accept(review.getId());
+                    targetUser = optionalPost.get();
                 }
+            }
+
+            if (targetUser != null) {
+                reviewService.deleteReview(review, (UserModelMongo) targetUser);
+                System.out.println("[INFO] Successfully deleted a review.");
+
+                modelBean.putBean(Constants.DELETED_REVIEW, review);
+                deletedReviewCallback.accept(review.getId());
             }
 
         } catch (Exception ex) {
