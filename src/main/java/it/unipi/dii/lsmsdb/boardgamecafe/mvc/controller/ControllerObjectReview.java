@@ -115,10 +115,10 @@ public class ControllerObjectReview {
                 targetUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             } else {
                 String authorUsername = review.getUsername();
-                Optional<GenericUserModelMongo> optionalPost = userMongoOp.
+                Optional<GenericUserModelMongo> optionalUser = userMongoOp.
                                                 findByUsername(authorUsername, false);
-                if (optionalPost.isPresent()) {
-                    targetUser = optionalPost.get();
+                if (optionalUser.isPresent()) {
+                    targetUser = optionalUser.get();
                 }
             }
 
