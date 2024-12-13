@@ -85,10 +85,8 @@ public class ControllerViewEditPostPage implements Initializable {
         }
 
         boolean userChoice = stageManager.showUpdatePostInfoMessage();
-        if (!userChoice) {
+        if (userChoice)
             stageManager.closeStage();
-            return;
-        }
     }
 
     public void onClickSubmitButton() {

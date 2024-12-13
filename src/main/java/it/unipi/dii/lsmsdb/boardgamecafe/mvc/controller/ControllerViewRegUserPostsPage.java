@@ -18,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -72,6 +73,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private Button refreshButton;
     @FXML
     private ChoiceBox<String> whatPostsToShowChoiceBox;
+    @FXML
+    private Tooltip tooltipAdminHint;
 
     @FXML
     private Button testButton;
@@ -120,7 +123,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         POSTS_LIKED_BY_FOLLOWED_USERS,
         POSTS_COMMENTED_BY_FOLLOWED_USERS,
         SEARCH_RESULTS,
-        ALL_POSTS
+        ALL_POSTS,
+        ADMIN_TOP_COMMENTED_POST
     };
     private static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
 
@@ -152,26 +156,28 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.nextButton.setDisable(true);
         this.newPostButton.setDisable(false);
         resetPageVars();
-        currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
+
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
 
+        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
+        whatPostsToShowList.remove("ADMIN: Top commented posts");
         if (!currentUser.get_class().equals("admin"))
         {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.statisticsButton.setVisible(false);
+            currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
         }
         else
         {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.yourProfileButton.setVisible(false);
+            currentlyShowing = PostsToFetch.ALL_POSTS;            // Static var init
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(3));      // Default choice box string
+            whatPostsToShowList.add("ADMIN: Top commented posts");
         }
-
-
-        // Choice box init
-        whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
-        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
         whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -269,17 +275,17 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (choiceBoxValue.equals(whatPostsToShowList.get(0))) {
             currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
         }
-
-        if (choiceBoxValue.equals(whatPostsToShowList.get(1))) {
+        else if (choiceBoxValue.equals(whatPostsToShowList.get(1))) {
             currentlyShowing = PostsToFetch.POSTS_LIKED_BY_FOLLOWED_USERS;
         }
-
-        if (choiceBoxValue.equals(whatPostsToShowList.get(2))) {
+        else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) {
             currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
         }
-
-        if (choiceBoxValue.equals(whatPostsToShowList.get(3))) {
+        else if (choiceBoxValue.equals(whatPostsToShowList.get(3))) {
             currentlyShowing = PostsToFetch.ALL_POSTS;
+        }
+        else if(choiceBoxValue.equals(whatPostsToShowList.get(4))) {
+            currentlyShowing = PostsToFetch.ADMIN_TOP_COMMENTED_POST;
         }
     }
 
@@ -313,9 +319,17 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     public void startSearch() {
         searchResultsList.setVisible(false);
-        currentlyShowing = PostsToFetch.SEARCH_RESULTS;
         resetPageVars();
-        List<PostModelMongo> retrievedPosts = fetchPosts(selectedSearchTag);
+        List<PostModelMongo> retrievedPosts;
+        if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST) {
+            currentlyShowing = PostsToFetch.SEARCH_RESULTS;
+            retrievedPosts = fetchPosts(selectedSearchTag);
+        }
+        else
+        {
+            retrievedPosts = this.postDBMongo.findTopCommentedTaggedPosts(this.textFieldSearch.getText());
+            retrievedPosts.forEach(postModelMongo -> System.out.println("SIze: " + postModelMongo.getComments().size()));
+        }
         posts.addAll(retrievedPosts);            // Add new LIMIT posts (at most)
         fillGridPane();
         prevNextButtonsCheck(retrievedPosts.size());            // Initialize buttons
@@ -385,19 +399,30 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private List<PostModelMongo> fetchPosts(String tag){
         this.newPostButton.setDisable(false);
         System.out.println("[INFO] New data has been fetched");
-        return switch (currentlyShowing) {        // Decide what type of posts need to be fetched
+        List<PostModelMongo> postListToReturn = new ArrayList<>();
+        this.textFieldSearch.setTooltip(null);
+        switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
-                    postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
+                    postListToReturn = postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostLikedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
+                    postListToReturn = postService.suggestPostLikedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postService.suggestPostCommentedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
+                    postListToReturn = postService.suggestPostCommentedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case SEARCH_RESULTS ->
-                    postService.findPostsByTag(tag, LIMIT, skipCounter);
+                    postListToReturn = postService.findPostsByTag(tag, LIMIT, skipCounter);
             case ALL_POSTS ->
-                    postDBMongo.findRecentPosts(LIMIT, skipCounter);
+                    postListToReturn = postDBMongo.findRecentPosts(LIMIT, skipCounter);
+            case ADMIN_TOP_COMMENTED_POST -> {
+                this.textFieldSearch.setTooltip(this.tooltipAdminHint);
+                this.textFieldSearch.requestFocus();
+                this.tooltipAdminHint.show(this.textFieldSearch.getScene().getWindow(),
+                        this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinX(),
+                        this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinY() - 30);
+            }
         };
+        return postListToReturn;
     }
+
 
     private void loadViewMessageInfo() {
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGPOSTS.getFxmlFile());

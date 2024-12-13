@@ -63,8 +63,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button searchUserButton;
     @FXML
-    private Button logoutButton;
-    @FXML
     private Button yourProfileButton;
     @FXML
     private Button accountInfoButton;
@@ -535,7 +533,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                     boardgameGridPane.setMinHeight(Region.USE_COMPUTED_SIZE);
                     boardgameGridPane.setPrefHeight(300);
                     boardgameGridPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-                    GridPane.setMargin(anchorPane, new Insets(22));
+                    GridPane.setMargin(anchorPane, new Insets(20, 20, 0, 25));
 
                 }
             } catch (Exception e) {

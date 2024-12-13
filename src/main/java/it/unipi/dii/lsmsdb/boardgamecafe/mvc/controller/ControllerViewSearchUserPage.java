@@ -172,7 +172,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
-
+        whatUsersToShowList.remove("ADMIN: most active users");
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -272,20 +272,16 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (choiceBoxValue.equals(whatUsersToShowList.get(0))) {
             currentlyShowing = UsersToFetch.ALL_USERS;
         }
-
-        if (choiceBoxValue.equals(whatUsersToShowList.get(1))) {
+        else if (choiceBoxValue.equals(whatUsersToShowList.get(1))) {
             currentlyShowing = UsersToFetch.USERS_WITH_COMMON_BOARDGAMES_POSTED;
         }
-
-        if (choiceBoxValue.equals(whatUsersToShowList.get(2))) {
+        else if (choiceBoxValue.equals(whatUsersToShowList.get(2))) {
             currentlyShowing = UsersToFetch.USERS_WITH_COMMON_LIKED_POSTS;
         }
-
-        if (choiceBoxValue.equals(whatUsersToShowList.get(3))) {
+        else if (choiceBoxValue.equals(whatUsersToShowList.get(3))) {
             currentlyShowing = UsersToFetch.INFLUENCER_USERS;
         }
-
-        if (choiceBoxValue.equals(whatUsersToShowList.get(4))) {
+        else if (choiceBoxValue.equals(whatUsersToShowList.get(4))) {
             currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
         }
     }
