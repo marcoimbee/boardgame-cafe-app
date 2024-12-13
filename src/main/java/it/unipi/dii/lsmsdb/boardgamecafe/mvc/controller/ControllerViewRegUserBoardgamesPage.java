@@ -83,6 +83,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @FXML
     private Button statisticsButton;
     @FXML
+    private Button logoutButton;
+    @FXML
     private ChoiceBox<String> whatBgameToShowChoiceBox;
     @FXML
     private ComboBox cboxYear;
