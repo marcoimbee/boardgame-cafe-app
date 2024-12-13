@@ -7,6 +7,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 
@@ -42,6 +44,8 @@ public class ControllerObjectReviewBlankBody {
     @Autowired
     @Lazy
     private StageManager stageManager;
+    @Autowired
+    private UserDBMongo userMongoOp;
 
     private ReviewModelMongo review;
     private static GenericUserModelMongo currentUser;
@@ -97,7 +101,7 @@ public class ControllerObjectReviewBlankBody {
         }
 
         try {
-            if (currentUser.get_class().equals("user")) {
+            if (currentUser.get_class().equals("user")){
                 UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
                 reviewService.deleteReview(review, user);
 
@@ -105,6 +109,19 @@ public class ControllerObjectReviewBlankBody {
 
                 modelBean.putBean(Constants.DELETED_REVIEW, review);
                 deletedReviewCallback.accept(review.getId());
+            } else {
+                String authorUsername = review.getUsername();
+                Optional<GenericUserModelMongo> optionalPost = userMongoOp.
+                                                findByUsername(authorUsername, false);
+                if (optionalPost.isPresent()) {
+                    UserModelMongo authorUser = (UserModelMongo) optionalPost.get();
+
+                    reviewService.deleteReview(review, authorUser);
+                    System.out.println("[INFO] Successfully deleted a review.");
+
+                    modelBean.putBean(Constants.DELETED_REVIEW, review);
+                    deletedReviewCallback.accept(review.getId());
+                }
             }
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
