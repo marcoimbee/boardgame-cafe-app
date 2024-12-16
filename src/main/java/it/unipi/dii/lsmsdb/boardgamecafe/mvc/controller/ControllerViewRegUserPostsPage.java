@@ -12,6 +12,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,6 +21,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -31,6 +33,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +122,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private final static int LIMIT = 10;    // How many posts to show in each page
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
 
-    private enum PostsToFetch {
+    public enum PostsToFetch {
         POSTS_BY_FOLLOWED_USERS,
         POSTS_LIKED_BY_FOLLOWED_USERS,
         POSTS_COMMENTED_BY_FOLLOWED_USERS,
@@ -127,7 +130,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         ALL_POSTS,
         ADMIN_TOP_COMMENTED_POST
     };
-    private static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
+    public static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
 
     private static int currentPage;
     private static List<Integer> visitedPages;
@@ -175,9 +178,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.yourProfileButton.setVisible(false);
-            currentlyShowing = PostsToFetch.ALL_POSTS;            // Static var init
-            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(3));      // Default choice box string
-            whatPostsToShowList.add("ADMIN: Top commented posts");
+            whatPostsToShowList.add("ADMIN: Top commented tagged posts");
+            boolean showingTopCommentedTaggedPosts = currentlyShowing == PostsToFetch.ADMIN_TOP_COMMENTED_POST;
+            currentlyShowing = (showingTopCommentedTaggedPosts) ? currentlyShowing : PostsToFetch.ALL_POSTS;
+            whatPostsToShowChoiceBox.setValue(
+                    whatPostsToShowList.get((showingTopCommentedTaggedPosts) ? 4 : 3));// Default choice box string
+
         }
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
@@ -185,7 +191,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             updateCurrentlyShowing(newValue);
             onSelectChoiceBoxOption();
         });
-
         onSelectChoiceBoxOption();        // Show posts by followed users by default
 
         // Prefetch boardgame tags for the search function and init search functionalities variables
@@ -194,9 +199,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null) {
             boardgameTags = boardgameDBMongo.getBoardgameTags();            // Fetching boardgame names as soon as the page opens
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);     // Saving them in the Bean, so they'll be always available from now on in the whole app
-        } else {
+        } else
             boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);     // Obtaining tags from the Bean, as thy had been put there before
-        }
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         //System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
@@ -406,7 +410,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.newPostButton.setDisable(false);
         System.out.println("[INFO] New data has been fetched");
         List<PostModelMongo> postListToReturn = new ArrayList<>();
-        this.textFieldSearch.setTooltip(null);
+        if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST)
+            this.textFieldSearch.setTooltip(null);
         switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
                     postListToReturn = postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
@@ -421,9 +426,21 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             case ADMIN_TOP_COMMENTED_POST -> {
                 this.textFieldSearch.setTooltip(this.tooltipAdminHint);
                 this.textFieldSearch.requestFocus();
-                this.tooltipAdminHint.show(this.textFieldSearch.getScene().getWindow(),
-                        this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinX(),
-                        this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinY() - 30);
+                Scene thisScene = this.textFieldSearch.getScene();
+                if (thisScene == null)
+                {
+                    Platform.runLater(() -> {
+                        this.tooltipAdminHint.show(this.textFieldSearch.getScene().getWindow(),
+                                this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinX(),
+                                this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinY() - 30);
+                    });
+                }
+                else
+                {
+                    this.tooltipAdminHint.show(this.textFieldSearch.getScene().getWindow(),
+                            this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinX(),
+                            this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinY() - 30);
+                }
             }
         };
         return postListToReturn;
@@ -747,4 +764,5 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     {
         this.searchResultsList.setVisible(false);
     }
+
 }
