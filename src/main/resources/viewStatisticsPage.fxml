@@ -71,45 +71,56 @@
                   </Label>
                   <Separator blendMode="SRC_ATOP" layoutX="58.0" layoutY="85.0" prefHeight="4.0" prefWidth="729.0" />
                   <Separator blendMode="SRC_ATOP" layoutX="780.0" layoutY="33.0" orientation="VERTICAL" prefHeight="651.0" prefWidth="15.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="230.0" prefHeight="4.0" prefWidth="729.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="375.0" prefHeight="4.0" prefWidth="729.0" />
-                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="520.0" prefHeight="4.0" prefWidth="729.0" />
-                  <Label fx:id="statisticTitle1" alignment="TOP_LEFT" layoutX="65.0" layoutY="140.0" prefHeight="29.0" prefWidth="388.0" text="Show the countries with the highest user number" textAlignment="CENTER" textFill="#182e58">
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="180.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="295.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="415.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Label fx:id="statisticTitle1" alignment="TOP_LEFT" layoutX="65.0" layoutY="110.0" prefHeight="29.0" prefWidth="388.0" text="Show the countries with the highest user number" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="statisticTitle2" alignment="TOP_LEFT" layoutX="65.0" layoutY="292.0" prefHeight="29.0" prefWidth="388.0" text="Show average users age per country" textAlignment="CENTER" textFill="#182e58">
+                  <Label fx:id="statisticTitle2" alignment="TOP_LEFT" layoutX="65.0" layoutY="228.0" prefHeight="29.0" prefWidth="388.0" text="Show average users age per country" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="statisticTitle3" alignment="TOP_LEFT" layoutX="65.0" layoutY="438.0" prefHeight="29.0" prefWidth="388.0" text="Show the most active users in the application" textAlignment="CENTER" textFill="#182e58">
+                  <Label fx:id="statisticTitle3" alignment="TOP_LEFT" layoutX="65.0" layoutY="345.0" prefHeight="29.0" prefWidth="388.0" text="Show the most active users in the application" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="statisticTitle4" alignment="TOP_LEFT" layoutX="65.0" layoutY="600.0" prefHeight="30.0" prefWidth="426.0" text="Show the most posted and commented boardgames" textAlignment="CENTER" textFill="#182e58">
+                  <Label fx:id="statisticTitle4" alignment="TOP_LEFT" layoutX="65.0" layoutY="465.0" prefHeight="30.0" prefWidth="426.0" text="Show the most posted and commented boardgames" textAlignment="CENTER" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Button fx:id="countriesAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="139.0" mnemonicParsing="false" onAction="#onClickCountriesAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                  <Button fx:id="countriesAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="109.0" mnemonicParsing="false" onAction="#onClickCountriesAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="avgAgeAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="291.0" mnemonicParsing="false" onAction="#onClickAvgAgeAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                  <Button fx:id="avgAgeAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="227.0" mnemonicParsing="false" onAction="#onClickAvgAgeAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="mostActiveUsersAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="436.0" mnemonicParsing="false" onAction="#onClickMostActiveUsersAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                  <Button fx:id="mostActiveUsersAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="350.0" mnemonicParsing="false" onAction="#onClickMostActiveUsersAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="mostPostedBGameBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="585.0" mnemonicParsing="false" onAction="#onClickMostPostedBGamesAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                  <Button fx:id="mostPostedBGameBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="465.0" mnemonicParsing="false" onAction="#onClickMostPostedBGamesAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="540.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Label fx:id="statisticTitle5" alignment="TOP_LEFT" layoutX="65.0" layoutY="589.0" prefHeight="30.0" prefWidth="426.0" text="Show the top commented tagged posts " textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="topCommentedTaggedPostBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="589.0" mnemonicParsing="false" onAction="#onClickTopCommentedTaggedPostBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
