@@ -109,8 +109,8 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <ChoiceBox fx:id="whatPostsToShowChoiceBox" layoutX="695.0" layoutY="45.0" prefHeight="32.0" prefWidth="250.0" stylesheets="@css/style.css" />
-                  <Label layoutX="646.0" layoutY="50.0" text="Show:" textFill="#182e58">
+                  <ChoiceBox fx:id="whatPostsToShowChoiceBox" layoutX="666.0" layoutY="45.0" prefHeight="32.0" prefWidth="279.0" stylesheets="@css/style.css" />
+                  <Label layoutX="618.0" layoutY="50.0" text="Show:" textFill="#182e58">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
