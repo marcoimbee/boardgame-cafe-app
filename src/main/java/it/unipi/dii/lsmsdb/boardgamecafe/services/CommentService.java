@@ -101,10 +101,26 @@ public class CommentService {
         return true;
     }
 
-    private void deleteComment(CommentModelMongo comment, PostModelMongo post) {
-        postMongo.deleteCommentFromArrayInPost(post, comment);
-        commentNeo4j.deleteAndDetachComment(comment.getId());   // Also remove relationships, no need to propagate to UserNeo4j or PostNeo4j
-        commentMongo.deleteComment(comment);
+    @Transactional
+    public boolean deleteComment(CommentModelMongo comment, PostModelMongo post) {
+        try
+        {
+            // delete all comments
+            if (!postMongo.deleteCommentFromArrayInPost(post, comment)) {
+                throw new RuntimeException("Error in deleting comments from array post in MongoDB");
+            }
+            if (!commentNeo4j.deleteAndDetachComment(comment.getId())) {
+                throw new RuntimeException("Error in deleting comments of post in Neo4j");
+            }
+            if (!commentMongo.deleteComment(comment)) {
+                throw new RuntimeException("Error in deleting comment from Comment Collection MongoDB");
+            }
+        }
+        catch (Exception ex) {
+            System.out.println("Exception deletePost(): " + ex.getMessage());
+            return false;
+        }
+        return true;
     }
 
     public String getCommentId(CommentModelMongo comment) {
