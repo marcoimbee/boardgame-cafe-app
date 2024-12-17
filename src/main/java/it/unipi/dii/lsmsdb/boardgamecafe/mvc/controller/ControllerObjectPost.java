@@ -18,8 +18,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -57,7 +55,7 @@ public class ControllerObjectPost {
 
     private PostListener postListener;
     @Autowired
-    private PostService postService; // Iniezione del servizio
+    private PostService postService;
     @Autowired
     private PostDBNeo4j postDBNeo4j;
     @Autowired
@@ -87,10 +85,8 @@ public class ControllerObjectPost {
     }
 
     public void setData(PostModelMongo post, PostListener listener, Consumer<String> deletedPostCallback) {
-
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser != null){
-            //throw new RuntimeException("No logged");
             if (!currentUser.get_class().equals("admin")) {
                 currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             } else {
@@ -111,10 +107,10 @@ public class ControllerObjectPost {
         }
 
         textTitleLabel.setText("TITLE:" + " " + post.getTitle());
+
+        // Buttons setting
         boolean loggedAsAdmin = currentUser instanceof AdminModelMongo;
-        if(post != null && currentUser != null)
-        {
-            // Buttons settings
+        if(post != null && currentUser != null) {
             if (!loggedAsAdmin && !currentUser.getUsername().equals(post.getUsername())) {
                 deleteButton.setVisible(false);         // Current user is not the creator of the post, then he must be unable to remove it
             } else {
@@ -123,8 +119,7 @@ public class ControllerObjectPost {
             }
         }
 
-        if (currentUser == null)
-        {
+        if (currentUser == null) {
             likeButton.setDisable(true);
             deleteButton.setDisable(true);
             return;
@@ -135,29 +130,25 @@ public class ControllerObjectPost {
         setTextLikeButton(post, currentUser.getUsername(), null, null);
         deleteButton.setOnAction(event -> onClickDeleteButton(post));
 
-        if (loggedAsAdmin)
-        {
+        if (loggedAsAdmin) {
             likeButton.setDisable(true);
             return;
         }
-        // The setOnAction is avoided if you're logged as Admins
-        likeButton.setOnAction(event -> onClickLikeButton(post, event));
+
+        likeButton.setOnAction(event -> onClickLikeButton(post, event));    // Avoided if logged as Admin
     }
 
-    public void setTextLikeButton(PostModelMongo post, String currentUser, Button button, FontAwesomeIconView icon)
-    // Se il like c'è, il button ha funzione dislike. Il contrario altrimenti
-    {
-        Button workingButton = (button != null) ? button : this.likeButton;
+    public void setTextLikeButton(PostModelMongo post, String currentUser, Button button, FontAwesomeIconView icon) {
+        Button workingButton = (button != null) ? button : this.likeButton;     // NOTE: if the like exists, the button serves as a dislike button
         FontAwesomeIconView workingIcon = (icon != null) ? icon : this.iconLikeButton;
         this.likeIsPresent = this.postService.hasLikedPost(currentUser, post.getId());
-        if (button == null && icon == null) // if it's the first call...
+        if (button == null && icon == null) // First call
             this.postDBNeo4j.setLikeCount(post.getId(), post.getLikeCount());
         workingIcon.setIcon((this.likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
         workingButton.setText((this.buttonLikeMessages.get((this.likeIsPresent) ? 1 : 0)));
     }
 
-    public void onClickLikeButton(PostModelMongo post, ActionEvent event)
-    {
+    public void onClickLikeButton(PostModelMongo post, ActionEvent event) {
         String username = currentUser.getUsername();
         String postId = post.getId();
         postService.likeOrDislikePost(username, postId);
@@ -166,8 +157,7 @@ public class ControllerObjectPost {
         updateLikesLabel(event, post);
     }
 
-    private void updateLikesLabel(ActionEvent event, PostModelMongo post)
-    {
+    private void updateLikesLabel(ActionEvent event, PostModelMongo post) {
         Label workingLikeCountLbl = (event == null) ?
                 this.counterLikesLabel : (Label) ((Button) event.getSource()).getParent().lookup("#counterLikesLabel");
         int likeCount = (event == null) ?
@@ -183,13 +173,7 @@ public class ControllerObjectPost {
         }
 
         try {
-            // Neo4J post deletion
-            postDBNeo4j.deletePost(post.getId());
-
-            // MongoDB post deletion
-            postDBMongo.deletePost(post);
-            commentDBMongo.deleteByPost(post.getId());
-
+            postService.deletePost(post);
             System.out.println("[INFO] Successful post deletion");
 
             deletedPostCallback.accept(post.getId());
