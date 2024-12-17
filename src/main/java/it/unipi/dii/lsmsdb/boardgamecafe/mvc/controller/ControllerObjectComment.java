@@ -49,6 +49,8 @@ public class ControllerObjectComment {
     private CommentDBNeo4j commentDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
+    @Autowired
+    private CommentService serviceComment;
 
     @Autowired
     private ModelBean modelBean;
@@ -118,12 +120,7 @@ public class ControllerObjectComment {
         }
 
         try {
-            // Neo4J comment deletion
-            commentDBNeo4j.deleteAndDetachComment(comment.getId());
-
-            // MongoDB comment deletion
-            commentDBMongo.deleteComment(comment);
-            postDBMongo.deleteCommentFromPost(post, comment);
+            serviceComment.deleteComment(comment, post);
 
             System.out.println("[INFO] Successful comment deletion.");
 
