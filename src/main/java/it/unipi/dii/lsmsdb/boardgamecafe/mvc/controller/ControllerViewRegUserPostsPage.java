@@ -158,7 +158,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         this.postsFeedButton.setDisable(true);
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
-        this.newPostButton.setDisable(false);
         resetPageVars();
 
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -170,6 +169,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (!currentUser.get_class().equals("admin"))
         {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.newPostButton.setDisable(false);
             this.statisticsButton.setVisible(false);
             currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
             whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
@@ -177,6 +177,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         else
         {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+            this.newPostButton.setDisable(true);
             this.yourProfileButton.setVisible(false);
             whatPostsToShowList.add(adminAnalyticToShow);
             boolean showingTopCommentedTaggedPosts = currentlyShowing == PostsToFetch.ADMIN_TOP_COMMENTED_POST;
@@ -407,7 +408,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     private List<PostModelMongo> fetchPosts(String tag){
-        this.newPostButton.setDisable(false);
+        if (currentUser.get_class().equals("admin"))
+            this.newPostButton.setDisable(true);
+        else
+            this.newPostButton.setDisable(false);
         System.out.println("[INFO] New data has been fetched");
         List<PostModelMongo> postListToReturn = new ArrayList<>();
         if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST)
