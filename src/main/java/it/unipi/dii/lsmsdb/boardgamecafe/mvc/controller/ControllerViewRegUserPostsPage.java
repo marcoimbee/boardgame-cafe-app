@@ -164,9 +164,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
-
+        String adminAnalyticToShow = "ADMIN: Top commented tagged posts";
         whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
-        whatPostsToShowList.remove("ADMIN: Top commented posts");
+        whatPostsToShowList.remove(adminAnalyticToShow);
         if (!currentUser.get_class().equals("admin"))
         {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -178,7 +178,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.yourProfileButton.setVisible(false);
-            whatPostsToShowList.add("ADMIN: Top commented tagged posts");
+            whatPostsToShowList.add(adminAnalyticToShow);
             boolean showingTopCommentedTaggedPosts = currentlyShowing == PostsToFetch.ADMIN_TOP_COMMENTED_POST;
             currentlyShowing = (showingTopCommentedTaggedPosts) ? currentlyShowing : PostsToFetch.ALL_POSTS;
             whatPostsToShowChoiceBox.setValue(
@@ -411,7 +411,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         System.out.println("[INFO] New data has been fetched");
         List<PostModelMongo> postListToReturn = new ArrayList<>();
         if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST)
+        {
+            this.tooltipAdminHint.hide();
             this.textFieldSearch.setTooltip(null);
+        }
         switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
                     postListToReturn = postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
