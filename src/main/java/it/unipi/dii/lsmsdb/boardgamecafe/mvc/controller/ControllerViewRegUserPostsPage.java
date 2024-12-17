@@ -265,8 +265,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     break;
                 }
             }
-            fillGridPane();
+            onSelectChoiceBoxOption();
         }
+
 
         // Update UI after potentially having updated a post
         PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
