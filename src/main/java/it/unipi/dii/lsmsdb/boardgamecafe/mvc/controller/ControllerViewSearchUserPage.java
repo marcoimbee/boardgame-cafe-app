@@ -108,11 +108,19 @@ public class ControllerViewSearchUserPage implements Initializable {
     UserListener userListener;
 
     // Choice box variables
-    ObservableList<String> whatUsersToShowList = FXCollections.observableArrayList(
+    private ObservableList<String> whatUsersToShowList;
+
+    private final List<String> availableUserQueries = Arrays.asList(
             "All users",
             "Users which posted about boardgames you posted about too",  // suggestUsersByCommonBoardgamePosted@UserService
             "Users that enjoy the same posts as you do",  // suggestUsersByCommonLikedPosts@UserService
             "Influencers in the boardgame community"   // suggestInfluencerUsers@UserService
+    );
+
+    private final List<String> availableAdminQueries = Arrays.asList(
+            "All users",
+            "Influencers in the boardgame community",   // suggestInfluencerUsers@UserService
+            "ADMIN: most active users"
     );
 
     private List<UserModelMongo> users = new ArrayList<>();
@@ -170,18 +178,17 @@ public class ControllerViewSearchUserPage implements Initializable {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (currentUser == null)
-            throw new RuntimeException("No logged");
-        whatUsersToShowList.remove("ADMIN: most active users");
-        currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.statisticsButton.setVisible(false);
+
+            whatUsersToShowList = FXCollections.observableArrayList(availableUserQueries);
         } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            whatUsersToShowList.add("ADMIN: most active users");
+//            whatUsersToShowList.add("ADMIN: most active users");
             this.yourProfileButton.setVisible(false);
 
+            whatUsersToShowList = FXCollections.observableArrayList(availableAdminQueries);
         }
 
         visitedPages = new ArrayList<>();
@@ -269,20 +276,17 @@ public class ControllerViewSearchUserPage implements Initializable {
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
-        if (choiceBoxValue.equals(whatUsersToShowList.get(0))) {
-            currentlyShowing = UsersToFetch.ALL_USERS;
-        }
-        else if (choiceBoxValue.equals(whatUsersToShowList.get(1))) {
-            currentlyShowing = UsersToFetch.USERS_WITH_COMMON_BOARDGAMES_POSTED;
-        }
-        else if (choiceBoxValue.equals(whatUsersToShowList.get(2))) {
-            currentlyShowing = UsersToFetch.USERS_WITH_COMMON_LIKED_POSTS;
-        }
-        else if (choiceBoxValue.equals(whatUsersToShowList.get(3))) {
-            currentlyShowing = UsersToFetch.INFLUENCER_USERS;
-        }
-        else if (choiceBoxValue.equals(whatUsersToShowList.get(4))) {
-            currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
+        if (!currentUser.get_class().equals("admin")) {
+            // Setting up regular user queries correspondence
+            if (choiceBoxValue.equals(whatUsersToShowList.get(0)))      currentlyShowing = UsersToFetch.ALL_USERS;
+            else if (choiceBoxValue.equals(whatUsersToShowList.get(1))) currentlyShowing = UsersToFetch.USERS_WITH_COMMON_BOARDGAMES_POSTED;
+            else if (choiceBoxValue.equals(whatUsersToShowList.get(2))) currentlyShowing = UsersToFetch.USERS_WITH_COMMON_LIKED_POSTS;
+            else if (choiceBoxValue.equals(whatUsersToShowList.get(3))) currentlyShowing = UsersToFetch.INFLUENCER_USERS;
+        } else {
+            // Setting up admin queries correspondence
+            if (choiceBoxValue.equals(whatUsersToShowList.get(0)))      currentlyShowing = UsersToFetch.ALL_USERS;
+            else if (choiceBoxValue.equals(whatUsersToShowList.get(1))) currentlyShowing = UsersToFetch.INFLUENCER_USERS;
+            else if (choiceBoxValue.equals(whatUsersToShowList.get(2))) currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
         }
     }
 
