@@ -131,7 +131,7 @@ public class ControllerObjectPost {
         deleteButton.setOnAction(event -> onClickDeleteButton(post));
 
         if (loggedAsAdmin) {
-            likeButton.setVisible(false);
+            likeButton.setDisable(true);
             return;
         }
 
