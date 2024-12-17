@@ -60,6 +60,8 @@ public class ControllerViewStatisticsPage implements Initializable{
     private Button mostActiveUsersAnalyticsBtn;
     @FXML
     private Button mostPostedBGameBtn;
+    @FXML
+    private Button topCommentedTaggedPostBtn;
 
 
     //********* Autowireds *********
@@ -161,6 +163,13 @@ public class ControllerViewStatisticsPage implements Initializable{
     {
         modelBean.putBean(Constants.SELECTED_ANALYTICS, statisticsToShow.MOST_POSTED_BOARDGAMES);
         stageManager.showWindow(FxmlView.REGUSERBOARDGAMES);
+        stageManager.closeStageButton(this.postsFeedButton);
+    }
+
+    public void onClickTopCommentedTaggedPostBtn()
+    {
+        ControllerViewRegUserPostsPage.currentlyShowing = ControllerViewRegUserPostsPage.PostsToFetch.ADMIN_TOP_COMMENTED_POST;
+        stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.postsFeedButton);
     }
 }
