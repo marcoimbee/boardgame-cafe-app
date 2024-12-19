@@ -1,7 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -10,7 +9,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,8 +21,7 @@ public class CommentDBMongo {
     @Autowired
     private MongoOperations mongoOperations;
 
-    public CommentDBMongo() {
-    }
+    public CommentDBMongo() {}
 
     public CommentRepoMongo getCommentMongo() {
         return commentMongo;
@@ -34,7 +31,7 @@ public class CommentDBMongo {
         try {
             return commentMongo.save(comment);
         } catch (Exception e) {
-            System.out.println("[ERROR] addComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
+            System.err.println("[ERROR] addComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
             return null;
         }
     }
@@ -50,9 +47,8 @@ public class CommentDBMongo {
                 comment.setUsername(updated.getUsername());
                 commentMongo.save(comment);
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] updateComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
         return true;
@@ -61,23 +57,11 @@ public class CommentDBMongo {
     public boolean deleteComment(CommentModelMongo comment) {
         try {
             commentMongo.delete(comment);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] deleteComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
         return true;
-    }
-
-    public List<CommentModelMongo> findByPost(String post) {
-        List<CommentModelMongo> commentList = new ArrayList<>();
-        try {
-            commentList = commentMongo.findByPost(post);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return commentList;
     }
 
     public List<CommentModelMongo> findRecentCommentsByPostId(String postId, int limit, int skip) {
@@ -89,7 +73,7 @@ public class CommentDBMongo {
             query.skip(skip).limit(limit);
             comments = mongoOperations.find(query, CommentModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findRecentCommentsByPostId()@CommentDBMongo.java raised an exception: " + e.getMessage());
         }
         return comments;
     }
@@ -98,9 +82,8 @@ public class CommentDBMongo {
         List<CommentModelMongo> commentList = new ArrayList<>();
         try {
             commentList = commentMongo.findByUsername(username);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findByUsername()@CommentDBMongo.java raised an exception: " + e.getMessage());;
         }
         return commentList;
     }
@@ -109,31 +92,18 @@ public class CommentDBMongo {
         Optional<CommentModelMongo> comment = Optional.empty();
         try {
             comment = commentMongo.findById(id);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return comment;
-    }
-
-    public Optional<CommentModelMongo> findByUsernameAndPostAndTimestamp(String username, String post, Date timestamp) {
-        Optional<CommentModelMongo> comment = Optional.empty();
-        try {
-            comment = commentMongo.findByUsernameAndPostAndTimestamp(username, post, timestamp);
-            System.out.println();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findById()@CommentDBMongo.java raised an exception: " + e.getMessage());;
         }
         return comment;
     }
 
     public boolean deleteByPost(String postId) {
         try {
-            long result = commentMongo.deleteByPost(postId);
+            commentMongo.deleteByPost(postId);
             return true;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println("[ERROR] deleteByPost()@CommentDBMongo.java raised an exception: " + ex.getMessage());;
             return false;
         }
     }
@@ -142,7 +112,7 @@ public class CommentDBMongo {
         try {
             commentMongo.deleteByUsername(username);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println("[ERROR] deleteByUsername()@CommentDBMongo.java raised an exception: " + ex.getMessage());;
             return false;
         }
         return true;
