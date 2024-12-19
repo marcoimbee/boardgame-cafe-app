@@ -34,8 +34,11 @@ public class PostDBMongo {
     @Autowired
     private MongoOperations mongoOperations;
 
+    /* fra: Da eliminare? -> 19/12/2024
     public PostRepoMongo getPostMongo() {return postMongo;}
+     */
 
+    /* fra: Da eliminare? -> 19/12/2024
     public boolean addPostOld(PostModelMongo post) {
         try {
             postMongo.save(post);
@@ -46,6 +49,7 @@ public class PostDBMongo {
         }
         return true;
     }
+    */
 
     public PostModelMongo addPost(PostModelMongo post)
     {
@@ -54,6 +58,7 @@ public class PostDBMongo {
         return null;
     }
 
+    /* fra: Da eliminare? -> 19/12/2024
     public boolean deleteCommentFromPost(PostModelMongo post, CommentModelMongo comment) {
         Criteria criteria = Criteria.where("_id").is(post.getId());
         Update update = new Update().pull("comments", comment);
@@ -61,6 +66,7 @@ public class PostDBMongo {
 
         return true;
     }
+     */
 
     public boolean updatePost(String id, PostModelMongo updated)
     {
@@ -314,6 +320,7 @@ public class PostDBMongo {
         return results.getRawResults();
     }
 
+    /* fra: Da eliminare? -> 19/12/2024
     public Document findTopPostsByBoardgameName(String boardgameName, int limit) {
         // Step 1: Filtra i post che contengono il tag specificato
         MatchOperation matchTagOperation = match(new Criteria("tag").is(boardgameName));
@@ -349,6 +356,7 @@ public class PostDBMongo {
         // Step 9: Restituisci i risultati grezzi
         return result.getRawResults();
     }
+     */
 
     //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
     public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment)
@@ -393,6 +401,7 @@ public class PostDBMongo {
             return false;
         }
     }
+
 
     public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModelMongo> userComments) {
         try {
