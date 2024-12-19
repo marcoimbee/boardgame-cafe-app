@@ -157,6 +157,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
             editButton.setVisible(false);
             deleteButton.setVisible(true);
             likeButton.setDisable(true);
+            addCommentButton.setDisable(true);
         }
 
         // Page focus listener - needed to potentially update UI when coming back from a post update window
