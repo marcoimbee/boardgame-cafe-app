@@ -122,13 +122,4 @@ public class CommentService {
         }
         return true;
     }
-
-    public String getCommentId(CommentModelMongo comment) {
-        Optional<CommentModelMongo> commentResult = commentMongo.findByUsernameAndPostAndTimestamp(
-                comment.getUsername(),
-                comment.getPost(),
-                comment.getTimestamp()
-        );
-        return commentResult.map(CommentModelMongo::getId).orElse(null);
-    }
 }
