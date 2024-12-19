@@ -185,7 +185,6 @@ public class ControllerViewSearchUserPage implements Initializable {
             whatUsersToShowList = FXCollections.observableArrayList(availableUserQueries);
         } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-//            whatUsersToShowList.add("ADMIN: most active users");
             this.yourProfileButton.setVisible(false);
 
             whatUsersToShowList = FXCollections.observableArrayList(availableAdminQueries);

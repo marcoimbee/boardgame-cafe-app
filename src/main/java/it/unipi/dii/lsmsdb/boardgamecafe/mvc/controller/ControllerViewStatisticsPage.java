@@ -78,7 +78,8 @@ public class ControllerViewStatisticsPage implements Initializable{
         AVG_AGE_BY_COUNTRY,
         COUNTRIES_WITH_HIGHEST_USER_NUMBER,
         MOST_POSTED_BOARDGAMES,
-        MOST_ACTIVE_USERS
+        MOST_ACTIVE_USERS,
+        MOST_COMMENTED_TAGGED_POST
     };
 
     @Autowired
@@ -168,7 +169,7 @@ public class ControllerViewStatisticsPage implements Initializable{
 
     public void onClickTopCommentedTaggedPostBtn()
     {
-        ControllerViewRegUserPostsPage.currentlyShowing = ControllerViewRegUserPostsPage.PostsToFetch.ADMIN_TOP_COMMENTED_POST;
+        modelBean.putBean(Constants.SELECTED_ANALYTICS, statisticsToShow.MOST_COMMENTED_TAGGED_POST);
         stageManager.showWindow(FxmlView.REGUSERPOSTS);
         stageManager.closeStageButton(this.postsFeedButton);
     }

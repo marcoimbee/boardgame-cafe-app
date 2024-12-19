@@ -104,11 +104,18 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private boolean shiftDownSingleObjectGridPane;
 
     // Choice box variables
-    ObservableList<String> whatPostsToShowList = FXCollections.observableArrayList(
+    private ObservableList<String> whatPostsToShowList;
+
+    private final List<String> availableUserQueries = Arrays.asList(
             "Posts by followed users",
             "Posts liked by followed users",
             "Posts commented by followed users",
             "All posts"
+    );
+
+    private final List<String> availableAdminQueries = Arrays.asList(
+            "All posts",
+            "ADMIN: top commented tagged posts"
     );
 
     //Post Variables
@@ -162,29 +169,34 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         resetPageVars();
 
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (currentUser == null)
-            throw new RuntimeException("No logged");
-        String adminAnalyticToShow = "ADMIN: Top commented tagged posts";
-        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);                 // Setting the other options in choice box
-        whatPostsToShowList.remove(adminAnalyticToShow);
-        if (!currentUser.get_class().equals("admin"))
-        {
+        if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.statisticsButton.setVisible(false);
-            currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;            // Static var init
-            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));      // Default choice box string
-        }
-        else
-        {
+
+            whatPostsToShowList = FXCollections.observableArrayList(availableUserQueries);
+            whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));
+
+            currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+        } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             this.yourProfileButton.setVisible(false);
-            whatPostsToShowList.add(adminAnalyticToShow);
-            boolean showingTopCommentedTaggedPosts = currentlyShowing == PostsToFetch.ADMIN_TOP_COMMENTED_POST;
-            currentlyShowing = (showingTopCommentedTaggedPosts) ? currentlyShowing : PostsToFetch.ALL_POSTS;
-            whatPostsToShowChoiceBox.setValue(
-                    whatPostsToShowList.get((showingTopCommentedTaggedPosts) ? 4 : 3));// Default choice box string
 
+            whatPostsToShowList = FXCollections.observableArrayList(availableAdminQueries);
+
+            ControllerViewStatisticsPage.statisticsToShow showMostCommentedTaggedPost =     // Checking if the admin is visiting this page coming from the analytics panel
+                    (ControllerViewStatisticsPage.statisticsToShow)modelBean.getBean(Constants.SELECTED_ANALYTICS);
+            if (showMostCommentedTaggedPost != null) {                  // User is admin and he comes from the analytics panel
+                modelBean.putBean(Constants.SELECTED_ANALYTICS, null);
+                currentlyShowing = PostsToFetch.ADMIN_TOP_COMMENTED_POST;
+                whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(whatPostsToShowList.size() - 1));
+            } else {
+                currentlyShowing = PostsToFetch.ALL_POSTS;
+                whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(0));
+            }
         }
+
+        // Choice box init
+        whatPostsToShowChoiceBox.setItems(whatPostsToShowList);
 
         // Adding listeners to option selection: change indicator of what is displayed on the screen and retrieve results
         whatPostsToShowChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -195,15 +207,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         // Prefetch boardgame tags for the search function and init search functionalities variables
         searchResultsList.setVisible(false);
-        long startTime = System.currentTimeMillis();
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null) {
             boardgameTags = boardgameDBMongo.getBoardgameTags();            // Fetching boardgame names as soon as the page opens
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);     // Saving them in the Bean, so they'll be always available from now on in the whole app
         } else
             boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);     // Obtaining tags from the Bean, as thy had been put there before
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        //System.out.println("[INFO] Fetched " + boardgameTags.size() + " boardgame tags in " + elapsedTime + " ms");
+
         selectedSearchTag = null;
 
         // Post details listener - used to display post details once a post is clicked on
@@ -212,11 +221,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             modelBean.putBean(Constants.SELECTED_POST, post);
             Stage detailsStage = stageManager.showWindow(FxmlView.DETAILS_POST);
             detailsStage.setOnHidden(windowEvent -> {
-                String lastPostId = ((PostModelMongo)modelBean.getBean(Constants.SELECTED_POST)).getId();
+                String lastPostId = ((PostModelMongo) modelBean.getBean(Constants.SELECTED_POST)).getId();
                 AnchorPane eventAnchorPanePost = (AnchorPane) (mouseEvent.getSource());
-                ((Label)eventAnchorPanePost.lookup("#counterLikesLabel")).setText(
+                ((Label) eventAnchorPanePost.lookup("#counterLikesLabel")).setText(
                         String.valueOf(postDBNeo4j.findTotalLikesByPostID(lastPostId)));
-                Button workingButton = ((Button)eventAnchorPanePost.lookup("#likeButton"));
+                Button workingButton = ((Button) eventAnchorPanePost.lookup("#likeButton"));
                 FontAwesomeIconView workingIcon = (FontAwesomeIconView) workingButton.getGraphic();
                 boolean likeIsPresent = this.postService.hasLikedPost(currentUser.getUsername(), lastPostId);
                 workingIcon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
@@ -277,20 +286,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     private void updateCurrentlyShowing(String choiceBoxValue) {
-        if (choiceBoxValue.equals(whatPostsToShowList.get(0))) {
-            currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
-        }
-        else if (choiceBoxValue.equals(whatPostsToShowList.get(1))) {
-            currentlyShowing = PostsToFetch.POSTS_LIKED_BY_FOLLOWED_USERS;
-        }
-        else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) {
-            currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
-        }
-        else if (choiceBoxValue.equals(whatPostsToShowList.get(3))) {
-            currentlyShowing = PostsToFetch.ALL_POSTS;
-        }
-        else if(choiceBoxValue.equals(whatPostsToShowList.get(4))) {
-            currentlyShowing = PostsToFetch.ADMIN_TOP_COMMENTED_POST;
+        if (!currentUser.get_class().equals("admin")) {
+            // Setting up regular user queries correspondence
+            if (choiceBoxValue.equals(whatPostsToShowList.get(0)))      currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
+            else if (choiceBoxValue.equals(whatPostsToShowList.get(1))) currentlyShowing = PostsToFetch.POSTS_LIKED_BY_FOLLOWED_USERS;
+            else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
+            else if (choiceBoxValue.equals(whatPostsToShowList.get(3))) currentlyShowing = PostsToFetch.ALL_POSTS;
+        } else {
+            // Setting up admin queries correspondence
+            if (choiceBoxValue.equals(whatPostsToShowList.get(0)))      currentlyShowing = PostsToFetch.ALL_POSTS;
+            else if (choiceBoxValue.equals(whatPostsToShowList.get(1))) currentlyShowing = PostsToFetch.ADMIN_TOP_COMMENTED_POST;
         }
     }
 
