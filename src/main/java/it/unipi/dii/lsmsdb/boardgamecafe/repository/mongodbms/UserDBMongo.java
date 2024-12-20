@@ -75,6 +75,7 @@ public class UserDBMongo {
         }
     }
 
+    /* fra: Da eliminare? -> 20/12/2024
     public Optional<GenericUserModelMongo> findUserById(String id) {
         Optional<GenericUserModelMongo> user = Optional.empty();
         try {
@@ -84,7 +85,9 @@ public class UserDBMongo {
         }
         return user;
     }
+    */
 
+    /* fra: Da eliminare? -> 20/12/2024
     public boolean deleteUserById(String id) {
         try {
             userRepoMongo.deleteById(id);
@@ -94,6 +97,7 @@ public class UserDBMongo {
         }
         return true;
     }
+     */
 
     public boolean deleteReviewInUserReviewsById(String userId, String reviewId)
     {
@@ -201,6 +205,7 @@ public class UserDBMongo {
         return Optional.ofNullable(results != null ? results.getRawResults() : null);
     }
 
+    /* fra: Da eliminare? -> 20/12/2024
     // Show the countries from which the highest number of users comes from
     public List<String> getCountriesWithHighestUsersCount(int howMany) {
         GroupOperation groupByNationality = Aggregation.group("nationality").count().as("userCount");
@@ -214,6 +219,7 @@ public class UserDBMongo {
 
         return results.getMappedResults();
     }
+     */
 
     public Document findCountriesWithMostUsers(int minUserNumber, int limit) {
 
