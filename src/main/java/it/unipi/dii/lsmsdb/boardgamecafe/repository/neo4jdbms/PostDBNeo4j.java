@@ -50,6 +50,7 @@ public class PostDBNeo4j {
         return true;
     }
 
+    /* fra: Da eliminare? -> 20/12/2024
     public List<PostModelNeo4j> findPostsByAuthorName(String authorName) {
 
         List<PostModelNeo4j> posts = new ArrayList<>();
@@ -60,8 +61,7 @@ public class PostDBNeo4j {
             }
         return posts;
     }
-
-
+    */
 
     public boolean deletePost(String id) {
         try {
@@ -106,6 +106,7 @@ public class PostDBNeo4j {
         }
         return post;
     }
+    /* fra: Da eliminare? -> 20/12/2024
     public Optional<PostModelNeo4j> findFromCommentId(String commentId) {
         Optional<PostModelNeo4j> post = Optional.empty();
         try {
@@ -116,6 +117,9 @@ public class PostDBNeo4j {
         }
         return post;
     }
+    */
+
+    /* fra: Da eliminare? -> 20/12/2024
 
     public List<PostModelNeo4j> findFromReferredBoardgame(String boardgameName) {
         List<PostModelNeo4j> posts = new ArrayList<>();
@@ -127,6 +131,7 @@ public class PostDBNeo4j {
         }
         return posts;
     }
+    */
 
     public void addLikePost(String username, String postId, boolean likeAction)
     {
