@@ -203,53 +203,6 @@ public class ReviewService {
         return false;
     }
 
-
-    // BEGIN - ************************* To_Check *************************
-
-    // Valutare l'uso di questi 2 metodi: utili per la gestione automatica della numerosità delle
-    // reviews all'interno dell'array di user e boardgame - potrebbe tornare utile anche per la grafica
-    private void checkLastReviewBoardgame(BoardgameModelMongo boardgame, boolean isDelete) {
-
-        int numReviews = boardgame.getReviews().size();
-        if (numReviews == 50) {
-            if (isDelete) {
-                List<ReviewModelMongo> oldReviews = reviewMongoOp.
-                        findOldReviews(boardgame.getBoardgameName(), true);
-                boardgame.getReviews().add(numReviews, oldReviews.get(0));
-            } else {
-                boardgame.getReviews().remove(numReviews - 1);
-            }
-        }
-    }
-
-    private void checkLastReviewUser(UserModelMongo newUser, boolean isDelete) {
-
-        int numReviews = newUser.getReviews().size();
-        if (numReviews == 50) {
-            if (isDelete) {
-                List<ReviewModelMongo> oldReviews =
-                        reviewMongoOp.findOldReviews(newUser.getUsername(), false);
-
-                newUser.getReviews().add(numReviews, oldReviews.get(0));
-            } else {
-                newUser.getReviews().remove(numReviews - 1);
-            }
-        }
-    }
-
-    private String getReviewId(ReviewModelMongo review) {
-
-        Optional<ReviewModelMongo> reviewResult =
-                reviewMongoOp.findByUsernameAndBoardgameName( review.getUsername(),
-                        review.getBoardgameName());
-        if (reviewResult.isPresent()) {
-            return reviewResult.get().getId();
-        } else {
-            logger.error("Review not found");
-        }
-        return "";
-    }
-
     public LinkedHashMap<BoardgameModelMongo, Double> getTopRatedBoardgamePerYear(int minReviews, int limit, int year)
     {
         List<Document> docList = (List<Document>) reviewMongoOp.getTopRatedBoardgamePerYear(minReviews, limit, year).get("results");

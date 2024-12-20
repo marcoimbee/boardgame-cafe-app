@@ -1,7 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +9,8 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,12 +19,12 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 @Component
 public class ReviewDBMongo {
 
-    public ReviewDBMongo() {}
-
     @Autowired
     private ReviewRepoMongo reviewMongo;
     @Autowired
     private MongoOperations mongoOperations;
+
+    public ReviewDBMongo() {}
 
     public ReviewRepoMongo getReviewMongo() {
         return reviewMongo;
@@ -38,32 +35,10 @@ public class ReviewDBMongo {
         try {
             reviewMongo.save(review);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] addReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             result = false;
         }
         return result;
-    }
-
-    public Optional<ReviewModelMongo> findReviewById(String id) {
-        Optional<ReviewModelMongo> review = Optional.empty();
-        try {
-            review = reviewMongo.findById(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return review;
-    }
-
-    public Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username,
-                                                                     String boardgameName) {
-
-        Optional<ReviewModelMongo> review = Optional.empty();
-        try {
-            review = reviewMongo.findByUsernameAndBoardgameName(username, boardgameName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return review;
     }
 
     public List<ReviewModelMongo> findReviewByUsername(String username) {
@@ -71,7 +46,7 @@ public class ReviewDBMongo {
         try {
             reviews = reviewMongo.findByUsername(username);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
         }
         return reviews;
     }
@@ -81,11 +56,11 @@ public class ReviewDBMongo {
         try {
             Query query = new Query();
             query.addCriteria(Criteria.where("username").is(username));
-            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview")); // Ordinamento per data
-            query.skip(skip).limit(limit); // Paginazione
-            reviews = mongoOperations.find(query, ReviewModelMongo.class); // Ricerca nella collection delle recensioni
+            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
+            query.skip(skip).limit(limit);
+            reviews = mongoOperations.find(query, ReviewModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findRecentReviewsByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
         }
         return reviews;
     }
@@ -95,53 +70,16 @@ public class ReviewDBMongo {
         try {
             Query query = new Query();
             query.addCriteria(Criteria.where("boardgameName").is(boardgameName));
-            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview")); // Ordinamento per data
-            query.skip(skip).limit(limit); // Paginazione
-            reviews = mongoOperations.find(query, ReviewModelMongo.class); // Ricerca nella collection delle recensioni
+            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
+            query.skip(skip).limit(limit);
+            reviews = mongoOperations.find(query, ReviewModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findRecentReviewsByBoardgame()@ReviewDBMongo.java raised an exception: " + e.getMessage());
         }
         return reviews;
     }
 
-
-    public List<ReviewModelMongo> findReviewByBoardgameName(String boardgameName) {
-        List<ReviewModelMongo> reviews = null;
-        try {
-            reviews = reviewMongo.findByBoardgameName(boardgameName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return reviews;
-    }
-
-
-    /*
     public boolean updateReview(String id, ReviewModelMongo newReview) {
-
-        boolean result = true;
-        try {
-            Optional<ReviewModelMongo> review = reviewMongo.findById(id);
-            if (review.isPresent()) {
-                ReviewModelMongo resultReview = review.get();
-
-                ReviewModelMongo.ReviewBuilder builder =
-                        new ReviewModelMongo.ReviewBuilder(newReview);
-
-                builder.id(id).boardgameName(resultReview.getBoardgameName()).
-                               username(resultReview.getUsername());
-
-                this.addReview(builder.build());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }     */
-
-    public boolean updateReview(String id, ReviewModelMongo newReview) {
-
         try {
             Optional<ReviewModelMongo> review = reviewMongo.findById(id);
             if (review.isPresent()) {
@@ -153,104 +91,50 @@ public class ReviewDBMongo {
                 reviewToBeUpdated.setBody(newReview.getBody());
                 reviewToBeUpdated.setDateOfReview(newReview.getDateOfReview());
 
-                this.addReview(reviewToBeUpdated); //Uso di save per aggiornare tutto il documento
+                this.addReview(reviewToBeUpdated);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] updateReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
+
         return true;
     }
 
-    public boolean deleteReviewById(String reviewId)
-    {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(reviewId));
-
-        Update update = new Update();
-        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
-
-        UpdateResult result = mongoOperations.updateFirst(query, update, ReviewModelMongo.class);
-        return (result.getModifiedCount() > 0);
-    }
-
-    public boolean deleteReview(ReviewModelMongo review)
-    // Elimina la review dalla collection reviews
-    {
+    public boolean deleteReview(ReviewModelMongo review) {
         boolean result = true;
         try {
             reviewMongo.delete(review);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             result = false;
         }
         return result;
     }
 
-    public boolean deleteReviewByUsername(String username)
-    // Elimina tutte le reviews di un utente. Invocata in fase di eliminazione di un utente
-    {
+    public boolean deleteReviewByUsername(String username) {
         boolean result = true;
         try {
             reviewMongo.deleteReviewByUsername(username);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             result = false;
         }
         return result;
     }
 
-    public boolean deleteReviewByBoardgameName(String boardgameName)
-    // Elimina tutte le reviews di un boardgame. Invocata in fase di eliminazione del gioco
-    {
+    public boolean deleteReviewByBoardgameName(String boardgameName) {
         boolean result = true;
         try {
             reviewMongo.deleteReviewByBoardgameName(boardgameName);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteReviewByBoardgameName()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             result = false;
         }
         return result;
     }
 
-    public List<ReviewModelMongo> findOldReviews(String parameter, boolean isBoardgame) {
-        List<ReviewModelMongo> reviews = new ArrayList<>();
-        try {
-            Query query = new Query();
-            if (isBoardgame) {
-                query.addCriteria(new Criteria("boardgameName").is(parameter));
-            } else {
-                query.addCriteria(new Criteria("username").is(parameter));
-            }
-            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
-            query.skip(50);
-            reviews = mongoOperations.find(query, ReviewModelMongo.class);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return reviews;
-    }
-
-    public boolean updateReviewsOldUser(String username) {
-        try {
-            Query query = Query.query(
-                    Criteria.where("username").is(username));
-            Update update = new Update().set("username", "Deleted User");
-            mongoOperations.updateMulti(query,
-                                        update,
-                                        ReviewModelMongo.class,
-                                        "reviews");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    public Document getTopRatedBoardgamePerYear(int minReviews, int limit, int year)
-    {
+    public Document getTopRatedBoardgamePerYear(int minReviews, int limit, int year) {
         ProjectionOperation projectYear = project()
                 .andExpression("boardgameName").as("name")
                 .andExpression("rating").as("rating")
@@ -262,7 +146,7 @@ public class ReviewDBMongo {
 
         Criteria minReviewsAndYear = new Criteria().andOperator(
                 Criteria.where("numReviews").gte(minReviews),
-                Criteria.where("_id.year").is(year) // Accedo ad year attraverso _id, perchè l'anno stesso è diventato una chiave, a causa del raggruppamento
+                Criteria.where("_id.year").is(year) // Accessing year via _id, since the year became a key because of the grouping
         );
 
         MatchOperation matchMinReviews = match(minReviewsAndYear);
@@ -304,8 +188,7 @@ public class ReviewDBMongo {
         return results.getRawResults();
     }
 
-    public Double getAvgRatingByBoardgameName(String boardgameName)
-    {
+    public Double getAvgRatingByBoardgameName(String boardgameName) {
         MatchOperation matchByName = match(Criteria.where("boardgameName").is(boardgameName));
 
         GroupOperation groupByBoardgameName = group("boardgameName")
@@ -326,10 +209,12 @@ public class ReviewDBMongo {
                 "reviews",
                 Document.class
         );
-        //System.out.println("Risultato " + docResult.toJson());
+
         Document docResult = results.getUniqueMappedResult();
-        if (docResult != null && docResult.containsKey("avgRating"))
+        if (docResult != null && docResult.containsKey("avgRating")) {
             return docResult.getDouble("avgRating");
+        }
+
         return null;
     }
 }
