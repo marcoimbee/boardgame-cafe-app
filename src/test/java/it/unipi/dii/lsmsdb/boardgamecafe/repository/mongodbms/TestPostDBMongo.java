@@ -38,11 +38,8 @@ class TestPostDBMongo
 
 
     @BeforeAll
-    public static void setup(){ init(); }
-
-    private static void init()
+    public static void setup()
     {
-        System.out.println("init()");
         post1 = new PostModelMongo("gino", "TestPost1",
                 "TextTestPost1", testBoardgameName1, new Date());
 
@@ -54,10 +51,7 @@ class TestPostDBMongo
     }
 
     @AfterAll
-    public static void clean()
-    {
-        //postDBMongo.deletePost(post1);
-    }
+    public static void clean(){ }
 
     @Test @Order(1)
     void testAddPost()
@@ -141,11 +135,6 @@ class TestPostDBMongo
         assertEquals(0, postShouldHaveNoComments.getComments().size());
     }
 
-    @Test @Order(80)
-    void testUpdatePostCommentsAfterAdminAction()
-    {
-
-    }
 
     @Test @Order(200)
     void testDeletePost()
