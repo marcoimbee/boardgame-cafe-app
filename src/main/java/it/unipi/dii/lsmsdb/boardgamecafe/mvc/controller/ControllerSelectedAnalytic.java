@@ -28,7 +28,7 @@ import java.util.*;
 @Component
 public class ControllerSelectedAnalytic implements Initializable
 {
-    private final String selectionTutti = "Tutti";
+    private final String selectionAll = "All";
     @FXML
     private Button closeButton;
     @FXML
@@ -67,7 +67,7 @@ public class ControllerSelectedAnalytic implements Initializable
         this.cboxLimit.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)
             {
-                int selectedLimit = (newValue).equals(selectionTutti) ? -1 : Integer.parseInt((String)newValue);
+                int selectedLimit = (newValue).equals(selectionAll) ? -1 : Integer.parseInt((String)newValue);
                 this.initializeChart(selectedLimit);
             }
         });
@@ -77,7 +77,7 @@ public class ControllerSelectedAnalytic implements Initializable
 
     private void initializeCbox()
     {
-        ObservableList<String> limitCountrieChoices = FXCollections.observableArrayList("3", "5", "10", "15", "20", selectionTutti);
+        ObservableList<String> limitCountrieChoices = FXCollections.observableArrayList("3", "5", "10", "15", "20", selectionAll);
         this.cboxLimit.setItems(limitCountrieChoices);
     }
 

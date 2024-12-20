@@ -470,7 +470,7 @@ public class ControllerViewSearchUserPage implements Initializable {
                 return userService.suggestUsersByCommonLikedPosts(currentUser.getUsername(), LIMIT, skipCounter);
             case INFLUENCER_USERS:
                 this.refreshButton.setDisable(false);
-                return userService.suggestInfluencerUsers(10, 10, 10, 10);
+                return userService.suggestInfluencerUsers(5, 20, 5, 20);
             case SEARCH_RESULTS:
                 GenericUserModelMongo searchResult = userDBMongo.findByUsername(username, false).get();
                 System.out.println("[DEBUG] searchResult: " + searchResult);
