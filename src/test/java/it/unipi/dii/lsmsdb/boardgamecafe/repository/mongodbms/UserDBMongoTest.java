@@ -1,6 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import org.junit.jupiter.api.AfterEach;
@@ -12,12 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@RunWith(SpringRunner.class)
 @SpringBootTest
 class UserDBMongoTest {
 
@@ -67,32 +63,32 @@ class UserDBMongoTest {
     }
 
     @Test
-    public void testAddUser() {
+    public void GIVEN_new_user_WHEN_add_THEN_gets_added() {
         assertEquals("test_username", userDBMongo.getUserMongo().findByUsername("test_username").get().getUsername());
     }
 
     @Test
-    public void testDeleteUser() {
+    public void GIVEN_user_WHEN_delete_THEN_it_gets_deleted() {
         assertTrue(userDBMongo.deleteUser(sampleUser));
     }
 
     @Test
-    public void testFindByUsername_includeAdmins() {
+    public void GIVEN_username_WHEN_find_by_username_THEN_matching_user_returned_admins_included() {
         assertNotNull(userDBMongo.findByUsername(sampleUser.getUsername(), true).get());
     }
 
     @Test
-    public void testFindByUsername_excludeAdmins() {
+    public void GIVEN_username_WHEN_find_by_username_THEN_matching_user_returned_admins_excluded() {
         assertNotNull(userDBMongo.findByUsername(sampleUser.getUsername(), false).get());
     }
 
     @Test
-    public void testFindByEmail() {
+    public void GIVEN_email_WHEN_find_by_email_THEN_matching_user_returned() {
         assertNotNull(userDBMongo.findByEmail(sampleUser.getEmail()));
     }
 
     @Test
-    public void testDeleteReviewInUserReviewsById_existingReview() {
+    public void GIVEN_existing_review_WHEN_delete_from_user_array_THEN_review_gets_deleted() {
         ReviewModelMongo sampleReview = new ReviewModelMongo(
                 "sample_review_id",
                 "test_boardgame",
@@ -106,22 +102,22 @@ class UserDBMongoTest {
     }
 
     @Test
-    public void testDeleteReviewInUserReviewsById_nonExistingReview() {
+    public void GIVEN_NON_existing_review_WHEN_delete_from_user_array_THEN_review_gets_deleted() {
         assertFalse(userDBMongo.deleteReviewInUserReviewsById(sampleUser.getId(), "non-existent_review_id"));
     }
 
     @Test
-    public void testFindAllUsersWithLimit_includeSkipFactor() {
+    public void GIVEN_number_of_users_WHEN_find_all_THEN_users_returned_with_skip() {
         assertNotNull(userDBMongo.findAllUsersWithLimit(10, 10));
     }
 
     @Test
-    public void testFindAllUsersWithLimit_skipZero() {
+    public void GIVEN_number_of_users_WHEN_find_all_THEN_users_returned_skip_zero() {
         assertNotNull(userDBMongo.findAllUsersWithLimit(10, 0));
     }
 
     @Test
-    public void testAddReviewInUserArray() {
+    public void GIVEN_review_WHEN_add_in_array_THEN_review_added() {
         ReviewModelMongo sampleReview = new ReviewModelMongo(
                 "sample_review_id",
                 "test_boardgame",
@@ -134,12 +130,12 @@ class UserDBMongoTest {
     }
 
     @Test
-    public void testGetUserUsernames() {
+    public void testGetUserUsernames_THEN_usernames_returned() {
         assertNotNull(userDBMongo.getUserUsernames());
     }
 
     @Test
-    public void testGetBannedUsers() {
+    public void testGetBannedUsers_THEN_banned_users_returned() {
         sampleUser.setBanned(true);
         userDBMongo.updateUser(sampleUser.getId(), sampleUser, sampleUser.get_class());
         assertNotNull(userDBMongo.getBannedUsers());

@@ -12,7 +12,6 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @SpringBootTest
 class CommentDBMongoTest {
 
@@ -63,43 +62,43 @@ class CommentDBMongoTest {
     }
 
     @Test
-    public void testAddComment() {
+    public void GIVEN_comment_WHEN_inserted_THEN_gets_inserted() {
         CommentModelMongo insertedComment = commentDBMongo.getCommentMongo().findById(sampleComment.getId()).get();
         assertEquals("test_user", insertedComment.getUsername());
     }
 
     @Test
-    public void testUpdateComment() {
+    public void GIVEN_updated_comment_WHEN_updated_THEN_gets_updated() {
         CommentModelMongo updatedComment = sampleComment;
         updatedComment.setText("Updated comment text");
         assertTrue(commentDBMongo.updateComment(sampleComment.getId(), updatedComment));
     }
 
     @Test
-    public void testDeleteComment() {
+    public void GIVEN_comment_to_delete_WHEN_deleted_THEN_gets_deleted() {
         assertTrue(commentDBMongo.deleteComment(sampleComment));
     }
 
     @Test
-    public void testFindRecentCommentsByPostId() {
+    public void GIVEN_post_id_WHEN_search_by_post_id_THEN_recent_comments_are_returned() {
         String testPostId = sampleComment.getPost();
         assertEquals(1, commentDBMongo.findRecentCommentsByPostId(testPostId, 1, 0).size());
     }
 
     @Test
-    public void testFindByUsername() {
+    public void GIVEN_author_username_WHEN_search_by_author_username_THEN_comments_he_wrote_are_returned() {
         assertNotNull(commentDBMongo.findByUsername(sampleComment.getUsername()));
     }
 
     @Test
-    public void testFindById() {
+    public void GIVEN_comment_idWHEN_search_by_id_THEN_comment_matching_id_is_returned() {
         String sampleCommentId = sampleComment.getId();
         CommentModelMongo retrievedSampleComment = commentDBMongo.findById(sampleCommentId).get();
         assertEquals(sampleComment.getId(), retrievedSampleComment.getId());
     }
 
     @Test
-    public void testDeleteByPost() {
+    public void GIVEN_post_id_WHEN_delete_by_post_id_THEN_comments_under_that_post_deleted() {
         String samplePostId = samplePost.getId();
         sampleComment.setPost(samplePostId);
         commentDBMongo.addComment(sampleComment);
@@ -107,7 +106,7 @@ class CommentDBMongoTest {
     }
 
     @Test
-    public void testDeleteByUsername() {
+    public void GIVEN_user_username_WHEN_delete_by_username_THEN_comments_he_wrote_deleted() {
         assertTrue(commentDBMongo.deleteByUsername("test_user"));
     }
 }
