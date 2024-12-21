@@ -50,19 +50,6 @@ public class PostDBNeo4j {
         return true;
     }
 
-    /* fra: Da eliminare? -> 20/12/2024
-    public List<PostModelNeo4j> findPostsByAuthorName(String authorName) {
-
-        List<PostModelNeo4j> posts = new ArrayList<>();
-        try {
-                posts = postRepoNeo4j.findByAuthorName(authorName);
-        } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        return posts;
-    }
-    */
-
     public boolean deletePost(String id) {
         try {
             postRepoNeo4j.deleteAndDetach(id);
