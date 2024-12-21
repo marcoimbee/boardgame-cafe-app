@@ -23,7 +23,7 @@ public class BoardgameDBNeo4j {
         return boardgameRepoNeo4j;
     }
 
-
+    /* fra: Da eliminare? -> 20/12/2024
     public boolean addBoardgameOld(BoardgameModelNeo4j boardgameNeo4j) {
         boolean result = true;
         try {
@@ -34,6 +34,7 @@ public class BoardgameDBNeo4j {
         }
         return result;
     }
+    */
 
     public BoardgameModelNeo4j addBoardgame(BoardgameModelNeo4j boardgame)
     {

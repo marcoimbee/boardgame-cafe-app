@@ -69,6 +69,7 @@ public class UserService {
         return Base64.getEncoder().encodeToString(salt);
     }
 
+    /* fra: Da eliminare? -> 20/12/2024
     public AdminModelMongo createAdmin(String username,
                                        String email,
                                        String password)
@@ -78,7 +79,9 @@ public class UserService {
 
         return new AdminModelMongo(username, email, salt, hashedPassword, "admin");
     }
+    */
 
+    /* fra: Da eliminare? -> 20/12/2024
     @Transactional
     public boolean insertAdmin(AdminModelMongo admin) {
         try {
@@ -91,6 +94,8 @@ public class UserService {
             return false;
         }
     }
+
+     */
 
     public UserModelMongo createUser(String username, String email, String password,
                                      String name, String surname, String gender,
