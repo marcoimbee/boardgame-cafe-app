@@ -76,7 +76,7 @@ class PostDBNeo4jTest
     @Test @Order(200)
     void deletePost()
     {
-        var shouldReturnTrue = userDBNeo4j.deleteUser(testAuthor);
+        var shouldReturnTrue = userDBNeo4j.deleteUserDetach(testAuthor.getUsername());
         assertTrue(shouldReturnTrue);
         shouldReturnTrue = commentDBNeo4j.deleteByPost(testIdPost1);
         assertTrue(shouldReturnTrue);
