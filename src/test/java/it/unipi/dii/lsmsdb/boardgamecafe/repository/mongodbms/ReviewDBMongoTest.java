@@ -4,10 +4,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
 import java.util.List;
@@ -15,7 +13,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 class ReviewDBMongoTest {
 
@@ -40,6 +37,7 @@ class ReviewDBMongoTest {
         String sampleBody = "sample review body";
         Date sampleDateOfReview = new Date();
 
+        // Crea una nuova review
         ReviewModelMongo review1 = new ReviewModelMongo(
                 sampleBoardgameName,
                 sampleUsername,
@@ -48,9 +46,20 @@ class ReviewDBMongoTest {
                 sampleDateOfReview
         );
 
+        // Aggiungi la review al database
         reviewDBMongo.addReview(review1);
-        sampleReview = reviewDBMongo.getReviewMongo().findByUsername(sampleUsername).getLast();
+
+        // Ottieni tutte le review associate all'username
+        List<ReviewModelMongo> reviews = reviewDBMongo.getReviewMongo().findByUsername(sampleUsername);
+
+        // Controlla se la lista non è vuota, quindi prendi l'ultimo elemento
+        if (reviews != null && !reviews.isEmpty()) {
+            sampleReview = reviews.get(reviews.size() - 1); // Usa l'indice dell'ultimo elemento
+        } else {
+            sampleReview = null; // Gestione del caso in cui la lista è vuota
+        }
     }
+
 
     @Test
     public void testAddReview() {
