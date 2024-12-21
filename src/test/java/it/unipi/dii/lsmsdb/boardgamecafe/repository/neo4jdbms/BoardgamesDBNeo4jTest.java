@@ -1,6 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class TestBoardgamesDBNeo4j
+class BoardgamesDBNeo4jTest
 {
     @Autowired
     BoardgameDBNeo4j boardgameDBNeo4j;
