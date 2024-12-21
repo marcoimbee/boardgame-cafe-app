@@ -17,17 +17,23 @@ import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class TestPostDBNeo4j
+class PostDBNeo4jTest
 {
     @Autowired
     PostDBNeo4j postDBNeo4j;
+    @Autowired
+    CommentDBNeo4j commentDBNeo4j;
+    @Autowired
+    UserDBNeo4j userDBNeo4j;
 
     static PostModelNeo4j testPost1;
     static final String testIdPost1 = "testIdPost1";
     static final String testIdComment1 = "testIdComment1";
     static final String testUsername1 = "testUsername1";
     static final String testIdUsernamme1 = "testIdUsernamme1";
+
     static UserModelNeo4j testAuthor;
+    static CommentModelNeo4j testComment;
     static List<CommentModelNeo4j> testCommentsList;
 
     @BeforeAll
@@ -35,8 +41,11 @@ class TestPostDBNeo4j
     {
         testPost1 = new PostModelNeo4j(testIdPost1);
         testAuthor = new UserModelNeo4j(testIdUsernamme1, testUsername1);
+        testComment = new CommentModelNeo4j(testIdComment1);
+        testComment.setAuthor(testAuthor);
         testCommentsList = new ArrayList<>();
-        testCommentsList.add(new CommentModelNeo4j());
+        testPost1.setAuthor(testAuthor);
+        testPost1.setComments(testCommentsList);
     }
 
     @Test @Order(10)
@@ -46,53 +55,32 @@ class TestPostDBNeo4j
         assertTrue(shouldReturnTrue);
     }
 
-    @Test @Order(20)
+    @Test @Order(30)
     void updatePost()
     {
-        CommentModelNeo4j testComment = new CommentModelNeo4j(testIdComment1);
         testCommentsList.add(testComment);
-
         testPost1.setComments(testCommentsList);
-        postDBNeo4j.updatePost(testPost1);
-
-        // DA CONTROLLARE
-
-        var shouldHaveUpdatedCommentsList = postDBNeo4j.findById(testIdPost1).get();
-        assertEquals(testCommentsList, shouldHaveUpdatedCommentsList.getComments());
+        boolean shouldReturnTrue = postDBNeo4j.updatePost(testPost1);
+        assertTrue(shouldReturnTrue);
     }
 
-    @Test
-    void findPostsByAuthorName() {
-    }
-
-    @Test
-    void deleteByReferredBoardgame() {
-    }
-
-    @Test
-    void deleteByUsername() {
-    }
-
-    @Test
-    void findById() {
-    }
-
-    @Test
-    void addLikePost() {
-    }
-
-    @Test
-    void removeLikePost() {
-    }
-
-    @Test
-    void hasUserLikedPost() {
+    @Test @Order(20)
+    void findById()
+    {
+        var shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
+        assertTrue(shouldBeNotEmpty.isPresent());
+        var sholdHaveSameId = shouldBeNotEmpty.get();
+        assertEquals(testIdPost1, sholdHaveSameId.getId());
     }
 
     @Test @Order(200)
     void deletePost()
     {
-        var shouldReturnTrue = postDBNeo4j.deletePost(testIdPost1);
+        var shouldReturnTrue = userDBNeo4j.deleteUser(testAuthor);
+        assertTrue(shouldReturnTrue);
+        shouldReturnTrue = commentDBNeo4j.deleteByPost(testIdPost1);
+        assertTrue(shouldReturnTrue);
+        shouldReturnTrue = postDBNeo4j.deletePost(testIdPost1);
         assertTrue(shouldReturnTrue);
     }
 }
