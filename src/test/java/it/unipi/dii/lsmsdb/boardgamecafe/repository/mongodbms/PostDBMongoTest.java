@@ -114,8 +114,7 @@ class PostDBMongoTest
         String updatedCommentText = "updatedCommentText";
         comment1.setText(updatedCommentText);
 
-        boolean value = postDBMongo.updatePostComment(post1, comment1);
-        System.out.println("Value: " + value);
+        postDBMongo.updatePostComment(post1, comment1);
         CommentModelMongo shouldHaveUpdatedCommentText = postDBMongo.findById(post1.getId()).get().getComments().get(0);
         assertEquals(updatedCommentText, shouldHaveUpdatedCommentText.getText());
     }

@@ -31,7 +31,6 @@ class PostDBNeo4jTest
     static final String testIdComment1 = "testIdComment1";
     static final String testUsername1 = "testUsername1";
     static final String testIdUsernamme1 = "testIdUsernamme1";
-
     static UserModelNeo4j testAuthor;
     static CommentModelNeo4j testComment;
     static List<CommentModelNeo4j> testCommentsList;
@@ -49,14 +48,23 @@ class PostDBNeo4jTest
     }
 
     @Test @Order(10)
-    void addPost()
+    void shouldAddPostAndReturnTrue()
     {
         var shouldReturnTrue = postDBNeo4j.addPost(testPost1);
         assertTrue(shouldReturnTrue);
     }
 
+    @Test @Order(20)
+    void shouldReturnTheSameIdOfInitializedPost()
+    {
+        var shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
+
+        var sholdHaveSameId = shouldBeNotEmpty.get();
+        assertEquals(testIdPost1, sholdHaveSameId.getId());
+    }
+
     @Test @Order(30)
-    void updatePost()
+    void shouldUpdatePostAndReturnTrue()
     {
         testCommentsList.add(testComment);
         testPost1.setComments(testCommentsList);
@@ -64,17 +72,8 @@ class PostDBNeo4jTest
         assertTrue(shouldReturnTrue);
     }
 
-    @Test @Order(20)
-    void findById()
-    {
-        var shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
-        assertTrue(shouldBeNotEmpty.isPresent());
-        var sholdHaveSameId = shouldBeNotEmpty.get();
-        assertEquals(testIdPost1, sholdHaveSameId.getId());
-    }
-
     @Test @Order(200)
-    void deletePost()
+    void shouldDeletePostAndAllItsReferencesAndThenReturnTrue()
     {
         var shouldReturnTrue = userDBNeo4j.deleteUserDetach(testAuthor.getUsername());
         assertTrue(shouldReturnTrue);

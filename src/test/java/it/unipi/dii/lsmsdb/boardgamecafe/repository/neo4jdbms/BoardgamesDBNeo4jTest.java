@@ -26,28 +26,28 @@ class BoardgamesDBNeo4jTest
         testBoardgame = new BoardgameModelNeo4j(testIdBoardgame, testBoardgameName, "testThumbnail", 2024);
     }
     @Test @Order(10)
-    void addBoardgame()
+    void addBoardgameInNeo4JAndReturnNotNull()
     {
         var shouldNotBeNull = boardgameDBNeo4j.addBoardgame(testBoardgame);
         assertNotNull(shouldNotBeNull);
     }
 
     @Test @Order(20)
-    void findById()
+    void findBoardgameByIdAndReturnTrue()
     {
         var shouldBeNotEmpty = boardgameDBNeo4j.findById(testIdBoardgame);
         assertTrue(shouldBeNotEmpty.isPresent());
     }
 
     @Test @Order(30)
-    void findByBoardgameName()
+    void findBoardgameByNameAndReturnTrue()
     {
         var shouldBeNotEmpty = boardgameDBNeo4j.findByBoardgameName(testBoardgameName);
         assertTrue(shouldBeNotEmpty.isPresent());
     }
 
     @Test @Order(40)
-    void updateBoardgameNeo4j()
+    void shouldUpdateTheBoardgameAndReturnItBack()
     {
         int newYear = 2000;
         testBoardgame.setYearPublished(newYear);
@@ -58,7 +58,7 @@ class BoardgamesDBNeo4jTest
     }
 
     @Test @Order(100)
-    void deleteBoardgameDetach()
+    void deleteBoardgameAndReturnTrue()
     {
         var shouldBeTrue = boardgameDBNeo4j.deleteBoardgameDetach(testBoardgameName);
         assertTrue(shouldBeTrue);
