@@ -21,7 +21,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-
 @Component
 public class UserDBMongo {
 
@@ -39,6 +38,7 @@ public class UserDBMongo {
             userRepoMongo.save(user);
             return true;
         } catch (Exception e) {
+            System.err.println("[ERROR] addUser()@UserDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
     }
@@ -48,7 +48,7 @@ public class UserDBMongo {
             userRepoMongo.delete(user);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteUser()@UserDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
     }
@@ -61,7 +61,7 @@ public class UserDBMongo {
                 return userRepoMongo.findByUsername(username);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findByUsername()@UserDBMongo.java raised an exception: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -70,42 +70,17 @@ public class UserDBMongo {
         try {
             return userRepoMongo.findByEmail(username);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findByEmail()@UserDBMongo.java raised an exception: " + e.getMessage());
             return Optional.empty();
         }
     }
 
-    /* fra: Da eliminare? -> 20/12/2024
-    public Optional<GenericUserModelMongo> findUserById(String id) {
-        Optional<GenericUserModelMongo> user = Optional.empty();
-        try {
-            user = userRepoMongo.findById(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return user;
-    }
-    */
-
-    /* fra: Da eliminare? -> 20/12/2024
-    public boolean deleteUserById(String id) {
-        try {
-            userRepoMongo.deleteById(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-     */
-
-    public boolean deleteReviewInUserReviewsById(String userId, String reviewId)
-    {
+    public boolean deleteReviewInUserReviewsById(String userId, String reviewId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(userId)); // id dell'utente
+        query.addCriteria(Criteria.where("_id").is(userId));
 
         Update update = new Update();
-        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId))); // id della review da rimuovere
+        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
 
         UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
 
@@ -120,12 +95,10 @@ public class UserDBMongo {
             query.skip(skip).limit(limit);
             users = mongoOperations.find(query, UserModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findAllUsersWithLimit()@UserDBMongo.java raised an exception: " + e.getMessage());
         }
         return users;
     }
-
-
 
     public boolean updateUser(String id,
                               GenericUserModelMongo newGenericUser,
@@ -134,8 +107,7 @@ public class UserDBMongo {
         try {
             Optional<GenericUserModelMongo> genericUser = userRepoMongo.findById(id);
 
-            if (genericUser.isPresent())
-            {
+            if (genericUser.isPresent()) {
                 if (userType.equals("admin")) {
                     AdminModelMongo administrator = (AdminModelMongo) genericUser.get();
                     administrator.setUsername(newGenericUser.getUsername());
@@ -143,7 +115,7 @@ public class UserDBMongo {
                     administrator.setPasswordHashed(newGenericUser.getPasswordHashed());
                     administrator.setSalt(newGenericUser.getSalt());
 
-                    this.addUser(administrator);    //Uso di save per aggiornare tutto il document
+                    this.addUser(administrator);
                 } else {
                     UserModelMongo user = (UserModelMongo) genericUser.get();
                     UserModelMongo newUser = (UserModelMongo) newGenericUser;
@@ -160,20 +132,17 @@ public class UserDBMongo {
                     user.setPasswordHashed(newUser.getPasswordHashed());
                     user.setReviews(newUser.getReviews());
 
-                    userRepoMongo.save(user); //Uso di save per aggiornare tutto il documento
+                    userRepoMongo.save(user);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] updateUser()@UserDBMongo.java raised an exception: " + e.getMessage());
             result = false;
         }
         return result;
     }
 
-    // Show average age of users per country
-
-    public Optional<Document> showUserAvgAgeByNationality(int limit)
-    {
+    public Optional<Document> showUserAvgAgeByNationality(int limit) {
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
         // Calcolo la proiezione dell'età, calcolata come differenza delle date [ birthday - oggi ]
@@ -205,24 +174,7 @@ public class UserDBMongo {
         return Optional.ofNullable(results != null ? results.getRawResults() : null);
     }
 
-    /* fra: Da eliminare? -> 20/12/2024
-    // Show the countries from which the highest number of users comes from
-    public List<String> getCountriesWithHighestUsersCount(int howMany) {
-        GroupOperation groupByNationality = Aggregation.group("nationality").count().as("userCount");
-        SortOperation sortByUserCountDesc = sort(Sort.Direction.DESC, "userCount");
-        LimitOperation limitResults = limit(howMany);
-        ProjectionOperation projectNationalityOnly = project("nationality");
-
-        Aggregation aggregation = newAggregation(groupByNationality, sortByUserCountDesc, limitResults, projectNationalityOnly);
-
-        AggregationResults<String> results = mongoOperations.aggregate(aggregation, "users", String.class);
-
-        return results.getMappedResults();
-    }
-     */
-
     public Document findCountriesWithMostUsers(int minUserNumber, int limit) {
-
         // Step 1: Filtro i documenti per garantire che si tratti di utenti
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
@@ -369,13 +321,12 @@ public class UserDBMongo {
     }
 
 
-    public boolean addReviewInUserArray(UserModelMongo user, ReviewModelMongo newReview)
-    {
+    public boolean addReviewInUserArray(UserModelMongo user, ReviewModelMongo newReview) {
         Query query = new Query(Criteria.where("_id").is(user.getId()));
         Update update = new Update().push("reviews", newReview);
         UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
 
-        // Se almeno un documento è stato modificato, l'update è riuscito
+        // At least one document got modified, update ok
         return result.getModifiedCount() > 0;
     }
 
@@ -383,7 +334,7 @@ public class UserDBMongo {
         try {
             return userRepoMongo.findAllUsernames();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.println("[ERROR] getUserUsernames()@UserDBMongo.java raised an exception: " + ex.getMessage());
             return new ArrayList<>();
         }
     }
@@ -393,7 +344,7 @@ public class UserDBMongo {
         try {
             bannedUsers = userRepoMongo.getBannedUsers();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] getBannedUsers()@UserDBMongo.java raised an exception: " + e.getMessage());
         }
         return bannedUsers;
     }

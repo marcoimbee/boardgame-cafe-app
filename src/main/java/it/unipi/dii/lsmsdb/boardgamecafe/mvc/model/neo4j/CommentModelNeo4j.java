@@ -7,10 +7,8 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node("Comment")
 public class CommentModelNeo4j {
-
     @Id
     private String id;
-
     @Relationship(type = "WRITES_COMMENT", direction = Relationship.Direction.INCOMING)
     private UserModelNeo4j author;
     @Relationship(type = "REPLY", direction = Relationship.Direction.OUTGOING)
@@ -38,13 +36,12 @@ public class CommentModelNeo4j {
         this.author = author;
     }
 
-    public PostModelNeo4j getPostCommented() {
+    public PostModelNeo4j setCommentedPost() {
         return postCommented;
     }
-    public void setPostCommented(PostModelNeo4j postCommented) {
+    public void setCommentedPost(PostModelNeo4j postCommented) {
         this.postCommented = postCommented;
     }
-
 
     @Override
     public String toString() {
