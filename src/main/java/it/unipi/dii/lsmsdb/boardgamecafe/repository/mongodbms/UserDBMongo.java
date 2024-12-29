@@ -75,17 +75,17 @@ public class UserDBMongo {
         }
     }
 
-    public boolean deleteReviewInUserReviewsById(String userId, String reviewId) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(userId));
-
-        Update update = new Update();
-        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
-
-        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
-
-        return (result.getModifiedCount() > 0);
-    }
+//    public boolean deleteReviewInUserReviewsById(String userId, String reviewId) {
+//        Query query = new Query();
+//        query.addCriteria(Criteria.where("_id").is(userId));
+//
+//        Update update = new Update();
+//        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
+//
+//        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
+//
+//        return (result.getModifiedCount() > 0);
+//    }
 
     public List<UserModelMongo> findAllUsersWithLimit(int limit, int skip) {
         List<UserModelMongo> users = null;
@@ -103,7 +103,6 @@ public class UserDBMongo {
     public boolean updateUser(String id,
                               GenericUserModelMongo newGenericUser,
                               String userType) {
-        boolean result = true;
         try {
             Optional<GenericUserModelMongo> genericUser = userRepoMongo.findById(id);
 
@@ -130,28 +129,27 @@ public class UserDBMongo {
                     user.setBanned(newUser.isBanned());
                     user.setSalt(newUser.getSalt());
                     user.setPasswordHashed(newUser.getPasswordHashed());
-                    user.setReviews(newUser.getReviews());
+//                    user.setReviews(newUser.getReviews());
 
                     userRepoMongo.save(user);
                 }
             }
+            return true;
         } catch (Exception e) {
             System.err.println("[ERROR] updateUser()@UserDBMongo.java raised an exception: " + e.getMessage());
-            result = false;
+            return false;
         }
-        return result;
     }
 
     public Optional<Document> showUserAvgAgeByNationality(int limit) {
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
-        // Calcolo la proiezione dell'età, calcolata come differenza delle date [ birthday - oggi ]
-        ProjectionOperation computeAge = Aggregation.project()
+        ProjectionOperation computeAge = Aggregation.project()      // Projecting age, computed as the difference (birthday - today)
                 .andExpression("{$dateDiff: {startDate: '$dateOfBirth', endDate: '$$NOW', unit: 'year'}}")
                 .as("age")
                 .andExpression("nationality").as("nationality");
 
-        GroupOperation groupByCountry = Aggregation.group("nationality") // Raggruppo per Nazionalità e mostro l'età
+        GroupOperation groupByCountry = Aggregation.group("nationality") // Grouping by nationality and maintaining the age
                 .avg("age").as("averageAge");
 
         ProjectionOperation projectFields = Aggregation.project("averageAge")
@@ -163,7 +161,7 @@ public class UserDBMongo {
         operations.add(matchOperation);
         operations.add(computeAge);
         operations.add(groupByCountry);
-        if (limit > 0) // limit=-1 => There is no limit
+        if (limit > 0)         // Limit can be -1 (i.e. there is no limit)
             operations.add(Aggregation.limit(limit));
         operations.add(projectFields);
 
@@ -175,19 +173,19 @@ public class UserDBMongo {
     }
 
     public Document findCountriesWithMostUsers(int minUserNumber, int limit) {
-        // Step 1: Filtro i documenti per garantire che si tratti di utenti
+        // 1) Filtering documents to make sure we're treating users
         MatchOperation matchOperation = match(new Criteria("_class").is("user"));
 
-        // Step 2: Raggruppa gli utenti per paese e conta quanti utenti ci sono per ciascun paese
+        // 2) Grouping users country by country and counting how many users we have in each one of them
         GroupOperation groupOperation = group("nationality")
-                .count().as("numUsers");  // Conta il numero di utenti per paese
+                .count().as("numUsers");  // Counting users
 
-        // Step 3: Ordina i paesi in base al numero di utenti in ordine decrescente
+        // 3) Ordering countries based on the number of users (DESC)
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numUsers"));
 
         ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("nationality")  // Proietta l'id come paese
-                .andExpression("numUsers").as("numUsers");  // Proietta il numero di utenti
+                .andExpression("_id").as("nationality")  // Projecting id as nationality
+                .andExpression("numUsers").as("numUsers");  // Projecting the number of users
 
         List<AggregationOperation> operations = new ArrayList<>();
         operations.add(matchOperation);
@@ -207,26 +205,26 @@ public class UserDBMongo {
 
     public Document findActiveUsersByReviews(Date startDate, Date endDate, int limitResults) {
         try {
-            // Step 1: Filtrare le recensioni pubblicate nell'intervallo temporale specificato
+            // 1) Filtering reviews to get those in the specified time interval
             MatchOperation matchOperation = Aggregation.match(Criteria.where("dateOfReview")
                     .gte(startDate)
                     .lte(endDate));
 
-            // Step 2: Raggruppare per utente, contare le recensioni e raccogliere le date delle recensioni
+            // 2) Grouping by user, counting the reviews and gathering the dates of the reviews
             GroupOperation groupOperation = Aggregation.group("username")
                     .count().as("reviewCount")
                     .push("dateOfReview").as("reviewDates");
 
-            // Step 3: Filtrare solo gli utenti che hanno almeno 2 recensioni
+            // 3) Filtering users that published at least 2 reviews
             MatchOperation matchReviewCount = Aggregation.match(Criteria.where("reviewCount").gte(2));
 
-            // Step 4: Ordinare le date
+            // 4) Ordering the review dates
             Document sortReviewDates = new Document("$project",
                     new Document("reviewCount", 1)
                             .append("orderedReviewDates", new Document("$sortArray",
                                     new Document("input", "$reviewDates").append("sortBy", 1))));
 
-            // Step 5: Calcolare le differenze tra le date (con $map)
+            // 5) Computing the difference between adjacent dates (using $map)
             Document calculateDateDifferences = new Document("$project",
                     new Document("reviewCount", 1)
                             .append("orderedReviewDates", 1)
@@ -237,30 +235,26 @@ public class UserDBMongo {
                                                     .append("unit", "day"))))
                             ));
 
-            // Step 6: Proiettare e calcolare la media delle differenze
+            // 6) Compute and project the average of the differences
             Document calculateAverageFrequency = new Document("$project",
                     new Document("reviewCount", 1)
-                            //.append("orderedReviewDates", 1)
-                            //.append("dateDifferences", 1)
                             .append("averageDateDifference", new Document("$avg", "$dateDifferences")));
 
-            // Step 7: Ordinamento risultati
+            // 7) Ordering the results
             SortOperation sortOperation = Aggregation
                     .sort(Sort.by(Sort.Direction.DESC, "reviewCount")
                             .and(Sort.by(Sort.Direction.ASC, "averageDateDifference")));
 
-
-            // Step 8: Limitazione della quantità di risultati da visualizzare
+            // 8) Limiting results
             LimitOperation limitOperation = Aggregation.limit(limitResults);
 
-            // Step 9: Esecuzione dell'aggregazione
             Aggregation aggregation = Aggregation.newAggregation(
                     matchOperation,
                     groupOperation,
                     matchReviewCount,
-                    new CustomAggregationOperation(sortReviewDates),  // Inserimento Document manuale per ordinamento
-                    new CustomAggregationOperation(calculateDateDifferences),  // Inserimento Document manuale per differenze date
-                    new CustomAggregationOperation(calculateAverageFrequency),  // Inserimento Document manuale per media differenze
+                    new CustomAggregationOperation(sortReviewDates),             // Manual Document insertion for ordering
+                    new CustomAggregationOperation(calculateDateDifferences),    // Manual Document insertion for date differences
+                    new CustomAggregationOperation(calculateAverageFrequency),   // Manual Document insertion for differences average
                     sortOperation,
                     limitOperation
             );
@@ -270,7 +264,7 @@ public class UserDBMongo {
 
             return results.getRawResults();
         } catch (Exception ex) {
-            System.err.println("[ERROR] findActiveUsersByReviews@UserDBMongo raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] findActiveUsersByReviews()@UserDBMongo raised an exception: " + ex.getMessage());
             return null;
         }
     }
@@ -288,10 +282,10 @@ public class UserDBMongo {
         MatchOperation matchOperationDate = match(Criteria.where("timestamp").gte(pastDateFullDate));
 
         GroupOperation groupByUsername = group("username")
-                .count().as("postCount")                            // LASCIARE?? BOOOOOOOH!!!
+                .count().as("postCount")
                 .avg("like_count").as("avgLikes");
 
-        MatchOperation matchPostCount = match(Criteria.where("postCount").gte(2));      // LASCIARE?? BOOOOOOOH!!!
+        MatchOperation matchPostCount = match(Criteria.where("postCount").gte(2));
         MatchOperation matchByMinAvgLikes = match(Criteria.where("avgLikes").gte(minAvgLikeCount));
 
         SortOperation sortByAvgLikesDesc = sort(Sort.by(Sort.Direction.DESC, "avgLikes"));
@@ -321,14 +315,14 @@ public class UserDBMongo {
     }
 
 
-    public boolean addReviewInUserArray(UserModelMongo user, ReviewModelMongo newReview) {
-        Query query = new Query(Criteria.where("_id").is(user.getId()));
-        Update update = new Update().push("reviews", newReview);
-        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
-
-        // At least one document got modified, update ok
-        return result.getModifiedCount() > 0;
-    }
+//    public boolean addReviewInUserArray(UserModelMongo user, ReviewModelMongo newReview) {
+//        Query query = new Query(Criteria.where("_id").is(user.getId()));
+//        Update update = new Update().push("reviews", newReview);
+//        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
+//
+//        // At least one document got modified, update ok
+//        return result.getModifiedCount() > 0;
+//    }
 
     public List<String> getUserUsernames() {
         try {

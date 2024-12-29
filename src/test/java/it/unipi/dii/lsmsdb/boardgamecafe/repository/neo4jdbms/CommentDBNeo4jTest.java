@@ -6,14 +6,11 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 class CommentDBNeo4jTest {
 
@@ -56,27 +53,27 @@ class CommentDBNeo4jTest {
     }
 
     @Test
-    public void testAddComment() {
+    public void GIVEN_new_comment_WHEN_add_THEN_gets_added() {
         assertNotNull(commentDBNeo4j.findById(sampleComment.getId()).get());
     }
 
     @Test
-    public void testDeleteAndDetachComment() {
+    public void GIVEN_comment_WHEN_delete_and_detach_THEN_gets_deleted_and_detached() {
         assertTrue(commentDBNeo4j.deleteAndDetachComment(sampleComment.getId()));
     }
 
     @Test
-    public void testFindById() {
+    public void GIVEN_comment_id_WHEN_find_by_id_THEN_comment_matching_id_returned() {
         assertNotNull(commentDBNeo4j.findById(sampleComment.getId()).get());
     }
 
     @Test
-    public void testDeleteByPost() {
+    public void GIVEN_post_id_WHEN_delete_by_post_id_THEN_comments_under_post_deleted() {
         assertTrue(commentDBNeo4j.deleteByPost(sampleCommentedPost.getId()));
     }
 
     @Test
-    public void testDeleteByUsername() {
+    public void GIVEN_user_username_WHEN_delete_by_username_THEN_comments_written_by_user_deleted() {
         assertTrue(commentDBNeo4j.deleteByUsername(sampleCommentAuthor.getUsername()));
     }
 }

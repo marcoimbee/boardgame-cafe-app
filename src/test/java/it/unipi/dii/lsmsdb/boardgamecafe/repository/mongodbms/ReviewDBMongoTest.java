@@ -12,7 +12,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @SpringBootTest
 class ReviewDBMongoTest {
 
@@ -37,7 +36,6 @@ class ReviewDBMongoTest {
         String sampleBody = "sample review body";
         Date sampleDateOfReview = new Date();
 
-        // Crea una nuova review
         ReviewModelMongo review1 = new ReviewModelMongo(
                 sampleBoardgameName,
                 sampleUsername,
@@ -46,23 +44,19 @@ class ReviewDBMongoTest {
                 sampleDateOfReview
         );
 
-        // Aggiungi la review al database
         reviewDBMongo.addReview(review1);
 
-        // Ottieni tutte le review associate all'username
         List<ReviewModelMongo> reviews = reviewDBMongo.getReviewMongo().findByUsername(sampleUsername);
 
-        // Controlla se la lista non è vuota, quindi prendi l'ultimo elemento
         if (reviews != null && !reviews.isEmpty()) {
-            sampleReview = reviews.get(reviews.size() - 1); // Usa l'indice dell'ultimo elemento
+            sampleReview = reviews.get(reviews.size() - 1);
         } else {
-            sampleReview = null; // Gestione del caso in cui la lista è vuota
+            sampleReview = null;
         }
     }
 
-
     @Test
-    public void testAddReview() {
+    public void GIVEN_review_WHEN_added_THEN_it_gets_added() {
         ReviewModelMongo insertedReview = reviewDBMongo
                 .getReviewMongo()
                 .findById(sampleReview.getId())
@@ -71,36 +65,36 @@ class ReviewDBMongoTest {
     }
 
     @Test
-    public void testFindReviewByUsername() {
+    public void GIVEN_user_username_WHEN_search_by_author_THEN_reviews_he_wrote_returned() {
         assertNotNull(reviewDBMongo.findReviewByUsername(sampleReview.getUsername()));
     }
 
     @Test
-    public void testFindRecentReviewsByUsername_includeSkipFactor() {
+    public void GIVEN_user_username_WHEN_search_by_author_THEN_recent_reviews_he_wrote_returned_WITH_limit_factor_included() {
         List<ReviewModelMongo> retrievedReviews = reviewDBMongo.findRecentReviewsByUsername(sampleReview.getUsername(), 100, 10);
         assertEquals(0, retrievedReviews.size());
     }
 
     @Test
-    public void testFindRecentReviewsByUsername_skipZero() {
+    public void GIVEN_user_username_WHEN_search_by_author_THEN_recent_reviews_he_wrote_returned_WITH_limit_factor_zero() {
         List<ReviewModelMongo> retrievedReviews = reviewDBMongo.findRecentReviewsByUsername(sampleReview.getUsername(), 100, 0);
         assertEquals(1, retrievedReviews.size());
     }
 
     @Test
-    public void testFindRecentReviewsByBoardgame_includeSkipFactor() {
+    public void GIVEN_boardgame_name_WHEN_search_by_boardgame_name_THEN_recent_reviews_he_wrote_returned_WITH_limit_factor_included() {
         List<ReviewModelMongo> retrievedReviews = reviewDBMongo.findRecentReviewsByBoardgame(sampleReview.getBoardgameName(), 100, 10);
         assertEquals(0, retrievedReviews.size());
     }
 
     @Test
-    public void testFindRecentReviewsByBoardgame_skipZero() {
+    public void GIVEN_boardgame_name_WHEN_search_by_boardgame_name_THEN_recent_reviews_he_wrote_returned_WITH_limit_factor_zero() {
         List<ReviewModelMongo> retrievedReviews = reviewDBMongo.findRecentReviewsByBoardgame(sampleReview.getBoardgameName(), 100, 0);
         assertEquals(1, retrievedReviews.size());
     }
 
     @Test
-    public void testUpdateReview() {
+    public void GIVEN_updated_review_WHEN_update_THEN_it_gets_updated() {
         String updatedReviewBody = "updated test review body";
         ReviewModelMongo updatedReview = sampleReview;
         updatedReview.setBody(updatedReviewBody);
@@ -108,17 +102,17 @@ class ReviewDBMongoTest {
     }
 
     @Test
-    public void testDeleteReview() {
+    public void GIVEN_review_WHEN_delete_THEN_it_gets_deleted() {
         assertTrue(reviewDBMongo.deleteReview(sampleReview));
     }
 
     @Test
-    public void testDeleteReviewByUsername() {
+    public void GIVEN_user_username_WHEN_delete_by_author_THEN_reviews_he_wrote_deleted() {
         assertTrue(reviewDBMongo.deleteReviewByUsername(sampleReview.getUsername()));
     }
 
     @Test
-    public void testDeleteReviewByBoardgameName() {
+    public void GIVEN_boardgame_name_WHEN_delete_by_boardgame_name_THEN_reviews_to_boardgame_deleted() {
         assertTrue(reviewDBMongo.deleteReviewByUsername(sampleReview.getBoardgameName()));
     }
 }

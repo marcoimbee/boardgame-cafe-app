@@ -11,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class ControllerObjectCreateReview {
-
     @FXML
     protected Label usernameLabel;
     @FXML
@@ -32,6 +30,7 @@ public class ControllerObjectCreateReview {
 
     private ReviewModelMongo review;
     private StageManager stageManager;
+
     @Autowired
     @Lazy
     public ControllerObjectCreateReview(StageManager stageManager) {

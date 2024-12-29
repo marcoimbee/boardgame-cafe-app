@@ -3,7 +3,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -24,8 +23,6 @@ import java.util.Optional;
 
 @Component
 public class BoardgameDBMongo {
-
-
     private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
 
     @Autowired
@@ -35,21 +32,12 @@ public class BoardgameDBMongo {
 
     public BoardgameDBMongo() {}
 
-    public boolean addBoardgameOld(BoardgameModelMongo boardgame) {
-        boolean result = true;
+    public BoardgameModelMongo addBoardgame(BoardgameModelMongo boardgame) {
         try {
-            boardgameRepoMongoOp.save(boardgame);
+            return boardgameRepoMongoOp.save(boardgame);
         } catch (Exception e) {
             e.printStackTrace();
-            result = false;
         }
-        return result;
-    }
-
-    public BoardgameModelMongo addBoardgame(BoardgameModelMongo boardgame)
-    {
-        try { return boardgameRepoMongoOp.save(boardgame); }
-        catch (Exception e) { e.printStackTrace(); }
         return null;
     }
 
@@ -63,8 +51,7 @@ public class BoardgameDBMongo {
         return true;
     }
 
-    public boolean deleteReviewInBoardgameReviewsById(String boardgameName, String reviewId)
-    {
+    public boolean deleteReviewInBoardgameReviewsById(String boardgameName, String reviewId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("boardgameName").is(boardgameName));
 
@@ -86,51 +73,51 @@ public class BoardgameDBMongo {
         return boardgame;
     }
 
-    public boolean updateBoardgameReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<ReviewModelMongo> userReviews) {
-        try {
-            if (updateReason == UserContentUpdateReason.DELETED_USER || updateReason == UserContentUpdateReason.BANNED_USER) {
-                Query query = Query.query(Criteria.where("reviews.username").is(username));
-
-                Update update = new Update();
-                if (updateReason == UserContentUpdateReason.DELETED_USER) {
-                    update.set("reviews.$.username", "[Deleted user]");
-                } else {
-                    update.set("reviews.$.username", "[Banned user]")
-                            .set("reviews.$.body", "[Banned user]");
-                }
-
-                mongoOperations.updateMulti(
-                        query,
-                        update,
-                        BoardgameDBMongo.class,
-                        "boardgames"
-                );
-            }
-
-            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
-                for (ReviewModelMongo review : userReviews) {
-                    ObjectId reviewObjectId = new ObjectId(review.getId());
-                    Query query = Query.query(Criteria.where("reviews._id").is(reviewObjectId));
-
-                    Update update = new Update();
-                    update.set("reviews.$.username", review.getUsername())
-                            .set("reviews.$.body", review.getBody());
-
-                    mongoOperations.updateFirst(
-                            query,
-                            update,
-                            BoardgameDBMongo.class,
-                            "boardgames"
-                    );
-                }
-            }
-
-            return true;
-        } catch(Exception ex) {
-            System.err.println("[ERROR] updateBoardgameReviewsAfterUserBanOrDeletion@BoardgameDBMongo.java raised an exception: " + ex.getMessage());
-            return false;
-        }
-    }
+//    public boolean updateBoardgameReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<ReviewModelMongo> userReviews) {
+//        try {
+//            if (updateReason == UserContentUpdateReason.DELETED_USER || updateReason == UserContentUpdateReason.BANNED_USER) {
+//                Query query = Query.query(Criteria.where("reviews.username").is(username));
+//
+//                Update update = new Update();
+//                if (updateReason == UserContentUpdateReason.DELETED_USER) {
+//                    update.set("reviews.$.username", "[Deleted user]");
+//                } else {
+//                    update.set("reviews.$.username", "[Banned user]")
+//                            .set("reviews.$.body", "[Banned user]");
+//                }
+//
+//                mongoOperations.updateMulti(
+//                        query,
+//                        update,
+//                        BoardgameDBMongo.class,
+//                        "boardgames"
+//                );
+//            }
+//
+//            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+//                for (ReviewModelMongo review : userReviews) {
+//                    ObjectId reviewObjectId = new ObjectId(review.getId());
+//                    Query query = Query.query(Criteria.where("reviews._id").is(reviewObjectId));
+//
+//                    Update update = new Update();
+//                    update.set("reviews.$.username", review.getUsername())
+//                            .set("reviews.$.body", review.getBody());
+//
+//                    mongoOperations.updateFirst(
+//                            query,
+//                            update,
+//                            BoardgameDBMongo.class,
+//                            "boardgames"
+//                    );
+//                }
+//            }
+//
+//            return true;
+//        } catch(Exception ex) {
+//            System.err.println("[ERROR] updateBoardgameReviewsAfterUserBanOrDeletion@BoardgameDBMongo.java raised an exception: " + ex.getMessage());
+//            return false;
+//        }
+//    }
 
     public boolean updateBoardgameMongo(String id, BoardgameModelMongo newBoardgame) {
         try {
@@ -187,6 +174,7 @@ public class BoardgameDBMongo {
         catch (Exception e) { e.printStackTrace(); }
         return boardgames;
     }
+
     public Optional<BoardgameModelMongo> findBoardgameById(String boardgameId) {
         Optional<BoardgameModelMongo> boardgame = Optional.empty();
         try {
@@ -197,8 +185,7 @@ public class BoardgameDBMongo {
         return boardgame;
     }
 
-    public boolean addReviewInBoardgameArray(BoardgameModelMongo boardgame, ReviewModelMongo newReview)
-    {
+    public boolean addReviewInBoardgameArray(BoardgameModelMongo boardgame, ReviewModelMongo newReview) {
         Query query = new Query(Criteria.where("_id").is(boardgame.getId()));
         Update update = new Update().push("reviews", newReview);
         UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
@@ -215,7 +202,6 @@ public class BoardgameDBMongo {
             return new ArrayList<>();
         }
     }
-
 
     public List<String> getBoardgamesCategories() {
         List<String> categories = new ArrayList<>();
@@ -248,7 +234,6 @@ public class BoardgameDBMongo {
         return categories;
     }
 
-
     public List<BoardgameModelMongo> findBoardgamesByCategory(String category, int limit, int skip) {
         List<BoardgameModelMongo> boardgameOfThisCategory = new ArrayList<>();
         try {
@@ -273,5 +258,4 @@ public class BoardgameDBMongo {
         }
         return boardgameOfThisCategory;
     }
-
 }

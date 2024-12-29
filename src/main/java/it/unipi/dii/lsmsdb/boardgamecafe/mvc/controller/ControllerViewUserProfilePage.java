@@ -8,7 +8,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
@@ -18,7 +17,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -35,11 +33,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Executable;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
@@ -84,7 +80,6 @@ public class ControllerViewUserProfilePage implements Initializable{
     private Label nationality;
     @FXML
     private Separator separator;
-
     @FXML
     private Label firstNameLabel;
     @FXML
@@ -101,13 +96,13 @@ public class ControllerViewUserProfilePage implements Initializable{
     private Label counterPostsLabel;
     @FXML
     private Label counterReviewsLabel;
-
     @FXML
     private ImageView profileImage;
     @FXML
     private GridPane gridPane;
     @FXML
     private ScrollPane scrollSet;
+
     @Autowired
     private PostService postService;
     @Autowired
@@ -147,6 +142,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private static UserModelMongo selectedUser;
     private Consumer<String> deletedContentCallback;
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
+
     @Autowired
     @Lazy
     public ControllerViewUserProfilePage(StageManager stageManager) {
@@ -188,13 +184,12 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     private void initPage(UserModelMongo user){
-
         int postsCount = postDBMongo.findByUsername(user.getUsername()).size();
         int totalFollowers = userDBNeo.getCountFollowers(user.getUsername());
         int totalFollowing = userDBNeo.getCountFollowing(user.getUsername());
         int reviewsCount = reviewMongoOp.findReviewByUsername(user.getUsername()).size();
 
-        // Retrieving user posts
+        // Retrieving user posts - these are shown by default as the profile page opens
         postsUser.addAll(getPosts(user.getUsername()));
         if (this.postsUser.isEmpty()) {
             loadViewMessageInfo();
@@ -654,7 +649,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         GridPane.setMargin(itemNode, new Insets(23,5,5,130));
     }
 
-    public void onClickLogout(ActionEvent event) {
+    public void onClickLogout() {
         modelBean.putBean(Constants.CURRENT_USER, null);
         stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
@@ -702,7 +697,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         if (currentUser != null) {
             openUserProfile = currentUser;
 
-            // Aggiorna le etichette con le informazioni dell'utente corrente
+            // Updating labels with information about the current user
             if (openUserProfile instanceof UserModelMongo userModel) {
                 this.firstNameLabel.setText(userModel.getName());
                 this.lastNameLabel.setText(userModel.getSurname());
@@ -714,17 +709,14 @@ public class ControllerViewUserProfilePage implements Initializable{
             this.followingLabel.setText(String.valueOf(userDBNeo.getCountFollowing(openUserProfile.getUsername())));
             this.counterPostsLabel.setText(String.valueOf(postDBMongo.findByUsername(openUserProfile.getUsername()).size()));
 
-            // Imposta l'immagine del profilo
             Image image = new Image(Objects.requireNonNull(getClass().getResource("/images/user.png")).toExternalForm());
             this.profileImage.setImage(image);
 
-            // Ripristina i post o le recensioni a seconda del tipo di contenuto selezionato
             selectedContentType = ContentType.POSTS;
-            resetPage(); //fondamentale per il corretto caricamento dopo onClickYourProfileButton()
+            resetPage();        // Mandatory to correctly load the  content
             loadContent();
             scrollSet.setVvalue(0);
 
-            // Disabilita il pulsante "Your Profile" se l'utente è già sul proprio profilo
             this.yourPostsButton.setDisable(true);
             this.yourReviewsButton.setDisable(false);
             this.yourProfileButton.setDisable(true);
@@ -732,7 +724,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         }
     }
 
-    public void onClickAccountInfoButton(ActionEvent event) {
+    public void onClickAccountInfoButton() {
         stageManager.switchScene(FxmlView.ACCOUNTINFOPAGE);
     }
 
