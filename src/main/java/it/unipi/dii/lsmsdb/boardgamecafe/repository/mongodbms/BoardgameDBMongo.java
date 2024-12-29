@@ -3,10 +3,9 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -19,13 +18,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
 public class BoardgameDBMongo {
@@ -221,29 +216,62 @@ public class BoardgameDBMongo {
         }
     }
 
-    public List<String> getBoardgamesCategoriest()
-    {
+
+    public List<String> getBoardgamesCategories() {
         List<String> categories = new ArrayList<>();
         try {
-            categories = mongoOperations.getCollection("boardgames")
-                    .distinct("boardgameCategory", String.class)
-                    .into(new ArrayList<>());
+            // Costruzione della pipeline di aggregazione
+            Aggregation aggregation = Aggregation.newAggregation(
+                    // Decomposizione dell'array boardgameCategory
+                    Aggregation.unwind("boardgameCategory"),
+                    // Raggruppamento per ottenere valori univoci
+                    Aggregation.group("boardgameCategory").first("boardgameCategory").as("category"),
+                    // Proiezione per restituire solo i valori delle categorie
+                    Aggregation.project("category")
+            );
+
+            // Esecuzione dell'aggregazione
+            AggregationResults<Document> results = mongoOperations.aggregate(
+                    aggregation,
+                    "boardgames",
+                    Document.class
+            );
+
+            // Estrazione delle categorie dai risultati
+            results.getMappedResults().forEach(doc -> categories.add(doc.getString("category")));
+
+            // Rimozione di eventuali valori vuoti
             categories.removeIf(String::isEmpty);
+        } catch (Exception e) {
+            System.out.println("Exception getBoardgamesCategories() -> " + e.getMessage());
         }
-        catch (Exception e) { System.out.println("Exception getBoardgamesCategoriest() -> " + e.getMessage()); }
         return categories;
     }
 
-    public List<BoardgameModelMongo> findBoardgamesByCategory(String category, int limit, int skip)
-    {
+
+    public List<BoardgameModelMongo> findBoardgamesByCategory(String category, int limit, int skip) {
         List<BoardgameModelMongo> boardgameOfThisCategory = new ArrayList<>();
-        try
-        {
-            Query query = new Query(Criteria.where("boardgameCategory").is(category));
-            query.limit(limit).skip(skip);
-            boardgameOfThisCategory = mongoOperations.find(query, BoardgameModelMongo.class, "boardgames");
+        try {
+            // Costruzione della pipeline di aggregazione
+            Aggregation aggregation = Aggregation.newAggregation(
+                    // Match per filtrare i boardgame in base alla categoria
+                    Aggregation.match(Criteria.where("boardgameCategory").is(category)),
+                    // Salto dei risultati iniziali
+                    Aggregation.skip((long) skip),
+                    // Limitazione del numero di risultati
+                    Aggregation.limit(limit)
+            );
+
+            // Esecuzione della pipeline di aggregazione
+            boardgameOfThisCategory = mongoOperations.aggregate(
+                    aggregation,
+                    "boardgames",
+                    BoardgameModelMongo.class
+            ).getMappedResults();
+        } catch (Exception e) {
+            System.out.println("Exception findBoardgamesByCategory() -> " + e.getMessage());
         }
-        catch (Exception e) { System.out.println("Exception findBoardgamesByCategory() -> " + e.getMessage()); }
         return boardgameOfThisCategory;
     }
+
 }
