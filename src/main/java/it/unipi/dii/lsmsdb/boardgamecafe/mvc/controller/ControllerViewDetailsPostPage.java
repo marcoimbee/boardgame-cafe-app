@@ -11,7 +11,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
+//import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
@@ -87,8 +87,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private ModelBean modelBean;
     @Autowired
     private UserDBNeo4j userNeo4jDB;
-    @Autowired
-    private CommentService serviceComment;
     @Autowired
     private PostService postService;
 
@@ -385,7 +383,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 );
 
                 UserModelNeo4j currentUserNeo = userNeo4jDB.findByUsername(currentUser.getUsername()).get();
-                boolean savedComment = serviceComment.insertComment(newComment, this.post, currentUserNeo);     // MongoDB + Neo4J comment insertion
+                boolean savedComment = postService.insertComment(newComment, this.post, currentUserNeo);     // MongoDB + Neo4J comment insertion
 
                 if (savedComment) {
                     stageManager.showInfoMessage("Success", "Comment added successfully.");
