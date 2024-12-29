@@ -58,22 +58,8 @@ public class PostDBMongo {
         return null;
     }
 
-    /* fra: Da eliminare? -> 19/12/2024
-    public boolean deleteCommentFromPost(PostModelMongo post, CommentModelMongo comment) {
-        Criteria criteria = Criteria.where("_id").is(post.getId());
-        Update update = new Update().pull("comments", comment);
-        mongoOperations.updateFirst(query(criteria), update, PostModelMongo.class);
-
-        return true;
-    }
-     */
-
     public boolean updatePost(String id, PostModelMongo updated)
     {
-        /* Questo metodo viene invocato quando l'utente vuole modificare il post, ossia text oppure il Title.
-        Mentre per aggiornare il post in merito ai like, devo utilizzare "l'aggiornamento singolo" ossia quello
-        che evita l'utilizzo della .save()
-        * */
         try {
             Optional<PostModelMongo> old = postMongo.findById(id);
             if (!old.isPresent()) {
@@ -161,18 +147,6 @@ public class PostDBMongo {
         return posts;
     }
 
-
-//    public Optional<PostModelMongo> findByUsernameAndTimestamp(String username, Date timestamp) {
-//        Optional<PostModelMongo> post = Optional.empty();
-//        try {
-//            post = postMongo.findByUsernameAndTimestamp(username, timestamp);
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return post;
-//    }
-
     public boolean deleteByTag(String bgName) {
         try {
             postMongo.deleteByTag(bgName);
@@ -235,10 +209,8 @@ public class PostDBMongo {
     }
 
     public List<PostModelMongo> findTopCommentedTaggedPosts(String tag, int limit, int skip) {
-        // Filtro per il tag
         MatchOperation matchOperation = match(Criteria.where("tag").is(tag));
 
-        // Proiezione per calcolare il numero di commenti per ogni post
         ProjectionOperation projectionOperation = project()
                 .and("_id").as("id")
                 .and("title").as("title")
@@ -249,41 +221,27 @@ public class PostDBMongo {
                 .and("comments").as("comments")
                 .and(ArrayOperators.Size.lengthOfArray("comments")).as("numComments");
 
-        // Ordinamento per numComments (decrescente) e per _id (crescente)
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numComments")
                 .and(Sort.by(Sort.Direction.ASC, "_id")));  // Ordinamento per numComments e _id
 
-        // Operazione di salto (skip)
         SkipOperation skipOperation = skip(skip);
 
-        // Operazione di limitazione
         LimitOperation limitOperation = limit(limit);
 
-        // Creazione della pipeline di aggregazione
         Aggregation aggregation = Aggregation.newAggregation(
                 matchOperation,
-                projectionOperation,  // Per calcolare il numero di commenti
+                projectionOperation,
                 sortOperation,
-                skipOperation,      // Aggiungi lo skip
-                limitOperation      // Aggiungi il limit
+                skipOperation,
+                limitOperation
         );
-
-        // Esegui l'aggregazione sulla collection "posts"
         AggregationResults<PostModelMongo> results = mongoOperations.aggregate(aggregation, "posts", PostModelMongo.class);
 
-        // Verifica se i risultati sono nulli
         if (results == null || results.getMappedResults() == null) {
             return new ArrayList<>();
         }
-
-        // Restituisci i risultati
         return results.getMappedResults();
     }
-
-
-
-
-
 
     public Document findMostPostedAndCommentedTags(int limitResults) {
         MatchOperation matchOperation = match(new Criteria("tag").exists(true));
@@ -448,4 +406,35 @@ public class PostDBMongo {
             return false;
         }
     }
+
+    public List<CommentModelMongo> getRecentCommentsByPostId(String postId, int limit, int skip)
+    {
+        try
+        {
+            Query query = new Query(Criteria.where("comments.post").is(postId));
+            query.fields().include("comments").exclude("_id");
+            query.with(Sort.by(Sort.Direction.DESC, "comments.timestamp"));
+            query.limit(limit);
+            query.skip(skip);
+            PostModelMongo post = mongoOperations.findOne(query, PostModelMongo.class);
+            if (post != null)
+                return post.getComments();
+            else
+                throw new Exception();
+        } catch (Exception e)
+        {
+            System.out.println("Exception getRecentCommentsByPostId() -> " + e.getMessage());
+            return null;
+        }
+    }
+
+    /* fra: Da eliminare? -> 19/12/2024
+    public boolean deleteCommentFromPost(PostModelMongo post, CommentModelMongo comment) {
+        Criteria criteria = Criteria.where("_id").is(post.getId());
+        Update update = new Update().pull("comments", comment);
+        mongoOperations.updateFirst(query(criteria), update, PostModelMongo.class);
+
+        return true;
+    }
+    */
 }
