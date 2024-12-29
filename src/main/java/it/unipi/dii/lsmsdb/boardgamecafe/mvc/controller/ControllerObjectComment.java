@@ -62,7 +62,8 @@ public class ControllerObjectComment {
 
     public ControllerObjectComment() {}
 
-    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback) {
+    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback)
+    {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
