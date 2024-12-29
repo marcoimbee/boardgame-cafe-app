@@ -39,8 +39,8 @@ public class BoardgameService {
     private PostDBMongo postMongoOp;
     @Autowired
     private CommentDBNeo4j commentNeo4jOp;
-    @Autowired
-    private CommentDBMongo commentMongoOp;
+//    @Autowired
+//    private CommentDBMongo commentMongoOp;
 
     private final static Logger logger = LoggerFactory.getLogger(BoardgameService.class);
 
@@ -162,10 +162,10 @@ public class BoardgameService {
 
             // --- Delete Comments from their own mongo collection and from neo4j based on post ---
             for (PostModelMongo post : posts) {
-                if (!commentMongoOp.deleteByPost(post.getId())) {
-                    logger.error("Error in deleting comments in posts about boardgame in MongoDB");
-                    return false;
-                }
+//                if (!commentMongoOp.deleteByPost(post.getId())) {
+//                    logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+//                    return false;
+//                }
                 if (!commentNeo4jOp.deleteByPost(post.getId())) {
                     logger.error("Error in deleting comments in posts about boardgame in Neo4j");
                     return false;
