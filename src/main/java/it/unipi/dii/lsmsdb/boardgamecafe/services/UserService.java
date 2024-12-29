@@ -33,8 +33,8 @@ public class UserService {
     private PostDBMongo postMongoOp;
     @Autowired
     private PostDBNeo4j postNeo4jOp;
-    @Autowired
-    private CommentDBMongo commentMongoOp;
+//    @Autowired
+//    private CommentDBMongo commentMongoOp;
     @Autowired
     private CommentDBNeo4j commentNeo4jOp;
     @Autowired
@@ -142,9 +142,9 @@ public class UserService {
             List<PostModelMongo> postsByUser = postMongoOp.findByUsername(username);
             if (!postsByUser.isEmpty()) {           // If no posts were written, do not lose time in calling these methods
                 for (PostModelMongo post : postsByUser) {
-                    if (!commentMongoOp.deleteByPost(post.getId())) {     // Deleting comments from MongoDB collection
-                        throw new Exception("Failed to delete a MongoDB comment under a MongoDB post");
-                    }
+//                    if (!commentMongoOp.deleteByPost(post.getId())) {     // Deleting comments from MongoDB collection
+//                        throw new Exception("Failed to delete a MongoDB comment under a MongoDB post");
+//                    }
                     if (!commentNeo4jOp.deleteByPost(post.getId())) {     // Deleting comment nodes from Neo4J
                         throw new Exception("Failed to delete a Neo4J comment related to a Neo4J post");
                     }
@@ -166,22 +166,22 @@ public class UserService {
         }
     }
 
-    private boolean updateUserCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
-        try {
-            // Updating MongoDB posts where the user had commented
-            List<CommentModelMongo> userComments = new ArrayList<>();   // Will be unused and empty in case updateReason is DELETED_USER or BANNED_USER
-            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
-                userComments = commentMongoOp.findByUsername(username); // These are needed only if they have to be restored because of an unbanning operation
-            }
-            if(!postMongoOp.updatePostCommentsAfterAdminAction(username, updateReason, userComments)) {
-                throw new Exception("Failed to update posts after the user's ban/deletion/unban");
-            }
-            return true;
-        } catch (Exception ex) {
-            System.err.println("[ERROR] updateUserCommentsAfterAdminAction@UserService.java raised an exception: " + ex.getMessage());
-            return false;
-        }
-    }
+//    private boolean updateUserCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
+//        try {
+//            // Updating MongoDB posts where the user had commented
+//            List<CommentModelMongo> userComments = new ArrayList<>();   // Will be unused and empty in case updateReason is DELETED_USER or BANNED_USER
+//            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+//                userComments = commentMongoOp.findByUsername(username); // These are needed only if they have to be restored because of an unbanning operation
+//            }
+//            if(!postMongoOp.updatePostCommentsAfterAdminAction(username, updateReason, userComments)) {
+//                throw new Exception("Failed to update posts after the user's ban/deletion/unban");
+//            }
+//            return true;
+//        } catch (Exception ex) {
+//            System.err.println("[ERROR] updateUserCommentsAfterAdminAction@UserService.java raised an exception: " + ex.getMessage());
+//            return false;
+//        }
+//    }
 
 //    private boolean updateUserReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
 //        try {
@@ -203,9 +203,9 @@ public class UserService {
     private boolean deleteUserComments(String username) {
         try {
             // MongoDB deletion from 'comments' collection
-            if (!commentMongoOp.deleteByUsername(username)) {
-                throw new Exception("Failed to delete a MongoDB user given his username");
-            }
+//            if (!commentMongoOp.deleteByUsername(username)) {
+//                throw new Exception("Failed to delete a MongoDB user given his username");
+//            }
             // Neo4j deletion of 'comment' nodes and their relationships
             if (!commentNeo4jOp.deleteByUsername(username)) {
                 throw new Exception("Failed to delete a Neo4J user given his username");
@@ -242,9 +242,9 @@ public class UserService {
             if (!deleteUserComments(username)) {
                 throw new Exception("Failed to delete user comments");
             }
-            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
-                throw new Exception("Failed to update deleted user comments");
-            }
+//            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
+//                throw new Exception("Failed to update deleted user comments");
+//            }
 
             // Reviews management - deletion of documents + update of reviews under boardgames
             if (!deleteUserReviews(user)) {

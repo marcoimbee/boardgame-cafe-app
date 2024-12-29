@@ -6,7 +6,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,8 +17,8 @@ class PostDBMongoTest
     @Autowired
     PostDBMongo postDBMongo;
 
-    @Autowired
-    CommentDBMongo commentDBMongo;
+//    @Autowired
+//    CommentDBMongo commentDBMongo;
     static PostModelMongo post1;
     static PostModelMongo post2;
     static PostModelMongo post3;
@@ -54,6 +53,8 @@ class PostDBMongoTest
         assertInstanceOf(PostModelMongo.class, post1);
         assertInstanceOf(PostModelMongo.class, post2);
         assertInstanceOf(PostModelMongo.class, post3);
+        //String id = new ObjectId().toString();  //67710d9bb4363b367af7c16c
+        //System.out.println("id " + id);
     }
 
     @Test @Order(10)

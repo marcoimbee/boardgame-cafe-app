@@ -1,10 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
+//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
@@ -30,8 +32,8 @@ public class PostService {
     UserDBNeo4j userDBNeo4j;
     @Autowired
     BoardgameDBNeo4j boardgameDBNeo4j;
-    @Autowired
-    CommentDBMongo commentDBMongo;
+//    @Autowired
+//    CommentDBMongo commentDBMongo;
     @Autowired
     CommentDBNeo4j commentDBNeo4j;
 
@@ -99,9 +101,9 @@ public class PostService {
         try
         {
             // delete all comments
-            if (!commentDBMongo.deleteByPost(postModelMongo.getId())) {
-                throw new RuntimeException("Error in deleting comments of post in MongoDB");
-            }
+//            if (!commentDBMongo.deleteByPost(postModelMongo.getId())) {
+//                throw new RuntimeException("Error in deleting comments of post in MongoDB");
+//            }
             if (!commentDBNeo4j.deleteByPost(postModelMongo.getId())) {
                 throw new RuntimeException("Error in deleting comments of post in Neo4j");
             }
@@ -173,25 +175,25 @@ public class PostService {
             return false; // Restituisce false in caso di errore
         }
     }
-
-    public Optional<PostModelMongo> showMostLikedPost() {
-        try {
-            // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
-            PostModelNeo4j mostLikedPost = postDBNeo4j.findPostWithMostLikes();
-
-            // Se il post con più like esiste, recupera da MongoDB lo stesso post utilizzando il suo ID
-            if (mostLikedPost != null) {
-                // Usa il metodo findById per ottenere il post dal database Mongo
-                return postDBMongo.findById(mostLikedPost.getId());
-            } else {
-                return Optional.empty(); // Restituisce un Optional vuoto se non ci sono post (meglio del null in questo caso)
-            }
-        } catch (Exception ex) {
-            // Log dell'eccezione
-            logger.error("Error fetching most liked post: " + ex.getMessage());
-            return Optional.empty(); // Restituisce un Optional vuoto in caso di errore
-        }
-    }
+//    fra: NON USATA. Da eliminare? -> 29/12/2024
+//    public Optional<PostModelMongo> showMostLikedPost() {
+//        try {
+//            // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
+//            PostModelNeo4j mostLikedPost = postDBNeo4j.findPostWithMostLikes();
+//
+//            // Se il post con più like esiste, recupera da MongoDB lo stesso post utilizzando il suo ID
+//            if (mostLikedPost != null) {
+//                // Usa il metodo findById per ottenere il post dal database Mongo
+//                return postDBMongo.findById(mostLikedPost.getId());
+//            } else {
+//                return Optional.empty(); // Restituisce un Optional vuoto se non ci sono post (meglio del null in questo caso)
+//            }
+//        } catch (Exception ex) {
+//            // Log dell'eccezione
+//            logger.error("Error fetching most liked post: " + ex.getMessage());
+//            return Optional.empty(); // Restituisce un Optional vuoto in caso di errore
+//        }
+//    }
 
     public List<PostModelMongo> suggestPostLikedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
         // skipCounter needed for incremental post displaying
@@ -251,5 +253,91 @@ public class PostService {
         }
 
         return retrievedPostsMongo;
+    }
+
+    @Transactional
+    public boolean insertComment(CommentModelMongo comment, PostModelMongo post, UserModelNeo4j user) {
+        try {
+            //CommentModelMongo insertedCommentResult = commentMongo.addComment(comment);         // Inserting the comment in MongoDB
+            //if (insertedCommentResult == null) {
+            //    throw new RuntimeException("Error while inserting the new MongoDB comment.");
+            //}
+            String newCommentId = comment.getId();
+
+            if (!commentDBNeo4j.addComment(new CommentModelNeo4j(newCommentId))) {       // Inserting the comment in Neo4J
+                //commentMongo.deleteComment(insertedCommentResult);
+                throw new RuntimeException("Error while inserting the new Neo4J comment (MongoDB comment has been removed).");
+            }
+
+            if (!addCommentRelationshipToNeo4jUser(new CommentModelNeo4j(newCommentId), user)) {       // Creating the needed relationships in Neo4J
+                deleteComment(comment, post);
+                throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
+            }
+
+            if (!addCommentToMongoPostAndNeoPost(comment, post)) {        // Adding the comment to the post's comment list
+                deleteComment(comment, post);
+                throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
+            }
+        } catch (RuntimeException e) {
+            System.err.println("[ERROR] insertComment@CommentService.java raised an exception: " + e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteComment(CommentModelMongo comment, PostModelMongo post) {
+        try
+        {
+            // delete all comments
+            if (!postDBMongo.deleteCommentFromArrayInPost(post, comment)) {
+                throw new RuntimeException("Error in deleting comments from array post in MongoDB");
+            }
+            if (!commentDBNeo4j.deleteAndDetachComment(comment.getId())) {
+                throw new RuntimeException("Error in deleting comments of post in Neo4j");
+            }
+//            if (!commentMongo.deleteComment(comment)) {
+//                throw new RuntimeException("Error in deleting comment from Comment Collection MongoDB");
+//            }
+        }
+        catch (Exception ex) {
+            System.out.println("Exception deletePost(): " + ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean addCommentRelationshipToNeo4jUser(CommentModelNeo4j comment, UserModelNeo4j user) {
+        try {
+            user.addWrittenComment(comment);
+            if(!userDBNeo4j.addUser(user)) {
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("[ERROR] addCommentToUser()@PostService.java generated an exception: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean addCommentToMongoPostAndNeoPost(CommentModelMongo comment, PostModelMongo post) {
+
+        post.addComment(comment);           // Adding the comment to the local MongoDB post object
+
+        if (!postDBMongo.addCommentInPostArray(post, comment)) {             // Updating the actual document in MongoDB
+            return false;               // Aborting whole operation, this will make insertComment() fail and rollback
+        }
+
+        // Getting the Neo4j Optional related to the Post node on which the user has commented
+        Optional<PostModelNeo4j> commentedNeo4jPostOptional = postDBNeo4j.findById(post.getId());
+        if (commentedNeo4jPostOptional.isEmpty()) {
+            return false;
+        }
+
+        PostModelNeo4j commentedNeo4jPost = commentedNeo4jPostOptional.get();  // Obtaining the actual Neo4j post that's being commented
+        commentedNeo4jPost.addComment(new CommentModelNeo4j(comment.getId()));    // Adding the comment to the post
+        // Finally updating the post in Neo4J
+        return (postDBNeo4j.updatePost(commentedNeo4jPost));  // Something goes wrong, we can return and insertComment() will take care of rolling back
     }
 }

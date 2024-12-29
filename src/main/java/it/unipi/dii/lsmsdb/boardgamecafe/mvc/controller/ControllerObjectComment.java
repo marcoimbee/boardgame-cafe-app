@@ -4,7 +4,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
+//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
@@ -37,8 +37,8 @@ public class ControllerObjectComment {
     @FXML
     protected TextArea bodyTextLabel;
 
-    @Autowired
-    private CommentDBMongo commentDBMongo;
+//    @Autowired
+//    private CommentDBMongo commentDBMongo;
     @Autowired
     private UserDBMongo userDBMongo;
     @Autowired

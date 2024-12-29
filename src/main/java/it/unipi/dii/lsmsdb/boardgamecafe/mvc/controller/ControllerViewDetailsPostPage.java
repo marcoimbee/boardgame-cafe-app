@@ -7,7 +7,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
+//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
@@ -75,8 +75,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private GridPane commentGridPane;
     @FXML
     private ScrollPane scrollSet;
-    @Autowired
-    private CommentDBMongo commentDBMongo;
+//    @Autowired
+//    private CommentDBMongo commentDBMongo;
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
@@ -334,8 +334,9 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private List<CommentModelMongo> getData(String postId){
 
-        List<CommentModelMongo> comments = commentDBMongo.
-                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
+//        List<CommentModelMongo> comments = commentDBMongo.
+//                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
+
         prevNextButtonsCheck(comments);
         return comments;
     }

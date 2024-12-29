@@ -8,7 +8,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
+//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
@@ -60,8 +60,8 @@ public class ControllerObjectPost {
     private PostDBNeo4j postDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
-    @Autowired
-    private CommentDBMongo commentDBMongo;
+//    @Autowired
+//    private CommentDBMongo commentDBMongo;
 
     @Autowired
     private ModelBean modelBean;
