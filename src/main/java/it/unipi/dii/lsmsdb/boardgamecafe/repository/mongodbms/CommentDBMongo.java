@@ -27,42 +27,42 @@ public class CommentDBMongo {
         return commentMongo;
     }
 
-    public CommentModelMongo addComment(CommentModelMongo comment) {
-        try {
-            return commentMongo.save(comment);
-        } catch (Exception e) {
-            System.err.println("[ERROR] addComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
-            return null;
-        }
-    }
-
-    public boolean updateComment(String id, CommentModelMongo updated) {
-        try {
-            Optional<CommentModelMongo> old = commentMongo.findById(id);
-            if (old.isPresent()) {
-                CommentModelMongo comment = old.get();
-                comment.setPost(updated.getPost());
-                comment.setText(updated.getText());
-                comment.setTimestamp(updated.getTimestamp());
-                comment.setUsername(updated.getUsername());
-                commentMongo.save(comment);
-            }
-        } catch (Exception e) {
-            System.err.println("[ERROR] updateComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    public boolean deleteComment(CommentModelMongo comment) {
-        try {
-            commentMongo.delete(comment);
-        } catch (Exception e) {
-            System.err.println("[ERROR] deleteComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
+//    public CommentModelMongo addComment(CommentModelMongo comment) {
+//        try {
+//            return commentMongo.save(comment);
+//        } catch (Exception e) {
+//            System.err.println("[ERROR] addComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
+//            return null;
+//        }
+//    }
+//
+//    public boolean updateComment(String id, CommentModelMongo updated) {
+//        try {
+//            Optional<CommentModelMongo> old = commentMongo.findById(id);
+//            if (old.isPresent()) {
+//                CommentModelMongo comment = old.get();
+//                comment.setPost(updated.getPost());
+//                comment.setText(updated.getText());
+//                comment.setTimestamp(updated.getTimestamp());
+//                comment.setUsername(updated.getUsername());
+//                commentMongo.save(comment);
+//            }
+//        } catch (Exception e) {
+//            System.err.println("[ERROR] updateComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    public boolean deleteComment(CommentModelMongo comment) {
+//        try {
+//            commentMongo.delete(comment);
+//        } catch (Exception e) {
+//            System.err.println("[ERROR] deleteComment()@CommentDBMongo.java raised an exception: " + e.getMessage());
+//            return false;
+//        }
+//        return true;
+//    }
 
     public List<CommentModelMongo> findRecentCommentsByPostId(String postId, int limit, int skip) {
         List<CommentModelMongo> comments = null;
