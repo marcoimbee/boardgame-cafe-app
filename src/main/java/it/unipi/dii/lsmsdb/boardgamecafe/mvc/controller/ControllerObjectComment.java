@@ -6,20 +6,15 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -41,32 +36,31 @@ public class ControllerObjectComment {
     @FXML
     protected TextArea bodyTextLabel;
 
-    private CommentModelMongo comment;
-
     @Autowired
     private CommentDBMongo commentDBMongo;
+    @Autowired
+    private UserDBMongo userDBMongo;
     @Autowired
     private CommentDBNeo4j commentDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
     private CommentService serviceComment;
-
     @Autowired
     private ModelBean modelBean;
-
-    private static GenericUserModelMongo currentUser;
-
-    private Consumer<String> deletedCommentCallback;
-
     @Autowired
     @Lazy
     private StageManager stageManager;
 
+    private CommentModelMongo comment;
+    private UserModelMongo commentAuthor;
+    private static GenericUserModelMongo currentUser;
+
+    private Consumer<String> deletedCommentCallback;
+
     public ControllerObjectComment() {}
 
-    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback)
-    {
+    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
             throw new RuntimeException("No logged");
@@ -76,6 +70,8 @@ public class ControllerObjectComment {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.comment = comment;
+        this.commentAuthor = (UserModelMongo) userDBMongo.findByUsername(comment.getUsername(), false).get();       // Retrieving the comment's author
+
         this.editButton.setDisable(false);
         this.deleteButton.setDisable(false);
         String creationDate = comment.getTimestamp().toString();
@@ -83,10 +79,17 @@ public class ControllerObjectComment {
         // Setting up callback functions
         this.deletedCommentCallback = deletedCommentCallback;
 
-        this.usernameLabel.setText(comment.getUsername());
+        // Setting up labels
+        if (commentAuthor.isBanned()) {
+            this.usernameLabel.setText("[Banned user]");
+            this.bodyTextLabel.setText("[Banned user]");
+        } else {
+            this.usernameLabel.setText(comment.getUsername());
+            this.bodyTextLabel.setText(comment.getText());
+        }
+
         this.timestampLabel.setText(creationDate);
         this.postLabel.setText(post.getTitle());
-        this.bodyTextLabel.setText(comment.getText());
 
         // Removing the possibility to edit and delete a comment if the current user is not the author
         if (!currentUser.getUsername().equals(comment.getUsername())) {
@@ -94,11 +97,11 @@ public class ControllerObjectComment {
             deleteButton.setVisible(false);
         }
 
+        // Setting up admin controls
         if (currentUser.get_class().equals("admin")) {
             editButton.setVisible(false);
             deleteButton.setVisible(true);
         }
-
 
         // Setting up button listeners
         deleteButton.setOnAction(event -> onClickDeleteButton(post, comment));
@@ -107,7 +110,6 @@ public class ControllerObjectComment {
 
     @FXML
     public void onClickEditButton(PostModelMongo post, CommentModelMongo comment) {
-        System.out.println("[DEBUG] Switching to edit page...");
         modelBean.putBean(Constants.SELECTED_COMMENT, comment);
         stageManager.showWindow(FxmlView.EDIT_COMMENT);            // Do not close underlying page, just show the little comment editing window
     }
