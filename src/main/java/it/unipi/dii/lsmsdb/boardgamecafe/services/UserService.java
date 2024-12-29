@@ -19,8 +19,6 @@ import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-
 
 @Component
 public class UserService {
@@ -42,9 +40,8 @@ public class UserService {
     @Autowired
     private BoardgameDBMongo boardgameMongoOp;
 
-
     public String getHashedPassword(String passwordToHash, String salt) {
-        String generatedPassword = null;
+        String generatedPassword;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(salt.getBytes());
@@ -68,34 +65,6 @@ public class UserService {
         sr.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
     }
-
-    /* fra: Da eliminare? -> 20/12/2024
-    public AdminModelMongo createAdmin(String username,
-                                       String email,
-                                       String password)
-    {
-        String salt = this.generateSalt();
-        String hashedPassword = this.getHashedPassword(password, salt);
-
-        return new AdminModelMongo(username, email, salt, hashedPassword, "admin");
-    }
-    */
-
-    /* fra: Da eliminare? -> 20/12/2024
-    @Transactional
-    public boolean insertAdmin(AdminModelMongo admin) {
-        try {
-            if (!userMongoDB.addUser(admin)) {
-                throw new Exception("Error while adding an administrator user to MongoDB.");
-            }
-            return true;
-        } catch (Exception ex) {
-            System.err.println("[ERROR] insertAdmin@UserService.java raised an exception: " + ex.getMessage());
-            return false;
-        }
-    }
-
-     */
 
     public UserModelMongo createUser(String username, String email, String password,
                                      String name, String surname, String gender,
@@ -156,9 +125,9 @@ public class UserService {
 
     private boolean deleteUserReviews(UserModelMongo user) {
         try {
-            // Deleting the reviews collection - WORKING
+            // Deleting the reviews collection
             if (!reviewMongoOp.deleteReviewByUsername(user.getUsername())) {
-                throw new Exception("Failed to delete the user's reviews from their collection");
+                throw new Exception("Failed to delete the user's reviews from the 'Reviews' collection");
             }
             return true;
         } catch (Exception ex) {
@@ -172,14 +141,12 @@ public class UserService {
             // Delete comment documents and nodes that were done under posts written by the user that has to be deleted
             List<PostModelMongo> postsByUser = postMongoOp.findByUsername(username);
             if (!postsByUser.isEmpty()) {           // If no posts were written, do not lose time in calling these methods
-                System.out.println("[DEBUG] postsByUser: " + postsByUser);
                 for (PostModelMongo post : postsByUser) {
-                    System.out.println("[DEBUG] post: " + post);
                     if (!commentMongoOp.deleteByPost(post.getId())) {     // Deleting comments from MongoDB collection
-                        throw new Exception("Failed to delete MongoDB comment under a MongoDB post");
+                        throw new Exception("Failed to delete a MongoDB comment under a MongoDB post");
                     }
                     if (!commentNeo4jOp.deleteByPost(post.getId())) {     // Deleting comment nodes from Neo4J
-                        throw new Exception("Failed to delete Neo4J comment related to a Neo4J post");
+                        throw new Exception("Failed to delete a Neo4J comment related to a Neo4J post");
                     }
                 }
             }
@@ -216,32 +183,32 @@ public class UserService {
         }
     }
 
-    private boolean updateUserReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
-        try {
-            // Updating MongoDB boardgames the user had reviewed
-            List<ReviewModelMongo> userReviews = new ArrayList<>();
-            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
-                userReviews = reviewMongoOp.findReviewByUsername(username);     // These are needed only if they have to be restored because of an unbanning operation
-            }
-            if(!boardgameMongoOp.updateBoardgameReviewsAfterAdminAction(username, updateReason, userReviews)) {
-                throw new Exception("Failed to update boardgames after the user's ban/deletion/unban");
-            }
-            return true;
-        } catch (Exception ex) {
-            System.err.println("[ERROR] updateUserReviewsAfterAdminAction@UserService.java raised an exception: " + ex.getMessage());
-            return false;
-        }
-    }
+//    private boolean updateUserReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason) {
+//        try {
+//            // Updating MongoDB boardgames the user had reviewed
+//            List<ReviewModelMongo> userReviews = new ArrayList<>();
+//            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
+//                userReviews = reviewMongoOp.findReviewByUsername(username);     // These are needed only if they have to be restored because of an unbanning operation
+//            }
+//            if(!boardgameMongoOp.updateBoardgameReviewsAfterAdminAction(username, updateReason, userReviews)) {
+//                throw new Exception("Failed to update boardgames after the user's ban/deletion/unban");
+//            }
+//            return true;
+//        } catch (Exception ex) {
+//            System.err.println("[ERROR] updateUserReviewsAfterAdminAction@UserService.java raised an exception: " + ex.getMessage());
+//            return false;
+//        }
+//    }
 
     private boolean deleteUserComments(String username) {
         try {
             // MongoDB deletion from 'comments' collection
             if (!commentMongoOp.deleteByUsername(username)) {
-                throw new Exception("Failed to delete MongoDB user given his username");
+                throw new Exception("Failed to delete a MongoDB user given his username");
             }
             // Neo4j deletion of 'comment' nodes and their relationships
             if (!commentNeo4jOp.deleteByUsername(username)) {
-                throw new Exception("Failed to delete Neo4J user given his username");
+                throw new Exception("Failed to delete a Neo4J user given his username");
             }
             return true;
         } catch (Exception ex) {
@@ -283,9 +250,9 @@ public class UserService {
             if (!deleteUserReviews(user)) {
                 throw new Exception("Failed to delete user reviews");
             }
-            if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
-                throw new Exception("Failed to update deleted user reviews");
-            }
+//            if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
+//                throw new Exception("Failed to update deleted user reviews");
+//            }
 
             // MongoDB
             if (!userMongoDB.deleteUser(user)) {
@@ -405,28 +372,28 @@ public class UserService {
          */
 
         try {
-            String username = user.getUsername();
+//            String username = user.getUsername();
 
             // Setting MongoDB 'banned' flag to true
             user.setBanned(true);
             if (!userMongoDB.updateUser(user.getId(), user, "user")) {
-                throw new Exception("Failed to set 'banned' MongoDB flag");
+                throw new Exception("Failed to set 'banned' MongoDB flag in 'Users' collection.");
             }
 
-            // Comments management - update of comments under posts
-            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.BANNED_USER)) {
-                throw new Exception("Failed to update banned user comments");
-            }
-
-            // Reviews management - update of reviews under boardgames
-            if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.BANNED_USER)) {
-                throw new Exception("Failed to update banned user reviews");
-            }
-
-            // Set username as [Banned user] - Neo4J node
-            if (!userNeo4jDB.setUserAsBanned(username)) {
-                throw new Exception("Failed to set user to banned in Neo4J");
-            }
+//            // Comments management - update of comments under posts
+//            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.BANNED_USER)) {
+//                throw new Exception("Failed to update banned user comments");
+//            }
+//
+//            // Reviews management - update of reviews under boardgames
+//            if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.BANNED_USER)) {
+//                throw new Exception("Failed to update banned user reviews");
+//            }
+//
+//            // Set username as [Banned user] - Neo4J node
+//            if (!userNeo4jDB.setUserAsBanned(username)) {
+//                throw new Exception("Failed to set user to banned in Neo4J");
+//            }
 
             return true;
         } catch (Exception ex) {
@@ -440,28 +407,28 @@ public class UserService {
         try {
             if (user.isBanned()) {
                 String userId = user.getId();
-                String username = user.getUsername();
+//                String username = user.getUsername();
 
                 // Setting MongoDB 'banned' flag to false - MongoDB
                 user.setBanned(false);
                 if (!userMongoDB.updateUser(userId, user, "user")) {
                     throw new Exception("Failed to unset 'banned' MongoDB flag");
                 }
-
-                // Comments management - restoring user comments under posts
-                if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
-                    throw new Exception("Failed to restore user comments");
-                }
-
-                // Reviews management - restoring user reviews under boardgames
-                if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
-                    throw new Exception("Failed to restore user reviews");
-                }
-
-                // Restoring username - Neo4J node
-                if (!userNeo4jDB.restoreUserNodeAfterUnban(userId, username)) {
-                    throw new Exception("Failed to restore user node in Neo4J");
-                }
+//
+//                // Comments management - restoring user comments under posts
+//                if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
+//                    throw new Exception("Failed to restore user comments");
+//                }
+//
+//                // Reviews management - restoring user reviews under boardgames
+//                if (!updateUserReviewsAfterAdminAction(username, UserContentUpdateReason.UNBANNED_USER)) {
+//                    throw new Exception("Failed to restore user reviews");
+//                }
+//
+//                // Restoring username - Neo4J node
+//                if (!userNeo4jDB.restoreUserNodeAfterUnban(userId, username)) {
+//                    throw new Exception("Failed to restore user node in Neo4J");
+//                }
             }
 
             return true;
@@ -471,44 +438,34 @@ public class UserService {
         }
     }
 
-    public HashMap<String, Double> getAvgAgeByNationality(int limit)
-    {
+    public HashMap<String, Double> getAvgAgeByNationality(int limit) {
         HashMap<String, Double> avgAgeByNationality = new HashMap<>();
-        try
-        {
+        try {
             Document docResult = this.userMongoDB.showUserAvgAgeByNationality(limit).get();
 
-            for (Document doc : (List<Document>)docResult.get("results"))
-            {
+            for (Document doc : (List<Document>)docResult.get("results")) {
                 String country = doc.getString("_id");
                 Double avgAge = doc.getDouble("averageAge");
                 avgAgeByNationality.put(country, avgAge);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Exception getAvgAgeByNationality(): " + e.getMessage());
         }
 
         return avgAgeByNationality;
     }
 
-    public LinkedHashMap<String, Integer> getCountriesWithMostUsers(int minUserNumber, int limit)
-    {
+    public LinkedHashMap<String, Integer> getCountriesWithMostUsers(int minUserNumber, int limit) {
         LinkedHashMap<String, Integer> avgAgeByNationality = new LinkedHashMap<>();
-        try
-        {
+        try {
             Document docResult = this.userMongoDB.findCountriesWithMostUsers(minUserNumber, limit);
 
-            for (Document doc : (List<Document>)docResult.get("results"))
-            {
+            for (Document doc : (List<Document>)docResult.get("results")) {
                 String country = doc.getString("_id");
                 Integer usersNumber = doc.getInteger("numUsers");
                 avgAgeByNationality.put(country, usersNumber);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Exception getCountriesWithMostUsers(): " + e.getMessage());
         }
 

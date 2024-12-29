@@ -15,17 +15,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
-
 @Component
 public class ControllerObjectReview {
-
     @FXML
     private Button editButton;
     @FXML
@@ -41,9 +38,10 @@ public class ControllerObjectReview {
     @FXML
     protected TextArea bodyTextLabel;
 
-
     @Autowired
     private ReviewService reviewService;
+    @Autowired
+    private UserDBMongo userDBMongo;
     @Autowired
     private ModelBean modelBean;
     @Autowired
@@ -52,11 +50,10 @@ public class ControllerObjectReview {
     @Autowired
     private UserDBMongo userMongoOp;
 
-
     private ReviewModelMongo review;
+    private UserModelMongo reviewAuthor;
     private static GenericUserModelMongo currentUser;
     private Consumer<String> deletedReviewCallback;
-
 
     public ControllerObjectReview() {
     }
@@ -64,32 +61,38 @@ public class ControllerObjectReview {
     public void setData(ReviewModelMongo review, Consumer<String> deletedReviewCallback) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
-        if (!currentUser.get_class().equals("admin"))
-        {
+        if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             // Removing the possibility to edit and delete a review if the current user is not the author
             if (!currentUser.getUsername().equals(review.getUsername())) {
                 editButton.setVisible(false);
                 deleteButton.setVisible(false);
             }
-        }
-        else
-        {
+        } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-            editButton.setDisable(true);
+            editButton.setVisible(false);
             deleteButton.setVisible(true);
         }
 
         this.review = review;
+        this.reviewAuthor = (UserModelMongo) userDBMongo.findByUsername(review.getUsername(), false).get();     // Retrieving the review's author
         String creationDate = review.getDateOfReview().toString();
 
         // Setting up callback functions
         this.deletedReviewCallback = deletedReviewCallback;
-        this.authorLabel.setText(review.getUsername());
+
+        // Setting up labels
+        if (reviewAuthor.isBanned()) {
+            this.authorLabel.setText("[Banned user]");
+            this.bodyTextLabel.setText("[Banned user]");
+        } else {
+            this.authorLabel.setText(review.getUsername());
+            this.bodyTextLabel.setText(review.getBody());
+        }
         this.dateOfReviewLabel.setText(creationDate);
         this.tagBoardgameLabel.setText(review.getBoardgameName());
         this.ratingLabel.setText(String.valueOf(review.getRating()));
-        this.bodyTextLabel.setText(review.getBody());
+
         // Setting up button listeners
         deleteButton.setOnAction(event -> onClickDeleteButton(review));
         editButton.setOnAction(event -> onClickEditButton(review));

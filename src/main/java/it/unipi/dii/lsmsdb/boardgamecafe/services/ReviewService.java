@@ -1,14 +1,12 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 
-import javafx.util.Pair;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.print.Doc;
-import java.lang.annotation.Documented;
 import java.util.*;
 
 @Component
@@ -32,7 +28,6 @@ public class ReviewService {
 
     private final static Logger logger = LoggerFactory.getLogger(ReviewService.class);
 
-
     @Transactional
     public boolean insertReview(ReviewModelMongo review,
                                 BoardgameModelMongo boardgame,
@@ -41,9 +36,9 @@ public class ReviewService {
             if (!reviewMongoOp.addReview(review)) {
                 throw new RuntimeException("Error while adding the review to the Reviews collection.");
             }
-            if (!addReviewToUser(user, review)) {
-                throw new RuntimeException("Error while adding the review to the Users collection. Rolling back...");
-            }
+//            if (!addReviewToUser(user, review)) {
+//                throw new RuntimeException("Error while adding the review to the Users collection. Rolling back...");
+//            }
             if (!addReviewToBoardgame(boardgame, review)) {
                 throw new RuntimeException("Error while adding the review to the Boardgames collection. Rolling back...");
             }
@@ -54,26 +49,23 @@ public class ReviewService {
         return true;
     }
 
-    private boolean addReviewToUser(UserModelMongo user, ReviewModelMongo review) {
-
-        //checkLastReviewUser(user, false);
-        user.addReview(review); //local object
-
-        if (!userMongoOp.addReviewInUserArray(user, review)) {
-            logger.error("Error in adding the review to the collection of users");
-            if (!reviewMongoOp.deleteReview(review)) {
-                logger.error("Error in deleting the review from the collection of reviews");
-            }
-            return false;
-        }
-        return true;
-    }
+//    private boolean addReviewToUser(UserModelMongo user, ReviewModelMongo review) {
+//
+//        //checkLastReviewUser(user, false);
+//        user.addReview(review); //local object
+//
+//        if (!userMongoOp.addReviewInUserArray(user, review)) {
+//            logger.error("Error in adding the review to the collection of users");
+//            if (!reviewMongoOp.deleteReview(review)) {
+//                logger.error("Error in deleting the review from the collection of reviews");
+//            }
+//            return false;
+//        }
+//        return true;
+//    }
 
     public boolean addReviewToBoardgame(BoardgameModelMongo boardgame, ReviewModelMongo review) {
-
-        // checkLastReviewBoardgame(boardgame, false);
         boardgame.addReview(review);
-
         if (!boardgameMongoOp.addReviewInBoardgameArray(boardgame, review))  {
             logger.error("Error in adding the review to the collection of boardgames");
             if (!reviewMongoOp.deleteReview(review)) {
@@ -97,9 +89,9 @@ public class ReviewService {
             if (!deleteReviewInBoardgame(selectedReview))
                 throw new RuntimeException("Failed to delete a review from the Boardgames collection");
 
-            if (!deleteReviewInUser(loggedUser, selectedReview)) {
-                throw new RuntimeException("Failed to delete a review from the Users collection");
-            }
+//            if (!deleteReviewInUser(loggedUser, selectedReview)) {
+//                throw new RuntimeException("Failed to delete a review from the Users collection");
+//            }
 
             if (!reviewMongoOp.deleteReview(selectedReview)) {
                 throw new RuntimeException("Failed to delete a review in the Reviews collection");
@@ -131,17 +123,17 @@ public class ReviewService {
         }
     }
 
-    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) {      // MongoDB deletion and local deletion
-        if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId())) {
-            if (user.deleteReview(selectedReview.getId()))
-                return true;
-            else {
-                System.out.println("[WARNING] The review was found in MongoDB but not locally");
-                return false;
-            }
-        }
-        throw new RuntimeException("The selected review was not present in MongoDB");
-    }
+//    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) {      // MongoDB deletion and local deletion
+//        if (userMongoOp.deleteReviewInUserReviewsById(user.getId(), selectedReview.getId())) {
+//            if (user.deleteReview(selectedReview.getId()))
+//                return true;
+//            else {
+//                System.out.println("[WARNING] The review was found in MongoDB but not locally");
+//                return false;
+//            }
+//        }
+//        throw new RuntimeException("The selected review was not present in MongoDB");
+//    }
 
     @Transactional
     public boolean updateReview(ReviewModelMongo selectedReview) {
@@ -149,9 +141,9 @@ public class ReviewService {
             if (!reviewMongoOp.updateReview(selectedReview.getId(), selectedReview)) {
                 throw new RuntimeException("Error while updating a review in the Reviews collection");
             }
-            if (!updateReviewInUser(selectedReview)) {
-                throw new RuntimeException("Error while updating a review in Users collection");
-            }
+//            if (!updateReviewInUser(selectedReview)) {
+//                throw new RuntimeException("Error while updating a review in Users collection");
+//            }
             if (!updateReviewInBoardgame(selectedReview)) {
                 throw new RuntimeException("Error while updating a review in the Boardgames collection");
             }
@@ -179,39 +171,38 @@ public class ReviewService {
         return false;
     }
 
-    public boolean updateReviewInUser(ReviewModelMongo selectedReview) {
-        Optional<GenericUserModelMongo> userResult =
-                userMongoOp.findByUsername(selectedReview.getUsername(), false);
+//    public boolean updateReviewInUser(ReviewModelMongo selectedReview) {
+//        Optional<GenericUserModelMongo> userResult =
+//                userMongoOp.findByUsername(selectedReview.getUsername(), false);
+//
+//        if (userResult.isPresent()) {
+//            GenericUserModelMongo genericUser = userResult.get();
+//            String _classValue = genericUser.get_class();
+//
+//            if (!_classValue.equals("user")) {
+//                System.out.println("[ERROR] The target user is not a common user.");
+//                return false;
+//            }
+//            UserModelMongo user = (UserModelMongo) genericUser;
+//
+//            //Local object state management
+//            if (user.deleteReview(selectedReview.getId())) {
+//                user.addReview(selectedReview);
+//            }
+//            return userMongoOp.updateUser(user.getId(), user, "user");
+//        }
+//        System.out.println("[WARNING] No user named '" + selectedReview.getUsername() + "' is present in the DB.");
+//        return false;
+//    }
 
-        if (userResult.isPresent()) {
-            GenericUserModelMongo genericUser = userResult.get();
-            String _classValue = genericUser.get_class();
-
-            if (!_classValue.equals("user")) {
-                System.out.println("[ERROR] The target user is not a common user.");
-                return false;
-            }
-            UserModelMongo user = (UserModelMongo) genericUser;
-
-            //Local object state management
-            if (user.deleteReview(selectedReview.getId())) {
-                user.addReview(selectedReview);
-            }
-            return userMongoOp.updateUser(user.getId(), user, "user");
-        }
-        System.out.println("[WARNING] No user named '" + selectedReview.getUsername() + "' is present in the DB.");
-        return false;
-    }
-
-    public LinkedHashMap<BoardgameModelMongo, Double> getTopRatedBoardgamePerYear(int minReviews, int limit, int year)
-    {
+    public LinkedHashMap<BoardgameModelMongo, Double> getTopRatedBoardgamePerYear(int minReviews, int limit, int year) {
         List<Document> docList = (List<Document>) reviewMongoOp.getTopRatedBoardgamePerYear(minReviews, limit, year).get("results");
         LinkedHashMap<BoardgameModelMongo, Double> boardgamePairListForParamYear = new LinkedHashMap<>();
-        if (!docList.isEmpty())
-        {
+
+        if (!docList.isEmpty()) {
             List<Document> docTopRated = (List<Document>) docList.get(0).get("topGames");
-            for (Document doc_boardgame : docTopRated)
-            {
+
+            for (Document doc_boardgame : docTopRated) {
                 String boardgameName = (String) doc_boardgame.get("name");
                 Optional<BoardgameModelMongo> boardgameOptional = this.boardgameMongoOp.findBoardgameByName(boardgameName);
                 Double rating = (Double)doc_boardgame.get("avgRating");

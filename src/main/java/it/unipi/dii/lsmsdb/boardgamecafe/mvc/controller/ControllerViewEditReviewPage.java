@@ -17,10 +17,8 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
 @Component
 public class ControllerViewEditReviewPage implements Initializable {
-
     @FXML
     public TextField bodyTextLabel;
     @FXML

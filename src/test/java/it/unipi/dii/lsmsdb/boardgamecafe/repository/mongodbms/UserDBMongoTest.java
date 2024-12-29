@@ -87,24 +87,24 @@ class UserDBMongoTest {
         assertNotNull(userDBMongo.findByEmail(sampleUser.getEmail()));
     }
 
-    @Test
-    public void GIVEN_existing_review_WHEN_delete_from_user_array_THEN_review_gets_deleted() {
-        ReviewModelMongo sampleReview = new ReviewModelMongo(
-                "sample_review_id",
-                "test_boardgame",
-                "test_username",
-                1,
-                "test review body",
-                new Date()
-        );
-        userDBMongo.addReviewInUserArray(sampleUser, sampleReview);
-        assertTrue(userDBMongo.deleteReviewInUserReviewsById(sampleUser.getId(), sampleReview.getId()));
-    }
+//    @Test
+//    public void GIVEN_existing_review_WHEN_delete_from_user_array_THEN_review_gets_deleted() {
+//        ReviewModelMongo sampleReview = new ReviewModelMongo(
+//                "sample_review_id",
+//                "test_boardgame",
+//                "test_username",
+//                1,
+//                "test review body",
+//                new Date()
+//        );
+//        userDBMongo.addReviewInUserArray(sampleUser, sampleReview);
+//        assertTrue(userDBMongo.deleteReviewInUserReviewsById(sampleUser.getId(), sampleReview.getId()));
+//    }
 
-    @Test
-    public void GIVEN_NON_existing_review_WHEN_delete_from_user_array_THEN_review_gets_deleted() {
-        assertFalse(userDBMongo.deleteReviewInUserReviewsById(sampleUser.getId(), "non-existent_review_id"));
-    }
+//    @Test
+//    public void GIVEN_NON_existing_review_WHEN_delete_from_user_array_THEN_review_gets_deleted() {
+//        assertFalse(userDBMongo.deleteReviewInUserReviewsById(sampleUser.getId(), "non-existent_review_id"));
+//    }
 
     @Test
     public void GIVEN_number_of_users_WHEN_find_all_THEN_users_returned_with_skip() {
@@ -116,18 +116,18 @@ class UserDBMongoTest {
         assertNotNull(userDBMongo.findAllUsersWithLimit(10, 0));
     }
 
-    @Test
-    public void GIVEN_review_WHEN_add_in_array_THEN_review_added() {
-        ReviewModelMongo sampleReview = new ReviewModelMongo(
-                "sample_review_id",
-                "test_boardgame",
-                "test_username",
-                1,
-                "test review body",
-                new Date()
-        );
-        assertTrue(userDBMongo.addReviewInUserArray(sampleUser, sampleReview));
-    }
+//    @Test
+//    public void GIVEN_review_WHEN_add_in_array_THEN_review_added() {
+//        ReviewModelMongo sampleReview = new ReviewModelMongo(
+//                "sample_review_id",
+//                "test_boardgame",
+//                "test_username",
+//                1,
+//                "test review body",
+//                new Date()
+//        );
+//        assertTrue(userDBMongo.addReviewInUserArray(sampleUser, sampleReview));
+//    }
 
     @Test
     public void testGetUserUsernames_THEN_usernames_returned() {
