@@ -7,7 +7,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
+//import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
+import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -50,7 +51,7 @@ public class ControllerObjectComment {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
-    private CommentService serviceComment;
+    private PostService postService;
 
     @Autowired
     private ModelBean modelBean;
@@ -120,7 +121,7 @@ public class ControllerObjectComment {
         }
 
         try {
-            serviceComment.deleteComment(comment, post);
+            postService.deleteComment(comment, post);
 
             System.out.println("[INFO] Successful comment deletion.");
 
