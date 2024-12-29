@@ -37,8 +37,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
@@ -429,7 +427,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             }
             case BOARDGAME_GROUP_BY_CATEGORY -> {
                 if (this.cboxCategory.getItems().isEmpty()) {
-                    ObservableList<String> listOfCategories = FXCollections.observableArrayList(this.boardgameDBMongo.getBoardgamesCategoriest());
+                    ObservableList<String> listOfCategories = FXCollections.observableArrayList(this.boardgameDBMongo.getBoardgamesCategories());
                     this.cboxCategory.setItems(listOfCategories);
                 }
                 this.cboxYear.setVisible(false);
