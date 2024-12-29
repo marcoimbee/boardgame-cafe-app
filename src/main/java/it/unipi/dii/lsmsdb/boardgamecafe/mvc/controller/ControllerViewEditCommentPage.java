@@ -34,8 +34,8 @@ public class ControllerViewEditCommentPage implements Initializable {
     private StageManager stageManager;
     @Autowired
     private ModelBean modelBean;
-    @Autowired
-    private CommentDBMongo commentDBMongo;
+//    @Autowired
+//    private CommentDBMongo commentDBMongo;
     @Autowired
     private PostDBMongo postDBMongo;
 
@@ -80,7 +80,7 @@ public class ControllerViewEditCommentPage implements Initializable {
             // Update mongoDB comment in comment collection
             CommentModelMongo updatedComment = selectedComment;
             updatedComment.setText(updatedBody);
-            commentDBMongo.updateComment(selectedComment.getId(), updatedComment);
+//            commentDBMongo.updateComment(selectedComment.getId(), updatedComment);
             postDBMongo.updatePostComment(postReferredByComment, updatedComment);
 
             // Setting updated in model bean to retrieve them in post details page for UI update
