@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.bson.types.ObjectId;
 
 import java.util.Date;
 
@@ -37,7 +38,9 @@ public class CommentModelMongo {
     public CommentModelMongo(String post,
                              String username,
                              String text,
-                             Date timestamp) {
+                             Date timestamp)
+    {
+        this.id = new ObjectId().toString();
         this.post = post;
         this.username = username;
         this.text = text;
