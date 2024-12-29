@@ -141,7 +141,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.counterLikesLabel.setText(String.valueOf(post.getLikeCount()));
         this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));
 
-        comments.addAll(getData(this.post.getId()));
+        comments.addAll(getData(this.post));
         fillGridPane();
 
         // Setting up buttons depending on if the current user is who created the post that's being visualized
@@ -265,7 +265,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         skipCounter += SKIP;
 
         //retrieve boardgames
-        comments.addAll(getData(this.post.getId()));
+        comments.addAll(getData(this.post));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -281,7 +281,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        comments.addAll(getData(this.post.getId()));
+        comments.addAll(getData(this.post));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -332,11 +332,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    private List<CommentModelMongo> getData(String postId){
+    private List<CommentModelMongo> getData(PostModelMongo post){
 
 //        List<CommentModelMongo> comments = commentDBMongo.
 //                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
-
+        List<CommentModelMongo> comments = post.getComments();
         prevNextButtonsCheck(comments);
         return comments;
     }
@@ -420,7 +420,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private void cleanFetchAndFill() {
         resetPage();
-        comments.addAll(getData(this.post.getId()));
+        comments.addAll(getData(this.post));
         fillGridPane();
     }
 
