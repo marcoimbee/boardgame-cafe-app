@@ -6,7 +6,13 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +61,41 @@ class PostDBMongoTest
         assertInstanceOf(PostModelMongo.class, post3);
         //String id = new ObjectId().toString();  //67710d9bb4363b367af7c16c
         //System.out.println("id " + id);
+    }
+
+    // [18:05] - [18:00] - [17:00] - [16:00]
+    /*@Test @Order(5)
+    void testDataUpdate()
+    {
+        List<PostModelMongo> allPost = postDBMongo.findRecentPosts(14005, 0);
+        int countUpdatedPost = 0;
+        for (PostModelMongo post : allPost)
+        {
+            if (post.getComments() != null && (post.getComments().size() > 0))
+            {
+                post.getComments().sort((c1, c2) -> c2.getTimestamp().compareTo(c1.getTimestamp())); // Ordinamento decrescente per timestamp
+                boolean shouldReturnTrue = postDBMongo.updatePost(post.getId(), post);
+                assertTrue(shouldReturnTrue);
+            }
+            if (countUpdatedPost % 100 == 0)
+                System.out.println("countUpdatedPost -> " + countUpdatedPost);
+            countUpdatedPost++;
+        }
+        System.out.println("Updated");
+
+
+    }
+    */
+    private static Date parseDate(String timestamp) {
+        try {
+            // Usa DateTimeFormatter per fare il parsing
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+            ZonedDateTime zdt = ZonedDateTime.parse(timestamp, formatter);
+            return Date.from(zdt.toInstant());
+        } catch (Exception e) {
+            System.out.println("Errore nella conversione della data: " + timestamp);
+            return null;
+        }
     }
 
     @Test @Order(10)
