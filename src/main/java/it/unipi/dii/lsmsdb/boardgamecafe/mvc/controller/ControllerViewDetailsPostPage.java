@@ -298,8 +298,9 @@ public class ControllerViewDetailsPostPage implements Initializable {
     }
 
     void prevNextButtonsCheck(List<CommentModelMongo> comments){
-        if((comments.size() > 0)){
-            if((comments.size() < LIMIT)){
+        if((comments.size() > 0))
+        {
+            if((comments.size() <= LIMIT)){
                 if(skipCounter <= 0 ){
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
@@ -337,8 +338,12 @@ public class ControllerViewDetailsPostPage implements Initializable {
 //        List<CommentModelMongo> comments = commentDBMongo.
 //                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
         List<CommentModelMongo> comments = post.getComments();
-        prevNextButtonsCheck(comments);
-        return comments;
+        int start = Math.min(skipCounter, comments.size());
+        int end = Math.min(start + LIMIT, comments.size());
+        List<CommentModelMongo> commentsSubList = comments.subList(start, end);
+        List<CommentModelMongo> commentsToNextButton = (skipCounter == 0) ? comments : commentsSubList;
+        prevNextButtonsCheck(commentsToNextButton);
+        return commentsSubList;
     }
 
     public void onClickAddCommentButton() {
