@@ -126,7 +126,7 @@ public class PostModelMongo {
     }
 
     public void addComment(CommentModelMongo comment) {
-        this.comments.add(comment);
+        this.comments.add(0, comment);
     }
 
     public boolean deleteCommentInPost(String id) {
