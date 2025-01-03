@@ -331,7 +331,9 @@ public class PostDBMongo {
     public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment)
     {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
-        Update update = new Update().push("comments", comment);
+        Update update = new Update().push("comments",
+                new BasicDBObject("$each", Collections.singletonList(comment))
+                        .append("$position", 0));
         UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
 
         // Se almeno un documento è stato modificato, l'update è riuscito
