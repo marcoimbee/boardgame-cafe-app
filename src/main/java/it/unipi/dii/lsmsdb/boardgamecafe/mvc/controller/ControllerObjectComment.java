@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -54,7 +55,7 @@ public class ControllerObjectComment {
     @Lazy
     private StageManager stageManager;
 
-    private CommentModelMongo comment;
+    private CommentModel comment;
     private UserModelMongo commentAuthor;
     private static GenericUserModelMongo currentUser;
 
@@ -62,7 +63,7 @@ public class ControllerObjectComment {
 
     public ControllerObjectComment() {}
 
-    public void setData(CommentModelMongo comment, PostModelMongo post, Consumer<String> deletedCommentCallback)
+    public void setData(CommentModel comment, PostModelMongo post, Consumer<String> deletedCommentCallback)
     {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser == null)
@@ -112,13 +113,13 @@ public class ControllerObjectComment {
     }
 
     @FXML
-    public void onClickEditButton(PostModelMongo post, CommentModelMongo comment) {
+    public void onClickEditButton(PostModelMongo post, CommentModel comment) {
         modelBean.putBean(Constants.SELECTED_COMMENT, comment);
         stageManager.showWindow(FxmlView.EDIT_COMMENT);            // Do not close underlying page, just show the little comment editing window
     }
 
     @FXML
-    public void onClickDeleteButton(PostModelMongo post, CommentModelMongo comment) {
+    public void onClickDeleteButton(PostModelMongo post, CommentModel comment) {
         boolean userChoice = stageManager.showDeleteCommentInfoMessage();
         if (!userChoice) {
             return;

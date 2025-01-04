@@ -1,33 +1,29 @@
-package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
+package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
 
 
-@Document("comments")
-public class CommentModelMongo {
-    @Id
+//@Document("comments")
+public class CommentModel {
+//    @Id
     private String id;
     private String post;
     private String username;
     private String text;
     private Date timestamp;
+//
+//    @JsonIgnore
+//    private String _class;          // Makes the model compatible with documents which present the '_class' attributes
 
-    @JsonIgnore
-    private String _class;          // Makes the model compatible with documents which present the '_class' attributes
+    public CommentModel() {}
 
-    public CommentModelMongo() {}
-
-    public CommentModelMongo(String id,
-                             String post,
-                             String username,
-                             String text,
-                             Date timestamp) {
+    public CommentModel(String id,
+                        String post,
+                        String username,
+                        String text,
+                        Date timestamp) {
         this.id = id;
         this.post = post;
         this.username = username;
@@ -35,10 +31,10 @@ public class CommentModelMongo {
         this.timestamp = timestamp;
     }
 
-    public CommentModelMongo(String post,
-                             String username,
-                             String text,
-                             Date timestamp)
+    public CommentModel(String post,
+                        String username,
+                        String text,
+                        Date timestamp)
     {
         this.id = new ObjectId().toString();
         this.post = post;

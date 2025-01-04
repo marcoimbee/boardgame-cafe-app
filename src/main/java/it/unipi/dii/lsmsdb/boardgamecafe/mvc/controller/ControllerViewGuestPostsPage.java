@@ -1,15 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -171,7 +167,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
 
     void prevNextButtonsCheck(List<PostModelMongo> posts){
         if((posts.size() > 0)){
-            if((posts.size() < LIMIT)){
+            if((posts.size() <= LIMIT)){
                 if(skipCounter <= 0 ){
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);

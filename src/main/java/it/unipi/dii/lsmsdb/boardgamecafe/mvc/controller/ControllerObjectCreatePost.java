@@ -1,6 +1,5 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

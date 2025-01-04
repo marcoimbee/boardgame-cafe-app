@@ -4,7 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
@@ -315,14 +315,14 @@ public class ControllerViewUserProfilePage implements Initializable{
         }
 
         // Update UI after potentially having added a comment to a post
-        CommentModelMongo addedComment = (CommentModelMongo) modelBean.getBean(Constants.ADDED_COMMENT);
+        CommentModel addedComment = (CommentModel) modelBean.getBean(Constants.ADDED_COMMENT);
         if (addedComment != null) {
             modelBean.putBean(Constants.ADDED_COMMENT, null);
             fillGridPane(postsUser);
         }
 
         // Potentially update UI after comment deletion under a post
-        CommentModelMongo deletedComment = (CommentModelMongo) modelBean.getBean(Constants.DELETED_COMMENT);
+        CommentModel deletedComment = (CommentModel) modelBean.getBean(Constants.DELETED_COMMENT);
         if (deletedComment != null) {
             modelBean.putBean(Constants.DELETED_COMMENT, null);
             for (PostModelMongo post : postsUser) {
@@ -480,7 +480,7 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     private void prevNextButtonsCheck(List<?> contentList) {
         if (contentList.size() > 0) {
-            if (contentList.size() < LIMIT) {
+            if (contentList.size() <= LIMIT) {
                 if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);

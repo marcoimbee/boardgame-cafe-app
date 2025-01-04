@@ -1,10 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -15,13 +13,11 @@ import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.*;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 
 @Component
@@ -317,7 +313,7 @@ public class PostDBMongo {
      */
 
     //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
-    public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModelMongo comment)
+    public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModel comment)
     {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
@@ -328,7 +324,7 @@ public class PostDBMongo {
         return result.getModifiedCount() > 0;
     }
 
-    public boolean addCommentInPostArray(PostModelMongo post, CommentModelMongo comment)
+    public boolean addCommentInPostArray(PostModelMongo post, CommentModel comment)
     {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Update update = new Update().push("comments", comment);
@@ -338,7 +334,7 @@ public class PostDBMongo {
         return result.getModifiedCount() > 0;
     }
 
-    public boolean updatePostComment(PostModelMongo post, CommentModelMongo updatedComment) {
+    public boolean updatePostComment(PostModelMongo post, CommentModel updatedComment) {
         try {
             ObjectId updatedCommentObjectId = new ObjectId(updatedComment.getId());
             Query query = Query.query(Criteria.where("comments._id").is(updatedCommentObjectId));
@@ -361,7 +357,7 @@ public class PostDBMongo {
     }
 
 
-    public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModelMongo> userComments) {
+    public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModel> userComments) {
         try {
             if (updateReason == UserContentUpdateReason.BANNED_USER || updateReason == UserContentUpdateReason.DELETED_USER) {
                 Query query = Query.query(Criteria.where("comments.username").is(username));
@@ -383,7 +379,7 @@ public class PostDBMongo {
             }
 
             if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
-                for (CommentModelMongo comment : userComments) {
+                for (CommentModel comment : userComments) {
                     ObjectId commentObjectId = new ObjectId(comment.getId());
                     Query query = Query.query(Criteria.where("comments._id").is(commentObjectId));
 
@@ -407,7 +403,7 @@ public class PostDBMongo {
         }
     }
 
-    public List<CommentModelMongo> getRecentCommentsByPostId(String postId, int limit, int skip)
+    public List<CommentModel> getRecentCommentsByPostId(String postId, int limit, int skip)
     {
         try
         {

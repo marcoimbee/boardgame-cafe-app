@@ -3,6 +3,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
@@ -15,11 +16,9 @@ import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -33,9 +32,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -43,7 +39,6 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -258,14 +253,14 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
 
         // Update UI after potentially having added a comment to a post
-        CommentModelMongo addedComment = (CommentModelMongo) modelBean.getBean(Constants.ADDED_COMMENT);
+        CommentModel addedComment = (CommentModel) modelBean.getBean(Constants.ADDED_COMMENT);
         if (addedComment != null) {
             modelBean.putBean(Constants.ADDED_COMMENT, null);
             fillGridPane();
         }
 
         // Update UI after potentially having deleted a comment form a post
-        CommentModelMongo deletedComment = (CommentModelMongo) modelBean.getBean(Constants.DELETED_COMMENT);
+        CommentModel deletedComment = (CommentModel) modelBean.getBean(Constants.DELETED_COMMENT);
         if (deletedComment != null) {
             modelBean.putBean(Constants.DELETED_COMMENT, null);
             for (PostModelMongo post : posts) {
