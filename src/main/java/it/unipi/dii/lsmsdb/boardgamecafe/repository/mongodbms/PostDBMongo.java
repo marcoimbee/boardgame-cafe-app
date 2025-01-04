@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
