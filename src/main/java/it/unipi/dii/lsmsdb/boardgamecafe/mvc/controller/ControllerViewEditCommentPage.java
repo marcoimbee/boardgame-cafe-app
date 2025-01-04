@@ -1,12 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 //import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -39,7 +38,7 @@ public class ControllerViewEditCommentPage implements Initializable {
     @Autowired
     private PostDBMongo postDBMongo;
 
-    private static CommentModelMongo selectedComment;
+    private static CommentModel selectedComment;
     private static PostModelMongo postReferredByComment;
 
     public ControllerViewEditCommentPage() {}
@@ -47,7 +46,7 @@ public class ControllerViewEditCommentPage implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("[INFO] Loaded ControllerViewEditCommentPage");
-        selectedComment = (CommentModelMongo) modelBean.getBean(Constants.SELECTED_COMMENT);
+        selectedComment = (CommentModel) modelBean.getBean(Constants.SELECTED_COMMENT);
         postReferredByComment = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
 
         this.bodyTextLabel.setText(selectedComment.getText());
@@ -78,7 +77,7 @@ public class ControllerViewEditCommentPage implements Initializable {
         // Changes were made, actually update comment
         try {
             // Update mongoDB comment in comment collection
-            CommentModelMongo updatedComment = selectedComment;
+            CommentModel updatedComment = selectedComment;
             updatedComment.setText(updatedBody);
 //            commentDBMongo.updateComment(selectedComment.getId(), updatedComment);
             postDBMongo.updatePostComment(postReferredByComment, updatedComment);

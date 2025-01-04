@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,7 +19,7 @@ public class PostModelMongo {
     private String tag;
     private Date timestamp;
     private int like_count;
-    private List<CommentModelMongo> comments = new ArrayList<>();
+    private List<CommentModel> comments = new ArrayList<>();
 
     @JsonIgnore
     private String _class;
@@ -106,13 +107,13 @@ public class PostModelMongo {
 
     // Comments Management
 
-    public List<CommentModelMongo> getComments(){
+    public List<CommentModel> getComments(){
         return comments;
     }
 
-    public CommentModelMongo getCommentInPost(String id) {
+    public CommentModel getCommentInPost(String id) {
         if (!this.comments.isEmpty()) {
-            for (CommentModelMongo comment : comments) {
+            for (CommentModel comment : comments) {
                 if (comment.getId().equals(id)) {
                     return comment;
                 }
@@ -121,16 +122,16 @@ public class PostModelMongo {
         return null;
     }
 
-    public void setComments(List<CommentModelMongo> comments) {
+    public void setComments(List<CommentModel> comments) {
         this.comments = comments;
     }
 
-    public void addComment(CommentModelMongo comment) {
-        this.comments.add(0, comment);
+    public void addComment(CommentModel comment) {
+        this.comments.add(comment);
     }
 
     public boolean deleteCommentInPost(String id) {
-        CommentModelMongo comment = this.getCommentInPost(id);
+        CommentModel comment = this.getCommentInPost(id);
         if (comment != null) {
             comments.remove(comment);
             return true;

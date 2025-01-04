@@ -1,6 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ class PostDBMongoTest
     static PostModelMongo post1;
     static PostModelMongo post2;
     static PostModelMongo post3;
-    static CommentModelMongo comment1;
+    static CommentModel comment1;
     static final String testBoardgameName1 = "TestBoardgame1";
     static final String testBoardgameName2 = "TestBoardgame2";
     static final String testUsername = "testUsername";
@@ -141,7 +141,7 @@ class PostDBMongoTest
     {
         // The id must be 24 numbers
         String testCommentID = "000000000000000000000000";
-        comment1 = new CommentModelMongo(testCommentID, post1.getId(), testUsername, "test comment text", new Date());
+        comment1 = new CommentModel(testCommentID, post1.getId(), testUsername, "test comment text", new Date());
         postDBMongo.addCommentInPostArray(post1, comment1);
 
         PostModelMongo postShouldHaveOneComment = postDBMongo.findById(post1.getId()).get();
@@ -155,7 +155,7 @@ class PostDBMongoTest
         comment1.setText(updatedCommentText);
 
         postDBMongo.updatePostComment(post1, comment1);
-        CommentModelMongo shouldHaveUpdatedCommentText = postDBMongo.findById(post1.getId()).get().getComments().get(0);
+        CommentModel shouldHaveUpdatedCommentText = postDBMongo.findById(post1.getId()).get().getComments().get(0);
         assertEquals(updatedCommentText, shouldHaveUpdatedCommentText.getText());
     }
 

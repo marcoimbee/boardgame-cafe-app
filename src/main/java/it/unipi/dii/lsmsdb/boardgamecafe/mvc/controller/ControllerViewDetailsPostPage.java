@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
@@ -90,7 +91,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @Autowired
     private PostService postService;
 
-    private List<CommentModelMongo> comments = new ArrayList<>();
+    private List<CommentModel> comments = new ArrayList<>();
 
     private PostModelMongo post;
 
@@ -178,7 +179,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         this.postBodyTextArea.setText(updatedPost.getText());
 
         // Potentially update a comment
-        CommentModelMongo updatedComment = (CommentModelMongo) modelBean.getBean(Constants.UPDATED_COMMENT);
+        CommentModel updatedComment = (CommentModel) modelBean.getBean(Constants.UPDATED_COMMENT);
         if (updatedComment != null) {
             modelBean.putBean(Constants.UPDATED_COMMENT, null);
 
@@ -228,7 +229,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         comments.clear();
         Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
         postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
-        post.getComments().sort(Comparator.comparing(CommentModelMongo::getTimestamp).reversed());
+        post.getComments().sort(Comparator.comparing(CommentModel::getTimestamp).reversed());
         comments.addAll(post.getComments());
         fillGridPane();
     }
@@ -297,9 +298,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
         shiftDownSingleObjectGridPane = false;
     }
 
-    void prevNextButtonsCheck(List<CommentModelMongo> comments){
-        if((comments.size() > 0))
-        {
+    void prevNextButtonsCheck(List<CommentModel> comments){
+        if((comments.size() > 0)){
             if((comments.size() <= LIMIT)){
                 if(skipCounter <= 0 ){
                     previousButton.setDisable(true);
@@ -333,17 +333,13 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    private List<CommentModelMongo> getData(PostModelMongo post){
+    private List<CommentModel> getData(PostModelMongo post){
 
 //        List<CommentModelMongo> comments = commentDBMongo.
 //                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
-        List<CommentModelMongo> comments = post.getComments();
-        int start = Math.min(skipCounter, comments.size());
-        int end = Math.min(start + LIMIT, comments.size());
-        List<CommentModelMongo> commentsSubList = comments.subList(start, end);
-        List<CommentModelMongo> commentsToNextButton = (skipCounter == 0) ? comments : commentsSubList;
-        prevNextButtonsCheck(commentsToNextButton);
-        return commentsSubList;
+        List<CommentModel> comments = post.getComments();
+        prevNextButtonsCheck(comments);
+        return comments;
     }
 
     public void onClickAddCommentButton() {
@@ -381,7 +377,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                     return;
                 }
 
-                CommentModelMongo newComment = new CommentModelMongo(
+                CommentModel newComment = new CommentModel(
                         this.post.getId(),                // ID of the post that's being commented
                         currentUser.getUsername(),        // Current user is commenting this post
                         commentText,
@@ -456,7 +452,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
             if (comments.isEmpty()) {
                 loadViewMessageInfo();
             } else {
-                for (CommentModelMongo comment : comments) {
+                for (CommentModel comment : comments) {
                     AnchorPane commentNode = createCommentViewNode(comment);
                     addCommentToGridPane(commentNode);
                 }
@@ -467,7 +463,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    private AnchorPane createCommentViewNode(CommentModelMongo comment) {
+    private AnchorPane createCommentViewNode(CommentModel comment) {
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCOMMENT.getFxmlFile());
         AnchorPane anchorPane = new AnchorPane();
         anchorPane.getChildren().add(loadViewItem);

@@ -1,6 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
@@ -256,7 +256,7 @@ public class PostService {
     }
 
     @Transactional
-    public boolean insertComment(CommentModelMongo comment, PostModelMongo post, UserModelNeo4j user) {
+    public boolean insertComment(CommentModel comment, PostModelMongo post, UserModelNeo4j user) {
         try {
             //CommentModelMongo insertedCommentResult = commentMongo.addComment(comment);         // Inserting the comment in MongoDB
             //if (insertedCommentResult == null) {
@@ -287,7 +287,7 @@ public class PostService {
     }
 
     @Transactional
-    public boolean deleteComment(CommentModelMongo comment, PostModelMongo post) {
+    public boolean deleteComment(CommentModel comment, PostModelMongo post) {
         try
         {
             // delete all comments
@@ -321,7 +321,7 @@ public class PostService {
         return true;
     }
 
-    private boolean addCommentToMongoPostAndNeoPost(CommentModelMongo comment, PostModelMongo post) {
+    private boolean addCommentToMongoPostAndNeoPost(CommentModel comment, PostModelMongo post) {
 
         post.addComment(comment);           // Adding the comment to the local MongoDB post object
 

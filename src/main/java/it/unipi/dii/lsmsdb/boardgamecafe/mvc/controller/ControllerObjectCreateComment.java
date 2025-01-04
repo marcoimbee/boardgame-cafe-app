@@ -1,6 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.CommentModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,7 +27,7 @@ public class ControllerObjectCreateComment {
     @FXML
     protected TextField bodyTextLabel;
 
-    private CommentModelMongo comment;
+    private CommentModel comment;
 
     private StageManager stageManager;
     @Autowired
