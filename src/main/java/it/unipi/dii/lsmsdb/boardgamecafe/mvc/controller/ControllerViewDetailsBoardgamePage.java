@@ -467,7 +467,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     void prevNextButtonsCheck(List<ReviewModelMongo> reviews) {
         if ((reviews.size() > 0)) {
-            if ((reviews.size() <= LIMIT)) {
+            if ((reviews.size() < LIMIT)) {
                 if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
