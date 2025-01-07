@@ -82,8 +82,6 @@ class PostDBMongoTest
             countUpdatedPost++;
         }
         System.out.println("Updated");
-
-
     }
     */
     private static Date parseDate(String timestamp) {
