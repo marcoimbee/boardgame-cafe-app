@@ -12,7 +12,6 @@ public class BoardgameModelMongo {
     @Id
     private String id;
     private String boardgameName;
-    private String thumbnail;
     private String image;
     private String description;
     private int yearPublished;
@@ -27,15 +26,13 @@ public class BoardgameModelMongo {
 
     public BoardgameModelMongo(){}
 
-    public BoardgameModelMongo(String id, String boardgameName,
-                               String thumbnail, String image, String description,
+    public BoardgameModelMongo(String id, String boardgameName, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
                                int playingTime, int minAge, List<String> boardgameCategory,
                                List<String> boardgameDesigner, List<String> boardgamePublisher) {
 
         this.id = id;
         this.boardgameName = boardgameName;
-        this.thumbnail = thumbnail;
         this.image = image;
         this.description = description;
         this.yearPublished = yearPublished;
@@ -48,14 +45,12 @@ public class BoardgameModelMongo {
         this.boardgamePublisher = boardgamePublisher;
     }
 
-    public BoardgameModelMongo(String boardgameName,
-                               String thumbnail, String image, String description,
+    public BoardgameModelMongo(String boardgameName, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
                                int playingTime, int minAge, List<String> boardgameCategory,
                                List<String> boardgameDesigner, List<String> boardgamePublisher) {
 
         this.boardgameName = boardgameName;
-        this.thumbnail = thumbnail;
         this.image = image;
         this.description = description;
         this.yearPublished = yearPublished;
@@ -82,14 +77,6 @@ public class BoardgameModelMongo {
 
     public void setBoardgameName(String boardgameName) {
         this.boardgameName = boardgameName;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
     }
 
     public String getImage() {
@@ -219,7 +206,6 @@ public class BoardgameModelMongo {
         return "Boardgame{" +
                 "id='" + id + '\'' +
                 ", boardgameName='" + boardgameName + '\'' +
-                ", thumbnail='" + thumbnail + '\'' +
                 ", image='" + image + '\'' +
                 ", description='" + description + '\'' +
                 ", yearPublished=" + yearPublished +
