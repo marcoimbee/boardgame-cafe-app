@@ -20,7 +20,7 @@ class BoardgamesDBNeo4jTest
     @BeforeAll
     public static void setup()
     {
-        testBoardgame = new BoardgameModelNeo4j(testIdBoardgame, testBoardgameName, "testThumbnail", 2024);
+        testBoardgame = new BoardgameModelNeo4j(testIdBoardgame, testBoardgameName);
     }
     @Test @Order(10)
     void addBoardgameInNeo4JAndReturnNotNull()
@@ -46,12 +46,12 @@ class BoardgamesDBNeo4jTest
     @Test @Order(40)
     void shouldUpdateTheBoardgameAndReturnItBack()
     {
-        int newYear = 2000;
-        testBoardgame.setYearPublished(newYear);
+        String newName = "NewName";
+        testBoardgame.setBoardgameName(newName);
         boardgameDBNeo4j.updateBoardgameNeo4j(testIdBoardgame, testBoardgame);
 
-        var shouldHaveUpdatedYearPublished = boardgameDBNeo4j.findByBoardgameName(testBoardgameName).get();
-        assertEquals(newYear, shouldHaveUpdatedYearPublished.yearPublished);
+        var shouldHaveUpdatedYearPublished = boardgameDBNeo4j.findByBoardgameName("NewName").get();
+        assertEquals(newName, shouldHaveUpdatedYearPublished.boardgameName);
     }
 
     @Test @Order(100)

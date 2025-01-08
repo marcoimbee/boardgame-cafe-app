@@ -837,7 +837,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 // Esegui l'aggiornamento del modello del gioco
                 BoardgameModelMongo updatedBoardgame = new BoardgameModelMongo();
                 updatedBoardgame.setId(boardgame.getId()); // Mantieni lo stesso ID
-                updatedBoardgame.setThumbnail(boardgame.getThumbnail());
                 updatedBoardgame.setReviews(boardgame.getReviews());
 
                 // Aggiorna solo i campi riempiti o modificati

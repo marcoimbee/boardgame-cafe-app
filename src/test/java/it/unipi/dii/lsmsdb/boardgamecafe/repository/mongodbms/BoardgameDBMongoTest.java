@@ -38,7 +38,6 @@ class BoardgameDBMongoTest {
         boardgame.setBoardgameName("Test Boardgame");
         boardgame.setYearPublished(2023);
         boardgame.setDescription("A test boardgame");
-        boardgame.setThumbnail("url_thumbnail");
         boardgame.setImage("url_image");
         boardgame.setMinPlayers(2);
         boardgame.setMaxPlayers(6);
@@ -110,39 +109,9 @@ class BoardgameDBMongoTest {
         assertEquals(2025, boardgame.get().getYearPublished());
     }
 
+
     @Test
     @Order(4)
-    public void testDeleteReviewInBoardgameReviewsById() {
-        // Salva il boardgame per il test
-        boardgameDBMongo.addBoardgame(testBoardgame);
-
-        Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
-        assertTrue(boardgame.isPresent());
-
-        String reviewId = boardgame.get().getReviews().get(0).getId();
-        boolean result = boardgameDBMongo.deleteReviewInBoardgameReviewsById("Test Boardgame", reviewId);
-        assertTrue(result);
-
-        boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
-        assertTrue(boardgame.isPresent());
-        assertEquals(0, boardgame.get().getReviews().size());
-    }
-
-    @Test
-    @Order(5)
-    public void testDeleteBoardgame() {
-        // Salva il boardgame per il test
-        boardgameDBMongo.addBoardgame(testBoardgame);
-
-        Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
-        assertTrue(boardgame.isPresent());
-        boardgameDBMongo.deleteBoardgame(boardgame.get());
-        boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
-        assertTrue(boardgame.isEmpty());
-    }
-
-    @Test
-    @Order(6)
     public void testFindRecentBoardgames() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
@@ -153,7 +122,7 @@ class BoardgameDBMongoTest {
     }
 
     @Test
-    @Order(7)
+    @Order(5)
     public void testFindBoardgamesStartingWith() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
@@ -164,7 +133,7 @@ class BoardgameDBMongoTest {
     }
 
     @Test
-    @Order(8)
+    @Order(6)
     public void testFindBoardgameById() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
 
@@ -174,7 +143,7 @@ class BoardgameDBMongoTest {
     }
 
     @Test
-    @Order(9)
+    @Order(7)
     public void testAddReviewInBoardgameArray() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
 
@@ -196,7 +165,7 @@ class BoardgameDBMongoTest {
     }
 
     @Test
-    @Order(10)
+    @Order(8)
     public void testGetBoardgameTags() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
@@ -207,7 +176,7 @@ class BoardgameDBMongoTest {
     }
 
     @Test
-    @Order(11)
+    @Order(9)
     public void testGetBoardgamesCategories() {
         // Salva il boardgame per il test
         boardgameDBMongo.addBoardgame(testBoardgame);
@@ -218,7 +187,7 @@ class BoardgameDBMongoTest {
     }
 
     @Test
-    @Order(12)
+    @Order(10)
     public void testFindBoardgamesByCategory() {
         // Salva il boardgame per il test
         boardgameDBMongo.addBoardgame(testBoardgame);
@@ -228,4 +197,36 @@ class BoardgameDBMongoTest {
         assertFalse(boardgames.isEmpty());
         assertEquals("Test Boardgame", boardgames.get(0).getBoardgameName());
     }
+
+    @Test
+    @Order(11)
+    public void testDeleteReviewInBoardgameReviewsById() {
+        // Salva il boardgame per il test
+        boardgameDBMongo.addBoardgame(testBoardgame);
+
+        Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
+        assertTrue(boardgame.isPresent());
+
+        String reviewId = boardgame.get().getReviews().get(0).getId();
+        boolean result = boardgameDBMongo.deleteReviewInBoardgameReviewsById("Test Boardgame", reviewId);
+        assertTrue(result);
+
+        boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
+        assertTrue(boardgame.isPresent());
+        assertEquals(0, boardgame.get().getReviews().size());
+    }
+
+    @Test
+    @Order(12)
+    public void testDeleteBoardgame() {
+        // Salva il boardgame per il test
+        boardgameDBMongo.addBoardgame(testBoardgame);
+
+        Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
+        assertTrue(boardgame.isPresent());
+        boardgameDBMongo.deleteBoardgame(boardgame.get());
+        boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
+        assertTrue(boardgame.isEmpty());
+    }
+
 }

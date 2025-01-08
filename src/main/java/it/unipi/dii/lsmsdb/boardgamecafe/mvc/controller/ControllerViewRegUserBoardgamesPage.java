@@ -760,7 +760,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             TextField maxPlayersField = (TextField) loadViewItem.lookup("#maxPlayersTextField");
             TextField minAgeField = (TextField) loadViewItem.lookup("#minAgeTextField");
             TextField imageLinkField = (TextField) loadViewItem.lookup("#imageLinkTextField");
-            TextField thumbnailLinkField = (TextField) loadViewItem.lookup("#thumbnailLinkTextField");
 
             Button uploadBoardgameButton = (Button) loadViewItem.lookup("#uploadButton");
             Button cancelBoardgameButton = (Button) loadViewItem.lookup("#cancelButton");
@@ -770,7 +769,6 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 String description = descriptionField.getText();
                 String name = boardgameNameField.getText();
                 String imageLink = imageLinkField.getText();
-                String thumbnailLink = thumbnailLinkField.getText();
                 String year = yearField.getText();
                 String playingTime = playingTimeField.getText();
                 String minPlayers = minPlayersField.getText();
@@ -793,7 +791,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
                     // Se arriviamo qui, significa che tutti i campi numerici sono validi
                     addNewBoardgame(description, name, yearInt, playingTimeInt, minPlayersInt,
-                                    maxPlayersInt, minAgeInt, imageLink, thumbnailLink,
+                                    maxPlayersInt, minAgeInt, imageLink,
                                     categories, designers, publishers);
 
                     removeBoardgameCreationPanel();
@@ -860,7 +858,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     private void addNewBoardgame(String description, String boardgameName, int yearPublished,
                                  int playingTime, int minPlayers, int maxPlayers, int minAge,
-                                 String imageLink, String thumbnailLink, List<String> categories,
+                                 String imageLink, List<String> categories,
                                  List<String> designers, List<String> publishers) {
 
         if (boardgameName.isEmpty()) {
@@ -901,7 +899,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         }
 
         BoardgameModelMongo newBoardgame = new BoardgameModelMongo(
-                                                boardgameName, thumbnailLink,
+                                                boardgameName,
                                                 imageLink, description,
                                                 yearPublished, minPlayers,
                                                 maxPlayers, playingTime, minAge,
