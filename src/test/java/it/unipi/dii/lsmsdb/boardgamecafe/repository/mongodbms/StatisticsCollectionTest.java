@@ -20,8 +20,7 @@ import java.util.List;
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @WritingConverter
-public class StatisticsCollectionTest
-{
+public class StatisticsCollectionTest {
 
     @Autowired
     private ReviewDBMongo reviewDBMongo;
@@ -30,11 +29,9 @@ public class StatisticsCollectionTest
     @Autowired
     private MongoTemplate mongoTemplate;
 
-
     @Test
     @Order(10)
-    public void documentRequestStatsAggregate()
-    {
+    public void GIVEN_CollectionAndAggregationQuery_WHEN_Executed_THEN_ExplainResults() {
         String collection = "reviews";  // Nome della collection
 
         // Definisci una query di aggregazione di esempio
@@ -42,8 +39,6 @@ public class StatisticsCollectionTest
                 Aggregation.match(Criteria.where("boardgameName").is("The Princes of Florence")),
                 Aggregation.group("boardgameName").avg("rating").as("averageRating")
         );
-
-
 
         // Crea il comando per l'explain
         Document explainAggDocument = new Document();
@@ -56,10 +51,6 @@ public class StatisticsCollectionTest
         Document command = new Document("explain", explainAggDocument);
         Document explainResult = mongoTemplate.getDb().runCommand(command);
 
-
         System.out.println("Stats doc -> " + explainResult.toJson());
     }
-
-
 }
-

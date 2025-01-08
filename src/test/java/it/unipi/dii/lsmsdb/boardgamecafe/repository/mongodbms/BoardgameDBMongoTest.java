@@ -27,7 +27,6 @@ class BoardgameDBMongoTest {
 
     @AfterEach
     public void clean() {
-        // Pulizia dei dati creati durante i test
         if (testBoardgame != null) {
             boardgameDBMongo.deleteBoardgame(boardgameDBMongo.findBoardgameByName(testBoardgame.getBoardgameName()).orElse(null));
         }
@@ -69,11 +68,9 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(1)
-    public void testAddBoardgame() {
-        // Salva il boardgame
+    public void GIVEN_valid_boardgame_WHEN_add_boardgame_THEN_boardgame_is_added_successfully() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
 
-        // Assicurati che il boardgame sia stato salvato correttamente
         assertNotNull(savedBoardgame);
         assertNotNull(savedBoardgame.getId());
         assertEquals("Test Boardgame", savedBoardgame.getBoardgameName());
@@ -81,8 +78,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(2)
-    public void testFindBoardgameByName() {
-        // Salva il boardgame per il test
+    public void GIVEN_existing_boardgame_WHEN_find_by_name_THEN_correct_boardgame_is_returned() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
@@ -92,8 +88,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(3)
-    public void testUpdateBoardgameMongo() {
-        // Salva il boardgame per il test
+    public void GIVEN_existing_boardgame_WHEN_update_boardgame_THEN_boardgame_is_updated_successfully() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
         String boardgameId = savedBoardgame.getId();
 
@@ -109,10 +104,9 @@ class BoardgameDBMongoTest {
         assertEquals(2025, boardgame.get().getYearPublished());
     }
 
-
     @Test
     @Order(4)
-    public void testFindRecentBoardgames() {
+    public void GIVEN_multiple_boardgames_WHEN_find_recent_boardgames_THEN_correct_boardgames_are_returned() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         List<BoardgameModelMongo> boardgames = boardgameDBMongo.findRecentBoardgames(5, 0);
@@ -123,7 +117,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(5)
-    public void testFindBoardgamesStartingWith() {
+    public void GIVEN_existing_boardgame_WHEN_search_by_prefix_THEN_matching_boardgames_are_returned() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         List<BoardgameModelMongo> boardgames = boardgameDBMongo.findBoardgamesStartingWith("Test", 5, 0);
@@ -134,7 +128,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(6)
-    public void testFindBoardgameById() {
+    public void GIVEN_valid_boardgame_id_WHEN_find_by_id_THEN_correct_boardgame_is_returned() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
 
         Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameById(savedBoardgame.getId());
@@ -144,7 +138,39 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(7)
-    public void testAddReviewInBoardgameArray() {
+    public void GIVEN_existing_boardgame_WHEN_add_review_THEN_review_is_added_successfully() {
+        BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
+
+        ReviewModelMongo review = new ReviewModelMongo();
+        review.setId(new ObjectId().toString());
+        review.setBoardgameName("Test Boardgame");
+        review.setUsername("test_user");
+        review.setBody("Test review");
+        review.setRating(5);
+        review.setDateOfReview(new Date());
+
+        boolean result = boardgameDBMongo.addReviewInBoardgameArray(savedBoardgame, review);
+        assertTrue(result);
+
+        Optional<BoardgameModelMongo> updatedBoardgame = boardgameDBMongo.findBoardgameById(savedBoardgame.getId());
+        assertTrue(updatedBoardgame.isPresent());
+        assertFalse(updatedBoardgame.get().getReviews().isEmpty());
+        assertEquals("test_user", updatedBoardgame.get().getReviews().get(0).getUsername());
+    }
+
+    @Test
+    @Order(6)
+    public void GIVEN_boardgame_is_saved_WHEN_finding_boardgame_by_id_THEN_matching_boardgame_is_returned() {
+        BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
+
+        Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameById(savedBoardgame.getId());
+        assertTrue(boardgame.isPresent());
+        assertEquals("Test Boardgame", boardgame.get().getBoardgameName());
+    }
+
+    @Test
+    @Order(7)
+    public void GIVEN_boardgame_exists_WHEN_adding_review_to_boardgame_array_THEN_review_is_successfully_added() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
 
         ReviewModelMongo review = new ReviewModelMongo();
@@ -166,7 +192,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(8)
-    public void testGetBoardgameTags() {
+    public void GIVEN_boardgames_are_available_WHEN_getting_boardgame_tags_THEN_correct_tags_are_returned() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         List<String> tags = boardgameDBMongo.getBoardgameTags();
@@ -177,8 +203,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(9)
-    public void testGetBoardgamesCategories() {
-        // Salva il boardgame per il test
+    public void GIVEN_boardgames_have_categories_WHEN_getting_boardgame_categories_THEN_correct_categories_are_returned() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         List<String> categories = boardgameDBMongo.getBoardgamesCategories();
@@ -188,8 +213,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(10)
-    public void testFindBoardgamesByCategory() {
-        // Salva il boardgame per il test
+    public void GIVEN_boardgames_have_category_WHEN_finding_boardgames_by_category_THEN_matching_boardgames_are_returned() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         List<BoardgameModelMongo> boardgames = boardgameDBMongo.findBoardgamesByCategory("Strategic", 10, 0);
@@ -200,8 +224,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(11)
-    public void testDeleteReviewInBoardgameReviewsById() {
-        // Salva il boardgame per il test
+    public void GIVEN_boardgame_with_review_WHEN_deleting_review_by_id_THEN_review_is_removed() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
@@ -218,8 +241,7 @@ class BoardgameDBMongoTest {
 
     @Test
     @Order(12)
-    public void testDeleteBoardgame() {
-        // Salva il boardgame per il test
+    public void GIVEN_boardgame_exists_WHEN_deleting_boardgame_THEN_boardgame_is_removed() {
         boardgameDBMongo.addBoardgame(testBoardgame);
 
         Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
@@ -228,5 +250,4 @@ class BoardgameDBMongoTest {
         boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
         assertTrue(boardgame.isEmpty());
     }
-
 }

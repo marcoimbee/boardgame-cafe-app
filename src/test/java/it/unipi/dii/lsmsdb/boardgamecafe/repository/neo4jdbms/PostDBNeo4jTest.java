@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PostDBNeo4jTest
-{
+class PostDBNeo4jTest {
+
     @Autowired
     PostDBNeo4j postDBNeo4j;
     @Autowired
@@ -33,8 +33,7 @@ class PostDBNeo4jTest
     static List<CommentModelNeo4j> testCommentsList;
 
     @BeforeAll
-    public static void setup()
-    {
+    public static void setup() {
         testPost1 = new PostModelNeo4j(testIdPost1);
         testAuthor = new UserModelNeo4j(testIdUsernamme1, testUsername1);
         testComment = new CommentModelNeo4j(testIdComment1);
@@ -44,34 +43,34 @@ class PostDBNeo4jTest
         testPost1.setComments(testCommentsList);
     }
 
-    @Test @Order(10)
-    void shouldAddPostAndReturnTrue()
-    {
+    @Test
+    @Order(10)
+    void GIVEN_a_post_WHEN_adding_to_Neo4j_THEN_post_is_added_successfully() {
         var shouldReturnTrue = postDBNeo4j.addPost(testPost1);
         assertTrue(shouldReturnTrue);
     }
 
-    @Test @Order(20)
-    void shouldReturnTheSameIdOfInitializedPost()
-    {
+    @Test
+    @Order(20)
+    void GIVEN_a_post_id_WHEN_finding_by_id_THEN_the_found_post_has_the_same_id() {
         var shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
 
         var sholdHaveSameId = shouldBeNotEmpty.get();
         assertEquals(testIdPost1, sholdHaveSameId.getId());
     }
 
-    @Test @Order(30)
-    void shouldUpdatePostAndReturnTrue()
-    {
+    @Test
+    @Order(30)
+    void GIVEN_a_post_with_comments_WHEN_updating_the_post_THEN_post_is_updated_successfully() {
         testCommentsList.add(testComment);
         testPost1.setComments(testCommentsList);
         boolean shouldReturnTrue = postDBNeo4j.updatePost(testPost1);
         assertTrue(shouldReturnTrue);
     }
 
-    @Test @Order(200)
-    void shouldDeletePostAndAllItsReferencesAndThenReturnTrue()
-    {
+    @Test
+    @Order(200)
+    void GIVEN_a_post_WHEN_deleting_the_post_and_all_its_references_THEN_deletion_is_successful() {
         var shouldReturnTrue = userDBNeo4j.deleteUserDetach(testAuthor.getUsername());
         assertTrue(shouldReturnTrue);
         shouldReturnTrue = commentDBNeo4j.deleteByPost(testIdPost1);
