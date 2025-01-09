@@ -101,14 +101,14 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                      <graphic>
-                        <FontAwesomeIconView fill="#182e58" glyphName="USER" size="16" text="">
+                        <FontAwesomeIconView fx:id="iconTrash" fill="#182e58" glyphName="USER" size="16" text="">
                            <font>
                               <Font size="19.0" />
                            </font>
                         </FontAwesomeIconView>
                      </graphic>
                   </Button>
-                  <FontAwesomeIconView fill="WHITE" glyphName="TRASH" layoutX="40.0" layoutY="625.0" size="16" />
+                  <FontAwesomeIconView fx:id="iconTrash" fill="WHITE" glyphName="TRASH" layoutX="40.0" layoutY="625.0" size="16" />
                   <Button fx:id="cancelButton" layoutX="180.0" layoutY="604.0" mnemonicParsing="false" onAction="#onClickCancelButton" prefHeight="31.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Cancel" textFill="WHITESMOKE">
                      <font>
                         <Font name="System Bold" size="14.0" />
