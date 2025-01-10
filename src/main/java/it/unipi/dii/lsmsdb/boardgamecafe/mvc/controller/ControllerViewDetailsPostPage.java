@@ -229,7 +229,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         comments.clear();
         Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
         postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
-        post.getComments().sort(Comparator.comparing(CommentModel::getTimestamp).reversed());
+        //post.getComments().sort(Comparator.comparing(CommentModel::getTimestamp).reversed());
         comments.addAll(post.getComments());
         fillGridPane();
     }
@@ -338,8 +338,12 @@ public class ControllerViewDetailsPostPage implements Initializable {
 //        List<CommentModelMongo> comments = commentDBMongo.
 //                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
         List<CommentModel> comments = post.getComments();
-        prevNextButtonsCheck(comments);
-        return comments;
+        int start = Math.min(skipCounter, comments.size());
+        int end = Math.min(start + LIMIT, comments.size());
+        List<CommentModel> commentsSubList = comments.subList(start, end);
+        List<CommentModel> commentsToNextButton = (skipCounter == 0) ? comments : commentsSubList;
+        prevNextButtonsCheck(commentsToNextButton);
+        return commentsSubList;
     }
 
     public void onClickAddCommentButton() {

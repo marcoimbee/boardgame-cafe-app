@@ -467,7 +467,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     void prevNextButtonsCheck(List<ReviewModelMongo> reviews) {
         if ((reviews.size() > 0)) {
-            if ((reviews.size() <= LIMIT)) {
+            if ((reviews.size() < LIMIT)) {
                 if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
@@ -837,7 +837,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 // Esegui l'aggiornamento del modello del gioco
                 BoardgameModelMongo updatedBoardgame = new BoardgameModelMongo();
                 updatedBoardgame.setId(boardgame.getId()); // Mantieni lo stesso ID
-                updatedBoardgame.setThumbnail(boardgame.getThumbnail());
                 updatedBoardgame.setReviews(boardgame.getReviews());
 
                 // Aggiorna solo i campi riempiti o modificati

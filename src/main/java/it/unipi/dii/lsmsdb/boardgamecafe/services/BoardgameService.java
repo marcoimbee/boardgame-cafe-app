@@ -64,9 +64,7 @@ public class BoardgameService {
             }
 
             BoardgameModelNeo4j boardgameForNeo4j = new BoardgameModelNeo4j(
-                    insertedBoardgameMongo.getId(), insertedBoardgameMongo.getBoardgameName(),
-                    insertedBoardgameMongo.getThumbnail(),
-                    insertedBoardgameMongo.getYearPublished());
+                    insertedBoardgameMongo.getId(), insertedBoardgameMongo.getBoardgameName());
 
             // Gestione Neo4j
             BoardgameModelNeo4j insertedBoardgameNeo4j = boardgameNeo4jOp.addBoardgame(boardgameForNeo4j);
@@ -194,14 +192,10 @@ public class BoardgameService {
 
             String boardgameId = boardgameMongo.getId();
             String boardgameName = boardgameMongo.getBoardgameName();
-            String thumbnail = boardgameMongo.getThumbnail();
-            int yearPublished = boardgameMongo.getYearPublished();
 
             BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(
                                                      boardgameId,
-                                                     boardgameName,
-                                                     thumbnail,
-                                                     yearPublished);
+                                                     boardgameName);
 
             //Gestione MongoDB
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {

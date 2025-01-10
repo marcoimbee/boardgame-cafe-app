@@ -398,12 +398,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         } else {
             boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
 
-            if (onFurthestPage && retrievedPostsSize == 0 && !visualizedLastPost) {
+            if ((onFurthestPage) && (retrievedPostsSize == 0) && (!visualizedLastPost)) {
                 nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
             } else
             {
                     boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
-                    nextButton.setDisable(onFurthestPage && !morePostsAvailable);       // Disable if on last page and if retrieved less than SKIP posts
+                    nextButton.setDisable(onFurthestPage && (!morePostsAvailable));       // Disable if on last page and if retrieved less than SKIP posts
             }
         }
     }

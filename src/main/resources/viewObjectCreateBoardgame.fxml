@@ -9,14 +9,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="634.0" prefWidth="698.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #cda434; -fx-border-radius: 10; -fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectCreateBoardgame">
+<AnchorPane prefHeight="595.0" prefWidth="698.0" style="-fx-background-radius: 10; -fx-border-width: 5; -fx-border-color: #cda434; -fx-border-radius: 10; -fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerObjectCreateBoardgame">
    <children>
       <Label fx:id="name111" alignment="TOP_LEFT" layoutX="192.0" layoutY="29.0" prefHeight="18.0" prefWidth="340.0" text="Enter The Boardgame Information And Upload it." textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="16.0" />
          </font>
       </Label>
-      <Button fx:id="cancelButton" layoutX="242.0" layoutY="578.0" mnemonicParsing="false" onAction="#onClickCancelButton" prefHeight="30.0" prefWidth="89.0" style="-fx-background-color: #182E58;" text="Cancel" textFill="WHITE">
+      <Button fx:id="cancelButton" layoutX="242.0" layoutY="543.0" mnemonicParsing="false" onAction="#onClickCancelButton" prefHeight="30.0" prefWidth="89.0" style="-fx-background-color: #182E58;" text="Cancel" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -29,7 +29,7 @@
       <FontAwesomeIconView fill="#182e58" glyphName="PLAY" layoutX="172.0" layoutY="44.0" size="18" />
       <Separator layoutX="36.0" layoutY="18.0" prefHeight="9.0" prefWidth="620.0" />
       <Separator layoutX="654.0" layoutY="23.0" orientation="VERTICAL" prefHeight="30.0" prefWidth="6.0" />
-      <Button fx:id="uploadButton" layoutX="362.0" layoutY="578.0" mnemonicParsing="false" onAction="#onClickUploadButton" prefHeight="30.0" prefWidth="89.0" style="-fx-background-color: #182E58;" text="Upload" textFill="WHITE">
+      <Button fx:id="uploadButton" layoutX="362.0" layoutY="543.0" mnemonicParsing="false" onAction="#onClickUploadButton" prefHeight="30.0" prefWidth="89.0" style="-fx-background-color: #182E58;" text="Upload" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
@@ -53,14 +53,6 @@
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="169.0" size="15" />
-      <TextField fx:id="thumbnailLinkTextField" alignment="TOP_LEFT" layoutX="349.0" layoutY="227.0" prefHeight="25.0" prefWidth="313.0" promptText="(Optional) Write the Thumbnail link address here..." />
-      <Separator layoutX="349.0" layoutY="221.0" prefHeight="9.0" prefWidth="313.0" />
-      <Label fx:id="thumbnailLinkTitleLabel" alignment="BASELINE_LEFT" layoutX="368.0" layoutY="202.0" prefHeight="25.0" prefWidth="161.0" text="Thumbnail (Server Link) :" textFill="#182e58">
-         <font>
-            <Font name="Calibri Bold" size="15.0" />
-         </font>
-      </Label>
-      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="349.0" layoutY="221.0" size="15" />
       <TextField fx:id="imageLinkTextField" alignment="TOP_LEFT" layoutX="348.0" layoutY="175.0" prefHeight="25.0" prefWidth="313.0" promptText="Write the Image link address here..." />
       <Separator layoutX="348.0" layoutY="169.0" prefHeight="9.0" prefWidth="313.0" />
       <Label fx:id="imageLinkTitleLabel" alignment="BASELINE_LEFT" layoutX="366.0" layoutY="150.0" prefHeight="25.0" prefWidth="127.0" text="Image (Server Link):" textFill="#182e58">
@@ -77,30 +69,30 @@
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="245.0" size="15" />
-      <TextField fx:id="categoryTextField" alignment="TOP_LEFT" layoutX="350.0" layoutY="278.0" prefHeight="25.0" prefWidth="233.0" promptText="Write the Category here then add it..." />
-      <Separator layoutX="350.0" layoutY="272.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="categoriesLabel" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="253.0" prefHeight="25.0" prefWidth="79.0" text="Categories :" textFill="#182e58">
+      <TextField fx:id="categoryTextField" alignment="TOP_LEFT" layoutX="350.0" layoutY="230.0" prefHeight="25.0" prefWidth="233.0" promptText="Write the Category here then add it..." />
+      <Separator layoutX="350.0" layoutY="224.0" prefHeight="9.0" prefWidth="233.0" />
+      <Label fx:id="categoriesLabel" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="205.0" prefHeight="25.0" prefWidth="79.0" text="Categories :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
-      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="350.0" layoutY="272.0" size="15" />
-      <TextField fx:id="designerTextField" alignment="TOP_LEFT" layoutX="350.0" layoutY="373.0" prefHeight="25.0" prefWidth="233.0" promptText="Write the Designer here then add it..." />
-      <Separator layoutX="350.0" layoutY="367.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="designersTitleLabel" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="348.0" prefHeight="25.0" prefWidth="79.0" text="Designers :" textFill="#182e58">
+      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="350.0" layoutY="224.0" size="15" />
+      <TextField fx:id="designerTextField" alignment="TOP_LEFT" layoutX="350.0" layoutY="325.0" prefHeight="25.0" prefWidth="233.0" promptText="Write the Designer here then add it..." />
+      <Separator layoutX="350.0" layoutY="319.0" prefHeight="9.0" prefWidth="233.0" />
+      <Label fx:id="designersTitleLabel" alignment="BASELINE_LEFT" layoutX="369.0" layoutY="300.0" prefHeight="25.0" prefWidth="79.0" text="Designers :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
-      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="350.0" layoutY="367.0" size="15" />
-      <TextField fx:id="publisherTextField" alignment="TOP_LEFT" layoutX="351.0" layoutY="468.0" prefHeight="25.0" prefWidth="233.0" promptText="Write the Publsher here then add it..." />
-      <Separator layoutX="351.0" layoutY="462.0" prefHeight="9.0" prefWidth="233.0" />
-      <Label fx:id="publishersTitleLabel" alignment="BASELINE_LEFT" layoutX="370.0" layoutY="443.0" prefHeight="25.0" prefWidth="79.0" text="Publishers :" textFill="#182e58">
+      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="350.0" layoutY="319.0" size="15" />
+      <TextField fx:id="publisherTextField" alignment="TOP_LEFT" layoutX="351.0" layoutY="420.0" prefHeight="25.0" prefWidth="233.0" promptText="Write the Publsher here then add it..." />
+      <Separator layoutX="351.0" layoutY="414.0" prefHeight="9.0" prefWidth="233.0" />
+      <Label fx:id="publishersTitleLabel" alignment="BASELINE_LEFT" layoutX="370.0" layoutY="395.0" prefHeight="25.0" prefWidth="79.0" text="Publishers :" textFill="#182e58">
          <font>
             <Font name="Calibri Bold" size="15.0" />
          </font>
       </Label>
-      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="351.0" layoutY="462.0" size="15" />
+      <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="351.0" layoutY="414.0" size="15" />
       <TextField fx:id="playingTimeTextField" alignment="CENTER" layoutX="203.0" layoutY="283.0" prefHeight="25.0" prefWidth="69.0" promptText="Minutes" />
       <Separator layoutX="40.0" layoutY="307.0" prefHeight="9.0" prefWidth="233.0" />
       <Label fx:id="playingTimeTitleLabel" alignment="BASELINE_LEFT" layoutX="58.0" layoutY="283.0" prefHeight="25.0" prefWidth="96.0" text="Playing Time :" textFill="#182e58">
@@ -133,7 +125,7 @@
          </font>
       </Label>
       <FontAwesomeIconView fill="#182e58" glyphName="EDIT" layoutX="40.0" layoutY="484.0" size="15" />
-      <Button fx:id="addDesignerButton" alignment="CENTER" layoutX="533.0" layoutY="400.0" mnemonicParsing="false" onAction="#onClickAddDesignerButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
+      <Button fx:id="addDesignerButton" alignment="CENTER" layoutX="533.0" layoutY="352.0" mnemonicParsing="false" onAction="#onClickAddDesignerButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>
@@ -141,7 +133,7 @@
             <FontAwesomeIconView fill="WHITE" glyphName="PLUS" size="12" />
          </graphic>
       </Button>
-      <Button fx:id="addCategoryButton" alignment="CENTER" layoutX="532.0" layoutY="305.0" mnemonicParsing="false" onAction="#onClickAddCategoryButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
+      <Button fx:id="addCategoryButton" alignment="CENTER" layoutX="532.0" layoutY="257.0" mnemonicParsing="false" onAction="#onClickAddCategoryButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>
@@ -149,7 +141,7 @@
             <FontAwesomeIconView fill="WHITE" glyphName="PLUS" size="12" />
          </graphic>
       </Button>
-      <Button fx:id="addPublisherButton" alignment="CENTER" layoutX="534.0" layoutY="495.0" mnemonicParsing="false" onAction="#onClickAddPublisherButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
+      <Button fx:id="addPublisherButton" alignment="CENTER" layoutX="534.0" layoutY="447.0" mnemonicParsing="false" onAction="#onClickAddPublisherButton" style="-fx-background-color: #182E58;" text="ADD" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>
@@ -157,10 +149,10 @@
             <FontAwesomeIconView fill="WHITE" glyphName="PLUS" size="12" />
          </graphic>
       </Button>
-      <ListView fx:id="publishersListView" layoutX="352.0" layoutY="494.0" prefHeight="46.0" prefWidth="180.0" />
-      <ListView fx:id="designersListView" layoutX="351.0" layoutY="399.0" prefHeight="46.0" prefWidth="180.0" />
-      <ListView fx:id="categoriesListView" layoutX="350.0" layoutY="305.0" prefHeight="46.0" prefWidth="180.0" />
-      <Button fx:id="removeCategoryButton" alignment="CENTER" layoutX="532.0" layoutY="329.0" mnemonicParsing="false" onAction="#onClickRemoveCategoryButton" style="-fx-background-color: #182E58;" text="REMOVE" textFill="WHITE">
+      <ListView fx:id="publishersListView" layoutX="352.0" layoutY="446.0" prefHeight="46.0" prefWidth="180.0" />
+      <ListView fx:id="designersListView" layoutX="351.0" layoutY="351.0" prefHeight="46.0" prefWidth="180.0" />
+      <ListView fx:id="categoriesListView" layoutX="350.0" layoutY="257.0" prefHeight="46.0" prefWidth="180.0" />
+      <Button fx:id="removeCategoryButton" alignment="CENTER" layoutX="532.0" layoutY="281.0" mnemonicParsing="false" onAction="#onClickRemoveCategoryButton" style="-fx-background-color: #182E58;" text="REMOVE" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>
@@ -168,7 +160,7 @@
             <FontAwesomeIconView fill="WHITE" glyphName="MINUS" size="12" />
          </graphic>
       </Button>
-      <Button fx:id="removeDesignerButton" alignment="CENTER" layoutX="533.0" layoutY="424.0" mnemonicParsing="false" onAction="#onClickRemoveDesignerButton" style="-fx-background-color: #182E58;" text="REMOVE" textFill="WHITE">
+      <Button fx:id="removeDesignerButton" alignment="CENTER" layoutX="533.0" layoutY="376.0" mnemonicParsing="false" onAction="#onClickRemoveDesignerButton" style="-fx-background-color: #182E58;" text="REMOVE" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>
@@ -176,7 +168,7 @@
             <FontAwesomeIconView fill="WHITE" glyphName="MINUS" size="12" />
          </graphic>
       </Button>
-      <Button fx:id="removePublisherButton" alignment="CENTER" layoutX="534.0" layoutY="519.0" mnemonicParsing="false" onAction="#onClickRemovePublisherButton" style="-fx-background-color: #182E58;" text="REMOVE" textFill="WHITE">
+      <Button fx:id="removePublisherButton" alignment="CENTER" layoutX="534.0" layoutY="471.0" mnemonicParsing="false" onAction="#onClickRemovePublisherButton" style="-fx-background-color: #182E58;" text="REMOVE" textFill="WHITE">
          <font>
             <Font name="System Bold" size="10.0" />
          </font>

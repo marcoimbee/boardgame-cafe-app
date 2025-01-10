@@ -139,6 +139,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @FXML
     private FontAwesomeIconView iconRepeatPassword;
     @FXML
+    private FontAwesomeIconView iconTrash;
+    @FXML
     private FontAwesomeIconView iconClearFields;
     @FXML
     private FontAwesomeIconView iconSaveChanges;
@@ -265,7 +267,8 @@ public class ControllerViewAccountInfoPage implements Initializable{
         AdminModelMongo admin = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         this.accountInfoButton.setDisable(true);
         this.yourProfileButton.setVisible(false);
-        this.deleteAccountButton.setDisable(true);
+        this.deleteAccountButton.setVisible(false);
+        this.iconTrash.setVisible(false);
         this.selectedOperation = UserActivity.NO_EDIT;
         Image image = new Image(Objects.requireNonNull(getClass().
                 getResource("/images/user.png")).toExternalForm());

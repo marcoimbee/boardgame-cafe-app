@@ -167,7 +167,7 @@ public class ControllerViewGuestPostsPage implements Initializable {
 
     void prevNextButtonsCheck(List<PostModelMongo> posts){
         if((posts.size() > 0)){
-            if((posts.size() <= LIMIT)){
+            if((posts.size() < LIMIT)){
                 if(skipCounter <= 0 ){
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);

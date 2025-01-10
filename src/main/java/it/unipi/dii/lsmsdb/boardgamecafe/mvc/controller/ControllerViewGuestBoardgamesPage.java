@@ -158,7 +158,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
 
     void prevNextButtonsCheck(List<BoardgameModelMongo> boardgames){
         if((boardgames.size() > 0)){
-            if((boardgames.size() <= LIMIT)){
+            if((boardgames.size() < LIMIT)){
                 if(skipCounter <= 0 ){
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);

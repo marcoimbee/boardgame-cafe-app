@@ -54,8 +54,6 @@ public class ControllerObjectCreateBoardgame {
     @FXML
     private TextField imageLinkTextField;
     @FXML
-    private TextField thumbnailLinkTextField;
-    @FXML
     private TextField categoryTextField;
     @FXML
     private TextField designerTextField;

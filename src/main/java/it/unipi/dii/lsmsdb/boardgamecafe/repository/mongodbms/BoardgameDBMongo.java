@@ -127,7 +127,6 @@ public class BoardgameDBMongo {
                 BoardgameModelMongo boardgameToBeUpdated = boardgame.get();
 
                 boardgameToBeUpdated.setBoardgameName(newBoardgame.getBoardgameName());
-                boardgameToBeUpdated.setThumbnail(newBoardgame.getThumbnail());
                 boardgameToBeUpdated.setImage(newBoardgame.getImage());
                 boardgameToBeUpdated.setDescription(newBoardgame.getDescription());
                 boardgameToBeUpdated.setYearPublished(newBoardgame.getYearPublished());
