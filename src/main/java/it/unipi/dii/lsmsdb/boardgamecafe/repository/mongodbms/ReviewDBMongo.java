@@ -140,14 +140,14 @@ public class ReviewDBMongo {
                 .andExpression("rating").as("rating")
                 .andExpression("year(dateOfReview)").as("year");
 
-        GroupOperation groupByYearAndGame = group("year", "name")
-                .avg("rating").as("avgRating")
-                .count().as("numReviews");
-
         Criteria minReviewsAndYear = new Criteria().andOperator(
                 Criteria.where("numReviews").gte(minReviews),
                 Criteria.where("_id.year").is(year) // Accessing year via _id, since the year became a key because of the grouping
         );
+
+        GroupOperation groupByYearAndGame = group("name" ,"year")
+                .avg("rating").as("avgRating")
+                .count().as("numReviews");
 
         MatchOperation matchMinReviews = match(minReviewsAndYear);
 

@@ -21,6 +21,12 @@ public class ReviewModelMongo {
     // - Costruttore vuoto utile per la corretta deserializzazione JSON in Spring -
     public ReviewModelMongo() {}
 
+    public ReviewModelMongo(String id, int rating)
+    {
+        this.id = id;
+        this.rating = rating;
+    }
+
     // - Costruttore con parametri -
     public ReviewModelMongo(String id, String boardgameName,
                             String username, int rating,
