@@ -19,7 +19,6 @@ public class UserModelMongo extends GenericUserModelMongo {
     private Date dateOfBirth;
     private String nationality;
     private boolean banned;
-    private List<ReviewModelMongo> reviews = new ArrayList<>();
 
     public UserModelMongo(){};
     public UserModelMongo(String id, String username, String email,
@@ -110,45 +109,6 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.banned = banned;
     }
 
-    public List<ReviewModelMongo> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<ReviewModelMongo> reviews) {
-        this.reviews = reviews;
-    }
-
-    public void addReview(ReviewModelMongo review) {
-        this.reviews.add(0, review);
-    }
-
-    public ReviewModelMongo getReviewInUser(String id)
-    {
-        for (ReviewModelMongo review : reviews)
-            if (review.getId().equals(id))
-                return review;
-        return null;
-    }
-
-    public boolean deleteReview(String id) {
-        ReviewModelMongo review = this.getReviewInUser(id);
-        if (review != null) {
-            reviews.remove(review);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean deleteReview(ReviewModelMongo review)
-    {
-        if (this.reviews.contains(review))
-        {
-            reviews.remove(review);
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public String toString() {
         return "UserModelMongo{" +
@@ -163,7 +123,6 @@ public class UserModelMongo extends GenericUserModelMongo {
                 ", banned=" + banned +
                 ", salt='" + salt + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
-                ", reviews=" + reviews +
                 '}';
     }
 
