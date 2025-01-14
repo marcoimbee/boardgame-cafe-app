@@ -106,7 +106,7 @@ class PostDBMongoTest {
     @Test @Order(50)
     public void GIVEN_post_with_comments_WHEN_adding_comment_to_post_THEN_comment_is_added() {
         String testCommentID = "000000000000000000000000";
-        comment1 = new CommentModel(testCommentID, post1.getId(), testUsername, "test comment text", new Date());
+        comment1 = new CommentModel(testCommentID, testUsername, "test comment text", new Date());
         postDBMongo.addCommentInPostArray(post1, comment1);
 
         PostModelMongo updatedPost = postDBMongo.findById(post1.getId()).get();
