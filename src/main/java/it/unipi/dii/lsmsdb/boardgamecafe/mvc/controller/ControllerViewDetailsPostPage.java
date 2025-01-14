@@ -361,7 +361,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 }
 
                 CommentModel newComment = new CommentModel(
-                        this.post.getId(),                // ID of the post that's being commented
+                        //this.post.getId(),                // ID of the post that's being commented
                         currentUser.getUsername(),        // Current user is commenting this post
                         commentText,
                         new Date()                        // Comment creation date
