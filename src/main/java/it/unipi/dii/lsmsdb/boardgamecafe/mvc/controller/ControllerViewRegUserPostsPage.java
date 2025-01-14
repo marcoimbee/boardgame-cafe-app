@@ -35,7 +35,6 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
@@ -73,7 +72,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private ChoiceBox<String> whatPostsToShowChoiceBox;
     @FXML
     private Tooltip tooltipAdminHint;
-
     @FXML
     private Button testButton;
     @FXML
@@ -82,6 +80,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private GridPane postGridPane;
     @FXML
     private ScrollPane scrollSet;
+
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
@@ -94,29 +93,28 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private ControllerObjectPost controllerObjectPost;
     @Autowired
     private ModelBean modelBean;
+
     private final StageManager stageManager;
+
     PostListener postListener;
+
     private boolean shiftDownSingleObjectGridPane;
 
     // Choice box variables
     private ObservableList<String> whatPostsToShowList;
-
     private final List<String> availableUserQueries = Arrays.asList(
             "Posts by followed users",
             "Posts liked by followed users",
             "Posts commented by followed users",
             "All posts"
     );
-
     private final List<String> availableAdminQueries = Arrays.asList(
             "All posts",
             "ADMIN: top commented tagged posts"
     );
 
-    //Post Variables
     private List<PostModelMongo> posts = new ArrayList<>();
 
-    //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
     private int skipCounter = 0;            // How many times the user clicked on the 'Next' button
@@ -134,11 +132,12 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     };
     public static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
 
+    // Navigation functionalities variables
     private static int currentPage;
     private static List<Integer> visitedPages;
     private static boolean visualizedLastPost;      // Keeps track of whether the user has reached the las reachable page or not;
 
-    // Search functionalities
+    // Search functionalities variables
     private List<String> boardgameTags;
     private static String selectedSearchTag;
 
@@ -206,8 +205,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null) {
             boardgameTags = boardgameDBMongo.getBoardgameTags();            // Fetching boardgame names as soon as the page opens
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameTags);     // Saving them in the Bean, so they'll be always available from now on in the whole app
-        } else
+        } else {
             boardgameTags = (List<String>) modelBean.getBean(Constants.BOARDGAME_LIST);     // Obtaining tags from the Bean, as thy had been put there before
+        }
 
         selectedSearchTag = null;
 
@@ -244,6 +244,9 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
+        // Retrieve the post that had been opened
+        PostModelMongo previouslyOpenedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+
         // Update UI after potentially having deleted a post
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
         if (deletedPostId != null) {
@@ -261,17 +264,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
         // Update UI after potentially having deleted a comment form a post
         CommentModel deletedComment = (CommentModel) modelBean.getBean(Constants.DELETED_COMMENT);
-        if (deletedComment != null) {
+        if (deletedComment != null) {               // Getting here if and only if a comment has been deleted
             modelBean.putBean(Constants.DELETED_COMMENT, null);
             for (PostModelMongo post : posts) {
-                if (post.getId().equals(deletedComment.getPost())) {
+                if (post.getId().equals(previouslyOpenedPost.getId())) {         // Finding matching post and updating its comments list
                     post.deleteCommentInPost(deletedComment.getId());
                     break;
                 }
             }
             onSelectChoiceBoxOption();
         }
-
 
         // Update UI after potentially having updated a post
         PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
@@ -332,9 +334,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST) {
             currentlyShowing = PostsToFetch.SEARCH_RESULTS;
             retrievedPosts = fetchPosts(selectedSearchTag);
-        }
-        else
-        {
+        } else {
             retrievedPosts = this.postDBMongo.findTopCommentedTaggedPosts(this.textFieldSearch.getText(), LIMIT, skipCounter);
             retrievedPosts.forEach(postModelMongo -> System.out.println("SIze: " + postModelMongo.getComments().size()));
         }
@@ -360,10 +360,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         if (!visitedPages.contains(currentPage)) {
             // New posts need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST)
+            if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST) {
                 retrievedPosts = fetchPosts(selectedSearchTag);        // Fetching new posts
-            else
+            } else {
                 retrievedPosts = this.postDBMongo.findTopCommentedTaggedPosts(this.textFieldSearch.getText(), LIMIT, skipCounter);
+            }
             posts.addAll(retrievedPosts);            // Adding fetched posts to the post list
             visitedPages.add(currentPage);
         } else {
@@ -400,8 +401,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
             if ((onFurthestPage) && (retrievedPostsSize == 0) && (!visualizedLastPost)) {
                 nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
-            } else
-            {
+            } else {
                     boolean morePostsAvailable = (retrievedPostsSize == SKIP);          // If we retrieved SKIP posts, likely there will be more available in the DB
                     nextButton.setDisable(onFurthestPage && (!morePostsAvailable));       // Disable if on last page and if retrieved less than SKIP posts
             }
@@ -409,17 +409,20 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     private List<PostModelMongo> fetchPosts(String tag){
-        if (currentUser.get_class().equals("admin"))
+        if (currentUser.get_class().equals("admin")) {
             this.newPostButton.setDisable(true);
-        else
+        } else {
             this.newPostButton.setDisable(false);
+        }
+
         System.out.println("[INFO] New data has been fetched");
         List<PostModelMongo> postListToReturn = new ArrayList<>();
-        if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST)
-        {
+
+        if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST) {
             this.tooltipAdminHint.hide();
             this.textFieldSearch.setTooltip(null);
         }
+
         switch (currentlyShowing) {        // Decide what type of posts need to be fetched
             case POSTS_BY_FOLLOWED_USERS ->
                     postListToReturn = postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
@@ -435,22 +438,20 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 this.textFieldSearch.setTooltip(this.tooltipAdminHint);
                 this.textFieldSearch.requestFocus();
                 Scene thisScene = this.textFieldSearch.getScene();
-                if (thisScene == null)
-                {
+                if (thisScene == null) {
                     Platform.runLater(() -> {
                         this.tooltipAdminHint.show(this.textFieldSearch.getScene().getWindow(),
                                 this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinX(),
                                 this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinY() - 30);
                     });
-                }
-                else
-                {
+                } else {
                     this.tooltipAdminHint.show(this.textFieldSearch.getScene().getWindow(),
                             this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinX(),
                             this.textFieldSearch.localToScreen(this.textFieldSearch.getBoundsInLocal()).getMinY() - 30);
                 }
             }
-        };
+        }
+
         return postListToReturn;
     }
 
@@ -478,10 +479,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         searchResultsList.setVisible(false);
         columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
         if (posts.size() == 1) {
-            if (shiftDownSingleObjectGridPane)
+            if (shiftDownSingleObjectGridPane) {
                 rowGridPane = 2;
-            else
+            } else {
                 rowGridPane = 0;
+            }
         } else {
             rowGridPane++;
         }
@@ -597,7 +599,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
             // CancelButton behavior
             cancelPostButton.setOnAction(e -> {
-                String latestTag = tagBoardgameTextArea.getText();
                 String latestTitle = titleTextArea.getText();
                 String latestBody = postTextArea.getText();
                 if (!latestTitle.isEmpty() || !latestBody.isEmpty()) {
@@ -619,10 +620,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             addPostBox.getChildren().add(loadViewItem);
 
             if (!posts.isEmpty()){
-                if (posts.size() == 1)
+                if (posts.size() == 1) {
                     shiftDownSingleObjectGridPane = true;
-                else
+                } else {
                     shiftDownSingleObjectGridPane = false;
+                }
                 fillGridPane();
                 postGridPane.add(addPostBox, 0, 1);
             } else {
@@ -737,7 +739,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 if (empty || result == null) {
                     setGraphic(null);
                     return;
-                    }
+                }
 
                 TextFlow textFlow = new TextFlow();
                 int startIdx = result.toLowerCase().indexOf(searchString.toLowerCase());
@@ -768,9 +770,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         startSearch();
     }
 
-    public void onClickAnchorPane()
-    {
+    public void onClickAnchorPane() {
         this.searchResultsList.setVisible(false);
     }
-
 }

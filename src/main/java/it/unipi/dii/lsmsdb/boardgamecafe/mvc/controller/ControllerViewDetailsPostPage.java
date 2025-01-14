@@ -8,11 +8,9 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-//import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.event.ActionEvent;
@@ -36,8 +34,6 @@ import java.util.function.Consumer;
 
 @Component
 public class ControllerViewDetailsPostPage implements Initializable {
-
-    //********** Buttons **********
     @FXML
     private Button likeButton;
     @FXML
@@ -54,8 +50,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private Button refreshButton;
     @FXML
     private Button deleteButton;
-
-    //********** Labels **********
     @FXML
     protected Label usernameLabel;
     @FXML
@@ -70,14 +64,15 @@ public class ControllerViewDetailsPostPage implements Initializable {
     protected TextArea postBodyTextArea;
     @FXML
     protected Label tagBoardgameLabel;
-
-    //********** Useful Variables **********
     @FXML
     private GridPane commentGridPane;
     @FXML
     private ScrollPane scrollSet;
-//    @Autowired
-//    private CommentDBMongo commentDBMongo;
+
+    @Autowired
+    @Lazy
+    private StageManager stageManager;
+
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
@@ -97,7 +92,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     private static GenericUserModelMongo currentUser;
 
-    //Utils Variables
     private boolean shiftDownSingleObjectGridPane;
     private int columnGridPane = 0;
     private int rowGridPane = 0;
@@ -105,10 +99,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private final static int SKIP = 10; //how many posts to skip per time
     private final static int LIMIT = 10; //how many posts to show for each page
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
-
-    @Autowired
-    @Lazy
-    private StageManager stageManager;
 
     private Consumer<String> deletedCommentCallback;
 
@@ -189,7 +179,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    // Called whenever the author user of a comment decides to delete that comment. This method updates the comments list and updates UI
+    // Called whenever the author user of a comment decides to delete that comment.
+    // This method updates the comments list and updates UI
     public void updateUIAfterCommentDeletion(String deletedCommentId) {
         comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
         this.counterCommentsLabel.setText(String.valueOf(comments.size()));
@@ -238,16 +229,14 @@ public class ControllerViewDetailsPostPage implements Initializable {
         stageManager.closeStageButton(this.closeButton);
     }
 
-    public void onClickLikeButton(ActionEvent event)
-    {
+    public void onClickLikeButton() {
         String username = currentUser.getUsername();
         String postId = post.getId();
         postService.likeOrDislikePost(username, postId);
         this.setTextLikeButton(username, postId);
     }
 
-    public void setTextLikeButton(String username, String postId)
-    {
+    public void setTextLikeButton(String username, String postId) {
         FontAwesomeIconView icon = (FontAwesomeIconView)this.likeButton.getGraphic();
         boolean likeIsPresent = this.postService.hasLikedPost(username, postId);
         icon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
@@ -256,34 +245,29 @@ public class ControllerViewDetailsPostPage implements Initializable {
         post.setLikeCount(likeCount);
         this.counterLikesLabel.setText(String.valueOf(likeCount));
     }
+
     @FXML
     void onClickNext() {
-        //clear variables
         commentGridPane.getChildren().clear();
         comments.clear();
 
-        //update the skipcounter
         skipCounter += SKIP;
 
-        //retrieve boardgames
         comments.addAll(getData(this.post));
-        //put all boardgames in the Pane
+
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
     @FXML
     void onClickPrevious() {
-        //clear variables
         commentGridPane.getChildren().clear();
         comments.clear();
 
-        //update the skipcounter
         skipCounter -= SKIP;
 
-        //retrieve boardgames
         comments.addAll(getData(this.post));
-        //put all boardgames in the Pane
+
         fillGridPane();
         scrollSet.setVvalue(0);
     }
@@ -298,43 +282,37 @@ public class ControllerViewDetailsPostPage implements Initializable {
         shiftDownSingleObjectGridPane = false;
     }
 
-    void prevNextButtonsCheck(List<CommentModel> comments){
-        if((comments.size() > 0)){
-            if((comments.size() <= LIMIT)){
-                if(skipCounter <= 0 ){
+    void prevNextButtonsCheck(List<CommentModel> comments) {
+        if (comments.size() > 0) {
+            if (comments.size() <= LIMIT) {
+                if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
-                }
-                else{
+                } else {
                     previousButton.setDisable(false);
                     nextButton.setDisable(true);
                 }
-            }
-            else{
-                if(skipCounter <= 0 ){
+            } else {
+                if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(false);
-                }
-                else{
+                } else {
                     previousButton.setDisable(false);
                     nextButton.setDisable(false);
                 }
             }
-        }
-        else{
-            if(skipCounter <= 0 ){
+        } else {
+            if (skipCounter <= 0) {
                 previousButton.setDisable(true);
                 nextButton.setDisable(true);
-            }
-            else {
+            } else {
                 previousButton.setDisable(false);
                 nextButton.setDisable(true);
             }
         }
     }
 
-    private List<CommentModel> getData(PostModelMongo post){
-
+    private List<CommentModel> getData(PostModelMongo post) {
 //        List<CommentModelMongo> comments = commentDBMongo.
 //                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
         List<CommentModel> comments = post.getComments();
@@ -361,10 +339,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
             addCommentBox.getChildren().add(loadViewItem);
 
             if (!comments.isEmpty()) {
-                if (comments.size() == 1)
+                if (comments.size() == 1) {
                     shiftDownSingleObjectGridPane = true;
-                else
+                } else {
                     shiftDownSingleObjectGridPane = false;
+                }
                 commentGridPane.getChildren().clear();
                 fillGridPane();
                 commentGridPane.add(addCommentBox, 0, 1);
@@ -430,7 +409,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     }
 
 
-    private void loadViewMessageInfo(){
+    private void loadViewMessageInfo() {
         Parent loadViewItem = stageManager.loadViewNode(FxmlView.INFOMSGCOMMENTS.getFxmlFile());
         AnchorPane noContentsYet = new AnchorPane();
         noContentsYet.getChildren().add(loadViewItem);
@@ -441,13 +420,13 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @FXML
     void fillGridPane() {
-
         columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
         if (comments.size() == 1) {
-            if (shiftDownSingleObjectGridPane)
+            if (shiftDownSingleObjectGridPane) {
                 rowGridPane = 2;
-            else
+            } else {
                 rowGridPane = 0;
+            }
         } else {
             rowGridPane++;
         }
