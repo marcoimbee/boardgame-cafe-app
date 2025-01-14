@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Component
@@ -128,9 +130,14 @@ public class ControllerObjectComment {
         try {
             postService.deleteComment(comment, post);
 
+            List<CommentModel> commentsDeleted = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
+            if (commentsDeleted == null)
+                commentsDeleted = new ArrayList<>();
+            commentsDeleted.add(comment);
+
             System.out.println("[INFO] Successful comment deletion.");
 
-            modelBean.putBean(Constants.DELETED_COMMENT, comment);
+            modelBean.putBean(Constants.DELETED_COMMENT, commentsDeleted);
             deletedCommentCallback.accept(comment.getId());
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");

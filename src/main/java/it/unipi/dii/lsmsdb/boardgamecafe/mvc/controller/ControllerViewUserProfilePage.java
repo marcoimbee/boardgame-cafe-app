@@ -322,13 +322,16 @@ public class ControllerViewUserProfilePage implements Initializable{
         }
 
         // Potentially update UI after comment deletion under a post
-        CommentModel deletedComment = (CommentModel) modelBean.getBean(Constants.DELETED_COMMENT);
-        if (deletedComment != null) {
-            modelBean.putBean(Constants.DELETED_COMMENT, null);
-            for (PostModelMongo post : postsUser) {
-                post.getComments().remove(deletedComment);
-                fillGridPane(postsUser);
+        List<CommentModel> deletedComments = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
+        if (deletedComments != null)
+        {
+            for (CommentModel deletedComment : deletedComments) {
+                for (PostModelMongo post : postsUser) {
+                    post.getComments().remove(deletedComment);
+                    fillGridPane(postsUser);
+                }
             }
+            modelBean.putBean(Constants.DELETED_COMMENT, null);
         }
     }
 

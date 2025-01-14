@@ -246,7 +246,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
         // Retrieve the post that had been opened
         PostModelMongo previouslyOpenedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
-        modelBean.putBean(Constants.SELECTED_POST, null);
+        //modelBean.putBean(Constants.SELECTED_POST, null);
 
         // Update UI after potentially having deleted a post
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
@@ -264,12 +264,13 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         }
 
         // Update UI after potentially having deleted a comment form a post
-        CommentModel deletedComment = (CommentModel) modelBean.getBean(Constants.DELETED_COMMENT);
-        if (deletedComment != null) {               // Getting here if and only if a comment has been deleted
-            modelBean.putBean(Constants.DELETED_COMMENT, null);
+        List<CommentModel> deletedComments = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
+        if (deletedComments != null) {               // Getting here if and only if a comment has been deleted
             for (PostModelMongo post : posts) {
                 if (post.getId().equals(previouslyOpenedPost.getId())) {         // Finding matching post and updating its comments list
-                    post.deleteCommentInPost(deletedComment.getId());
+                    for (CommentModel deletedComment : deletedComments)
+                        post.deleteCommentInPost(deletedComment.getId());
+                    modelBean.putBean(Constants.DELETED_COMMENT, null);
                     break;
                 }
             }
