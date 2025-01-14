@@ -246,6 +246,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
         // Retrieve the post that had been opened
         PostModelMongo previouslyOpenedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+        modelBean.putBean(Constants.SELECTED_POST, null);
 
         // Update UI after potentially having deleted a post
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
