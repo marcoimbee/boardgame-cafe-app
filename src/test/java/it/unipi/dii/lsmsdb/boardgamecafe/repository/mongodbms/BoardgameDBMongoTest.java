@@ -56,11 +56,7 @@ class BoardgameDBMongoTest {
 
         ReviewModelMongo review = new ReviewModelMongo();
         review.setId(new ObjectId().toString());
-        review.setBoardgameName("Test Boardgame");
-        review.setUsername("test_user");
-        review.setBody("Test review");
         review.setRating(5);
-        review.setDateOfReview(new Date());
 
         boardgame.setReviews(Collections.singletonList(review));
         return boardgame;
@@ -141,13 +137,8 @@ class BoardgameDBMongoTest {
     public void GIVEN_existing_boardgame_WHEN_add_review_THEN_review_is_added_successfully() {
         BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
 
-        ReviewModelMongo review = new ReviewModelMongo();
-        review.setId(new ObjectId().toString());
-        review.setBoardgameName("Test Boardgame");
-        review.setUsername("test_user");
-        review.setBody("Test review");
-        review.setRating(5);
-        review.setDateOfReview(new Date());
+        int rating = 5;
+        ReviewModelMongo review = new ReviewModelMongo(new ObjectId().toString(), rating);
 
         boolean result = boardgameDBMongo.addReviewInBoardgameArray(savedBoardgame, review);
         assertTrue(result);
@@ -155,7 +146,7 @@ class BoardgameDBMongoTest {
         Optional<BoardgameModelMongo> updatedBoardgame = boardgameDBMongo.findBoardgameById(savedBoardgame.getId());
         assertTrue(updatedBoardgame.isPresent());
         assertFalse(updatedBoardgame.get().getReviews().isEmpty());
-        assertEquals("test_user", updatedBoardgame.get().getReviews().get(0).getUsername());
+        assertEquals(rating, updatedBoardgame.get().getReviews().get(0).getRating());
     }
 
     @Test
@@ -166,28 +157,6 @@ class BoardgameDBMongoTest {
         Optional<BoardgameModelMongo> boardgame = boardgameDBMongo.findBoardgameById(savedBoardgame.getId());
         assertTrue(boardgame.isPresent());
         assertEquals("Test Boardgame", boardgame.get().getBoardgameName());
-    }
-
-    @Test
-    @Order(7)
-    public void GIVEN_boardgame_exists_WHEN_adding_review_to_boardgame_array_THEN_review_is_successfully_added() {
-        BoardgameModelMongo savedBoardgame = boardgameDBMongo.addBoardgame(testBoardgame);
-
-        ReviewModelMongo review = new ReviewModelMongo();
-        review.setId(new ObjectId().toString());
-        review.setBoardgameName("Test Boardgame");
-        review.setUsername("test_user");
-        review.setBody("Test review");
-        review.setRating(5);
-        review.setDateOfReview(new Date());
-
-        boolean result = boardgameDBMongo.addReviewInBoardgameArray(savedBoardgame, review);
-        assertTrue(result);
-
-        Optional<BoardgameModelMongo> updatedBoardgame = boardgameDBMongo.findBoardgameById(savedBoardgame.getId());
-        assertTrue(updatedBoardgame.isPresent());
-        assertFalse(updatedBoardgame.get().getReviews().isEmpty());
-        assertEquals("test_user", updatedBoardgame.get().getReviews().get(0).getUsername());
     }
 
     @Test

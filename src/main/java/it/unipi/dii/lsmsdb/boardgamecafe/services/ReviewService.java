@@ -64,11 +64,13 @@ public class ReviewService {
 //        return true;
 //    }
 
-    public boolean addReviewToBoardgame(BoardgameModelMongo boardgame, ReviewModelMongo review) {
-        boardgame.addReview(review);
-        if (!boardgameMongoOp.addReviewInBoardgameArray(boardgame, review))  {
+    private boolean addReviewToBoardgame(BoardgameModelMongo boardgame, ReviewModelMongo review)
+    {
+        ReviewModelMongo reviewWithOnlyIDAndRating = new ReviewModelMongo(review.getId(), review.getRating());
+        boardgame.addReview(reviewWithOnlyIDAndRating);
+        if (!boardgameMongoOp.addReviewInBoardgameArray(boardgame, reviewWithOnlyIDAndRating))  {
             logger.error("Error in adding the review to the collection of boardgames");
-            if (!reviewMongoOp.deleteReview(review)) {
+            if (!reviewMongoOp.deleteReview(reviewWithOnlyIDAndRating)) {
                 logger.error("Error in deleting the review from the collection of reviews");
             }
             return false;

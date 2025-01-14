@@ -129,23 +129,13 @@ public class BoardgameService {
         {
             System.out.println("\nThere are no REVIEWS to eliminate for this boardgame");
         } else {
-            // Delete reviews in user collection
-            for (ReviewModelMongo review : boardgameReviewsList) {
-                UserModelMongo user = (UserModelMongo) userMongoOp.findByUsername(review.getUsername(), false).get();
-                user.deleteReview(review.getId());
-                if (!userMongoOp.updateUser(user.getId(), user, "user")) {
-                    logger.error("Error in deleting reviews about boardgame in user collection");
-                    return false;
-                }
-            }
-
             // delete reviews in their own collection
             if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
                 logger.error("Error in deleting reviews about boardgame");
                 return false;
             }
             System.out.println("\nReviews regarding the Boardgame elminated " +
-                                  "both from Mongo DB and Neo4j, also from its related Authors");
+                                  "from Mongo DB, also from its related Authors");
         }
         return true;
     }
