@@ -199,7 +199,8 @@ public class BoardgameService {
 
         } catch (Exception e) {
             System.err.println("[ERROR] " + e.getMessage());
-            return false;
+            throw new RuntimeException("\nError in updating the Board Game on Neo4j.");
+            //return false;
         }
         return true;
     }
