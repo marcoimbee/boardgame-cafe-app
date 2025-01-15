@@ -223,6 +223,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         //post.getComments().sort(Comparator.comparing(CommentModel::getTimestamp).reversed());
         comments.addAll(post.getComments());
         fillGridPane();
+        prevNextButtonsCheck(comments);
     }
 
     public void onClickCloseButton() {
@@ -385,6 +386,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 } else {
                     stageManager.showInfoMessage("Error", "Failed to add comment.");
                 }
+                prevNextButtonsCheck(comments);
             });
 
             // Discard comment button behavior

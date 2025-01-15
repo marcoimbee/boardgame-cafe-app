@@ -570,6 +570,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     totalReviewsCounter++;
                     this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
                 }
+                prevNextButtonsCheck(reviews);
             });
 
             // Discard review button behavior
@@ -666,6 +667,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         resetPage();
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
+        prevNextButtonsCheck(reviews);
     }
 
     private void initComboBox(List<String> categories,
