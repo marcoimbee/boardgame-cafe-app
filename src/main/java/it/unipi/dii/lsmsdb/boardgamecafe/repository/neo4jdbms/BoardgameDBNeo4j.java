@@ -63,6 +63,8 @@ public class BoardgameDBNeo4j {
                 BoardgameModelNeo4j boardgameToBeUpdated = boardgameNeo.get();
 
                 boardgameToBeUpdated.setBoardgameName(newBoardgame.getBoardgameName());
+                boardgameToBeUpdated.setImage(newBoardgame.getImage());
+                boardgameToBeUpdated.setDescription(newBoardgame.getDescription());
 
                 boardgameRepoNeo4j.save(boardgameToBeUpdated);
             }

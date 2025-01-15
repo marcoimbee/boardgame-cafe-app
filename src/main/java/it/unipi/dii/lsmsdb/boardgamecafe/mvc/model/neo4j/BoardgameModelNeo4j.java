@@ -12,6 +12,8 @@ public class BoardgameModelNeo4j {
     @Id
     public String id;
     public String boardgameName;
+    public String image;
+    public String description;
 
     // Relazione in entrata dai nodi Post
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.INCOMING)
@@ -19,10 +21,12 @@ public class BoardgameModelNeo4j {
 
     public BoardgameModelNeo4j() {}
 
-    public BoardgameModelNeo4j(String id, String boardgameName) {
+    public BoardgameModelNeo4j(String id, String boardgameName, String image, String description) {
 
         this.id = id;
         this.boardgameName = boardgameName;
+        this.image = image;
+        this.description = description;
     }
 
     // Metodi setter/getter
@@ -41,6 +45,23 @@ public class BoardgameModelNeo4j {
     public void setBoardgameName(String boardgameName) {
         this.boardgameName = boardgameName;
     }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
     public List<PostModelNeo4j> getPosts() { return posts; }
     public void setPosts(List<PostModelNeo4j> posts) { this.posts = posts; }

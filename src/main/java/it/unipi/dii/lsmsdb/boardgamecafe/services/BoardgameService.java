@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.SimpleTimeZone;
 
 
 @Service
@@ -64,7 +65,10 @@ public class BoardgameService {
             }
 
             BoardgameModelNeo4j boardgameForNeo4j = new BoardgameModelNeo4j(
-                    insertedBoardgameMongo.getId(), insertedBoardgameMongo.getBoardgameName());
+                    insertedBoardgameMongo.getId(),
+                    insertedBoardgameMongo.getBoardgameName(),
+                    insertedBoardgameMongo.getImage(),
+                    insertedBoardgameMongo.getDescription());
 
             // Gestione Neo4j
             BoardgameModelNeo4j insertedBoardgameNeo4j = boardgameNeo4jOp.addBoardgame(boardgameForNeo4j);
@@ -182,10 +186,14 @@ public class BoardgameService {
 
             String boardgameId = boardgameMongo.getId();
             String boardgameName = boardgameMongo.getBoardgameName();
+            String boardgameImage = boardgameMongo.getImage();
+            String boardgameDescription = boardgameMongo.getDescription();
 
             BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(
                                                      boardgameId,
-                                                     boardgameName);
+                                                     boardgameName,
+                                                     boardgameImage,
+                                                     boardgameDescription);
 
             //Gestione MongoDB
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
