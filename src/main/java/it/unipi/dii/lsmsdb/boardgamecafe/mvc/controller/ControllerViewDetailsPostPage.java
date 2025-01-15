@@ -183,9 +183,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
     // This method updates the comments list and updates UI
     public void updateUIAfterCommentDeletion(String deletedCommentId) {
         comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
-        this.counterCommentsLabel.setText(String.valueOf(comments.size()));
+        post.getComments().removeIf(comment -> comment.getId().equals(deletedCommentId));
+        this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));
         commentGridPane.getChildren().clear();
-        fillGridPane();
+        cleanFetchAndFill();
+        prevNextButtonsCheck(post.getComments());
     }
 
     public void onClickDeleteButton() {
@@ -382,7 +384,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                     this.addCommentButton.setDisable(false);        // Restore button
                     modelBean.putBean(Constants.ADDED_COMMENT, newComment);         // Saving info about the newly inserted comment to update UI in posts feed page
 
-                    this.counterCommentsLabel.setText(String.valueOf(comments.size()));  // Update post details page UI - increase comment count
+                    this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));  // Update post details page UI - increase comment count
                 } else {
                     stageManager.showInfoMessage("Error", "Failed to add comment.");
                 }
