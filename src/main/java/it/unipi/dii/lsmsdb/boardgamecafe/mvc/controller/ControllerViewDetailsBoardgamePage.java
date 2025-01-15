@@ -187,7 +187,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private static GenericUserModelMongo currentUser;
 
-    private static int totalReviewsCounter;
+    //private static int totalReviewsCounter;
 
     //Utils Variables
     private boolean shiftDownSingleObjectGridPane; // false: no - true: yes
@@ -232,7 +232,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         prepareScene();
 
-        System.out.println("[INFO] Found " + totalReviewsCounter + " reviews for '" + boardgame.getBoardgameName() + "'");
+        System.out.println("[INFO] Found " + boardgame.getReviewCount() + " reviews for '" + boardgame.getBoardgameName() + "'");
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
 
         fillGridPane();
@@ -251,10 +251,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void setAverageRating() {
-        Double ratingFromTop = ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
-        if (ratingFromTop == null)
-            ratingFromTop = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
-        String ratingAsString = (ratingFromTop != null) ? String.format("%.1f", ratingFromTop) : NO_RATING;
+        Double avgRating = boardgame.getAvgRating(); //ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
+        //if (avgRating == null)
+        //    ratingFromTop = ; // reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
+        String ratingAsString = (avgRating != -1.0) ? String.format("%.1f", avgRating) : NO_RATING;
 
         if (ratingAsString.equals(NO_RATING))
             this.tooltipLblRating.setShowDelay(Duration.ZERO);
@@ -271,10 +271,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         clearFields();
         resetPage();
         this.selectedOperation = UserActivity.NO_EDIT;
-        boardgame = (BoardgameModelMongo) modelBean.getBean(Constants.SELECTED_BOARDGAME);
-        totalReviewsCounter = boardgame.getReviews().size();
+        String boardgameId = (String) modelBean.getBean(Constants.SELECTED_BOARDGAME);
+        boardgame = boardgameDBMongo.findBoardgameById(boardgameId).get();
+        //totalReviewsCounter = boardgame.getReviewCount(); // boardgame.getReviews().size();
         setAverageRating();
-        this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
+        this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviewCount()));
         this.setImage();
         this.boardgameNameLabel.setText(this.boardgame.getBoardgameName());
         this.descriptionTextArea.setText(this.boardgame.getDescription()
@@ -374,9 +375,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     // Called whenever the author user of a review decides to delete that review. This method updates the review list and updates UI
     public void updateUIAfterReviewDeletion(String deletedReviewId) {
         reviews.removeIf(review -> review.getId().equals(deletedReviewId));
-        boardgame.getReviews().removeIf(review -> review.getId().equals(deletedReviewId));
-        totalReviewsCounter--;
-        this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
+        boardgame = boardgameDBMongo.findBoardgameById(boardgame.getId()).get();
+        //boardgame.getReviews().removeIf(review -> review.getId().equals(deletedReviewId));
+        //totalReviewsCounter--;
+        this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviewCount()));
         fillGridPane();
         setAverageRating();
     }
@@ -567,8 +569,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                     this.addReviewButton.setDisable(false);
                     modelBean.putBean(Constants.ADDED_REVIEW, newReview);
 
-                    totalReviewsCounter++;
-                    this.counterReviewsLabel.setText(String.valueOf(totalReviewsCounter));
+                    this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviewCount()));
                 }
                 prevNextButtonsCheck(reviews);
             });
@@ -869,6 +870,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                         isPublisherListChanged ? new ArrayList<>(listStringsPublishers)
                                                : boardgame.getBoardgamePublisher());
 
+                updatedBoardgame.setAvgRating(boardgame.getAvgRating());
+                updatedBoardgame.setReviewCount(boardgame.getReviewCount());
+
 
                 modelBean.putBean(Constants.UPDATED_BOARDGAME, updatedBoardgame);
                 BoardgameModelMongo newBoardgame = (BoardgameModelMongo)
@@ -876,7 +880,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
                 // Esegui l'aggiornamento verso il database e in Grafica se tutto va bene
                 if (updateDbms(newBoardgame)) {
-                    modelBean.putBean(Constants.SELECTED_BOARDGAME, newBoardgame);
+                    modelBean.putBean(Constants.SELECTED_BOARDGAME, newBoardgame.getId());
                     stageManager.showInfoMessage("Update Info",
                             "The boardgame information has been successfully updated!");
                     prepareScene();
