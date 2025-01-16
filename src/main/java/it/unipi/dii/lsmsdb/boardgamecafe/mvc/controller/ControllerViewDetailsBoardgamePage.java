@@ -407,7 +407,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
     }
 
-    public void onClickRefreshButton(ActionEvent event) {
+    public void onClickRefreshButton() {
         cleanFetchAndFill();
     }
 
@@ -726,6 +726,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     public void onClickSaveChangesButton() {
 
         if (boardgame != null) {
+            String oldBoardgameName = this.boardgameNameLabel.getText();
+
             // Ottenere i dati dai campi di input
             String boardgameName = this.updateBgNameTextField.getText();
             String description = this.updateDescriptionTextField.getText()
@@ -879,11 +881,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                                                     modelBean.getBean(Constants.UPDATED_BOARDGAME);
 
                 // Esegui l'aggiornamento verso il database e in Grafica se tutto va bene
-                if (updateDbms(newBoardgame)) {
+                if (updateDbms(newBoardgame, oldBoardgameName)) {
                     modelBean.putBean(Constants.SELECTED_BOARDGAME, newBoardgame.getId());
                     stageManager.showInfoMessage("Update Info",
                             "The boardgame information has been successfully updated!");
                     prepareScene();
+                    onClickRefreshButton();
                 }
             }
         } else {
@@ -892,9 +895,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
     }
 
-    private boolean updateDbms(BoardgameModelMongo newBoardgame){
+    private boolean updateDbms(BoardgameModelMongo newBoardgame, String oldBoardgameName){
 
-        boolean updateBoardgameOperation = serviceBoardgame.updateBoardgame(newBoardgame);
+        boolean updateBoardgameOperation = serviceBoardgame.updateBoardgame(newBoardgame, oldBoardgameName);
 
         if (!updateBoardgameOperation) {
             modelBean.putBean(Constants.UPDATED_BOARDGAME, null);

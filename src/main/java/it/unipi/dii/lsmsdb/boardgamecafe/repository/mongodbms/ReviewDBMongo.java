@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -216,5 +217,22 @@ public class ReviewDBMongo {
         }
 
         return null;
+    }
+
+    public boolean updateReviewsAfterBoardgameUpdate(String oldBoardgameName, String updatedBoardgameName) {
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("boardgameName").is(oldBoardgameName));
+
+            Update update = new Update();
+            update.set("boardgameName", updatedBoardgameName);
+
+            mongoOperations.updateMulti(query, update, "reviews");
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] updateReviewsAfterBoardgameUpdate()@ReviewDBMongo.java raised an exception: " + ex.getMessage());
+            return false;
+        }
     }
 }
