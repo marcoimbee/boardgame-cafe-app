@@ -39,7 +39,7 @@ public class ReviewService {
 //            if (!addReviewToUser(user, review)) {
 //                throw new RuntimeException("Error while adding the review to the Users collection. Rolling back...");
 //            }
-            if (!addReviewToBoardgame(boardgame, review)) {
+            if (!updateAvgRatingAndReviewCountAfterInsertion(boardgame, review)) {
                 throw new RuntimeException("Error while adding the review to the Boardgames collection. Rolling back...");
             }
         } catch (Exception e) {
@@ -64,13 +64,12 @@ public class ReviewService {
 //        return true;
 //    }
 
-    private boolean addReviewToBoardgame(BoardgameModelMongo boardgame, ReviewModelMongo review)
+    private boolean updateAvgRatingAndReviewCountAfterInsertion(BoardgameModelMongo boardgame, ReviewModelMongo review)
     {
-        ReviewModelMongo reviewWithOnlyIDAndRating = new ReviewModelMongo(review.getId(), review.getRating());
-        boardgame.addReview(reviewWithOnlyIDAndRating);
-        if (!boardgameMongoOp.addReviewInBoardgameArray(boardgame, reviewWithOnlyIDAndRating))  {
-            logger.error("Error in adding the review to the collection of boardgames");
-            if (!reviewMongoOp.deleteReview(reviewWithOnlyIDAndRating)) {
+        boardgame.updateAvgRatingAndReviewCount(review.getRating());
+        if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame))  {
+            logger.error("Error in updating the reviewCount and avgRating to the collection of boardgames");
+            if (!reviewMongoOp.deleteReview(review)) {
                 logger.error("Error in deleting the review from the collection of reviews");
             }
             return false;
@@ -88,7 +87,7 @@ public class ReviewService {
             if (!selectedReview.getUsername().equals(loggedUser.getUsername()))
                 throw new RuntimeException("Permission denied.");
 
-            if (!deleteReviewInBoardgame(selectedReview))
+            if (!updateAvgRatingAndReviewCountAfterReviewDeletion(selectedReview))
                 throw new RuntimeException("Failed to delete a review from the Boardgames collection");
 
 //            if (!deleteReviewInUser(loggedUser, selectedReview)) {
@@ -105,7 +104,7 @@ public class ReviewService {
         return true;
     }
 
-    private boolean deleteReviewInBoardgame(ReviewModelMongo selectedReview) {
+    private boolean updateAvgRatingAndReviewCountAfterReviewDeletion(ReviewModelMongo selectedReview) {
         Optional<BoardgameModelMongo> boardgameResult =
                 boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
@@ -113,16 +112,13 @@ public class ReviewService {
             throw new RuntimeException("The referred boardgame does not exists in the database");
 
         BoardgameModelMongo referredBoardgame = boardgameResult.get();
-        if (boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) { // MongoDB deletion
-            if (referredBoardgame.deleteReview(selectedReview.getId())) { // Local copy deletion
-                return true;
-            } else {
-                System.out.println("[WARNING] The review was found in MongoDB but not locally");
-                return false;
-            }
-        } else {
-            throw new RuntimeException("The referred boardgame doesn't have the selected review: " + selectedReview);
-        }
+        referredBoardgame.updateAvgRatingAfterReviewDeletion(selectedReview.getRating());
+
+
+        if (!boardgameMongoOp.updateBoardgameMongo(referredBoardgame.getId(), referredBoardgame))//boardgameMongoOp.deleteReviewInBoardgameReviewsById(boardgameResult.get().getBoardgameName(), selectedReview.getId())) { // MongoDB deletion
+           throw new RuntimeException("The referred boardgame doesn't have the selected review: " + selectedReview);
+
+        return true;
     }
 
 //    private boolean deleteReviewInUser(UserModelMongo user, ReviewModelMongo selectedReview) {      // MongoDB deletion and local deletion
@@ -138,7 +134,7 @@ public class ReviewService {
 //    }
 
     @Transactional
-    public boolean updateReview(ReviewModelMongo selectedReview) {
+    public boolean updateReview(ReviewModelMongo selectedReview, int oldRating) {
         try {
             if (!reviewMongoOp.updateReview(selectedReview.getId(), selectedReview)) {
                 throw new RuntimeException("Error while updating a review in the Reviews collection");
@@ -146,7 +142,7 @@ public class ReviewService {
 //            if (!updateReviewInUser(selectedReview)) {
 //                throw new RuntimeException("Error while updating a review in Users collection");
 //            }
-            if (!updateReviewInBoardgame(selectedReview)) {
+            if (!updateAvgRatingAndReviewCountAfterReviewUpdate(selectedReview, oldRating)) {
                 throw new RuntimeException("Error while updating a review in the Boardgames collection");
             }
         } catch (Exception e) {
@@ -156,17 +152,13 @@ public class ReviewService {
         return true;
     }
 
-    private boolean updateReviewInBoardgame(ReviewModelMongo selectedReview) {
+    private boolean updateAvgRatingAndReviewCountAfterReviewUpdate(ReviewModelMongo selectedReview, int oldRating) {
         Optional<BoardgameModelMongo> boardgameResult =
                 boardgameMongoOp.findBoardgameByName(selectedReview.getBoardgameName());
 
         if (boardgameResult.isPresent()) {
             BoardgameModelMongo boardgame = boardgameResult.get();
-
-            if (boardgame.deleteReview(selectedReview.getId())) {       //Local object state management
-                boardgame.addReview(selectedReview);
-            }
-
+            boardgame.updateAvgRatingAfterReviewUpdate(selectedReview.getRating(), oldRating);
             return boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame);
         }
         System.out.println("[WARNING] No boardgame named '" + selectedReview.getBoardgameName() + "' is present in the DB.");

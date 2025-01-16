@@ -137,7 +137,8 @@ public class BoardgameDBMongo {
                 boardgameToBeUpdated.setBoardgameCategory(newBoardgame.getBoardgameCategory());
                 boardgameToBeUpdated.setBoardgameDesigner(newBoardgame.getBoardgameDesigner());
                 boardgameToBeUpdated.setBoardgamePublisher(newBoardgame.getBoardgamePublisher());
-                boardgameToBeUpdated.setReviews(newBoardgame.getReviews());
+                boardgameToBeUpdated.setAvgRating(newBoardgame.getAvgRating());
+                boardgameToBeUpdated.setReviewCount(newBoardgame.getReviewCount());
 
                 this.addBoardgame(boardgameToBeUpdated); //Uso di save per aggiornare tutto il document
             }
@@ -256,5 +257,43 @@ public class BoardgameDBMongo {
             System.out.println("Exception findBoardgamesByCategory() -> " + e.getMessage());
         }
         return boardgameOfThisCategory;
+    }
+
+    public boolean setRatingCount(BoardgameModelMongo boardgame)
+    {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("_id").is(boardgame.getId())),
+                Aggregation.project().and("reviewCount").as("newReviewCount")
+        );
+
+        Update update = new Update();
+        update.set("reviewCount", boardgame.getReviews().size());
+
+        UpdateResult result = mongoOperations.updateFirst(
+                Query.query(Criteria.where("_id").is(boardgame.getId())),
+                update,
+                "boardgames"
+        );
+
+        return (result.getModifiedCount() > 0);
+    }
+
+    public boolean setAvgRating(String boardgameId, Double avgRating)
+    {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("_id").is(boardgameId)),
+                Aggregation.project().and("avgRating").as("newAvgRating")
+        );
+
+        Update update = new Update();
+        update.set("avgRating", avgRating);
+
+        UpdateResult result = mongoOperations.updateFirst(
+                Query.query(Criteria.where("_id").is(boardgameId)),
+                update,
+                "boardgames"
+        );
+
+        return (result.getModifiedCount() > 0);
     }
 }

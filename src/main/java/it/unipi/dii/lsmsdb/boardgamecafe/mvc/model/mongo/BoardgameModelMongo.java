@@ -24,12 +24,17 @@ public class BoardgameModelMongo {
     private List<String> boardgamePublisher = new ArrayList<>();
     private List<ReviewModelMongo> reviews = new ArrayList<>();
 
+    private Double avgRating;
+
+    private int reviewCount;
+
     public BoardgameModelMongo(){}
 
     public BoardgameModelMongo(String id, String boardgameName, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
                                int playingTime, int minAge, List<String> boardgameCategory,
-                               List<String> boardgameDesigner, List<String> boardgamePublisher) {
+                               List<String> boardgameDesigner, List<String> boardgamePublisher,
+                               Double avgRating, int reviewCount) {
 
         this.id = id;
         this.boardgameName = boardgameName;
@@ -43,6 +48,8 @@ public class BoardgameModelMongo {
         this.boardgameCategory = boardgameCategory;
         this.boardgameDesigner = boardgameDesigner;
         this.boardgamePublisher = boardgamePublisher;
+        this.reviewCount = reviewCount;
+        this.avgRating = avgRating;
     }
 
     public BoardgameModelMongo(String boardgameName, String image, String description,
@@ -61,6 +68,8 @@ public class BoardgameModelMongo {
         this.boardgameCategory = boardgameCategory;
         this.boardgameDesigner = boardgameDesigner;
         this.boardgamePublisher = boardgamePublisher;
+        this.avgRating = -1.0;
+        this.reviewCount = 0;
     }
 
     public String getId() {
@@ -168,8 +177,29 @@ public class BoardgameModelMongo {
         this.reviews = reviewMongo;
     }
 
-    public void addReview (ReviewModelMongo reviewMongo) {
-        this.reviews.add(0, reviewMongo);
+    public void updateAvgRatingAfterReviewDeletion(int deletedRating)
+    {
+        if (this.reviewCount == 0)
+            return;
+
+        if (this.reviewCount == 1)
+            this.avgRating = -1.0;
+        else
+            this.avgRating = ((this.reviewCount * this.avgRating) - deletedRating) / (this.reviewCount - 1);
+        this.reviewCount--;
+    }
+
+    public void updateAvgRatingAfterReviewUpdate(int newRating, int oldRating)
+    {
+        this.avgRating = ((this.reviewCount * this.avgRating) - oldRating + newRating) / this.reviewCount;
+    }
+
+    public void updateAvgRatingAndReviewCount (int reviewRating)
+    {
+        Double newAvg = ((this.reviewCount * this.avgRating) + reviewRating) / (this.reviewCount + 1);
+        this.reviewCount++;
+        this.avgRating = newAvg;
+        //this.reviews.add(0, reviewMongo);
     }
 
     public ReviewModelMongo getReviewInBoardgame(String id) {
@@ -199,6 +229,21 @@ public class BoardgameModelMongo {
             return true;
         }
         return false;
+    }
+    public double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     @Override

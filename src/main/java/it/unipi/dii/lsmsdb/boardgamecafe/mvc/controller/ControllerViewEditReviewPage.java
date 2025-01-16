@@ -77,9 +77,10 @@ public class ControllerViewEditReviewPage implements Initializable {
         try {
             // Update mongoDB review in reviews collection
             ReviewModelMongo updatedReview = selectedReview;
+            int oldRating = selectedReview.getRating();
             updatedReview.setBody(updatedBody);
             updatedReview.setRating(updateRating);
-            reviewService.updateReview(updatedReview);
+            reviewService.updateReview(updatedReview, oldRating);
 
             // Setting updated in model bean to retrieve them in post details page for UI update
             modelBean.putBean(Constants.UPDATED_REVIEW, updatedReview);
