@@ -278,6 +278,31 @@ public class BoardgameDBMongo {
         return (result.getModifiedCount() > 0);
     }
 
+    public void updateReviewCount(String boardgameName) {
+        // Aggregation pipeline per contare le reviews
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("boardgameName").is(boardgameName)),
+                Aggregation.group("boardgameName").count().as("reviewCount")
+        );
+
+        // Esegui l'aggregazione sulla collection 'reviews'
+        AggregationResults<Document> result = mongoOperations.aggregate(aggregation,
+                "reviews", Document.class);
+        Document aggregationResult = result.getUniqueMappedResult();
+
+        // Recupera il conteggio delle reviews
+        if (aggregationResult != null) {
+            Integer reviewCount = aggregationResult.getInteger("reviewCount");
+
+            // Aggiorna il campo reviewCount nella collection 'boardgames'
+            Query query = new Query(Criteria.where("boardgameName").is(boardgameName));
+            Update update = new Update();
+            update.set("reviewCount", reviewCount);
+
+            mongoOperations.updateFirst(query, update, "boardgames");
+        }
+    }
+
     public boolean setAvgRating(String boardgameId, Double avgRating)
     {
         Aggregation aggregation = Aggregation.newAggregation(
