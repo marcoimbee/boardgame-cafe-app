@@ -231,9 +231,9 @@ class BoardgameDBMongoTest {
         {
             String boardgameId = boardgame.getId();
             String boardgameName = boardgame.getBoardgameName();
-            //Double avgRating = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
-            //boardgameDBMongo.setAvgRating(boardgameId, avgRating);
-            boardgameDBMongo.setRatingCount(boardgame);
+//            Double avgRating = reviewMongoOp.getAvgRatingByBoardgameName(boardgameName);
+//            boardgameDBMongo.setAvgRating(boardgameId, avgRating);
+            boardgameDBMongo.updateReviewCount(boardgameName);
         }
     }
 }
