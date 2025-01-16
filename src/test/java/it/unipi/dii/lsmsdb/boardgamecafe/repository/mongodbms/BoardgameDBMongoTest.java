@@ -18,6 +18,9 @@ class BoardgameDBMongoTest {
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
 
+    @Autowired
+    private ReviewDBMongo reviewMongoOp;
+
     private BoardgameModelMongo testBoardgame; // Memorizza il risultato di init()
 
     @BeforeEach
@@ -218,5 +221,19 @@ class BoardgameDBMongoTest {
         boardgameDBMongo.deleteBoardgame(boardgame.get());
         boardgame = boardgameDBMongo.findBoardgameByName("Test Boardgame");
         assertTrue(boardgame.isEmpty());
+    }
+
+    @Test
+    public void setAvgRatingValueAndReviewCountForEachBoardgame()
+    {
+        List<BoardgameModelMongo> allBoardgame = boardgameDBMongo.findRecentBoardgames(22000, 0);
+        for (BoardgameModelMongo boardgame : allBoardgame)
+        {
+            String boardgameId = boardgame.getId();
+            String boardgameName = boardgame.getBoardgameName();
+            //Double avgRating = reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
+            //boardgameDBMongo.setAvgRating(boardgameId, avgRating);
+            boardgameDBMongo.setRatingCount(boardgame);
+        }
     }
 }

@@ -492,7 +492,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         rowGridPane = 1;
 
         boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
-            modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame);
+            modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame.getId());
             stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
