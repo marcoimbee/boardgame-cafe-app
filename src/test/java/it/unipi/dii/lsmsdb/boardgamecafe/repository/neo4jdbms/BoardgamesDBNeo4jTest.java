@@ -18,11 +18,12 @@ class BoardgamesDBNeo4jTest {
     static final String testBoardgameName = "testBoardgameName";
     static final String testBoardgameImage = "urlImageTest";
     static final String testBoardgameDescription = "descriptionTest";
+    static final int testBoardgameYearPublished = 2024;
 
     @BeforeAll
     public static void setup() {
         testBoardgame = new BoardgameModelNeo4j(testIdBoardgame, testBoardgameName,
-                                                testBoardgameImage, testBoardgameDescription);
+                                                testBoardgameImage, testBoardgameDescription, testBoardgameYearPublished);
     }
 
     @Test
