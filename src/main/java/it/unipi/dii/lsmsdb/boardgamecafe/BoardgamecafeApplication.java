@@ -79,6 +79,7 @@ public class BoardgamecafeApplication extends Application {
 //                String mongoName = boardgameMongo.getBoardgameName();
 //                String mongoImage = boardgameMongo.getImage();
 //                String mongoDescription = boardgameMongo.getDescription();
+//                int mongoYearPublished = boardgameMongo.getYearPublished();
 //
 //                // Truncate the description to a maximum of 50 words
 //                String truncatedDescription = truncateDescription(mongoDescription, 50);
@@ -89,6 +90,7 @@ public class BoardgamecafeApplication extends Application {
 //                    BoardgameModelNeo4j boardgameNeo4jGet = optionalBoardgameNeo4j.get();
 //                    boardgameNeo4jGet.setImage(mongoImage);
 //                    boardgameNeo4jGet.setDescription(truncatedDescription); // Aggiorna la descrizione con quella di Mongo
+//                    boardgameNeo4jGet.setYearPublished(mongoYearPublished);
 //
 //                    boolean updateOpsResult = boardgameDBNeo4j.
 //                                              updateBoardgameNeo4j(boardgameNeo4jGet.getId(),
