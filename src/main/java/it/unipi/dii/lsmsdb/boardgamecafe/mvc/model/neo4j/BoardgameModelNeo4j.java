@@ -31,7 +31,6 @@ public class BoardgameModelNeo4j {
         this.yearPublished = yearPublished;
     }
 
-    // Metodi setter/getter
     public String getId() {
         return id;
     }
@@ -71,7 +70,6 @@ public class BoardgameModelNeo4j {
     public void setYearPublished(int yearPublished) {
         this.yearPublished = yearPublished;
     }
-
 
     public List<PostModelNeo4j> getPosts() { return posts; }
     public void setPosts(List<PostModelNeo4j> posts) { this.posts = posts; }

@@ -2,12 +2,10 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import jakarta.transaction.Transactional;
 import org.bson.Document;
@@ -38,8 +36,6 @@ public class BoardgameService {
     private PostDBNeo4j postNeo4jOp;
     @Autowired
     private PostDBMongo postMongoOp;
-    @Autowired
-    private CommentDBNeo4j commentNeo4jOp;
 //    @Autowired
 //    private CommentDBMongo commentMongoOp;
 
@@ -153,17 +149,17 @@ public class BoardgameService {
             System.out.println("\nThere are no POSTS to eliminate for this boardgame");
         } else {
 
-            // --- Delete Comments from their own mongo collection and from neo4j based on post ---
-            for (PostModelMongo post : posts) {
-//                if (!commentMongoOp.deleteByPost(post.getId())) {
-//                    logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+//            // --- Delete Comments from their own mongo collection and from neo4j based on post ---
+//            for (PostModelMongo post : posts) {
+////                if (!commentMongoOp.deleteByPost(post.getId())) {
+////                    logger.error("Error in deleting comments in posts about boardgame in MongoDB");
+////                    return false;
+////                }
+//                if (!commentNeo4jOp.deleteByPost(post.getId())) {
+//                    logger.error("Error in deleting comments in posts about boardgame in Neo4j");
 //                    return false;
 //                }
-                if (!commentNeo4jOp.deleteByPost(post.getId())) {
-                    logger.error("Error in deleting comments in posts about boardgame in Neo4j");
-                    return false;
-                }
-            }
+//            }
 
             // --- Delete Posts from Mongo DB ---
             if (!postMongoOp.deleteByTag(boardgameName)) {

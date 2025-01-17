@@ -11,8 +11,6 @@ public class PostModelNeo4j {
     @Id
     private String id;
 
-    @Relationship(type = "REPLY", direction = Relationship.Direction.INCOMING)
-    private List<CommentModelNeo4j> comments;
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.OUTGOING)
     private BoardgameModelNeo4j taggedGame;
     @Relationship(type = "WRITES_POST", direction = Relationship.Direction.INCOMING)
@@ -47,35 +45,6 @@ public class PostModelNeo4j {
     public void setId(String id) {
         this.id = id;
     }
-
-    public List<CommentModelNeo4j> getComments() {
-        return comments;
-    }
-    public void setComments(List<CommentModelNeo4j> comments) {
-        this.comments = comments;
-    }
-    public CommentModelNeo4j getCommentInPost(String id) {
-        if (!this.comments.isEmpty()) {
-            for (CommentModelNeo4j comment : comments) {
-                if (comment.getId().equals(id)) {
-                    return comment;
-                }
-            }
-        }
-        return null;
-    }
-    public void addComment(CommentModelNeo4j comment) {
-        this.comments.add(0, comment);
-    }
-    public boolean deleteComment(String id) {
-        CommentModelNeo4j comment = this.getCommentInPost(id);
-        if (comment != null) {
-            comments.remove(comment);
-            return true;
-        }
-        return false;
-    }
-
     public BoardgameModelNeo4j getTaggedGame() {
         return taggedGame;
     }
@@ -86,7 +55,6 @@ public class PostModelNeo4j {
     @Override
     public String toString() {
         return "id: '" + id + "', " +
-                "comments: '" + comments + "', " +
                 "tagged game: " + taggedGame;
     }
 }

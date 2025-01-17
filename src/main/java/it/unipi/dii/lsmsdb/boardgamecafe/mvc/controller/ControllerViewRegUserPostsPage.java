@@ -105,7 +105,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private final List<String> availableUserQueries = Arrays.asList(
             "Posts by followed users",
             "Posts liked by followed users",
-            "Posts commented by followed users",
+//            "Posts commented by followed users",
             "All posts"
     );
     private final List<String> availableAdminQueries = Arrays.asList(
@@ -125,7 +125,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public enum PostsToFetch {
         POSTS_BY_FOLLOWED_USERS,
         POSTS_LIKED_BY_FOLLOWED_USERS,
-        POSTS_COMMENTED_BY_FOLLOWED_USERS,
+//        POSTS_COMMENTED_BY_FOLLOWED_USERS,
         SEARCH_RESULTS,
         ALL_POSTS,
         ADMIN_TOP_COMMENTED_POST
@@ -291,8 +291,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             // Setting up regular user queries correspondence
             if (choiceBoxValue.equals(whatPostsToShowList.get(0)))      currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
             else if (choiceBoxValue.equals(whatPostsToShowList.get(1))) currentlyShowing = PostsToFetch.POSTS_LIKED_BY_FOLLOWED_USERS;
-            else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
-            else if (choiceBoxValue.equals(whatPostsToShowList.get(3))) currentlyShowing = PostsToFetch.ALL_POSTS;
+//            else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
+            else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) currentlyShowing = PostsToFetch.ALL_POSTS;
         } else {
             // Setting up admin queries correspondence
             if (choiceBoxValue.equals(whatPostsToShowList.get(0)))      currentlyShowing = PostsToFetch.ALL_POSTS;
@@ -430,8 +430,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     postListToReturn = postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
                     postListToReturn = postService.suggestPostLikedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
-            case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-                    postListToReturn = postService.suggestPostCommentedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
+//            case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
+//                    postListToReturn = postService.suggestPostCommentedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case SEARCH_RESULTS ->
                     postListToReturn = postService.findPostsByTag(tag, LIMIT, skipCounter);
             case ALL_POSTS ->

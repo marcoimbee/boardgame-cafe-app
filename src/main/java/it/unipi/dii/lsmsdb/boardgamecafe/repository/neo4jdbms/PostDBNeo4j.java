@@ -38,9 +38,9 @@ public class PostDBNeo4j {
         try {
             Optional<PostModelNeo4j> old = postRepoNeo4j.findById(updated.getId());
             if (old.isPresent()) {
-                PostModelNeo4j oldPost = old.get();
-                oldPost.setComments(updated.getComments());
-                postRepoNeo4j.save(oldPost);
+                PostModelNeo4j newPost = old.get();
+                newPost.setTaggedGame(updated.getTaggedGame());
+                postRepoNeo4j.save(newPost);
             }
         }
         catch (Exception ex) {
@@ -217,17 +217,17 @@ public class PostDBNeo4j {
         }
         return posts;
     }
-
-    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(String username, int limitResults, int skipCounter) {
-        List<PostModelNeo4j> posts = new ArrayList<>();
-        try {
-            posts = postRepoNeo4j.findPostsCommentedByFollowedUsers(username, limitResults, skipCounter);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return posts;
-    }
+//
+//    public List<PostModelNeo4j> getPostsCommentedByFollowedUsers(String username, int limitResults, int skipCounter) {
+//        List<PostModelNeo4j> posts = new ArrayList<>();
+//        try {
+//            posts = postRepoNeo4j.findPostsCommentedByFollowedUsers(username, limitResults, skipCounter);
+//        }
+//        catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return posts;
+//    }
 
     public List<PostModelNeo4j> getPostsByFollowedUsers(String username, int limitResults, int skipCounter) {
         List<PostModelNeo4j> posts = new ArrayList<>();

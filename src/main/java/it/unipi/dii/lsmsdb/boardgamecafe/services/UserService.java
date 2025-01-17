@@ -3,7 +3,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
@@ -35,8 +34,7 @@ public class UserService {
     private PostDBNeo4j postNeo4jOp;
 //    @Autowired
 //    private CommentDBMongo commentMongoOp;
-    @Autowired
-    private CommentDBNeo4j commentNeo4jOp;
+
     @Autowired
     private BoardgameDBMongo boardgameMongoOp;
 
@@ -139,17 +137,17 @@ public class UserService {
     private boolean deleteUserPosts(String username) {
         try {
             // Delete comment documents and nodes that were done under posts written by the user that has to be deleted
-            List<PostModelMongo> postsByUser = postMongoOp.findByUsername(username);
-            if (!postsByUser.isEmpty()) {           // If no posts were written, do not lose time in calling these methods
-                for (PostModelMongo post : postsByUser) {
-//                    if (!commentMongoOp.deleteByPost(post.getId())) {     // Deleting comments from MongoDB collection
-//                        throw new Exception("Failed to delete a MongoDB comment under a MongoDB post");
+//            List<PostModelMongo> postsByUser = postMongoOp.findByUsername(username);
+//            if (!postsByUser.isEmpty()) {           // If no posts were written, do not lose time in calling these methods
+//                for (PostModelMongo post : postsByUser) {
+////                    if (!commentMongoOp.deleteByPost(post.getId())) {     // Deleting comments from MongoDB collection
+////                        throw new Exception("Failed to delete a MongoDB comment under a MongoDB post");
+////                    }
+//                    if (!commentNeo4jOp.deleteByPost(post.getId())) {     // Deleting comment nodes from Neo4J
+//                        throw new Exception("Failed to delete a Neo4J comment related to a Neo4J post");
 //                    }
-                    if (!commentNeo4jOp.deleteByPost(post.getId())) {     // Deleting comment nodes from Neo4J
-                        throw new Exception("Failed to delete a Neo4J comment related to a Neo4J post");
-                    }
-                }
-            }
+//                }
+//            }
 
             // Delete actual post documents and nodes
             if (!postMongoOp.deleteByUsername(username)) {      // MongoDB deletion from posts collection
@@ -200,22 +198,25 @@ public class UserService {
 //        }
 //    }
 
-    private boolean deleteUserComments(String username) {
-        try {
-            // MongoDB deletion from 'comments' collection
-//            if (!commentMongoOp.deleteByUsername(username)) {
-//                throw new Exception("Failed to delete a MongoDB user given his username");
+    //ToDo: aggiungere eleiminazione commenti dell'utente dall'array dei commenti nella collection posts.
+    // Implementare aggregation nella classe PostDBMongo nel metodo "deleteCommentFromArrayInPostAfterAccountDeletion"
+    // e poi usarla nel metodo sottostante.
+//    private boolean deleteUserComments(String username) {
+//        try {
+//            // MongoDB deletion from 'comments' collection
+////            if (!commentMongoOp.deleteByUsername(username)) {
+////                throw new Exception("Failed to delete a MongoDB user given his username");
+////            }
+//            // Neo4j deletion of 'comment' nodes and their relationships
+//            if (!commentNeo4jOp.deleteByUsername(username)) {
+//                throw new Exception("Failed to delete a Neo4J user given his username");
 //            }
-            // Neo4j deletion of 'comment' nodes and their relationships
-            if (!commentNeo4jOp.deleteByUsername(username)) {
-                throw new Exception("Failed to delete a Neo4J user given his username");
-            }
-            return true;
-        } catch (Exception ex) {
-            System.err.println("[ERROR] deleteUserComments@UserService.java raised an exception: " + ex.getMessage());
-            return false;
-        }
-    }
+//            return true;
+//        } catch (Exception ex) {
+//            System.err.println("[ERROR] deleteUserComments@UserService.java raised an exception: " + ex.getMessage());
+//            return false;
+//        }
+//    }
 
     @Transactional
     public boolean deleteUser(UserModelMongo user) {
@@ -239,9 +240,9 @@ public class UserService {
             }
 
             // Comments management - deletion of documents/nodes + update of comments under posts
-            if (!deleteUserComments(username)) {
-                throw new Exception("Failed to delete user comments");
-            }
+//            if (!deleteUserComments(username)) {
+//                throw new Exception("Failed to delete user comments");
+//            }
 //            if (!updateUserCommentsAfterAdminAction(username, UserContentUpdateReason.DELETED_USER)) {
 //                throw new Exception("Failed to update deleted user comments");
 //            }

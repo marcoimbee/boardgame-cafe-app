@@ -43,7 +43,6 @@ public class UserDBNeo4j {
                 oldUser.setFollowedUsers(updated.getFollowedUsers());
                 oldUser.setWrittenPosts(updated.getWrittenPosts());
                 oldUser.setLikedPosts(updated.getLikedPosts());
-                oldUser.setWrittenComments(updated.getWrittenComments());
                 userNeo4jDB.save(oldUser);
                 return true;
             }

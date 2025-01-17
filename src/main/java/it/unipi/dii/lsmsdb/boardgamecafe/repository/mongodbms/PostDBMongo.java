@@ -325,6 +325,19 @@ public class PostDBMongo {
         return result.getModifiedCount() > 0;
     }
 
+    //ToDo: aggiornare implementazione del sottostante metodo per eliminare i commenti dai post
+    // fatti da un utente che si è eliminato dall'applicazione (DeleteAccountOp)
+//    public boolean deleteCommentFromArrayInPostAfterAccountDeletion(PostModelMongo post, CommentModel comment)
+//    {
+//        Query query = new Query(Criteria.where("_id").is(post.getId()));
+//        Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
+//        Update update = new Update().pull("comments", matchCommentById);
+//        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
+//
+//        // Se almeno un documento è stato modificato, l'update è riuscito
+//        return result.getModifiedCount() > 0;
+//    }
+
     public boolean addCommentInPostArray(PostModelMongo post, CommentModel comment)
     {
         Query query = new Query(Criteria.where("_id").is(post.getId()));

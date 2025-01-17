@@ -2,9 +2,11 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -45,7 +47,8 @@ public class ControllerViewEditPostPage implements Initializable {
     @Autowired
     @Lazy
     private StageManager stageManager;
-
+    @Autowired
+    private PostDBNeo4j postDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
@@ -108,6 +111,8 @@ public class ControllerViewEditPostPage implements Initializable {
             updatedPost.setTitle(updatedTitle);
             updatedPost.setText(updatedBody);
             postDBMongo.updatePost(selectedPost.getId(), updatedPost);
+            PostModelNeo4j updatedPostNeo4j = new PostModelNeo4j(updatedPost.getId());
+            postDBNeo4j.updatePost(updatedPostNeo4j);
 
             // Setting updated in model bean to retrieve them in post details page for UI update
             modelBean.putBean(Constants.UPDATED_POST, updatedPost);
