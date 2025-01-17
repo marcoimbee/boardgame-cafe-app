@@ -12,6 +12,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,16 +115,45 @@ public class ReviewDBMongo {
         return result;
     }
 
-    public boolean deleteReviewByUsername(String username) {
-        boolean result = true;
+
+    // Returns a HashMap<K, V> in which:
+    //      -> K is a String: the boardgame that the user that is being deleted had reviewed
+    //      -> V is an Integer: the number of reviews that the user that is being deleted had done for that boardgame
+    public HashMap<String, List<Integer>> deleteReviewByUsername(String username) {
+        HashMap<String, List<Integer>> deletedReviewsForBoardgame = new HashMap<>();
         try {
-            reviewMongo.deleteReviewByUsername(username);
+            List<ReviewModelMongo> reviewsToBeDeleted = reviewMongo.findByUsername(username);
+
+            for (ReviewModelMongo review : reviewsToBeDeleted) {
+                String boardgameName = review.getBoardgameName();
+                int rating = review.getRating();
+
+                deletedReviewsForBoardgame
+                        .computeIfAbsent(boardgameName, k -> new ArrayList<>())
+                        .add(rating);
+
+                reviewMongo.deleteById(review.getId());
+            }
+
+            System.out.println("[DEBUG] deletedReviewsPerBoardgame: " + deletedReviewsForBoardgame);
+            return deletedReviewsForBoardgame;
         } catch (Exception e) {
             System.err.println("[ERROR] deleteReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
-            result = false;
+            return null;
         }
-        return result;
     }
+
+//
+//    public boolean deleteReviewByUsername(String username) {
+//        boolean result = true;
+//        try {
+//            reviewMongo.deleteReviewByUsername(username);
+//        } catch (Exception e) {
+//            System.err.println("[ERROR] deleteReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
+//            result = false;
+//        }
+//        return result;
+//    }
 
     public boolean deleteReviewByBoardgameName(String boardgameName) {
         boolean result = true;

@@ -4,7 +4,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.utils.UserContentUpdateReason;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,23 +29,6 @@ public class PostDBMongo {
     private PostRepoMongo postMongo;
     @Autowired
     private MongoOperations mongoOperations;
-
-    /* fra: Da eliminare? -> 19/12/2024
-    public PostRepoMongo getPostMongo() {return postMongo;}
-     */
-
-    /* fra: Da eliminare? -> 19/12/2024
-    public boolean addPostOld(PostModelMongo post) {
-        try {
-            postMongo.save(post);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-    */
 
     public PostModelMongo addPost(PostModelMongo post)
     {
@@ -275,44 +257,6 @@ public class PostDBMongo {
         return results.getRawResults();
     }
 
-    /* fra: Da eliminare? -> 19/12/2024
-    public Document findTopPostsByBoardgameName(String boardgameName, int limit) {
-        // Step 1: Filtra i post che contengono il tag specificato
-        MatchOperation matchTagOperation = match(new Criteria("tag").is(boardgameName));
-
-        // Step 2: Scomponi il campo dei commenti per calcolare il numero di commenti
-        UnwindOperation unwindComments = unwind("comments");
-
-        // Step 3: Raggruppa per titolo del post per calcolare il numero di commenti per ciascun post
-        GroupOperation groupOperation = group("title") // Raggruppa per titolo del post
-                .count().as("numComments")   // Conta il numero di commenti per ogni post
-                .first("tag").as("tag")  // Prendi il tag (gioco) associato al post
-                .first("text").as("content");  // Prendi il contenuto del post
-
-        // Step 4: Proietta i risultati per ottenere il conteggio dei commenti e il contenuto del post
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("title")  // Titolo del post
-                .andExpression("content").as("content")  // Contenuto del post
-                .andExpression("numComments").as("comments")  // Numero di commenti
-                .andExclude("_id").andExpression("tag").as("tag");  // Tag (gioco) associato al post
-
-        // Step 5: Ordina i risultati per numero di commenti in ordine decrescente
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "comments"));
-
-        // Step 6: Limita i risultati al numero specificato (es. top N post)
-        LimitOperation limitOperation = limit(limit);
-
-        // Step 7: Definisci l'aggregazione completa
-        Aggregation aggregation = newAggregation(matchTagOperation, unwindComments, groupOperation, projectionOperation, sortOperation, limitOperation);
-
-        // Step 8: Esegui l'aggregazione sulla collezione di post
-        AggregationResults<PostModelMongo> result = mongoOperations.aggregate(aggregation, "posts", PostModelMongo.class);
-
-        // Step 9: Restituisci i risultati grezzi
-        return result.getRawResults();
-    }
-     */
-
     //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
     public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModel comment)
     {
@@ -324,19 +268,6 @@ public class PostDBMongo {
         // Se almeno un documento è stato modificato, l'update è riuscito
         return result.getModifiedCount() > 0;
     }
-
-    //ToDo: aggiornare implementazione del sottostante metodo per eliminare i commenti dai post
-    // fatti da un utente che si è eliminato dall'applicazione (DeleteAccountOp)
-//    public boolean deleteCommentFromArrayInPostAfterAccountDeletion(PostModelMongo post, CommentModel comment)
-//    {
-//        Query query = new Query(Criteria.where("_id").is(post.getId()));
-//        Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
-//        Update update = new Update().pull("comments", matchCommentById);
-//        UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
-//
-//        // Se almeno un documento è stato modificato, l'update è riuscito
-//        return result.getModifiedCount() > 0;
-//    }
 
     public boolean addCommentInPostArray(PostModelMongo post, CommentModel comment)
     {
@@ -372,81 +303,17 @@ public class PostDBMongo {
         }
     }
 
-
-    public boolean updatePostCommentsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<CommentModel> userComments) {
+    public boolean deleteCommentsAfterUserDeletion(String username) {
         try {
-            if (updateReason == UserContentUpdateReason.BANNED_USER || updateReason == UserContentUpdateReason.DELETED_USER) {
-                Query query = Query.query(Criteria.where("comments.username").is(username));
+            Query query = new Query(Criteria.where("comments.username").is(username));
+            Update update = new Update().pull("comments", new Query(Criteria.where("username").is(username)));
 
-                Update update = new Update();
-                if (updateReason == UserContentUpdateReason.DELETED_USER) {
-                    update.set("comments.$.username", "[Deleted user]");
-                } else {
-                    update.set("comments.$.username", "[Banned user]")
-                            .set("comments.$.text", "[Banned user]");
-                }
-
-                mongoOperations.updateMulti(
-                        query,
-                        update,
-                        PostDBMongo.class,
-                        "posts"
-                );
-            }
-
-            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
-                for (CommentModel comment : userComments) {
-                    ObjectId commentObjectId = new ObjectId(comment.getId());
-                    Query query = Query.query(Criteria.where("comments._id").is(commentObjectId));
-
-                    Update update = new Update();
-                    update.set("comments.$.username", comment.getUsername())
-                            .set("comments.$.text", comment.getText());
-
-                    mongoOperations.updateFirst(
-                            query,
-                            update,
-                            PostDBMongo.class,
-                            "posts"
-                    );
-                }
-            }
+            mongoOperations.updateMulti(query, update, "posts");
 
             return true;
-        } catch(Exception ex) {
-            System.err.println("[ERROR] exception: " + ex.getMessage());
+        } catch (Exception e) {
+            System.err.println("[ERROR] deleteCommentsAfterUserDeletion@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
     }
-
-    public List<CommentModel> getRecentCommentsByPostId(String postId, int limit, int skip)
-    {
-        try
-        {
-            Query query = new Query(Criteria.where("comments.post").is(postId));
-            query.fields().include("comments").exclude("_id");
-            query.with(Sort.by(Sort.Direction.DESC, "comments.timestamp"));
-            query.limit(limit);
-            query.skip(skip);
-            PostModelMongo post = mongoOperations.findOne(query, PostModelMongo.class);
-            if (post != null)
-                return post.getComments();
-            else
-                throw new Exception();
-        } catch (Exception e)
-        {
-            System.out.println("Exception getRecentCommentsByPostId() -> " + e.getMessage());
-            return null;
-        }
-    }
-
-    /* fra: Da eliminare? -> 19/12/2024
-    public boolean deleteCommentFromPost(PostModelMongo post, CommentModelMongo comment) {
-        Criteria criteria = Criteria.where("_id").is(post.getId());
-        Update update = new Update().pull("comments", comment);
-        mongoOperations.updateFirst(query(criteria), update, PostModelMongo.class);
-
-        return true;
-    }
-    */
 }

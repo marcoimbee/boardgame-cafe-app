@@ -6,8 +6,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -23,7 +21,6 @@ import java.util.Optional;
 
 @Component
 public class BoardgameDBMongo {
-    private final static Logger logger = LoggerFactory.getLogger(BoardgameDBMongo.class);
 
     @Autowired
     private BoardgameRepoMongo boardgameRepoMongoOp;
@@ -72,52 +69,6 @@ public class BoardgameDBMongo {
         }
         return boardgame;
     }
-
-//    public boolean updateBoardgameReviewsAfterAdminAction(String username, UserContentUpdateReason updateReason, List<ReviewModelMongo> userReviews) {
-//        try {
-//            if (updateReason == UserContentUpdateReason.DELETED_USER || updateReason == UserContentUpdateReason.BANNED_USER) {
-//                Query query = Query.query(Criteria.where("reviews.username").is(username));
-//
-//                Update update = new Update();
-//                if (updateReason == UserContentUpdateReason.DELETED_USER) {
-//                    update.set("reviews.$.username", "[Deleted user]");
-//                } else {
-//                    update.set("reviews.$.username", "[Banned user]")
-//                            .set("reviews.$.body", "[Banned user]");
-//                }
-//
-//                mongoOperations.updateMulti(
-//                        query,
-//                        update,
-//                        BoardgameDBMongo.class,
-//                        "boardgames"
-//                );
-//            }
-//
-//            if (updateReason == UserContentUpdateReason.UNBANNED_USER) {
-//                for (ReviewModelMongo review : userReviews) {
-//                    ObjectId reviewObjectId = new ObjectId(review.getId());
-//                    Query query = Query.query(Criteria.where("reviews._id").is(reviewObjectId));
-//
-//                    Update update = new Update();
-//                    update.set("reviews.$.username", review.getUsername())
-//                            .set("reviews.$.body", review.getBody());
-//
-//                    mongoOperations.updateFirst(
-//                            query,
-//                            update,
-//                            BoardgameDBMongo.class,
-//                            "boardgames"
-//                    );
-//                }
-//            }
-//
-//            return true;
-//        } catch(Exception ex) {
-//            System.err.println("[ERROR] updateBoardgameReviewsAfterUserBanOrDeletion@BoardgameDBMongo.java raised an exception: " + ex.getMessage());
-//            return false;
-//        }
-//    }
 
     public boolean updateBoardgameMongo(String id, BoardgameModelMongo newBoardgame) {
         try {
@@ -259,47 +210,15 @@ public class BoardgameDBMongo {
         return boardgameOfThisCategory;
     }
 
-    public void updateReviewCount(String boardgameName) {
-        // Aggregation pipeline per contare le reviews
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("boardgameName").is(boardgameName)),
-                Aggregation.group("boardgameName").count().as("reviewCount")
-        );
-
-        // Esegui l'aggregazione sulla collection 'reviews'
-        AggregationResults<Document> result = mongoOperations.aggregate(aggregation,
-                "reviews", Document.class);
-        Document aggregationResult = result.getUniqueMappedResult();
-
-        // Recupera il conteggio delle reviews
-        if (aggregationResult != null) {
-            Integer reviewCount = aggregationResult.getInteger("reviewCount");
-
-            // Aggiorna il campo reviewCount nella collection 'boardgames'
-            Query query = new Query(Criteria.where("boardgameName").is(boardgameName));
-            Update update = new Update();
-            update.set("reviewCount", reviewCount);
-
-            mongoOperations.updateFirst(query, update, "boardgames");
+    public boolean updateRatingAfterUserDeletion(String reviewedBoardgame, List<Integer> ratings) {
+        try {
+            BoardgameModelMongo boardgame = boardgameRepoMongoOp.findByBoardgameName(reviewedBoardgame).get();
+            boardgame.updateAvgRatingAfterUserDeletion(ratings);
+            this.updateBoardgameMongo(boardgame.getId(), boardgame);
+            return true;
+        } catch (Exception e) {
+            System.err.println("[ERROR] updateRatingAfterUserDeletion()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
+            return false;
         }
-    }
-
-    public boolean setAvgRating(String boardgameId, Double avgRating)
-    {
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("_id").is(boardgameId)),
-                Aggregation.project().and("avgRating").as("newAvgRating")
-        );
-
-        Update update = new Update();
-        update.set("avgRating", avgRating);
-
-        UpdateResult result = mongoOperations.updateFirst(
-                Query.query(Criteria.where("_id").is(boardgameId)),
-                update,
-                "boardgames"
-        );
-
-        return (result.getModifiedCount() > 0);
     }
 }

@@ -1,6 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -167,9 +168,6 @@ public class BoardgameModelMongo {
         this.boardgamePublisher = boardgamePublisher;
     }
 
-
-    // --- Reviews Management ---
-
     public void updateAvgRatingAfterReviewDeletion(int deletedRating)
     {
         if (this.reviewCount == 0)
@@ -193,6 +191,19 @@ public class BoardgameModelMongo {
         this.reviewCount++;
         this.avgRating = newAvg;
         //this.reviews.add(0, reviewMongo);
+    }
+
+    public void updateAvgRatingAfterUserDeletion(List<Integer> ratings) {
+        int ratingsSum = ratings.stream().mapToInt(Integer::intValue).sum();
+        int reviewCount = ratings.size();
+
+        if (this.reviewCount == reviewCount) {
+            this.avgRating = -1.0;
+            this.reviewCount = 0;
+        } else {
+            this.avgRating = ((this.reviewCount * this.avgRating) - ratingsSum) / (this.reviewCount - reviewCount);
+            this.reviewCount -= reviewCount;
+        }
     }
 
     public double getAvgRating() {
