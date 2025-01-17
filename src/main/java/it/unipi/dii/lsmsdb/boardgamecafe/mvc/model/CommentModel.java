@@ -4,7 +4,6 @@ import org.bson.types.ObjectId;
 import java.util.Date;
 
 public class CommentModel {
-//    @Id
     private String id;
     private String username;
     private String text;
