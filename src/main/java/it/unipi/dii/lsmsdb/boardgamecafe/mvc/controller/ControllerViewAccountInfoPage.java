@@ -451,6 +451,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
             newUser.setId(user.getId());
             newUser.setUsername(user.getUsername());
             newUser.setBanned(user.isBanned());
+            newUser.set_class(user.get_class());
 
             if (updateDbms(newUser)) {
                 modelBean.putBean(Constants.CURRENT_USER, newUser);
@@ -537,6 +538,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
 
             newAdmin.setId(admin.getId());
             newAdmin.setUsername(admin.getUsername());
+            newAdmin.set_class(admin.get_class());
 
             if (updateDbms(newAdmin)){
                 modelBean.putBean(Constants.CURRENT_USER, newAdmin);
