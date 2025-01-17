@@ -47,28 +47,6 @@ class PostDBMongoTest {
         assertInstanceOf(PostModelMongo.class, post3);
     }
 
-    // [18:05] - [18:00] - [17:00] - [16:00]
-    /*@Test @Order(5)
-    void testDataUpdate()
-    {
-        List<PostModelMongo> allPost = postDBMongo.findRecentPosts(14005, 0);
-        int countUpdatedPost = 0;
-        for (PostModelMongo post : allPost)
-        {
-            if (post.getComments() != null && (post.getComments().size() > 0))
-            {
-                post.getComments().sort((c1, c2) -> c2.getTimestamp().compareTo(c1.getTimestamp())); // Ordinamento decrescente per timestamp
-                boolean shouldReturnTrue = postDBMongo.updatePost(post.getId(), post);
-                assertTrue(shouldReturnTrue);
-            }
-            if (countUpdatedPost % 100 == 0)
-                System.out.println("countUpdatedPost -> " + countUpdatedPost);
-            countUpdatedPost++;
-        }
-        System.out.println("Updated");
-    }
-    */
-
     @Test @Order(10)
     public void GIVEN_existing_post_WHEN_updating_post_text_THEN_text_is_updated() {
         String updatedText = "Updated test";
