@@ -3,10 +3,12 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.BoardgameService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.ReviewService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -92,6 +94,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
+    private BoardgameDBNeo4j boardgameDBNeo4j;
+    @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
     private BoardgameService boardgameService;
@@ -106,9 +110,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private final StageManager stageManager;
 
     //Boardgame Variables
-    private ObservableList<BoardgameModelMongo> boardgames = FXCollections.observableArrayList();
+    private ObservableList<BoardgameModelNeo4j> boardgames = FXCollections.observableArrayList();
     private BoardgameListener boardgameListener;
-
     List<String> boardgameNames;
     private GenericUserModelMongo currentUser;
 
@@ -143,7 +146,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME;
     };
     private BgameToFetch currentlyShowing;
-    private static LinkedHashMap<BoardgameModelMongo, Double> topRatedBoardgamePairList; // Hash <gioco, Rating>
+    private static LinkedHashMap<BoardgameModelNeo4j, Double> topRatedBoardgamePairList; // Hash <Boardgame, Rating>
 
     static class TableData {
         private final SimpleStringProperty boardgameName;
@@ -272,10 +275,11 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             currentlyShowing = BgameToFetch.ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME;
 
             Document fetchedResults = postDBMongo.findMostPostedAndCommentedTags(10);
+
             displayMostPostedBoardgames(fetchedResults);
             setAdminQueryFiltersVisibility(true);
         } else {
-            boardgames.addAll((List<BoardgameModelMongo>) getBoardgamesByChoice(null));
+            boardgames.addAll((List<BoardgameModelNeo4j>) getBoardgamesByChoice(null));
             fillGridPane();
             setAdminQueryFiltersVisibility(false);
         }
@@ -299,7 +303,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         }
 
         // Update UI after potentially having updated a Boardgame
-        BoardgameModelMongo updatedBoardgame = (BoardgameModelMongo) modelBean.
+        BoardgameModelNeo4j updatedBoardgame = (BoardgameModelNeo4j) modelBean.
                                                 getBean(Constants.UPDATED_BOARDGAME);
         if (updatedBoardgame != null) {
             boardgames.removeIf(boardgame -> boardgame.getBoardgameName().
@@ -335,7 +339,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter += SKIP;
 
         //retrieve boardgames
-        boardgames.addAll((List<BoardgameModelMongo>) getBoardgamesByChoice(null));
+        boardgames.addAll((List<BoardgameModelNeo4j>) getBoardgamesByChoice(null));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
@@ -352,15 +356,15 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         skipCounter -= SKIP;
 
         //retrieve boardgames
-        boardgames.addAll((List<BoardgameModelMongo>) getBoardgamesByChoice(null));
+        boardgames.addAll((List<BoardgameModelNeo4j>) getBoardgamesByChoice(null));
         //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
-    void prevNextButtonsCheck(List<BoardgameModelMongo> boardgames){
-        if (boardgames.size() > 0) {
-            if (boardgames.size() < LIMIT) {
+    void prevNextButtonsCheck(int boardgamesNumber){
+        if (boardgamesNumber > 0) {
+            if (boardgamesNumber < LIMIT) {
                 if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
@@ -400,18 +404,18 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
     private Object getBoardgamesByChoice(Integer adminLimitResults) {
         this.newBoardgameButton.setDisable(false);
         setDisablePreviousNextRefresh(false);
-        List<BoardgameModelMongo> boardgames = null;
+        List<BoardgameModelNeo4j> boardgames = null;
 
         switch (this.currentlyShowing) {
             case ALL_BOARDGAMES -> {
-                boardgames = boardgameDBMongo.findRecentBoardgames(LIMIT, this.skipCounter);
+                boardgames = boardgameDBNeo4j.findRecentBoardgames(LIMIT, this.skipCounter);
                 this.cboxYear.setVisible(false);
                 this.cboxCategory.setVisible(false);
                 this.clearFieldButton.setDisable(false);
                 this.textFieldSearch.setDisable(false);
             }
             case TOP_RATED_BOARDGAMES_PER_YEAR -> {
-                List<BoardgameModelMongo> finalBoardgames = new ArrayList<>();
+                List<BoardgameModelNeo4j> finalBoardgames = new ArrayList<>();
                 this.cboxYear.setVisible(true);
                 this.cboxCategory.setVisible(false);
                 this.clearFieldButton.setDisable(false);
@@ -436,12 +440,23 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                 this.textFieldSearch.setDisable(false);
                 String selectedCategory = (String)this.cboxCategory.getValue();
                 if (selectedCategory != null)
-                    boardgames = this.boardgameDBMongo.findBoardgamesByCategory(selectedCategory, LIMIT, this.skipCounter);
+                {
+                    List<BoardgameModelMongo> boardgamesMongo = this.boardgameDBMongo.findBoardgamesByCategory(selectedCategory, LIMIT, this.skipCounter);
+                    boardgames = new ArrayList<>();
+                    for (BoardgameModelMongo boardgame : boardgamesMongo)
+                        boardgames.add(BoardgameModelNeo4j.castBoardgameMongoInBoardgameNeo(boardgame));
+                }
             }
             case SEARCH_BOARDGAME -> {
                 String searchString = textFieldSearch.getText();
+                boardgames = new ArrayList<>();
                 if (!searchString.isEmpty())
-                    boardgames = boardgameDBMongo.findBoardgamesStartingWith(searchString, LIMIT, this.skipCounter);
+                {
+                    List<BoardgameModelMongo> boardgamesMongo = boardgameDBMongo.findBoardgamesStartingWith(searchString, LIMIT, this.skipCounter);
+                    for (BoardgameModelMongo boardgameMongo : boardgamesMongo)
+                        boardgames.add(BoardgameModelNeo4j.castBoardgameMongoInBoardgameNeo(boardgameMongo));
+                    // Fare la ricerca dello startingWith su Neo piuttosto che su Mongo? ???
+                }
             }
             case ADMIN_MOST_COMMENTED_AND_POSTED_BOARDGAME -> {
                 int limitResults = adminLimitResults == null ? 10 : adminLimitResults;
@@ -451,7 +466,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         if (boardgames == null)
             return new ArrayList<>();
 
-        prevNextButtonsCheck(boardgames);
+        prevNextButtonsCheck(boardgames.size());
         return boardgames;
     }
 
@@ -491,8 +506,8 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         columnGridPane = 0;
         rowGridPane = 1;
 
-        boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
-            modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgame.getId());
+        boardgameListener = (MouseEvent mouseEvent, String boardgameId) -> {
+            modelBean.putBean(Constants.SELECTED_BOARDGAME, boardgameId);
             stageManager.showWindow(FxmlView.BOARDGAME_DETAILS);
         };
 
@@ -500,7 +515,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
             loadViewMessageInfo();
         } else {
             try {
-                for (BoardgameModelMongo boardgame : boardgames) {
+                for (BoardgameModelNeo4j boardgame : boardgames) {
 
                     Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
 
@@ -514,7 +529,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                     controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane, ratingForThisGame);
                     controllerObjectBoardgame.anchorPane.setId(boardgame.getId()); // the ancorPane-id is the boardgame _id.
                     anchorPane.setOnMouseClicked(event -> {
-                        this.boardgameListener.onClickBoardgameListener(event, boardgame);
+                        this.boardgameListener.onClickBoardgameListener(event, boardgame.getId());
                     });
 
                     //choice number of column
@@ -814,7 +829,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
                     this.cboxYear.setDisable(false);
                     this.newBoardgameButton.setDisable(false);
                     setDisablePreviousNextRefresh(false);
-                    prevNextButtonsCheck(boardgames);
+                    prevNextButtonsCheck(boardgames.size());
                     this.whatBgameToShowChoiceBox.setDisable(false);
                     removeBoardgameCreationPanel();
                     fillGridPane();
@@ -909,7 +924,7 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
         if (savedBoardgame) {
             System.out.println("[INFO] New Boardgame added");
-            handleSuccessfulBoardgameAddition(newBoardgame);
+            handleSuccessfulBoardgameAddition(boardgameDBNeo4j.findById(newBoardgame.getId()).get());
             this.newBoardgameButton.setDisable(false);
         } else {
             System.out.println("[INFO] An error occurred while adding a new boardgame");
@@ -920,13 +935,13 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     }
 
-    private void handleSuccessfulBoardgameAddition(BoardgameModelMongo newlyInsertedBoardgame) {
+    private void handleSuccessfulBoardgameAddition(BoardgameModelNeo4j newlyInsertedBoardgame) {
         if (currentlyShowing == BgameToFetch.ALL_BOARDGAMES) {
             stageManager.showInfoMessage("Success", "Your Boardgame has been added successfully!");
             boardgames.remove(boardgames.size() - 1); //removes the last item by temporarily resizing the boardgames list
             boardgames.add(0, newlyInsertedBoardgame);  //adds boardgame at top and the size of the list is restored
             fillGridPane();
-            prevNextButtonsCheck(boardgames);
+            prevNextButtonsCheck(boardgames.size());
             scrollSet.setVvalue(0);
         } else {
             stageManager.showInfoMessage("Success", "Your Boardgame has been added successfully! You're being redirected to the 'All Boardgames' page.");
@@ -942,10 +957,10 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
 
     public void viewCurrentlyShowing() {
         resetPage();
-        List<BoardgameModelMongo> retrievedBoardgames = (List<BoardgameModelMongo>) getBoardgamesByChoice(null);
-        boardgames.addAll(retrievedBoardgames);            // Add new LIMIT posts (at most)
+        List<BoardgameModelNeo4j> retrievedBoargamesByMongo = (List<BoardgameModelNeo4j>) getBoardgamesByChoice(null);
+        boardgames.addAll(retrievedBoargamesByMongo);            // Add new LIMIT posts (at most)
         fillGridPane();
-        prevNextButtonsCheck(retrievedBoardgames);            // Initialize buttons
+        prevNextButtonsCheck(retrievedBoargamesByMongo.size());            // Initialize buttons
     }
 
     public void setDisablePreviousNextRefresh(boolean isVisible){
