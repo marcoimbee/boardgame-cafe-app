@@ -19,10 +19,6 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
     @Query("MATCH (u: User {id: $id}) RETURN u")
     Optional<UserModelNeo4j> findById(@Param("id") @NotNull String id);
 
-
-//    @Query("MATCH (n:User{username: $username})-[:WRITES]->(p:Post)\n" +
-//            "WITH n, collect(p) AS posts\n" +
-//            "RETURN n, posts")
     @Query("MATCH (u: User {username: $username}) RETURN u")
     Optional<UserModelNeo4j> findByUsername(String username);
 

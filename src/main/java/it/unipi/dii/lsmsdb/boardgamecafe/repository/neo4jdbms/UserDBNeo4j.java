@@ -20,9 +20,6 @@ public class UserDBNeo4j {
     @Autowired
     Neo4jOperations neo4jOperations; //useful for aggregation
 
-    public UserRepoNeo4j getUserNeo4jDB() {
-        return userNeo4jDB;
-    }
 
     public boolean addUser(UserModelNeo4j user) {
         try {
@@ -73,38 +70,6 @@ public class UserDBNeo4j {
             ex.printStackTrace();
         }
         return user;
-    }
-
-    //To_Check
-    public Optional<UserModelNeo4j> getByUsernameWithComments(String username) {
-        Optional<UserModelNeo4j> user = Optional.empty();
-        try {
-            user = userNeo4jDB.findByNameWithComments(username);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return user;
-    }
-
-    public List<UserModelNeo4j> getFollowers(String username) {
-        List<UserModelNeo4j> followers = new ArrayList<>();
-        try {
-            return userNeo4jDB.findFollowersByUsername(username);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return followers;
-    }
-
-    public List<UserModelNeo4j> getFollowing(String username) {
-        List<UserModelNeo4j> followers = new ArrayList<>();
-        try {
-            return userNeo4jDB.findFollowingByUsername(username);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return followers;
     }
 
     public void followUser(String following, String followed) {
