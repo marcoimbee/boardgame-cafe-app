@@ -207,22 +207,6 @@ public class PostService {
         return suggestedPostsMongo;
     }
 
-//    public List<PostModelMongo> suggestPostCommentedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
-//        // skipCounter needed for incremental post displaying
-//        List<PostModelNeo4j> postsCommentedByFollowedUsers = postDBNeo4j.
-//                getPostsCommentedByFollowedUsers(currentUser, limitResults, skipCounter);
-//        List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
-//
-//        for (PostModelNeo4j postsCommentedId : postsCommentedByFollowedUsers)
-//        {
-//            Optional<PostModelMongo> postMongo = postDBMongo.findById(postsCommentedId.getId());
-//            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
-//            postMongo.ifPresent(suggestedPostsMongo::add);
-//        }
-//
-//        return suggestedPostsMongo;
-//    }
-
     public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
         // skipCounter needed for incremental post displaying
         List<PostModelNeo4j> postsByFollowedUsers = postDBNeo4j.
