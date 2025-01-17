@@ -22,7 +22,6 @@ public class BoardgameModelMongo {
     private List<String> boardgameCategory = new ArrayList<>();
     private List<String> boardgameDesigner = new ArrayList<>();
     private List<String> boardgamePublisher = new ArrayList<>();
-    private List<ReviewModelMongo> reviews = new ArrayList<>();
 
     private Double avgRating;
 
@@ -170,12 +169,6 @@ public class BoardgameModelMongo {
 
 
     // --- Reviews Management ---
-    public List<ReviewModelMongo> getReviews() {
-        return reviews;
-    }
-    public void setReviews(List<ReviewModelMongo> reviewMongo) {
-        this.reviews = reviewMongo;
-    }
 
     public void updateAvgRatingAfterReviewDeletion(int deletedRating)
     {
@@ -202,34 +195,6 @@ public class BoardgameModelMongo {
         //this.reviews.add(0, reviewMongo);
     }
 
-    public ReviewModelMongo getReviewInBoardgame(String id) {
-        if (!this.reviews.isEmpty()) {
-            for (ReviewModelMongo reviewMongo : reviews) {
-                if (reviewMongo.getId().equals(id)) {
-                    return reviewMongo;
-                }
-            }
-        }
-        return null;
-    }
-
-    public boolean deleteReview(String id) {
-        ReviewModelMongo reviewMongo = this.getReviewInBoardgame(id);
-        if (reviewMongo != null) {
-            this.reviews.remove(reviewMongo);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean deleteReview(ReviewModelMongo review) {
-        if (this.reviews.contains(review))
-        {
-            this.reviews.remove(review);
-            return true;
-        }
-        return false;
-    }
     public double getAvgRating() {
         return avgRating;
     }
@@ -261,7 +226,6 @@ public class BoardgameModelMongo {
                 ", boardgameCategoryList=" + boardgameCategory +
                 ", boardgameDesignerList=" + boardgameDesigner +
                 ", boardgamePublisherList=" + boardgamePublisher +
-                ", reviews=" + reviews +
                 '}';
     }
 }

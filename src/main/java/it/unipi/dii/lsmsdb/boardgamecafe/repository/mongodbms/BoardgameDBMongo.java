@@ -259,25 +259,6 @@ public class BoardgameDBMongo {
         return boardgameOfThisCategory;
     }
 
-    public boolean setRatingCount(BoardgameModelMongo boardgame)
-    {
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("_id").is(boardgame.getId())),
-                Aggregation.project().and("reviewCount").as("newReviewCount")
-        );
-
-        Update update = new Update();
-        update.set("reviewCount", boardgame.getReviews().size());
-
-        UpdateResult result = mongoOperations.updateFirst(
-                Query.query(Criteria.where("_id").is(boardgame.getId())),
-                update,
-                "boardgames"
-        );
-
-        return (result.getModifiedCount() > 0);
-    }
-
     public void updateReviewCount(String boardgameName) {
         // Aggregation pipeline per contare le reviews
         Aggregation aggregation = Aggregation.newAggregation(

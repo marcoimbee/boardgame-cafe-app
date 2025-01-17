@@ -317,7 +317,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         initComboBox(categories, designers, publishers);
         setEditFieldsVisibility(false);
-        prevNextButtonsCheck(boardgame.getReviews());
+        prevNextButtonsCheck(boardgame.getReviewCount());
     }
 
     private void setImage() {
@@ -370,7 +370,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (updatedReview != null) {
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
-            boardgame.getReviews().replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            //boardgame.getReviews().replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
             fillGridPane();
             setAverageRating();
         }
@@ -451,9 +451,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         //clear variables
         this.tooltipLblRating.hide();
         reviews.clear();
-        categories.clear();
-        designers.clear();
-        publishers.clear();
+//        categories.clear();
+//        designers.clear();
+//        publishers.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
         nextButton.setDisable(true);
@@ -471,9 +471,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         shiftDownSingleObjectGridPane = false;
     }
 
-    void prevNextButtonsCheck(List<ReviewModelMongo> reviews) {
-        if ((reviews.size() > 0)) {
-            if ((reviews.size() < LIMIT)) {
+    void prevNextButtonsCheck(int reviewsCount) {
+        if ((reviewsCount > 0)) {
+            if ((reviewsCount < LIMIT)) {
                 if (skipCounter <= 0) {
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
@@ -505,7 +505,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
         List<ReviewModelMongo> reviews = reviewMongoOp.
                 findRecentReviewsByBoardgame(boardgameName, LIMIT, skipCounter);
-        prevNextButtonsCheck(reviews);
+        prevNextButtonsCheck(reviews.size());
 
         return reviews;
     }
@@ -575,7 +575,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
                     this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviewCount()));
                 }
-                prevNextButtonsCheck(reviews);
+                prevNextButtonsCheck(reviews.size());
             });
 
             // Discard review button behavior
@@ -672,7 +672,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         resetPage();
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
         fillGridPane();
-        prevNextButtonsCheck(reviews);
+        prevNextButtonsCheck(reviews.size());
     }
 
     private void initComboBox(List<String> categories,
@@ -846,7 +846,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 // Esegui l'aggiornamento del modello del gioco
                 BoardgameModelMongo updatedBoardgame = new BoardgameModelMongo();
                 updatedBoardgame.setId(boardgame.getId()); // Mantieni lo stesso ID
-                updatedBoardgame.setReviews(boardgame.getReviews());
 
                 // Aggiorna solo i campi riempiti o modificati
                 updatedBoardgame.setImage(image.isEmpty()
@@ -942,7 +941,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         clearFields();
         prepareScene();
-        prevNextButtonsCheck(boardgame.getReviews());
+        prevNextButtonsCheck(boardgame.getReviewCount());
     }
     public void onClickAddCategoryButton() {
         String category = updateCategoryTextField.getText().trim();
