@@ -178,9 +178,8 @@ public class BoardgameService {
     }
 
     @Transactional
-    public boolean updateBoardgame(BoardgameModelMongo boardgameMongo) {
+    public boolean updateBoardgame(BoardgameModelMongo boardgameMongo, String oldBoardgameName) {
         try {
-
             String boardgameId = boardgameMongo.getId();
             String boardgameName = boardgameMongo.getBoardgameName();
             String boardgameImage = boardgameMongo.getImage();
@@ -197,6 +196,13 @@ public class BoardgameService {
             //Gestione MongoDB
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
                 throw new RuntimeException("\nError in updating the Board Game in MongoDB.");
+            }
+
+            // Editing the reviews related to the boardgame - only do this if the boardgame name was updated
+            if (!boardgameName.equals(oldBoardgameName)) {
+                if (!reviewMongoOp.updateReviewsAfterBoardgameUpdate(oldBoardgameName, boardgameName)) {
+                    throw new RuntimeException("Error while updating the reviews of the updated boardgame (MongoDB).");
+                }
             }
 
             //Gestione Neo4j (NEW)
