@@ -97,9 +97,9 @@ public class BoardgameService {
 
         try {
             //--- Deleting reviews both from MongoDB and Neo4j ---
-//            if (!deleteBoardgameReviews(boardgame)){
-//                throw new RuntimeException("\nError while deleting the review from User list.");
-//            }
+            if (!deleteBoardgameReviews(boardgame)){
+                throw new RuntimeException("\nError while deleting the review from User list.");
+            }
 
             //--- Deleting posts both from MongoDB and Neo4j ---
             if (!deleteBoardgamePosts(boardgameName)){
@@ -124,23 +124,23 @@ public class BoardgameService {
         return true;
     }
 
-//    private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
-//
-//        List<ReviewModelMongo> boardgameReviewsList = boardgame.getReviews();
-//        if (boardgameReviewsList.isEmpty())
-//        {
-//            System.out.println("\nThere are no REVIEWS to eliminate for this boardgame");
-//        } else {
-//            // delete reviews in their own collection
-//            if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
-//                logger.error("Error in deleting reviews about boardgame");
-//                return false;
-//            }
-//            System.out.println("\nReviews regarding the Boardgame elminated " +
-//                                  "from Mongo DB, also from its related Authors");
-//        }
-//        return true;
-//    }
+    private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
+
+        List<ReviewModelMongo> boardgameReviewsList = reviewMongoOp.findReviewByUsername(boardgame.getBoardgameName());
+        if (boardgameReviewsList.isEmpty())
+        {
+            System.out.println("\nThere are no REVIEWS to eliminate for this boardgame");
+        } else {
+            // delete reviews in their own collection
+            if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
+                logger.error("Error in deleting reviews about boardgame");
+                return false;
+            }
+            System.out.println("\nReviews regarding the Boardgame elminated " +
+                                  "from Mongo DB, also from its related Authors");
+        }
+        return true;
+    }
 
     private boolean deleteBoardgamePosts(String boardgameName) {
 
