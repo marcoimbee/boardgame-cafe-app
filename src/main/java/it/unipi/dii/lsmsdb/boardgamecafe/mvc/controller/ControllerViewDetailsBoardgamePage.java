@@ -452,9 +452,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         //clear variables
         this.tooltipLblRating.hide();
         reviews.clear();
-//        categories.clear();
-//        designers.clear();
-//        publishers.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
         nextButton.setDisable(true);
@@ -932,6 +929,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.cancelButton.setVisible(true);
         this.saveChangesButton.setVisible(true);
         scrollSet.setVvalue(0);
+        prepareScene();
         setEditFieldsVisibility(true);
     }
 
