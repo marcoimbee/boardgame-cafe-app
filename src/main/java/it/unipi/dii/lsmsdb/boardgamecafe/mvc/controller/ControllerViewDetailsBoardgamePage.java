@@ -252,6 +252,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void setAverageRating() {
+
         Double avgRating = boardgame.getAvgRating(); //ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
         //if (avgRating == null)
         //    ratingFromTop = ; // reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
@@ -370,7 +371,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (updatedReview != null) {
             modelBean.putBean(Constants.UPDATED_REVIEW, null);
             reviews.replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
-            //boardgame.getReviews().replaceAll(review -> review.getId().equals(updatedReview.getId()) ? updatedReview : review);
+            boardgame = boardgameDBMongo.findBoardgameById(boardgame.getId()).get();
             fillGridPane();
             setAverageRating();
         }
@@ -451,9 +452,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         //clear variables
         this.tooltipLblRating.hide();
         reviews.clear();
-//        categories.clear();
-//        designers.clear();
-//        publishers.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
         nextButton.setDisable(true);
@@ -931,6 +929,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.cancelButton.setVisible(true);
         this.saveChangesButton.setVisible(true);
         scrollSet.setVvalue(0);
+        prepareScene();
         setEditFieldsVisibility(true);
     }
 
