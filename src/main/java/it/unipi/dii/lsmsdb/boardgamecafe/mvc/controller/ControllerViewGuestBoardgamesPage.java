@@ -1,11 +1,11 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.BoardgameListener;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -53,11 +53,13 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
     @Autowired
+    private BoardgameDBNeo4j boardgameDBNeo4j;
+    @Autowired
     private ControllerObjectBoardgame controllerObjectBoardgame;
     private final StageManager stageManager;
 
     //Boardgame Variables
-    private List<BoardgameModelMongo> boardgames = new ArrayList<>();
+    private List<BoardgameModelNeo4j> boardgames = new ArrayList<>();
     private BoardgameListener boardgameListener;
 
     //Utils Variables
@@ -156,9 +158,9 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         scrollSet.setVvalue(0);
     }
 
-    void prevNextButtonsCheck(List<BoardgameModelMongo> boardgames){
-        if((boardgames.size() > 0)){
-            if((boardgames.size() < LIMIT)){
+    void prevNextButtonsCheck(int boardgamesNumber){
+        if((boardgamesNumber > 0)){
+            if((boardgamesNumber < LIMIT)){
                 if(skipCounter <= 0 ){
                     previousButton.setDisable(true);
                     nextButton.setDisable(true);
@@ -197,12 +199,12 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         boardgames.clear();
         skipCounter = 0;
     }
-    private List<BoardgameModelMongo> getData(){
+    private List<BoardgameModelNeo4j> getData(){
 
-        List<BoardgameModelMongo> boardgames =
-                boardgameDBMongo.findRecentBoardgames(LIMIT, skipCounter);
+        List<BoardgameModelNeo4j> boardgames =
+                boardgameDBNeo4j.findRecentBoardgames(LIMIT, skipCounter);
 
-        prevNextButtonsCheck(boardgames);
+        prevNextButtonsCheck(boardgames.size());
         return boardgames;
     }
 
@@ -218,7 +220,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
         rowGridPane = 0;
         setGridPaneColumnAndRow();
 
-        boardgameListener = (MouseEvent mouseEvent, BoardgameModelMongo boardgame) -> {
+        boardgameListener = (MouseEvent mouseEvent, String boardgameId) -> {
             String title = "Content Access Permissions";
             String message = "" +
                     "\t\t\tCurious To View The Content Of This Boardgame?\n" +
@@ -229,7 +231,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
 
         //CREATE FOR EACH BOARDGAME AN ITEM (ObjectBoardgame)
         try {
-            for (BoardgameModelMongo boardgame : boardgames) { // iterando lista di boardgames
+            for (BoardgameModelNeo4j boardgame : boardgames) { // iterando lista di boardgames
 
                 Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTBOARDGAME.getFxmlFile());
 
@@ -239,7 +241,7 @@ public class ControllerViewGuestBoardgamesPage implements Initializable {
                 controllerObjectBoardgame.setData(boardgame, boardgameListener, anchorPane, null);
 
                 anchorPane.setOnMouseClicked(event ->{
-                    this.boardgameListener.onClickBoardgameListener(event,boardgame);} );
+                    this.boardgameListener.onClickBoardgameListener(event,boardgame.getId());} );
 
                 //choice number of column
                 if (columnGridPane == 4) {

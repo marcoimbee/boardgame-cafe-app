@@ -2,6 +2,7 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
@@ -346,6 +347,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             }
         } catch (Exception e) {
             System.out.println("ControllerViewBoardgameDetails: download boardgame image failed");
+            String imagePath = getClass().getResource("/images/noImage.jpg").toExternalForm();
+            Image image = new Image(imagePath);
+            this.imageBoardgame.setImage(image);
         }
     }
 
@@ -876,13 +880,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 updatedBoardgame.setReviewCount(boardgame.getReviewCount());
 
 
-                modelBean.putBean(Constants.UPDATED_BOARDGAME, updatedBoardgame);
-                BoardgameModelMongo newBoardgame = (BoardgameModelMongo)
-                                                    modelBean.getBean(Constants.UPDATED_BOARDGAME);
+                modelBean.putBean(Constants.UPDATED_BOARDGAME, BoardgameModelNeo4j.castBoardgameMongoInBoardgameNeo(updatedBoardgame));
 
                 // Esegui l'aggiornamento verso il database e in Grafica se tutto va bene
-                if (updateDbms(newBoardgame, oldBoardgameName)) {
-                    modelBean.putBean(Constants.SELECTED_BOARDGAME, newBoardgame.getId());
+                if (updateDbms(updatedBoardgame, oldBoardgameName)) {
+                    modelBean.putBean(Constants.SELECTED_BOARDGAME, updatedBoardgame.getId());
                     stageManager.showInfoMessage("Update Info",
                             "The boardgame information has been successfully updated!");
                     prepareScene();

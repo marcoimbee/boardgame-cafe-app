@@ -60,12 +60,13 @@ public class BoardgameService {
                 throw new RuntimeException("\nError while inserting the new Boardgame into MongoDB.");
             }
 
-            BoardgameModelNeo4j boardgameForNeo4j = new BoardgameModelNeo4j(
-                    insertedBoardgameMongo.getId(),
-                    insertedBoardgameMongo.getBoardgameName(),
-                    insertedBoardgameMongo.getImage(),
-                    insertedBoardgameMongo.getDescription(),
-                    insertedBoardgameMongo.getYearPublished());
+            BoardgameModelNeo4j boardgameForNeo4j = BoardgameModelNeo4j.castBoardgameMongoInBoardgameNeo(insertedBoardgameMongo);
+//            new BoardgameModelNeo4j(
+//                    insertedBoardgameMongo.getId(),
+//                    insertedBoardgameMongo.getBoardgameName(),
+//                    insertedBoardgameMongo.getImage(),
+//                    insertedBoardgameMongo.getDescription(),
+//                    insertedBoardgameMongo.getYearPublished());
 
             // Gestione Neo4j
             BoardgameModelNeo4j insertedBoardgameNeo4j = boardgameNeo4jOp.addBoardgame(boardgameForNeo4j);
@@ -218,25 +219,25 @@ public class BoardgameService {
         return true;
     }
 
-    public List<BoardgameModelMongo> suggestBoardgamesWithPostsByFollowedUsers(String username, int skipCounter) {
+    public List<BoardgameModelNeo4j> suggestBoardgamesWithPostsByFollowedUsers(String username, int skipCounter) {
         try {
             // Get suggested boardgames' Ids from Neo4J
-            List<String> suggestedBoardgamesId = boardgameNeo4jOp.
+            List<BoardgameModelNeo4j> suggestedBoardgames = boardgameNeo4jOp.
                     getBoardgamesWithPostsByFollowedUsers(username, 10, skipCounter);
             // Init empty list of BoardgameModelMongo objects
-            List<BoardgameModelMongo> suggestedMongoBoardgames = new ArrayList<>();
-            // For each returned Neo4J ID
-            for (String boardgameId: suggestedBoardgamesId) {
-                // Get Mongo object related to that ID
-                Optional<BoardgameModelMongo> suggestedMongoBoardgame = boardgameMongoOp.
-                        findBoardgameById(boardgameId);
-                // If an object is found in Mongo matching such ID
-                suggestedMongoBoardgame.ifPresent(
-                        // Add it to the List that'll be returned
-                        boardgameModelMongo -> suggestedMongoBoardgames.add(boardgameModelMongo)
-                );
-            }
-            return suggestedMongoBoardgames;
+//            List<BoardgameModelMongo> suggestedMongoBoardgames = new ArrayList<>();
+//            // For each returned Neo4J ID
+//            for (String boardgameId: suggestedBoardgamesId) {
+//                // Get Mongo object related to that ID
+//                Optional<BoardgameModelMongo> suggestedMongoBoardgame = boardgameMongoOp.
+//                        findBoardgameById(boardgameId);
+//                // If an object is found in Mongo matching such ID
+//                suggestedMongoBoardgame.ifPresent(
+//                        // Add it to the List that'll be returned
+//                        boardgameModelMongo -> suggestedMongoBoardgames.add(boardgameModelMongo)
+//                );
+//            }
+            return suggestedBoardgames;
         } catch (Exception e) {
             logger.error("ERROR: " + e.getMessage());
             return new ArrayList<>();       // Return empty list in case of exception

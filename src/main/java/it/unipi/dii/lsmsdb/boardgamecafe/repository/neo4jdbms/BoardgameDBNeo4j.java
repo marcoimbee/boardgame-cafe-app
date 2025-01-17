@@ -99,8 +99,8 @@ public class BoardgameDBNeo4j {
     }
 
     // Suggerisci Boardgame su cui hanno fatto post utenti che segui
-    public List<String> getBoardgamesWithPostsByFollowedUsers(String username, int limit, int skipCounter) {
-        List<String> boardgames = new ArrayList<>();
+    public List<BoardgameModelNeo4j> getBoardgamesWithPostsByFollowedUsers(String username, int limit, int skipCounter) {
+        List<BoardgameModelNeo4j> boardgames = new ArrayList<>();
         try {
             boardgames = boardgameRepoNeo4j.getBoardgamesWithPostsByFollowedUsers(username, limit, skipCounter);
         } catch (Exception e) {
@@ -108,5 +108,15 @@ public class BoardgameDBNeo4j {
         }
 
         return boardgames;
+    }
+
+    public List<BoardgameModelNeo4j> findRecentBoardgames(int limit, int skip)
+    {
+        Optional<List<BoardgameModelNeo4j>> optionalRecentBoardgames = Optional.empty();
+        try { optionalRecentBoardgames = boardgameRepoNeo4j.findRecentBoardgames(skip, limit); }
+        catch (Exception e) { System.out.println("Exception BoardgameDBNeoj -> " + e.getMessage()); }
+
+        // this return, if the list is present => return that list, else return an empty list
+        return optionalRecentBoardgames.orElseGet(ArrayList::new);
     }
 }

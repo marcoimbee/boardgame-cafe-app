@@ -3,10 +3,12 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.BoardgameDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.ReviewDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,8 @@ public class ReviewService {
     ReviewDBMongo reviewMongoOp;
     @Autowired
     BoardgameDBMongo boardgameMongoOp;
+    @Autowired
+    BoardgameDBNeo4j boardgameDBNeo4j;
     @Autowired
     UserDBMongo userMongoOp;
 
@@ -189,16 +193,16 @@ public class ReviewService {
 //        return false;
 //    }
 
-    public LinkedHashMap<BoardgameModelMongo, Double> getTopRatedBoardgamePerYear(int minReviews, int limit, int year) {
+    public LinkedHashMap<BoardgameModelNeo4j, Double> getTopRatedBoardgamePerYear(int minReviews, int limit, int year) {
         List<Document> docList = (List<Document>) reviewMongoOp.getTopRatedBoardgamePerYear(minReviews, limit, year).get("results");
-        LinkedHashMap<BoardgameModelMongo, Double> boardgamePairListForParamYear = new LinkedHashMap<>();
+        LinkedHashMap<BoardgameModelNeo4j, Double> boardgamePairListForParamYear = new LinkedHashMap<>();
 
         if (!docList.isEmpty()) {
             List<Document> docTopRated = (List<Document>) docList.get(0).get("topGames");
 
             for (Document doc_boardgame : docTopRated) {
                 String boardgameName = (String) doc_boardgame.get("name");
-                Optional<BoardgameModelMongo> boardgameOptional = this.boardgameMongoOp.findBoardgameByName(boardgameName);
+                Optional<BoardgameModelNeo4j> boardgameOptional = this.boardgameDBNeo4j.findByBoardgameName(boardgameName);
                 Double rating = (Double)doc_boardgame.get("avgRating");
                 boardgameOptional.ifPresent(boardgame -> boardgamePairListForParamYear.put(boardgame, rating));
             }

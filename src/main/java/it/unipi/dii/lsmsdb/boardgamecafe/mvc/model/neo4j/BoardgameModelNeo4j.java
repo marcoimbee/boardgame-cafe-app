@@ -1,5 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -81,6 +83,13 @@ public class BoardgameModelNeo4j {
                 ", name='" + boardgameName + '\'' +
                 ", posts=" + posts +
                 '}';
+    }
+
+    public static BoardgameModelNeo4j castBoardgameMongoInBoardgameNeo(BoardgameModelMongo boardgameMongo)
+    {
+        return new BoardgameModelNeo4j(boardgameMongo.getId(), boardgameMongo.getBoardgameName(),
+                boardgameMongo.getImage(), boardgameMongo.getDescription(),
+                boardgameMongo.getYearPublished());
     }
 }
 
