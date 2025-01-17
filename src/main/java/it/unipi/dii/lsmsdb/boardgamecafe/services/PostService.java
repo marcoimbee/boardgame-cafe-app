@@ -36,6 +36,11 @@ public class PostService {
     private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
     @Transactional
+//    @Retryable(
+//            retryFor = {DataAccessException.class, TransactionSystemException.class},
+//            maxAttempts = 3,
+//            backoff = @Backoff(delay = 2000)
+//    )
     public PostModelMongo insertPost(PostModelMongo postModelMongo)
     {
         try
@@ -56,6 +61,7 @@ public class PostService {
                 Optional<BoardgameModelNeo4j> referredBoardgameOptional = boardgameDBNeo4j.findByBoardgameName(insertedPost.getTag());
                 referredBoardgameOptional.ifPresent(referredBoardgames -> postModelNeo4j.setTaggedGame(referredBoardgames));
             }
+
             if (!postDBNeo4j.addPost(postModelNeo4j)) // The REFERES TO relationship is already added (if exists)
             {
                 deletePost(insertedPost);
@@ -118,25 +124,6 @@ public class PostService {
         return true;
     }
 
-    /*
-        Da eliminare? Questa funzione ritorna il post, avendo solamente il timestamp ed username dell'autore.
-        Può essere davvero utile? Sembra di no, in quanto dovrei avere la lista in locale dei post che ho letto da
-        mongo, e quindi per ognuno di essi dovrei già avere l'id memorizzato.
-        Comunque, per il momento la lascio. -> 29/10/2024
-    public String getPostId(PostModelMongo postModelMongo)
-    {
-
-        Optional<PostModelMongo> postResult =
-                postDBMongo.findByUsernameAndTimestamp(postModelMongo.getUsername(), postModelMongo.getTimestamp());
-        if (postResult.isPresent()) {
-            return postResult.get().getId();
-        }
-        else {
-            logger.error("Post not found");
-        }
-        return "";
-    }
-    */
     public void likeOrDislikePost(String username, String postId)
     {
         try {
@@ -171,25 +158,6 @@ public class PostService {
             return false; // Restituisce false in caso di errore
         }
     }
-//    fra: NON USATA. Da eliminare? -> 29/12/2024
-//    public Optional<PostModelMongo> showMostLikedPost() {
-//        try {
-//            // Ottieni il post con il maggior numero di like da Neo4j tramite la relativa relazione LIKES
-//            PostModelNeo4j mostLikedPost = postDBNeo4j.findPostWithMostLikes();
-//
-//            // Se il post con più like esiste, recupera da MongoDB lo stesso post utilizzando il suo ID
-//            if (mostLikedPost != null) {
-//                // Usa il metodo findById per ottenere il post dal database Mongo
-//                return postDBMongo.findById(mostLikedPost.getId());
-//            } else {
-//                return Optional.empty(); // Restituisce un Optional vuoto se non ci sono post (meglio del null in questo caso)
-//            }
-//        } catch (Exception ex) {
-//            // Log dell'eccezione
-//            logger.error("Error fetching most liked post: " + ex.getMessage());
-//            return Optional.empty(); // Restituisce un Optional vuoto in caso di errore
-//        }
-//    }
 
     public List<PostModelMongo> suggestPostLikedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
         // skipCounter needed for incremental post displaying
@@ -206,22 +174,6 @@ public class PostService {
 
         return suggestedPostsMongo;
     }
-
-//    public List<PostModelMongo> suggestPostCommentedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
-//        // skipCounter needed for incremental post displaying
-//        List<PostModelNeo4j> postsCommentedByFollowedUsers = postDBNeo4j.
-//                getPostsCommentedByFollowedUsers(currentUser, limitResults, skipCounter);
-//        List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
-//
-//        for (PostModelNeo4j postsCommentedId : postsCommentedByFollowedUsers)
-//        {
-//            Optional<PostModelMongo> postMongo = postDBMongo.findById(postsCommentedId.getId());
-//            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
-//            postMongo.ifPresent(suggestedPostsMongo::add);
-//        }
-//
-//        return suggestedPostsMongo;
-//    }
 
     public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
         // skipCounter needed for incremental post displaying
@@ -253,23 +205,8 @@ public class PostService {
 
     @Transactional
     public boolean insertComment(CommentModel comment, PostModelMongo post, UserModelNeo4j user) {
-        try {
-            //CommentModelMongo insertedCommentResult = commentMongo.addComment(comment);         // Inserting the comment in MongoDB
-            //if (insertedCommentResult == null) {
-            //    throw new RuntimeException("Error while inserting the new MongoDB comment.");
-            //}
-//            String newCommentId = comment.getId();
-//
-//            if (!commentDBNeo4j.addComment(new CommentModelNeo4j(newCommentId))) {       // Inserting the comment in Neo4J
-//                //commentMongo.deleteComment(insertedCommentResult);
-//                throw new RuntimeException("Error while inserting the new Neo4J comment (MongoDB comment has been removed).");
-//            }
-//
-//            if (!addCommentRelationshipToNeo4jUser(new CommentModelNeo4j(newCommentId), user)) {       // Creating the needed relationships in Neo4J
-//                deleteComment(comment, post);
-//                throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
-//            }
-
+        try
+        {
             if (!addCommentToMongoPost(comment, post)) {        // Adding the comment to the post's comment list
                 deleteComment(comment, post);
                 throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
@@ -290,12 +227,6 @@ public class PostService {
             if (!postDBMongo.deleteCommentFromArrayInPost(post, comment)) {
                 throw new RuntimeException("Error in deleting comments from array post in MongoDB");
             }
-//            if (!commentDBNeo4j.deleteAndDetachComment(comment.getId())) {
-//                throw new RuntimeException("Error in deleting comments of post in Neo4j");
-//            }
-//            if (!commentMongo.deleteComment(comment)) {
-//                throw new RuntimeException("Error in deleting comment from Comment Collection MongoDB");
-//            }
         }
         catch (Exception ex) {
             System.out.println("Exception deletePost(): " + ex.getMessage());
@@ -303,19 +234,6 @@ public class PostService {
         }
         return true;
     }
-//
-//    private boolean addCommentRelationshipToNeo4jUser(CommentModelNeo4j comment, UserModelNeo4j user) {
-//        try {
-//            user.addWrittenComment(comment);
-//            if(!userDBNeo4j.addUser(user)) {
-//                return false;
-//            }
-//        } catch (Exception e) {
-//            System.out.println("[ERROR] addCommentToUser()@PostService.java generated an exception: " + e.getMessage());
-//            return false;
-//        }
-//        return true;
-//    }
 
     private boolean addCommentToMongoPost(CommentModel comment, PostModelMongo post) {
 
