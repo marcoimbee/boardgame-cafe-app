@@ -7,8 +7,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,12 +20,10 @@ class PostDBNeo4jTest {
     @Autowired
     UserDBNeo4j userDBNeo4j;
 
-    //Boardgame infos
     static PostModelNeo4j testPost1;
     static final String testIdPost1 = "testIdPost1";
     static final String testUsername1 = "testUsername1";
     static final String testIdUsernamme1 = "testIdUsernamme1";
-    //Boardgame infos
     static final String testIdBoardgame = "testIdBoardgame";
     static final String testBoardgameName = "testBoardgameName";
     static final String testImageBoardgame = "testImageLink";
@@ -47,18 +44,18 @@ class PostDBNeo4jTest {
 
     @Test
     @Order(10)
-    void GIVEN_a_post_WHEN_adding_to_Neo4j_THEN_post_is_added_successfully() {
-        var shouldReturnTrue = postDBNeo4j.addPost(testPost1);
+    public void GIVEN_a_post_WHEN_adding_to_Neo4j_THEN_post_is_added_successfully() {
+        boolean shouldReturnTrue = postDBNeo4j.addPost(testPost1);
         assertTrue(shouldReturnTrue);
     }
 
     @Test
     @Order(20)
-    void GIVEN_a_post_id_WHEN_finding_by_id_THEN_the_found_post_has_the_same_id() {
-        var shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
+    public void GIVEN_a_post_id_WHEN_finding_by_id_THEN_the_found_post_has_the_same_id() {
+        Optional<PostModelNeo4j> shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
 
-        var sholdHaveSameId = shouldBeNotEmpty.get();
-        assertEquals(testIdPost1, sholdHaveSameId.getId());
+        PostModelNeo4j shouldHaveSameId = shouldBeNotEmpty.get();
+        assertEquals(testIdPost1, shouldHaveSameId.getId());
     }
 
     @Test
@@ -70,11 +67,23 @@ class PostDBNeo4jTest {
     }
 
     @Test
-    @Order(200)
+    @Order(40)
     void GIVEN_a_post_WHEN_deleting_the_post_and_all_its_references_THEN_deletion_is_successful() {
-        var shouldReturnTrue = userDBNeo4j.deleteUserDetach(testAuthor.getUsername());
+        boolean shouldReturnTrue = userDBNeo4j.deleteUserDetach(testAuthor.getUsername());
         assertTrue(shouldReturnTrue);
         shouldReturnTrue = postDBNeo4j.deletePost(testIdPost1);
         assertTrue(shouldReturnTrue);
+    }
+
+    @Test
+    @Order(50)
+    public void GIVEN_post_referred_to_boardgame_WHEN_deleting_by_referred_boardgame_THEN_post_is_deleted() {
+        assertTrue(postDBNeo4j.deleteByReferredBoardgame(testIdBoardgame));
+    }
+
+    @Test
+    @Order(60)
+    public void GIVEN_post_by_user_WHEN_deleting_by_username_THEN_post_is_deleted() {
+        assertTrue(postDBNeo4j.deleteByUsername(testUsername1));
     }
 }
