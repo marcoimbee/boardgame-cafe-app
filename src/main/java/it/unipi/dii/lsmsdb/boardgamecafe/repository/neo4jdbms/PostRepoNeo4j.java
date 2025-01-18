@@ -1,14 +1,13 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
+
 import org.jetbrains.annotations.NotNull;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
-
 
 @Repository
 public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
@@ -41,39 +40,29 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
     @Query("MATCH (p:Post)<-[:LIKES]-(:User) RETURN p, COUNT(*) AS likeCount ORDER BY likeCount DESC LIMIT 1")
     PostModelNeo4j findMostLikedPost();
 
-    @Query("MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-\n" +
-            "[:LIKES]->(p:Post), (p)<-[l:LIKES]-(:User)\n" +
-            "WHERE NOT EXISTS{MATCH (u)-[:LIKES]->(p)}\n" +
-            "WITH p.id as id, COUNT(l) as likes\n" +
-            "RETURN DISTINCT id, likes\n" +
-            "ORDER BY likes desc\n" +
-            "SKIP $skipCounter\n" +
-            "LIMIT $limit")
+    @Query("""
+            MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-
+            [:LIKES]->(p:Post), (p)<-[l:LIKES]-(:User)
+            WHERE NOT EXISTS{MATCH (u)-[:LIKES]->(p)}
+            WITH p.id as id, COUNT(l) as likes
+            RETURN DISTINCT id, likes
+            ORDER BY likes desc
+            SKIP $skipCounter
+            LIMIT $limit
+            """)
     List<PostModelNeo4j> findPostsLikedByFollowedUsers(@Param("username") String username,
                                                        @Param("limit") int limitResults,
                                                        @Param("skipCounter") int skipCounter);
 
-
-    //Valutare se lasciare l'ordinamento in base ai likes (rallenta molto)
-    @Query("MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-[:WRITES_COMMENT]->(c:Comment)-[:REPLY]->(p:Post)\n" +
-            "OPTIONAL MATCH (p)<-[l:LIKES]-(:User)\n" + //permette di includere anche post che non hanno ricevuto "mi piace"
-            "WHERE NOT EXISTS{ MATCH (u)-[:WRITES]->(c)-[:REPLY]->(p) }\n" +
-            "WITH p.id AS id, COUNT(l) AS likes\n" +
-            "RETURN DISTINCT id, likes\n" +
-            "ORDER BY likes DESC\n" +
-            "SKIP $skipCounter\n" +
-            "LIMIT $limit")
-    List<PostModelNeo4j> findPostsCommentedByFollowedUsers(@Param("username") String username,
-                                                           @Param("limit") int limitResults,
-                                                           @Param("skipCounter") int skipCounter);
-
-    @Query("MATCH (currentUser:User {username: $username})-[:FOLLOWS]->(followedUser:User)-[:WRITES_POST]->(post:Post)\n" +
-            "OPTIONAL MATCH (post)-[:LIKES]->(likedBy:User)\n" +
-            "WITH post, COUNT(likedBy) AS likeCount\n" +
-            "RETURN post\n" +
-            "ORDER BY likeCount DESC\n" +
-            "SKIP $skipCounter\n" +
-            "LIMIT $limit")
+    @Query("""
+            MATCH (currentUser:User {username: $username})-[:FOLLOWS]->(followedUser:User)-[:WRITES_POST]->(post:Post)
+            OPTIONAL MATCH (post)-[:LIKES]->(likedBy:User)
+            WITH post, COUNT(likedBy) AS likeCount
+            RETURN post
+            ORDER BY likeCount DESC
+            SKIP $skipCounter
+            LIMIT $limit
+            """)
     List<PostModelNeo4j> findPostsCreatedByFollowedUsers(@Param("username") String username,
                                                          @Param("limit") int limitResults,
                                                          @Param("skipCounter") int skipCounter);

@@ -11,38 +11,35 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
-
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.*;
-
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-
 
 @Component
 public class PostDBMongo {
-
-    public PostDBMongo() {}
 
     @Autowired
     private PostRepoMongo postMongo;
     @Autowired
     private MongoOperations mongoOperations;
 
-    public PostModelMongo addPost(PostModelMongo post)
-    {
-        try { return postMongo.save(post); }
-        catch (Exception e) { System.err.println("[ERROR] addPost@PostDBMongo.java raised an exception: " + e.getMessage()); }
-        return null;
+    public PostDBMongo() {}
+
+    public PostModelMongo addPost(PostModelMongo post) {
+        try {
+            return postMongo.save(post);
+        } catch (Exception e) {
+            System.err.println("[ERROR] addPost()@PostDBMongo.java raised an exception: " + e.getMessage());
+            return null;
+        }
     }
 
-    public boolean updatePost(String id, PostModelMongo updated)
-    {
+    public boolean updatePost(String id, PostModelMongo updated) {
         try {
             Optional<PostModelMongo> old = postMongo.findById(id);
-            if (!old.isPresent()) {
-                System.out.println("The updated post is not in DB!");
+            if (old.isEmpty()) {
+                System.err.println("[ERROR] The post that's being updated was not found in the DB.");
                 return false;
             }
             PostModelMongo post = old.get();
@@ -54,38 +51,33 @@ public class PostDBMongo {
             post.setComments(updated.getComments());
             post.setLikeCount(updated.getLikeCount());
             postMongo.save(post);
-        }
-        catch (Exception e)
-        {
-            System.err.println("Exception update post -> " + e.getMessage());
+
+            return true;
+        } catch (Exception e) {
+            System.err.println("[ERROR] updatePost()@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean deletePost(PostModelMongo post) {
         try {
             postMongo.delete(post);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+            return true;
+        } catch (Exception e) {
+            System.err.println("[ERROR] deletePost()@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
-    public boolean updateLikeCount(String postId, boolean increment)
-    {
-        try
-        {
+    public boolean updateLikeCount(String postId, boolean increment) {
+        try {
             Query query = new Query(Criteria.where("_id").is(postId));
-            Update update = new Update().inc("like_count", ( (increment) ? 1 : -1 ));
+            Update update = new Update().inc("like_count", (increment) ? 1 : -1);
             UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
+
             return (result.getMatchedCount() > 0);
-        }
-        catch (Exception e)
-        {
-            System.out.println("Exception updateLikeCount(): " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("[ERROR] updateLikeCount()@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
     }
@@ -94,9 +86,8 @@ public class PostDBMongo {
         Optional<PostModelMongo> post = Optional.empty();
         try {
             post = postMongo.findById(id);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findById()@PostDBMongo.java raised an exception: " + e.getMessage());
         }
         return post;
     }
@@ -105,9 +96,8 @@ public class PostDBMongo {
         List<PostModelMongo> posts = new ArrayList<>();
         try {
             posts = postMongo.findByUsername(username);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findByUsername()@PostDBMongo.java raised an exception: " + e.getMessage());
         }
         return posts;
     }
@@ -121,7 +111,7 @@ public class PostDBMongo {
             query.skip(skip).limit(limit);
             posts = mongoOperations.find(query, PostModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findRecentPostsByUsername()@PostDBMongo.java raised an exception: " + e.getMessage());
         }
         return posts;
     }
@@ -129,23 +119,21 @@ public class PostDBMongo {
     public boolean deleteByTag(String bgName) {
         try {
             postMongo.deleteByTag(bgName);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+            return true;
+        } catch (Exception e) {
+            System.err.println("[ERROR] deleteByTag()@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean deleteByUsername(String username) {
         try {
             postMongo.deleteByUsername(username);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+            return true;
+        } catch (Exception e) {
+            System.err.println("[ERROR] deleteByUsername()@PostDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
     public List<PostModelMongo> findByTag(String bgName, int limit, int skip) {
@@ -156,9 +144,8 @@ public class PostDBMongo {
             query.skip(skip);
             query.limit(limit);
             posts = mongoOperations.find(query, PostModelMongo.class);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findByTag()@PostDBMongo.java raised an exception: " + e.getMessage());
         }
         return posts;
     }
@@ -169,7 +156,7 @@ public class PostDBMongo {
             posts = postMongo.findByTag(bgName);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findByTag()@PostDBMongo.java raised an exception: " + e.getMessage());
         }
         return posts;
     }
@@ -182,7 +169,7 @@ public class PostDBMongo {
             query.skip(skip).limit(limit);
             posts = mongoOperations.find(query, PostModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteByUsername()@PostDBMongo.java raised an exception: " + e.getMessage());
         }
         return posts;
     }
@@ -201,7 +188,7 @@ public class PostDBMongo {
                 .and(ArrayOperators.Size.lengthOfArray("comments")).as("numComments");
 
         SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numComments")
-                .and(Sort.by(Sort.Direction.ASC, "_id")));  // Ordinamento per numComments e _id
+                .and(Sort.by(Sort.Direction.ASC, "_id")));  // Ordering by numComments and _id
 
         SkipOperation skipOperation = skip(skip);
 
@@ -257,28 +244,23 @@ public class PostDBMongo {
         return results.getRawResults();
     }
 
-    //Operazioni di Aggiornamento Specifici (granularità fine sui campi del document)
-    public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModel comment)
-    {
+    public boolean deleteCommentFromArrayInPost(PostModelMongo post, CommentModel comment) {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Query matchCommentById = new Query(Criteria.where("_id").is(comment.getId()));
         Update update = new Update().pull("comments", matchCommentById);
         UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
 
-        // Se almeno un documento è stato modificato, l'update è riuscito
-        return result.getModifiedCount() > 0;
+        return result.getModifiedCount() > 0;     // At least a document got modified, update was successful
     }
 
-    public boolean addCommentInPostArray(PostModelMongo post, CommentModel comment)
-    {
+    public boolean addCommentInPostArray(PostModelMongo post, CommentModel comment) {
         Query query = new Query(Criteria.where("_id").is(post.getId()));
         Update update = new Update().push("comments",
                 new BasicDBObject("$each", Collections.singletonList(comment))
                         .append("$position", 0));
         UpdateResult result = mongoOperations.updateFirst(query, update, PostModelMongo.class);
 
-        // Se almeno un documento è stato modificato, l'update è riuscito
-        return result.getModifiedCount() > 0;
+        return result.getModifiedCount() > 0;       // At least a document got updated, the update is successful
     }
 
     public boolean updatePostComment(PostModelMongo post, CommentModel updatedComment) {
@@ -298,7 +280,7 @@ public class PostDBMongo {
 
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] updatePostComment@PostDBMongo raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] updatePostComment()@PostDBMongo raised an exception: " + ex.getMessage());
             return false;
         }
     }

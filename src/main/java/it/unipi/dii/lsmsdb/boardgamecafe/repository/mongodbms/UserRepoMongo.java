@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +14,6 @@ public interface UserRepoMongo extends MongoRepository<GenericUserModelMongo, St
     Optional<GenericUserModelMongo> findByUsername(String username);
 
     Optional<GenericUserModelMongo> findByUsername(String username, boolean includeAdmins);
-
 
     Optional<GenericUserModelMongo> findByEmail(String email);
 
