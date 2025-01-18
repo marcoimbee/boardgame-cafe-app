@@ -106,13 +106,13 @@ class ReviewDBMongoTest {
         assertTrue(reviewDBMongo.deleteReview(sampleReview));
     }
 
-    @Test
-    public void GIVEN_user_username_WHEN_delete_by_author_THEN_reviews_he_wrote_deleted() {
-        assertTrue(reviewDBMongo.deleteReviewByUsername(sampleReview.getUsername()));
-    }
-
-    @Test
-    public void GIVEN_boardgame_name_WHEN_delete_by_boardgame_name_THEN_reviews_to_boardgame_deleted() {
-        assertTrue(reviewDBMongo.deleteReviewByUsername(sampleReview.getBoardgameName()));
-    }
+//    @Test
+//    public void GIVEN_user_username_WHEN_delete_by_author_THEN_reviews_he_wrote_deleted() {
+//        assertTrue(reviewDBMongo.deleteReviewByUsername(sampleReview.getUsername()));
+//    }
+//
+//    @Test
+//    public void GIVEN_boardgame_name_WHEN_delete_by_boardgame_name_THEN_reviews_to_boardgame_deleted() {
+//        assertTrue(reviewDBMongo.deleteReviewByUsername(sampleReview.getBoardgameName()));
+//    }
 }

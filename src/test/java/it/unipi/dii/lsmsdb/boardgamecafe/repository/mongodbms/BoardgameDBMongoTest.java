@@ -223,17 +223,4 @@ class BoardgameDBMongoTest {
         assertTrue(boardgame.isEmpty());
     }
 
-    @Test
-    public void setAvgRatingValueAndReviewCountForEachBoardgame()
-    {
-        List<BoardgameModelMongo> allBoardgame = boardgameDBMongo.findRecentBoardgames(22000, 0);
-        for (BoardgameModelMongo boardgame : allBoardgame)
-        {
-            String boardgameId = boardgame.getId();
-            String boardgameName = boardgame.getBoardgameName();
-            Double avgRating = reviewMongoOp.getAvgRatingByBoardgameName(boardgameName);
-            boardgameDBMongo.setAvgRating(boardgameId, avgRating);
-            boardgameDBMongo.updateReviewCount(boardgameName);
-        }
-    }
 }
