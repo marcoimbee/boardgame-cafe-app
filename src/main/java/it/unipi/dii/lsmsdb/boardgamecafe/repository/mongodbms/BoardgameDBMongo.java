@@ -1,20 +1,14 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,31 +27,19 @@ public class BoardgameDBMongo {
         try {
             return boardgameRepoMongoOp.save(boardgame);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] addBoardgame()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     public boolean deleteBoardgame(BoardgameModelMongo boardgame) {
         try {
             boardgameRepoMongoOp.delete(boardgame);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteBoardgame()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
-    }
-
-    public boolean deleteReviewInBoardgameReviewsById(String boardgameName, String reviewId) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("boardgameName").is(boardgameName));
-
-        Update update = new Update();
-        update.pull("reviews", new BasicDBObject("_id", new ObjectId(reviewId)));
-
-        UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
-
-        return (result.getModifiedCount() > 0);
     }
 
     public Optional<BoardgameModelMongo> findBoardgameByName(String boardgameName) {
@@ -74,7 +56,6 @@ public class BoardgameDBMongo {
         try {
             Optional<BoardgameModelMongo> boardgame = boardgameRepoMongoOp.findById(id);
             if (boardgame.isPresent()) {
-
                 BoardgameModelMongo boardgameToBeUpdated = boardgame.get();
 
                 boardgameToBeUpdated.setBoardgameName(newBoardgame.getBoardgameName());
@@ -91,13 +72,13 @@ public class BoardgameDBMongo {
                 boardgameToBeUpdated.setAvgRating(newBoardgame.getAvgRating());
                 boardgameToBeUpdated.setReviewCount(newBoardgame.getReviewCount());
 
-                this.addBoardgame(boardgameToBeUpdated); //Uso di save per aggiornare tutto il document
+                this.addBoardgame(boardgameToBeUpdated);
             }
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] updateBoardgameMongo()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
     public List<BoardgameModelMongo> findRecentBoardgames(int limit, int skip) {
@@ -108,7 +89,7 @@ public class BoardgameDBMongo {
             query.skip(skip).limit(limit);
             boardgames = mongoOperations.find(query, BoardgameModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findRecentBoardgames()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
         }
         return boardgames;
     }
@@ -116,13 +97,14 @@ public class BoardgameDBMongo {
     public List<BoardgameModelMongo> findBoardgamesStartingWith(String namePrefix, int limit, int skip) {
         List<BoardgameModelMongo> boardgames = null;
         try {
-            Query query = new Query(); // ricordati che la 'i', serve per ignorare minuscole e maiuscole nella ricerca
-            query.addCriteria(Criteria.where("boardgameName").regex("^" + namePrefix, "i"));
+            Query query = new Query();
+            query.addCriteria(Criteria.where("boardgameName").regex("^" + namePrefix, "i")); // 'i' ignores lowercase and uppercase characters in the search
             query.with(Sort.by(Sort.Order.desc("yearPublished"), Sort.Order.asc("_id")));
             query.skip(skip).limit(limit);
             boardgames = mongoOperations.find(query, BoardgameModelMongo.class);
+        } catch (Exception e) {
+            System.err.println("[ERROR] findBoardgamesStartingWith()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
         }
-        catch (Exception e) { e.printStackTrace(); }
         return boardgames;
     }
 
@@ -131,25 +113,16 @@ public class BoardgameDBMongo {
         try {
             boardgame = boardgameRepoMongoOp.findById(boardgameId);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findBoardgameById()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
         }
         return boardgame;
-    }
-
-    public boolean addReviewInBoardgameArray(BoardgameModelMongo boardgame, ReviewModelMongo newReview) {
-        Query query = new Query(Criteria.where("_id").is(boardgame.getId()));
-        Update update = new Update().push("reviews", newReview);
-        UpdateResult result = mongoOperations.updateFirst(query, update, BoardgameModelMongo.class);
-
-        // Se almeno un documento è stato modificato, l'update è riuscito
-        return result.getModifiedCount() > 0;
     }
 
     public List<String> getBoardgameTags() {
         try {
             return boardgameRepoMongoOp.findAllBoardgameNames();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] getBoardgameTags()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -157,30 +130,25 @@ public class BoardgameDBMongo {
     public List<String> getBoardgamesCategories() {
         List<String> categories = new ArrayList<>();
         try {
-            // Costruzione della pipeline di aggregazione
             Aggregation aggregation = Aggregation.newAggregation(
-                    // Decomposizione dell'array boardgameCategory
-                    Aggregation.unwind("boardgameCategory"),
-                    // Raggruppamento per ottenere valori univoci
+                    Aggregation.unwind("boardgameCategory"),        // Unwrapping categories
                     Aggregation.group("boardgameCategory").first("boardgameCategory").as("category"),
-                    // Proiezione per restituire solo i valori delle categorie
-                    Aggregation.project("category")
+                    Aggregation.project("category")     // Return just the category values
             );
 
-            // Esecuzione dell'aggregazione
-            AggregationResults<Document> results = mongoOperations.aggregate(
+            AggregationResults<Document> results = mongoOperations.aggregate(       // Aggregation pipeline execution
                     aggregation,
                     "boardgames",
                     Document.class
             );
 
-            // Estrazione delle categorie dai risultati
-            results.getMappedResults().forEach(doc -> categories.add(doc.getString("category")));
+            results.getMappedResults().forEach(         // Getting the categories from the results
+                    doc -> categories.add(doc.getString("category"))
+            );
 
-            // Rimozione di eventuali valori vuoti
-            categories.removeIf(String::isEmpty);
+            categories.removeIf(String::isEmpty);       // Removing potential empty values
         } catch (Exception e) {
-            System.out.println("Exception getBoardgamesCategories() -> " + e.getMessage());
+            System.err.println("[ERROR] getBoardgameCategories()@BoardgameDBMongo.java raised an exception: " + e.getMessage());
         }
         return categories;
     }
@@ -188,24 +156,19 @@ public class BoardgameDBMongo {
     public List<BoardgameModelMongo> findBoardgamesByCategory(String category, int limit, int skip) {
         List<BoardgameModelMongo> boardgameOfThisCategory = new ArrayList<>();
         try {
-            // Costruzione della pipeline di aggregazione
             Aggregation aggregation = Aggregation.newAggregation(
-                    // Match per filtrare i boardgame in base alla categoria
-                    Aggregation.match(Criteria.where("boardgameCategory").is(category)),
-                    // Salto dei risultati iniziali
-                    Aggregation.skip((long) skip),
-                    // Limitazione del numero di risultati
-                    Aggregation.limit(limit)
+                    Aggregation.match(Criteria.where("boardgameCategory").is(category)),        // Filtering boardgames based on their category
+                    Aggregation.skip(skip),             // Skipping first 'skip' results
+                    Aggregation.limit(limit)        // Limiting to 'limit' results
             );
 
-            // Esecuzione della pipeline di aggregazione
-            boardgameOfThisCategory = mongoOperations.aggregate(
+            boardgameOfThisCategory = mongoOperations.aggregate(        // Aggregation pipeline execution
                     aggregation,
                     "boardgames",
                     BoardgameModelMongo.class
             ).getMappedResults();
         } catch (Exception e) {
-            System.out.println("Exception findBoardgamesByCategory() -> " + e.getMessage());
+            System.err.println("[ERROR findBoardgamesByCategory()@BoardgameDBMongo.java raised an exception:" + e.getMessage());
         }
         return boardgameOfThisCategory;
     }
