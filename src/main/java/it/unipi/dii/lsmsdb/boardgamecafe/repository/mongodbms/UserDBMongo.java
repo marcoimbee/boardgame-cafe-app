@@ -1,24 +1,18 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
-
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
-
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
@@ -75,18 +69,6 @@ public class UserDBMongo {
         }
     }
 
-//    public boolean deleteReviewInUserReviewsById(String userId, String reviewId) {
-//        Query query = new Query();
-//        query.addCriteria(Criteria.where("_id").is(userId));
-//
-//        Update update = new Update();
-//        update.pull("reviews", Query.query(Criteria.where("_id").is(reviewId)));
-//
-//        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
-//
-//        return (result.getModifiedCount() > 0);
-//    }
-
     public List<UserModelMongo> findAllUsersWithLimit(int limit, int skip) {
         List<UserModelMongo> users = null;
         try {
@@ -129,7 +111,6 @@ public class UserDBMongo {
                     user.setBanned(newUser.isBanned());
                     user.setSalt(newUser.getSalt());
                     user.setPasswordHashed(newUser.getPasswordHashed());
-//                    user.setReviews(newUser.getReviews());
 
                     userRepoMongo.save(user);
                 }
@@ -313,16 +294,6 @@ public class UserDBMongo {
                 .map(doc -> doc.getString("username"))
                 .collect(Collectors.toList());
     }
-
-
-//    public boolean addReviewInUserArray(UserModelMongo user, ReviewModelMongo newReview) {
-//        Query query = new Query(Criteria.where("_id").is(user.getId()));
-//        Update update = new Update().push("reviews", newReview);
-//        UpdateResult result = mongoOperations.updateFirst(query, update, UserModelMongo.class);
-//
-//        // At least one document got modified, update ok
-//        return result.getModifiedCount() > 0;
-//    }
 
     public List<String> getUserUsernames() {
         try {
