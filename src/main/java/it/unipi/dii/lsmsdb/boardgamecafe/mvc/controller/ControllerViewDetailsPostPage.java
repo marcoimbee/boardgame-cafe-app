@@ -13,7 +13,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -244,7 +243,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         boolean likeIsPresent = this.postService.hasLikedPost(username, postId);
         icon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
         this.likeButton.setText(this.buttonLikeMessages.get((likeIsPresent) ? 1 : 0));
-        int likeCount = this.postDBNeo4j.findTotalLikesByPostID(postId);
+        int likeCount = this.postDBNeo4j.findTotalLikesByPostId(postId);
         post.setLikeCount(likeCount);
         this.counterLikesLabel.setText(String.valueOf(likeCount));
     }

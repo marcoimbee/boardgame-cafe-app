@@ -161,7 +161,7 @@ public class ControllerObjectPost {
         Label workingLikeCountLbl = (event == null) ?
                 this.counterLikesLabel : (Label) ((Button) event.getSource()).getParent().lookup("#counterLikesLabel");
         int likeCount = (event == null) ?
-                post.getLikeCount() : postDBNeo4j.findTotalLikesByPostID(post.getId());
+                post.getLikeCount() : postDBNeo4j.findTotalLikesByPostId(post.getId());
         post.setLikeCount(likeCount);
         workingLikeCountLbl.setText(String.valueOf(likeCount));
     }
