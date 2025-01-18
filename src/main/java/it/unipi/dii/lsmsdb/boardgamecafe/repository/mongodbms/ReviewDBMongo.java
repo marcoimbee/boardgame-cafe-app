@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,14 +33,13 @@ public class ReviewDBMongo {
     }
 
     public boolean addReview(ReviewModelMongo review) {
-        boolean result = true;
         try {
             reviewMongo.save(review);
+            return true;
         } catch (Exception e) {
             System.err.println("[ERROR] addReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
-            result = false;
+            return false;
         }
-        return result;
     }
 
     public List<ReviewModelMongo> findReviewByUsername(String username) {
@@ -96,25 +94,22 @@ public class ReviewDBMongo {
 
                 this.addReview(reviewToBeUpdated);
             }
+            return true;
         } catch (Exception e) {
             System.err.println("[ERROR] updateReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-
-        return true;
     }
 
     public boolean deleteReview(ReviewModelMongo review) {
-        boolean result = true;
         try {
             reviewMongo.delete(review);
+            return true;
         } catch (Exception e) {
             System.err.println("[ERROR] deleteReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
-            result = false;
+            return false;
         }
-        return result;
     }
-
 
     // Returns a HashMap<K, V> in which:
     //      -> K is a String: the boardgame that the user that is being deleted had reviewed
@@ -135,7 +130,6 @@ public class ReviewDBMongo {
                 reviewMongo.deleteById(review.getId());
             }
 
-            System.out.println("[DEBUG] deletedReviewsPerBoardgame: " + deletedReviewsForBoardgame);
             return deletedReviewsForBoardgame;
         } catch (Exception e) {
             System.err.println("[ERROR] deleteReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
@@ -143,27 +137,14 @@ public class ReviewDBMongo {
         }
     }
 
-//
-//    public boolean deleteReviewByUsername(String username) {
-//        boolean result = true;
-//        try {
-//            reviewMongo.deleteReviewByUsername(username);
-//        } catch (Exception e) {
-//            System.err.println("[ERROR] deleteReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
-//            result = false;
-//        }
-//        return result;
-//    }
-
     public boolean deleteReviewByBoardgameName(String boardgameName) {
-        boolean result = true;
         try {
             reviewMongo.deleteReviewByBoardgameName(boardgameName);
+            return true;
         } catch (Exception e) {
             System.err.println("[ERROR] deleteReviewByBoardgameName()@ReviewDBMongo.java raised an exception: " + e.getMessage());
-            result = false;
+            return false;
         }
-        return result;
     }
 
     public Document getTopRatedBoardgamePerYear(int minReviews, int limit, int year) {
@@ -218,36 +199,6 @@ public class ReviewDBMongo {
         );
 
         return results.getRawResults();
-    }
-
-    public Double getAvgRatingByBoardgameName(String boardgameName) {
-        MatchOperation matchByName = match(Criteria.where("boardgameName").is(boardgameName));
-
-        GroupOperation groupByBoardgameName = group("boardgameName")
-                .avg("rating").as("avgRating");
-
-        ProjectionOperation projectFinalResult = project()
-                .and("_id").as("boardgameName")
-                .and("avgRating").as("avgRating");
-
-        Aggregation aggregation = newAggregation(
-                matchByName,
-                groupByBoardgameName,
-                projectFinalResult
-        );
-
-        AggregationResults<Document> results = mongoOperations.aggregate(
-                aggregation,
-                "reviews",
-                Document.class
-        );
-
-        Document docResult = results.getUniqueMappedResult();
-        if (docResult != null && docResult.containsKey("avgRating")) {
-            return docResult.getDouble("avgRating");
-        }
-
-        return null;
     }
 
     public boolean updateReviewsAfterBoardgameUpdate(String oldBoardgameName, String updatedBoardgameName) {
