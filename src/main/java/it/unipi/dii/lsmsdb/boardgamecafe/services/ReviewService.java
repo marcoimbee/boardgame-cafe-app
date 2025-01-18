@@ -44,6 +44,8 @@ public class ReviewService {
 //                throw new RuntimeException("Error while adding the review to the Users collection. Rolling back...");
 //            }
             if (!updateAvgRatingAndReviewCountAfterInsertion(boardgame, review)) {
+                if (!reviewMongoOp.deleteReview(review))
+                    throw new RuntimeException("Error while removing review after updating avgRating in Boardgames collection. Rolling back...");
                 throw new RuntimeException("Error while adding the review to the Boardgames collection. Rolling back...");
             }
         } catch (Exception e) {
