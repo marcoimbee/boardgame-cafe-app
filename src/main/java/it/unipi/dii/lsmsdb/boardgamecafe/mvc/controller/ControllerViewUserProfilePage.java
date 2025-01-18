@@ -194,6 +194,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         if (this.postsUser.isEmpty()) {
             loadViewMessageInfo();
         }
+        totalFollowerUsers = totalFollowers;
         this.firstNameLabel.setText(user.getName());
         this.lastNameLabel.setText(user.getSurname());
         this.nationalityLabel.setText(user.getNationality());
