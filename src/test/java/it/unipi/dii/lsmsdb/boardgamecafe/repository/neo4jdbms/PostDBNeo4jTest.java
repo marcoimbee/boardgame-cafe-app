@@ -20,6 +20,8 @@ class PostDBNeo4jTest {
     PostDBNeo4j postDBNeo4j;
     @Autowired
     UserDBNeo4j userDBNeo4j;
+    @Autowired
+    BoardgameDBNeo4j boardgameDBNeo4j;
 
     static PostModelNeo4j testPost1, testPost2;
     static final String testIdPost1 = "testIdPost1";
@@ -183,6 +185,8 @@ class PostDBNeo4jTest {
         // Rimuovere il like sul post
         postDBNeo4j.removeLikePost(testUsername1, testIdPost1);
         postDBNeo4j.removeLikePost(testUsername2, testIdPost2);
+
+        boardgameDBNeo4j.deleteBoardgameDetach(testBoardgameName);
 
         // Eliminare il post creato nel setup
         boolean postDeleted = postDBNeo4j.deletePost(testIdPost2);
