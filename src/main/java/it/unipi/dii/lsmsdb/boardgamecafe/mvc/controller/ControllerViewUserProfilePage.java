@@ -131,6 +131,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     private PostListener postListener;
 
     private int totalFollowerUsers;
+    private int totalReviews;
     private int columnGridPane = 0;
     private int rowGridPane = 1;
     private int skipCounter = 0;
@@ -188,7 +189,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         int totalFollowers = userDBNeo.getCountFollowers(user.getUsername());
         int totalFollowing = userDBNeo.getCountFollowing(user.getUsername());
         int reviewsCount = reviewMongoOp.findReviewByUsername(user.getUsername()).size();
-
+        totalReviews = reviewsCount;
         // Retrieving user posts - these are shown by default as the profile page opens
         postsUser.addAll(getPosts(user.getUsername()));
         if (this.postsUser.isEmpty()) {
@@ -699,14 +700,16 @@ public class ControllerViewUserProfilePage implements Initializable{
     private void resetToCurrent(){
         UserModelMongo currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         if (currentUser != null) {
+            resetPage();        // Mandatory to correctly load the  content
             openUserProfile = currentUser;
+            totalReviews = reviewMongoOp.findReviewByUsername(openUserProfile.getUsername()).size();
 
             // Updating labels with information about the current user
             if (openUserProfile instanceof UserModelMongo userModel) {
                 this.firstNameLabel.setText(userModel.getName());
                 this.lastNameLabel.setText(userModel.getSurname());
                 this.nationalityLabel.setText(userModel.getNationality());
-                this.counterReviewsLabel.setText(String.valueOf(reviewMongoOp.findReviewByUsername(userModel.getUsername()).size()));
+                this.counterReviewsLabel.setText(String.valueOf(totalReviews));
             }
             this.usernameLabel.setText(openUserProfile.getUsername());
             this.followerLabel.setText(String.valueOf(userDBNeo.getCountFollowers(openUserProfile.getUsername())));
@@ -717,7 +720,6 @@ public class ControllerViewUserProfilePage implements Initializable{
             this.profileImage.setImage(image);
 
             selectedContentType = ContentType.POSTS;
-            resetPage();        // Mandatory to correctly load the  content
             loadContent();
             scrollSet.setVvalue(0);
 
