@@ -94,6 +94,13 @@ public class ControllerViewLogin implements Initializable {
                 return;
             }
 
+            // Controllo se l'utente è bannato
+            if (genericUser.get() instanceof UserModelMongo user && user.isBanned()) {
+                stageManager.showInfoMessage("ERROR", "You cannot login because you are banned.");
+                this.clearFields();
+                return;
+            }
+
             System.out.println("\n_class value: " + genericUser.get().get_class());
 
             if (genericUser.get().get_class().equals("admin")) {
