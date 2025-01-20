@@ -7,7 +7,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
@@ -16,19 +15,15 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.util.Duration;
-import javafx.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
-import java.nio.Buffer;
 import java.util.*;
 
 @Component
-public class ControllerSelectedAnalytic implements Initializable
-{
-    private final String selectionAll = "All";
+public class ControllerSelectedAnalytic implements Initializable {
+
     @FXML
     private Button closeButton;
     @FXML
@@ -42,19 +37,20 @@ public class ControllerSelectedAnalytic implements Initializable
     @FXML
     private NumberAxis yAxis;
 
-    //********* Autowireds *********
     @Autowired
     ModelBean modelBean;
     @Autowired
     private UserDBMongo userDBMongo;
     @Autowired
     private UserService serviceUser;
-    private StageManager stageManager;
 
+    private StageManager stageManager;
+    private final String selectionAll = "All";
     private ObservableList<String> whatStatisticToShow = FXCollections.observableArrayList(
             "Average age of users per country",
             "Countries with the highest user number"
     );
+
     @Autowired
     @Lazy
     public ControllerSelectedAnalytic(StageManager stageManager) {
@@ -62,11 +58,9 @@ public class ControllerSelectedAnalytic implements Initializable
     }
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle)
-    {
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         this.cboxLimit.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null)
-            {
+            if (newValue != null) {
                 int selectedLimit = (newValue).equals(selectionAll) ? -1 : Integer.parseInt((String)newValue);
                 this.initializeChart(selectedLimit);
             }
@@ -75,35 +69,32 @@ public class ControllerSelectedAnalytic implements Initializable
         initializeChart(Constants.LIMIT_ANALYTIC);
     }
 
-    private void initializeCbox()
-    {
-        ObservableList<String> limitCountrieChoices = FXCollections.observableArrayList("3", "5", "10", "15", "20", selectionAll);
-        this.cboxLimit.setItems(limitCountrieChoices);
+    private void initializeCbox() {
+        ObservableList<String> limitCountriesChoices = FXCollections.observableArrayList("3", "5", "10", "15", "20", selectionAll);
+        this.cboxLimit.setItems(limitCountriesChoices);
     }
 
-    private void initializeChart(int limitCountries)
-    {
+    private void initializeChart(int limitCountries) {
         ControllerViewStatisticsPage.statisticsToShow selectedAnalytic =
                 (ControllerViewStatisticsPage.statisticsToShow)modelBean.getBean(Constants.SELECTED_ANALYTICS);
+
         this.barChart.setAnimated(true);
         this.xAxis = new CategoryAxis();
         this.yAxis = new NumberAxis();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        switch (selectedAnalytic)
-        {
-            case AVG_AGE_BY_COUNTRY ->
-            {
+
+        switch (selectedAnalytic) {
+            case AVG_AGE_BY_COUNTRY -> {
                 this.lblSelectedQuery.setText(this.whatStatisticToShow.get(0));
                 series.setName("Average Age");
                 HashMap<String, Double> avgAgeMap = this.serviceUser.getAvgAgeByNationality(limitCountries);
-                for (Map.Entry<String, Double> pair : avgAgeMap.entrySet())
-                {
+                for (Map.Entry<String, Double> pair : avgAgeMap.entrySet()) {
                     XYChart.Data<String, Number> data = new XYChart.Data<>(pair.getKey(), pair.getValue());
                     data.nodeProperty().addListener((observable, oldNode, newNode) -> {
-                        if (newNode != null) { // Quando il nodo è creato
+                        if (newNode != null) {      // Node has been created
                             Tooltip tooltip = new Tooltip(String.valueOf(pair.getValue()));
                             tooltip.setShowDelay(Duration.millis(100));
-                            Tooltip.install(newNode, tooltip); // Associa il tooltip al nodo
+                            Tooltip.install(newNode, tooltip);      // Associating the tooltip to the node
                         }
                     });
                     series.getData().add(data);
@@ -115,19 +106,17 @@ public class ControllerSelectedAnalytic implements Initializable
                 ObservableList<String> dataList = FXCollections.observableArrayList(avgAgeMap.keySet());
                 xAxis.setCategories(dataList);
             }
-            case COUNTRIES_WITH_HIGHEST_USER_NUMBER ->
-            {
+            case COUNTRIES_WITH_HIGHEST_USER_NUMBER -> {
                 this.lblSelectedQuery.setText(this.whatStatisticToShow.get(1));
                 series.setName("Users Number");
                 LinkedHashMap<String, Integer> usersNumber = this.serviceUser.getCountriesWithMostUsers(0, limitCountries);
-                for (Map.Entry<String, Integer> pair : usersNumber.entrySet())
-                {
+                for (Map.Entry<String, Integer> pair : usersNumber.entrySet()) {
                     XYChart.Data<String, Number> data = new XYChart.Data<>(pair.getKey(), pair.getValue());
                     data.nodeProperty().addListener((observable, oldNode, newNode) -> {
-                        if (newNode != null) { // Quando il nodo è creato
+                        if (newNode != null) {      // Node has been created
                             Tooltip tooltip = new Tooltip(String.valueOf(pair.getValue()));
                             tooltip.setShowDelay(Duration.millis(100));
-                            Tooltip.install(newNode, tooltip); // Associa il tooltip al nodo
+                            Tooltip.install(newNode, tooltip);      // Associating the tooltip to the node
                         }
                     });
                     series.getData().add(data);
