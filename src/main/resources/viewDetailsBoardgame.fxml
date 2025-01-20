@@ -148,7 +148,7 @@
                   <Separator layoutX="529.0" layoutY="234.0" orientation="VERTICAL" prefHeight="40.0" prefWidth="8.0" />
                   <Separator layoutX="742.0" layoutY="234.0" orientation="VERTICAL" prefHeight="40.0" prefWidth="8.0" />
                   <Separator layoutX="929.0" layoutY="234.0" orientation="VERTICAL" prefHeight="40.0" prefWidth="8.0" />
-                  <TextArea fx:id="descriptionTextArea" layoutX="356.0" layoutY="128.0" opacity="0.71" prefHeight="75.0" prefWidth="746.0" wrapText="true" />
+                  <TextArea fx:id="descriptionTextArea" editable="false" layoutX="356.0" layoutY="128.0" opacity="0.71" prefHeight="75.0" prefWidth="746.0" wrapText="true" />
                   <Label fx:id="playersTitleLabel" alignment="BASELINE_LEFT" layoutX="357.0" layoutY="210.0" prefHeight="25.0" prefWidth="68.0" text="Players" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
