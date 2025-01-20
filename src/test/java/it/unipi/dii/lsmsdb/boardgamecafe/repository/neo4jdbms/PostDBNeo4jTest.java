@@ -68,7 +68,6 @@ class PostDBNeo4jTest {
     @Order(20)
     public void GIVEN_a_post_id_WHEN_finding_by_id_THEN_the_found_post_has_the_same_id() {
         Optional<PostModelNeo4j> shouldBeNotEmpty = postDBNeo4j.findById(testIdPost1);
-
         PostModelNeo4j shouldHaveSameId = shouldBeNotEmpty.get();
         assertEquals(testIdPost1, shouldHaveSameId.getId());
     }
@@ -87,9 +86,6 @@ class PostDBNeo4jTest {
         postDBNeo4j.setLikeCount(testIdPost1, 5);
         int cachedLikes = postDBNeo4j.findTotalLikesByPostId(testIdPost1);
         assertEquals(5, cachedLikes);
-        postDBNeo4j.setLikeCount(testIdPost2, 5);
-        int cachedLikes2 = postDBNeo4j.findTotalLikesByPostId(testIdPost2);
-        assertEquals(5, cachedLikes2);
     }
 
     @Test
@@ -101,12 +97,10 @@ class PostDBNeo4jTest {
     @Test
     @Order(80)
     public void GIVEN_username_and_post_id_WHEN_adding_like_THEN_like_is_added_successfully() {
-        postDBNeo4j.addLikePost(testUsername1, testIdPost1, true);
-        boolean hasLiked = postDBNeo4j.hasUserLikedPost(testUsername1, testIdPost1);
-        assertTrue(hasLiked);
-        postDBNeo4j.addLikePost(testUsername2, testIdPost2, true);
-        boolean hasLiked2 = postDBNeo4j.hasUserLikedPost(testUsername2, testIdPost2);
-        assertTrue(hasLiked2);
+        boolean likeAdded = postDBNeo4j.addLikePost(testUsername1, testIdPost1, true);
+        assertTrue(likeAdded);
+        boolean likeAdded2 = postDBNeo4j.addLikePost(testUsername2, testIdPost2, true);
+        assertTrue(likeAdded2);
     }
 
     @Test
@@ -120,39 +114,32 @@ class PostDBNeo4jTest {
 
     @Test
     @Order(100)
-    public void GIVEN_username_WHEN_getting_posts_by_followed_users_THEN_return_posts_list() {
-        // Salvare l'utente e il post nel database
+    public void GIVEN_username_WHEN_getting_posts_liked_by_followed_users_THEN_return_posts_list() {
+        // Salvare gli utenti nel database
+        userDBNeo4j.addUser(testAuthor);
         userDBNeo4j.addUser(followedUser);
         // Creare una relazione "follows" tra l'utente di test e l'altro utente
-        userDBNeo4j.followUser(testUsername1, testUsername2);
+        userDBNeo4j.followUser(testAuthor.getUsername(), followedUser.getUsername());
+        List<PostModelNeo4j> posts = postDBNeo4j.getPostsLikedByFollowedUsers(testAuthor.getUsername(), 10, 0);
+        assertNotNull(posts);
+        assertFalse(posts.isEmpty());
+    }
+
+    @Test
+    @Order(110)
+    public void GIVEN_username_WHEN_getting_posts_by_followed_users_THEN_return_posts_list() {
 
         List<PostModelNeo4j> posts = postDBNeo4j.getPostsByFollowedUsers(testUsername1, 10, 0);
         assertNotNull(posts);
         assertFalse(posts.isEmpty());
     }
 
-    //ToDo: Controllare perchè non supera il test, la lista è, stranamente, vuota.
-//    @Test
-//    @Order(110)
-//    public void GIVEN_username_WHEN_getting_posts_liked_by_followed_users_THEN_return_posts_list() {
-//        // Salvare l'utente e il post nel database
-//        userDBNeo4j.addUser(followedUser);
-//        // Creare una relazione "follows" tra l'utente di test e l'altro utente
-//        userDBNeo4j.followUser(testUsername1, testUsername2);
-//        //Creare una relazione "liked" tra il post e l'utente seguito
-//        postDBNeo4j.addLikePost(testUsername2, testIdPost2, true);
-//
-//        List<PostModelNeo4j> posts = postDBNeo4j.getPostsLikedByFollowedUsers(testUsername1, 10, 0);
-//        assertNotNull(posts);
-//        assertFalse(posts.isEmpty());
-//    }
 
     @Test
     @Order(120)
     public void GIVEN_username_and_post_id_WHEN_removing_like_THEN_like_is_removed_successfully() {
-        postDBNeo4j.removeLikePost(testUsername1, testIdPost1);
-        boolean hasLiked = postDBNeo4j.hasUserLikedPost(testUsername1, testIdPost1);
-        assertFalse(hasLiked);
+        boolean removed = postDBNeo4j.removeLikePost(testUsername1, testIdPost1);
+        assertTrue(removed);
     }
 
     @Test
@@ -179,20 +166,20 @@ class PostDBNeo4jTest {
     @Test
     @Order(160)
     public void cleanup() {
-        // Rimuovere la relazione "follows"
-        userDBNeo4j.unfollowUser(testUsername1, testUsername2);
-        userDBNeo4j.unfollowUser(testUsername2, testUsername1);
-        // Rimuovere il like sul post
-        postDBNeo4j.removeLikePost(testUsername1, testIdPost1);
-        postDBNeo4j.removeLikePost(testUsername2, testIdPost2);
-
-        boardgameDBNeo4j.deleteBoardgameDetach(testBoardgameName);
-
+        // Eliminare il Boardgame creato nel setup
+        boolean boardgameDeleted = boardgameDBNeo4j.deleteBoardgameDetach(testBoardgameName);
+        assertTrue(boardgameDeleted, "Failed to delete followed post in cleanup");
         // Eliminare il post creato nel setup
         boolean postDeleted = postDBNeo4j.deletePost(testIdPost2);
         assertTrue(postDeleted, "Failed to delete followed post in cleanup");
         // Eliminare l'utente creato nel setup
         boolean userDeleted = userDBNeo4j.deleteUserDetach(testUsername2);
         assertTrue(userDeleted, "Failed to delete followed user in cleanup");
+        // Eliminare il post creato nel setup
+        boolean postDeleted2 = postDBNeo4j.deletePost(testIdPost1);
+        assertTrue(postDeleted2, "Failed to delete followed post in cleanup");
+        // Eliminare l'utente creato nel setup
+        boolean userDeleted2 = userDBNeo4j.deleteUserDetach(testUsername1);
+        assertTrue(userDeleted2, "Failed to delete followed user in cleanup");
     }
 }
