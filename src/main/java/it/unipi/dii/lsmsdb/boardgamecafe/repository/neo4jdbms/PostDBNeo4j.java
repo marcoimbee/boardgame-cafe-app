@@ -85,22 +85,26 @@ public class PostDBNeo4j {
         return post;
     }
 
-    public void addLikePost(String username, String postId, boolean likeAction) {
+    public boolean addLikePost(String username, String postId, boolean likeAction) {
         try {
             likedPostsCache.addInfoLike(postId, true, likeAction);      // AutoIncrement done here
             postRepoNeo4j.addLike(username, postId);            // Creating Neo4j relationship here
         } catch (Exception ex) {
             System.err.println("[ERROR] addLikePost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
+            return false;
         }
+        return true;
     }
 
-    public void removeLikePost(String username, String postId) {
+    public boolean removeLikePost(String username, String postId) {
         try {
             likedPostsCache.addInfoLike(postId, false, true);       // AutoDecrement done here
             postRepoNeo4j.removeLike(username, postId);
         } catch (Exception ex) {
             System.err.println("[ERROR] removeLikePost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
+            return false;
         }
+        return true;
     }
 
     public boolean hasUserLikedPost(String username, String postId) {
