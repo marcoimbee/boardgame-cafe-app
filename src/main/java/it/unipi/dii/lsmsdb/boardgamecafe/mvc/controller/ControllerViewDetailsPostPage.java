@@ -169,8 +169,17 @@ public class ControllerViewDetailsPostPage implements Initializable {
     public void onFocusGained() {
         PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
         this.tagBoardgameLabel.setText(updatedPost.getTag());
-        this.postTitleTextArea.setText(updatedPost.getTitle());
-        this.postBodyTextArea.setText(updatedPost.getText());
+        //this.postTitleTextArea.setText(updatedPost.getTitle());
+        //this.postBodyTextArea.setText(updatedPost.getText());
+        if (this.postAuthor.isBanned()) {
+            this.usernameLabel.setText("[Banned user]");
+            this.postTitleTextArea.setText("[Banned user]");
+            this.postBodyTextArea.setText("[Banned user]");
+        } else {
+            this.usernameLabel.setText(post.getUsername());
+            this.postTitleTextArea.setText(post.getTitle());
+            this.postBodyTextArea.setText(post.getText());
+        }
 
         // Potentially update a comment
         CommentModel updatedComment = (CommentModel) modelBean.getBean(Constants.UPDATED_COMMENT);
