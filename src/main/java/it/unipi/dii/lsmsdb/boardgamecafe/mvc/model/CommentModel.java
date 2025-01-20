@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import java.util.Date;
 
 public class CommentModel {
+
     private String id;
     private String username;
     private String text;
@@ -14,7 +15,8 @@ public class CommentModel {
     public CommentModel(String id,
                         String username,
                         String text,
-                        Date timestamp) {
+                        Date timestamp)
+    {
         this.id = id;
         this.username = username;
         this.text = text;
@@ -34,6 +36,7 @@ public class CommentModel {
     public String getId(){
         return id;
     }
+
     public void setId(String id){
         this.id = id;
     }
@@ -41,6 +44,7 @@ public class CommentModel {
     public String getUsername(){
         return username;
     }
+
     public void setUsername(String username){
         this.username = username;
     }
@@ -48,6 +52,7 @@ public class CommentModel {
     public String getText(){
         return text;
     }
+
     public void setText(String text){
         this.text = text;
     }
@@ -55,6 +60,7 @@ public class CommentModel {
     public Date getTimestamp(){
         return timestamp;
     }
+
     public void setTimestamp(Date timestamp){
         this.timestamp = timestamp;
     }
