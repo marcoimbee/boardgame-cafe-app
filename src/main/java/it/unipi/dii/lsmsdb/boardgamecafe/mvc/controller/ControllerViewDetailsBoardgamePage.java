@@ -26,7 +26,6 @@ import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,12 +39,6 @@ import java.util.function.Consumer;
 @Component
 public class ControllerViewDetailsBoardgamePage implements Initializable {
 
-    public enum UserActivity {
-        EDIT_INFO, NO_EDIT
-    }
-    private final String NO_RATING = "-----";
-
-    //********** Edit Operation Components **********
     @FXML
     private Button addCategoryButton;
     @FXML
@@ -62,8 +55,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private Button saveChangesButton;
     @FXML
     private Button cancelButton;
-
-    // *********** Text Fields ***********
     @FXML
     private TextField updateDescriptionTextField;
     @FXML
@@ -86,21 +77,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private TextField updateDesignerTextField;
     @FXML
     private TextField updatePublisherTextField;
-
-    // *********** List Views ***********
     @FXML
     private ListView<String> categoriesListView;
     @FXML
     private ListView<String> designersListView;
     @FXML
     private ListView<String> publishersListView;
-
-    // *********** Utils ***********
-    private final List<String> listStringsCategories = new ArrayList<>();
-    private final List<String> listStringsDesigners = new ArrayList<>();
-    private final List<String> listStringsPublishers = new ArrayList<>();
-
-    //********** Buttons **********
     @FXML
     private Button editBoardgameButton;
     @FXML
@@ -115,8 +97,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private Button refreshButton;
     @FXML
     private Button deleteButton;
-
-    //********** Labels **********
     @FXML
     protected Label averageRatingLabel;
     @FXML
@@ -145,23 +125,21 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     protected Label minutesLabel;
     @FXML
     protected Label plusLabel;
-    //********** Combo Boxes **********
     @FXML
     private ComboBox<String> comboBoxFullCategories;
     @FXML
     private ComboBox<String> comboBoxFullDesigners;
     @FXML
     private ComboBox<String> comboBoxFullPublishers;
-
-    //********** Useful Variables **********
     @FXML
     private ImageView imageBoardgame;
-
-    //********** Useful Variables **********
     @FXML
     private GridPane reviewsGridPane;
     @FXML
     private ScrollPane scrollSet;
+    @FXML
+    protected Tooltip tooltipLblRating;
+
     @Autowired
     private ReviewDBMongo reviewMongoOp;
     @Autowired
@@ -176,8 +154,19 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private ModelBean modelBean;
     @Autowired
     private ReviewService serviceReview;
-    @FXML
-    protected Tooltip tooltipLblRating;
+    @Autowired
+    @Lazy
+    private StageManager stageManager;
+
+    public enum UserActivity {
+        EDIT_INFO,
+        NO_EDIT
+        }
+    private final String NO_RATING = "-----";
+
+    private final List<String> listStringsCategories = new ArrayList<>();
+    private final List<String> listStringsDesigners = new ArrayList<>();
+    private final List<String> listStringsPublishers = new ArrayList<>();
 
     private List<ReviewModelMongo> reviews = new ArrayList<>();
     private List<String> categories = new ArrayList<>();
@@ -185,39 +174,26 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     private List<String> publishers = new ArrayList<>();
 
     private BoardgameModelMongo boardgame;
-
     private static GenericUserModelMongo currentUser;
+    private UserActivity selectedOperation;
 
-    //private static int totalReviewsCounter;
-
-    //Utils Variables
     private boolean shiftDownSingleObjectGridPane; // false: no - true: yes
     private int columnGridPane = 0;
-
     private int rowGridPane = 0;
     private int skipCounter = 0;
-    private final static int SKIP = 10; //how many posts to skip per time
-    private final static int LIMIT = 10; //how many posts to show for each page
+    private final static int SKIP = 10;     // How many posts to skip per time
+    private final static int LIMIT = 10;    // How many posts to show for each page
 
     private final String promptTextFullCategories = "See Full Categories";
     private final String promptTextFullDesigners = "See Full Designers";
     private final String promptTextFullPublishers = "See Full Publishers";
 
-    private UserActivity selectedOperation;
-
-
-    @Autowired
-    @Lazy
-    private StageManager stageManager;
-
     private Consumer<String> deletedReviewCallback;
 
-    public ControllerViewDetailsBoardgamePage() {
-    }
+    public ControllerViewDetailsBoardgamePage() {}
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("[INFO] Loaded ControllerViewDetailsBoardgamePage");
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
 
         this.previousButton.setDisable(true);
@@ -252,20 +228,15 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void setAverageRating() {
-
-        Double avgRating = boardgame.getAvgRating(); //ControllerViewRegUserBoardgamesPage.getBgameRating(boardgame);
-        //if (avgRating == null)
-        //    ratingFromTop = ; // reviewMongoOp.getAvgRatingByBoardgameName(boardgame.getBoardgameName());
+        Double avgRating = boardgame.getAvgRating();
         String ratingAsString = (avgRating != -1.0) ? String.format("%.1f", avgRating) : NO_RATING;
 
-        if (ratingAsString.equals(NO_RATING))
+        if (ratingAsString.equals(NO_RATING)) {
             this.tooltipLblRating.setShowDelay(Duration.ZERO);
-        else
+        } else {
             this.averageRatingLabel.setTooltip(null);
-
+        }
         this.averageRatingLabel.setText(ratingAsString);
-
-        //System.out.println("[DEBUG] avg rating set to: " + ratingAsString);
     }
 
     private void prepareScene() {
@@ -275,7 +246,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.selectedOperation = UserActivity.NO_EDIT;
         String boardgameId = (String) modelBean.getBean(Constants.SELECTED_BOARDGAME);
         boardgame = boardgameDBMongo.findBoardgameById(boardgameId).get();
-        //totalReviewsCounter = boardgame.getReviewCount(); // boardgame.getReviews().size();
         setAverageRating();
         this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviewCount()));
         this.setImage();
@@ -287,9 +257,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.playingTimeLabel.setText(String.valueOf(this.boardgame.getPlayingTime()));
         this.yearPublishedLabel.setText(String.valueOf(this.boardgame.getYearPublished()));
         this.minAgeLabel.setText(String.valueOf(this.boardgame.getMinAge()));
-        //*********** Categories, Designers and Publishers management ***********
 
-        // Popolamento delle liste e delle ListView
         if (!boardgame.getBoardgameCategory().isEmpty()) {
             this.categories.addAll(boardgame.getBoardgameCategory());
             this.categoriesListView.getItems().addAll(categories);
@@ -323,15 +291,15 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     private void setImage() {
         Image imageInCache = ControllerObjectBoardgame.getImageFromCache(this.boardgame.getImage());
-        if (imageInCache != null)
-        {
+        if (imageInCache != null) {
             this.imageBoardgame.setImage(imageInCache);
             System.out.println("[INFO] Image loaded from cache.");
             return;
         }
+
         try {
-            URI uri = new URI(this.boardgame.getImage()); // Crea URI
-            URL url = uri.toURL(); // Converti a URL
+            URI uri = new URI(this.boardgame.getImage());   // Creating URI
+            URL url = uri.toURL();          // Converting URI to URL
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", "JavaFX Application");
 
@@ -339,15 +307,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 byte[] imageBytes = readFullInputStream(inputStream);
                 Image downloadedImage = new Image(new ByteArrayInputStream(imageBytes));
                 this.imageBoardgame.setImage(downloadedImage);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 String imagePath = getClass().getResource("/images/noImage.jpg").toExternalForm();
                 Image image = new Image(imagePath);
                 this.imageBoardgame.setImage(image);
             }
         } catch (Exception e) {
-            System.out.println("ControllerViewBoardgameDetails: download boardgame image failed");
+            System.out.println("[ERROR] setImage()@ControllerObjectBoardgame.java raised an exception: " + e.getMessage());
             String imagePath = getClass().getResource("/images/noImage.jpg").toExternalForm();
             Image image = new Image(imagePath);
             this.imageBoardgame.setImage(image);
@@ -365,7 +331,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void onFocusGained() {
-        System.out.println("[DEBUG] reviews size: " + reviews.size());
         // Potentially update a review
         ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
         if (updatedReview != null) {
@@ -377,12 +342,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
     }
 
-    // Called whenever the author user of a review decides to delete that review. This method updates the review list and updates UI
+    /*
+        Called whenever the author user of a review decides to delete that review.
+        This method updates the review list and updates UI
+     */
     public void updateUIAfterReviewDeletion(String deletedReviewId) {
         reviews.removeIf(review -> review.getId().equals(deletedReviewId));
         boardgame = boardgameDBMongo.findBoardgameById(boardgame.getId()).get();
-        //boardgame.getReviews().removeIf(review -> review.getId().equals(deletedReviewId));
-        //totalReviewsCounter--;
         this.counterReviewsLabel.setText(String.valueOf(boardgame.getReviewCount()));
         fillGridPane();
         setAverageRating();
@@ -393,22 +359,21 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         if (!userChoice) {
             return;
         }
+
         try {
             if (serviceBoardgame.deleteBoardgame(this.boardgame)){
                 modelBean.putBean(Constants.DELETED_BOARDGAME, this.boardgame.getBoardgameName());
                 stageManager.closeStage();
-                stageManager.showInfoMessage("Delete Operation",
-                        "The Boardgame Was Successfully Deleted From BoardGame-Cafè App.");
+                stageManager.showInfoMessage("INFO", "The boardgame was successfully deleted.");
             } else {
                 modelBean.putBean(Constants.SELECTED_BOARDGAME, null);
                 stageManager.closeStage();
-                stageManager.showInfoMessage("Delete Operation",
-                        "An Unexpected Error Occurred While Deleting The Boardgame From BoardGame-Café_App." +
-                        "\n\n\t\t\tPlease contact the administrator.");
+                stageManager.showInfoMessage("INFO",
+                        "Something went wrong while deleting the boardgame.");
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("Exception Info", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please Try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton()@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -422,41 +387,31 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     @FXML
     void onClickNext() {
-        //clear variables
         reviewsGridPane.getChildren().clear();
         reviews.clear();
-        //update the skipcounter
         skipCounter += SKIP;
-        //retrieve boardgames
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
-        //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
     @FXML
     void onClickPrevious() {
-        //clear variables
         reviewsGridPane.getChildren().clear();
         reviews.clear();
-        //update the skipcounter
         skipCounter -= SKIP;
-        //retrieve boardgames
         reviews.addAll(getData(this.boardgame.getBoardgameName()));
-        //put all boardgames in the Pane
         fillGridPane();
         scrollSet.setVvalue(0);
     }
 
     void resetPage() {
-        //clear variables
         this.tooltipLblRating.hide();
         reviews.clear();
         skipCounter = 0;
         previousButton.setDisable(true);
         nextButton.setDisable(true);
         scrollSet.setVvalue(0);
-        // Pulizia delle liste e delle ListView
         this.categories.clear();
         this.designers.clear();
         this.publishers.clear();
@@ -500,17 +455,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private List<ReviewModelMongo> getData(String boardgameName) {
-
-        List<ReviewModelMongo> reviews = reviewMongoOp.
-                findRecentReviewsByBoardgame(boardgameName, LIMIT, skipCounter);
+        List<ReviewModelMongo> reviews = reviewMongoOp.findRecentReviewsByBoardgame(boardgameName, LIMIT, skipCounter);
         prevNextButtonsCheck(reviews.size());
 
         return reviews;
-    }
-
-    void setGridPaneColumnAndRow() {
-        columnGridPane = 0;
-        rowGridPane = 1;
     }
 
     public void onClickAddReviewButton() {
@@ -529,10 +477,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             addReviewBox.getChildren().add(loadViewItem);
 
             if (!reviews.isEmpty()) {
-                if (reviews.size() == 1)
+                if (reviews.size() == 1) {
                     shiftDownSingleObjectGridPane = true;
-                else
+                } else {
                     shiftDownSingleObjectGridPane = false;
+                }
                 fillGridPane();
                 reviewsGridPane.add(addReviewBox, 0, 1);
             } else {
@@ -562,7 +511,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 );
 
                 if (savedReview) {
-                    stageManager.showInfoMessage("Success", "Review added successfully");
+                    stageManager.showInfoMessage("INFO", "Review added successfully");
 
                     setAverageRating();
                     reviews.add(0, newReview);
@@ -585,8 +534,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 }
             });
         } catch (Exception ex) {
-            stageManager.showInfoMessage("ERROR", "Something went wrong. Please try again in a while.");
-            System.err.println("[ERROR] onClickAddReviewButton@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickAddReviewButton()@ControllerViewDetailsBoardgamePage.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -601,12 +550,13 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
     @FXML
     void fillGridPane() {
-        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
+        columnGridPane = 0;       // Needed to correctly position a single element in the grid pane
         if (reviews.size() == 1) {
-            if (shiftDownSingleObjectGridPane)
+            if (shiftDownSingleObjectGridPane) {
                 rowGridPane = 2;
-            else
+            } else {
                 rowGridPane = 0;
+            }
         } else {
             rowGridPane++;
         }
@@ -622,8 +572,8 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 }
             }
         } catch (Exception e) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] fillGridPane@ControllerViewDetailsBoardgamePage.java raised an exception: " + e.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] fillGridPane()@ControllerViewDetailsBoardgamePage.java raised an exception: " + e.getMessage());
         }
     }
 
@@ -641,8 +591,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
         AnchorPane anchorPane = new AnchorPane();
         anchorPane.getChildren().add(loadViewItem);
-        // Setting up what should be called upon review deletion using the delete review button
-
 
         return anchorPane;
     }
@@ -653,7 +601,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             rowGridPane++;
         }
 
-        reviewsGridPane.add(reviewNode, columnGridPane++, rowGridPane); //(child,column,row)
+        reviewsGridPane.add(reviewNode, columnGridPane++, rowGridPane);
 
         reviewsGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
         reviewsGridPane.setPrefWidth(500);
@@ -726,11 +674,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     public void onClickSaveChangesButton() {
-
         if (boardgame != null) {
             String oldBoardgameName = this.boardgameNameLabel.getText();
 
-            // Ottenere i dati dai campi di input
             String boardgameName = this.updateBgNameTextField.getText();
             String description = this.updateDescriptionTextField.getText()
                     .replaceAll("&#[0-9]+;", "")
@@ -742,30 +688,25 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             String minAgeStr = this.updateMinAgeTextField.getText();
             String image = this.updateImageLinkTextField.getText();
 
-            // Verifica se la lista delle categorie è cambiata
+            // Verifying if lists are changed
             boolean isCategoryListChanged = !new HashSet<>(listStringsCategories).
                     containsAll(boardgame.getBoardgameCategory())
                     || !new HashSet<>(boardgame.getBoardgameCategory()).
                     containsAll(listStringsCategories);
-            // Verifica se la lista dei designer è cambiata
             boolean isDesignerListChanged = !new HashSet<>(listStringsDesigners).
                     containsAll(boardgame.getBoardgameDesigner())
                     || !new HashSet<>(boardgame.getBoardgameDesigner()).
                     containsAll(listStringsDesigners);
-            // Verifica se la lista dei publisher è cambiata
             boolean isPublisherListChanged = !new HashSet<>(listStringsPublishers).
                     containsAll(boardgame.getBoardgamePublisher())
                     || !new HashSet<>(boardgame.getBoardgamePublisher()).
                     containsAll(listStringsPublishers);
 
-
-            // Creare un elenco di stringhe delle liste modificate per recuperare il
             List<String> modifiedLists = new ArrayList<>();
             if (isCategoryListChanged) modifiedLists.add("Categories List");
             if (isDesignerListChanged) modifiedLists.add("Designer List");
             if (isPublisherListChanged) modifiedLists.add("Publisher List");
 
-            // Verifica se tutti i campi sono vuoti (escludendo le liste)
             if (boardgameName.isEmpty() && description.isEmpty() && minPlayerStr.isEmpty() &&
                     maxPlayerStr.isEmpty() && playingTimeStr.isEmpty() && yearPublishedStr.isEmpty() &&
                     minAgeStr.isEmpty() && image.isEmpty() && modifiedLists.isEmpty()) {
@@ -776,13 +717,11 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 return;
             }
 
-            // Identifica se ci sono campi vuoti
             boolean hasEmptyFields = boardgameName.isEmpty() || description.isEmpty()
                     || minPlayerStr.isEmpty() || maxPlayerStr.isEmpty()
                     || playingTimeStr.isEmpty() || yearPublishedStr.isEmpty()
                     || minAgeStr.isEmpty() || image.isEmpty();
 
-            // Messaggio relativizzato al caso di aggiornamento di solo liste
             if (hasEmptyFields && !modifiedLists.isEmpty()) {
                 String modifiedListName = modifiedLists.size() == 1
                         ? modifiedLists.get(0)
@@ -801,20 +740,16 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 }
             }
 
-            // Validazione e conversione dei campi numerici
             Integer minPlayer = validateIntegerField(minPlayerStr, "Minimum Players");
             Integer maxPlayer = validateIntegerField(maxPlayerStr, "Maximum Players");
             Integer playingTime = validateIntegerField(playingTimeStr, "Playing Time");
             Integer yearPublished = validateIntegerField(yearPublishedStr, "Year Published");
             Integer minAge = validateIntegerField(minAgeStr, "Minimum Age");
 
-            // Variabile di validazione
             boolean isValid = true;
 
-            // Controlla se un campo numerico contiene un valore non valido (ad es. testo non numerico)
             if (minPlayerStr.isEmpty() && maxPlayerStr.isEmpty()&& playingTimeStr.isEmpty()
                     && yearPublishedStr.isEmpty() && minAgeStr.isEmpty()) {
-                // Passa direttamente senza errori
                 isValid = true;
             } else {
                 if (yearPublished != null && yearPublishedStr.length() > 4) {
@@ -841,11 +776,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             }
 
             if (isValid) {
-                // Esegui l'aggiornamento del modello del gioco
                 BoardgameModelMongo updatedBoardgame = new BoardgameModelMongo();
-                updatedBoardgame.setId(boardgame.getId()); // Mantieni lo stesso ID
+                updatedBoardgame.setId(boardgame.getId());      // Keeping the same ID
 
-                // Aggiorna solo i campi riempiti o modificati
                 updatedBoardgame.setImage(image.isEmpty()
                                                   ? boardgame.getImage() : image);
                 updatedBoardgame.setBoardgameName(boardgameName.isEmpty()
@@ -876,40 +809,32 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
                 updatedBoardgame.setAvgRating(boardgame.getAvgRating());
                 updatedBoardgame.setReviewCount(boardgame.getReviewCount());
 
-
                 modelBean.putBean(Constants.UPDATED_BOARDGAME, BoardgameModelNeo4j.castBoardgameMongoInBoardgameNeo(updatedBoardgame));
 
-                // Esegui l'aggiornamento verso il database e in Grafica se tutto va bene
                 if (updateDbms(updatedBoardgame, oldBoardgameName)) {
                     modelBean.putBean(Constants.SELECTED_BOARDGAME, updatedBoardgame.getId());
-                    stageManager.showInfoMessage("Update Info",
-                            "The boardgame information has been successfully updated!");
+                    stageManager.showInfoMessage("INFO", "The boardgame has been successfully updated.");
                     prepareScene();
                     onClickRefreshButton();
                 }
             }
         } else {
-            stageManager.showInfoMessage("Update Error",
-                    "There is no selected boardgame to update.");
+            stageManager.showInfoMessage("INFO", "No selected boardgame to update.");
         }
     }
 
     private boolean updateDbms(BoardgameModelMongo newBoardgame, String oldBoardgameName){
-
         boolean updateBoardgameOperation = serviceBoardgame.updateBoardgame(newBoardgame, oldBoardgameName);
 
         if (!updateBoardgameOperation) {
             modelBean.putBean(Constants.UPDATED_BOARDGAME, null);
-            stageManager.showInfoMessage("Update Error: ",
-                    "There was an error updating Boardgame information. " +
-                            "Please try again.");
+            stageManager.showInfoMessage("ERROR", "Something went wrong while updating the boardgame. Please try again in a while.");
             prepareScene();
             return false;
         }
         return true;
     }
 
-    // Metodo per validare e convertire i campi numerici
     private Integer validateIntegerField(String value, String fieldName) {
         if (value.isEmpty()) {
             return null;
@@ -917,12 +842,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            stageManager.showInfoMessage("Validation Error",
-                    fieldName + " must be a valid number.");
+            stageManager.showInfoMessage("INFO", "'" + fieldName + "' must be a valid number.");
             return null;
         }
     }
-
 
     public void onClickEditBoardgameButton() {
         this.selectedOperation = UserActivity.EDIT_INFO;
@@ -942,6 +865,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         prepareScene();
         prevNextButtonsCheck(boardgame.getReviewCount());
     }
+
     public void onClickAddCategoryButton() {
         String category = updateCategoryTextField.getText().trim();
         if (!category.isEmpty()) {
@@ -949,7 +873,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             categoriesListView.getItems().add(0, category);
             updateCategoryTextField.clear();
         } else {
-            stageManager.showInfoMessage("INFO", "Category field cannot be empty.");
+            stageManager.showInfoMessage("INFO", "'Category' field cannot be empty.");
         }
     }
 
@@ -970,7 +894,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             designersListView.getItems().add(0, designer);
             updateDesignerTextField.clear();
         } else {
-            stageManager.showInfoMessage("INFO", "Designer field cannot be empty.");
+            stageManager.showInfoMessage("INFO", "'Designer' field cannot be empty.");
         }
     }
 
@@ -991,7 +915,7 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
             publishersListView.getItems().add(0, publisher);
             updatePublisherTextField.clear();
         } else {
-            stageManager.showInfoMessage("INFO", "Publisher field cannot be empty.");
+            stageManager.showInfoMessage("INFO", "'Publisher' field cannot be empty.");
         }
     }
 
@@ -1006,12 +930,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     private void setEditFieldsVisibility(boolean isVisible) {
-
         if(isVisible){
             Image tempImage = new Image("/images/noImage.jpg");
             this.imageBoardgame.setImage(tempImage);
         }
-        //********** Actual Labels **********
         this.averageRatingLabel.setDisable(isVisible);
         this.boardgameNameLabel.setDisable(isVisible);
         this.descriptionTextArea.setDisable(isVisible);
@@ -1028,7 +950,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.comboBoxFullCategories.setDisable(isVisible);
         this.comboBoxFullDesigners.setDisable(isVisible);
         this.comboBoxFullPublishers.setDisable(isVisible);
-        //********** Others Actual Components **********
         this.scrollSet.setDisable(isVisible);
         this.nextButton.setDisable(isVisible);
         this.previousButton.setDisable(isVisible);
@@ -1041,7 +962,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.deleteButton.setDisable(isVisible);
         this.closeButton.setDisable(isVisible);
         this.editBoardgameButton.setDisable(isVisible);
-        //********** Update Related TextFields **********
         this.updateDescriptionTextField.setVisible(isVisible);
         this.updateBgNameTextField.setVisible(isVisible);
         this.updateYearOfPublicationTextField.setVisible(isVisible);
@@ -1056,7 +976,6 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.categoriesListView.setVisible(isVisible);
         this.designersListView.setVisible(isVisible);
         this.publishersListView.setVisible(isVisible);
-        //********** Update Related Buttons **********
         this.cancelButton.setVisible(isVisible);
         this.saveChangesButton.setVisible(isVisible);
         this.addCategoryButton.setVisible(isVisible);
@@ -1068,11 +987,10 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
     }
 
     public void clearFields(){
-        //********** TextFields & SubLabels **********
         this.updateDescriptionTextField.clear();
-        this.updateDescriptionTextField.setPromptText("Write the Boardgame description here...");
+        this.updateDescriptionTextField.setPromptText("Write the boardgame description here...");
         this.updateBgNameTextField.clear();
-        this.updateBgNameTextField.setPromptText("Write the Boardgame name here...");
+        this.updateBgNameTextField.setPromptText("Write the boardgame name here...");
         this.updateYearOfPublicationTextField.clear();
         this.updateYearOfPublicationTextField.setPromptText("YYYY");
         this.updatePlayingTimeTextField.clear();
@@ -1084,16 +1002,15 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         this.updateMinAgeTextField.clear();
         this.updateMinAgeTextField.setPromptText("Age");
         this.updateImageLinkTextField.clear();
-        this.updateImageLinkTextField.setPromptText("Write the Image link address here...");
+        this.updateImageLinkTextField.setPromptText("Write the image address here...");
         this.updateCategoryTextField.clear();
-        this.updateCategoryTextField.setPromptText("Write the Category here...");
+        this.updateCategoryTextField.setPromptText("Write the category here...");
         this.updateDesignerTextField.clear();
-        this.updateDesignerTextField.setPromptText("Write the Designer here...");
+        this.updateDesignerTextField.setPromptText("Write the designer here...");
         this.updatePublisherTextField.clear();
-        this.updatePublisherTextField.setPromptText("Write the Publisher here...");
+        this.updatePublisherTextField.setPromptText("Write the publisher here...");
         this.categoriesListView.getItems().clear();
         this.designersListView.getItems().clear();
         this.publishersListView.getItems().clear();
     }
-
 }

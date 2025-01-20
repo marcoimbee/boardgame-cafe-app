@@ -25,14 +25,13 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
-
 @Component
 public class ControllerViewDetailsPostPage implements Initializable {
+
     @FXML
     private Button likeButton;
     @FXML
@@ -68,10 +67,10 @@ public class ControllerViewDetailsPostPage implements Initializable {
     @FXML
     private ScrollPane scrollSet;
 
+
     @Autowired
     @Lazy
     private StageManager stageManager;
-
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
@@ -86,35 +85,29 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private PostService postService;
 
     private List<CommentModel> comments = new ArrayList<>();
-
     private PostModelMongo post;
-
     private static GenericUserModelMongo currentUser;
-
     private boolean shiftDownSingleObjectGridPane;
     private int columnGridPane = 0;
     private int rowGridPane = 0;
     private int skipCounter = 0;
-    private final static int SKIP = 10; //how many posts to skip per time
-    private final static int LIMIT = 10; //how many posts to show for each page
+    private final static int SKIP = 10;     // How many posts to skip each time
+    private final static int LIMIT = 10;    // How many posts to show for each page
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
-
     private Consumer<String> deletedCommentCallback;
 
     public ControllerViewDetailsPostPage() {}
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("[INFO] Loaded ControllerViewDetailsPostPage");
         this.shiftDownSingleObjectGridPane = false;
-        // TO DO: sostituire la classe UserModelMongo in Generic...
+
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (currentUser == null)
-            throw new RuntimeException("No logged");
-        if (!currentUser.get_class().equals("admin"))
+        if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        else
+        } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        }
 
         this.previousButton.setDisable(true);
         this.nextButton.setDisable(true);
@@ -140,8 +133,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
             deleteButton.setVisible(false);     // Making the delete button invisible
         }
 
-        if (currentUser.get_class().equals("admin"))
-        {
+        if (currentUser.get_class().equals("admin")) {
             editButton.setVisible(false);
             deleteButton.setVisible(true);
             likeButton.setDisable(true);
@@ -178,8 +170,10 @@ public class ControllerViewDetailsPostPage implements Initializable {
         }
     }
 
-    // Called whenever the author user of a comment decides to delete that comment.
-    // This method updates the comments list and updates UI
+    /*
+        Called whenever the author user of a comment decides to delete that comment.
+        This method updates the comments list and updates UI
+     */
     public void updateUIAfterCommentDeletion(String deletedCommentId) {
         comments.removeIf(comment -> comment.getId().equals(deletedCommentId));
         post.getComments().removeIf(comment -> comment.getId().equals(deletedCommentId));
@@ -207,8 +201,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
             // Close post details window
             stageManager.closeStage();
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] onClickDeleteButton@ControllerViewDetailsPostPage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton()@ControllerViewDetailsPostPage.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -221,7 +215,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
         comments.clear();
         Optional<PostModelMongo> postFromMongo = postDBMongo.findById(this.post.getId());
         postFromMongo.ifPresent(postModelMongo -> post = postModelMongo);
-        //post.getComments().sort(Comparator.comparing(CommentModel::getTimestamp).reversed());
         comments.addAll(post.getComments());
         fillGridPane();
         prevNextButtonsCheck(comments);
@@ -252,11 +245,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
     void onClickNext() {
         commentGridPane.getChildren().clear();
         comments.clear();
-
         skipCounter += SKIP;
-
         comments.addAll(getData(this.post));
-
         fillGridPane();
         scrollSet.setVvalue(0);
     }
@@ -265,11 +255,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
     void onClickPrevious() {
         commentGridPane.getChildren().clear();
         comments.clear();
-
         skipCounter -= SKIP;
-
         comments.addAll(getData(this.post));
-
         fillGridPane();
         scrollSet.setVvalue(0);
     }
@@ -315,8 +302,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
     }
 
     private List<CommentModel> getData(PostModelMongo post) {
-//        List<CommentModelMongo> comments = commentDBMongo.
-//                findRecentCommentsByPostId(postId, LIMIT, skipCounter);
         List<CommentModel> comments = post.getComments();
         int start = Math.min(skipCounter, comments.size());
         int end = Math.min(start + LIMIT, comments.size());
@@ -330,7 +315,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         try {
             scrollSet.setVvalue(0);
             this.addCommentButton.setDisable(true);
-            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATECOMMENT.getFxmlFile());        // Loading FXML
+            Parent loadViewItem = stageManager.loadViewNode(FxmlView.OBJECTCREATECOMMENT.getFxmlFile());
 
             TextField commentTextArea = (TextField) loadViewItem.lookup("#bodyTextLabel");
             Button submitCommentButton = (Button) loadViewItem.lookup("#submitButton");
@@ -363,7 +348,6 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 }
 
                 CommentModel newComment = new CommentModel(
-                        //this.post.getId(),                // ID of the post that's being commented
                         currentUser.getUsername(),        // Current user is commenting this post
                         commentText,
                         new Date()                        // Comment creation date
@@ -385,7 +369,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
                     this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));  // Update post details page UI - increase comment count
                 } else {
-                    stageManager.showInfoMessage("Error", "Failed to add comment.");
+                    stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
                 }
                 prevNextButtonsCheck(comments);
             });
@@ -395,13 +379,11 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 boolean userChoice = stageManager.showDiscardCommentInfoMessage();
                 if (userChoice) {
                     this.addCommentButton.setDisable(false);
-//                    commentGridPane.getChildren().clear();
-//                    fillGridPane();
                     cleanFetchAndFill();
                 }
             });
         } catch (Exception e) {
-            stageManager.showInfoMessage("ERROR", "Something went wrong. Please try again in a while.");
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
         }
     }
 
@@ -423,7 +405,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
 
     @FXML
     void fillGridPane() {
-        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
+        columnGridPane = 0;       // Needed to correctly position a single element in the grid pane
         if (comments.size() == 1) {
             if (shiftDownSingleObjectGridPane) {
                 rowGridPane = 2;
@@ -445,7 +427,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
             }
         } catch (Exception e) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] fillGridPane@ControllerViewDetailsPostPage.java raised an exception: " + e.getMessage());
+            System.err.println("[ERROR] fillGridPane()@ControllerViewDetailsPostPage.java raised an exception: " + e.getMessage());
         }
     }
 

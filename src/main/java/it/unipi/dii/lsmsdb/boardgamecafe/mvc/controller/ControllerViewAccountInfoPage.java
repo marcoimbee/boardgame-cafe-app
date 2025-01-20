@@ -19,7 +19,6 @@ import javafx.scene.image.ImageView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,14 +31,6 @@ import java.util.regex.Pattern;
 @Component
 public class ControllerViewAccountInfoPage implements Initializable{
 
-    public enum UserActivity {
-        EDIT_INFO, NO_EDIT
-    }
-    private static final String EMAIL_REGEX =
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-    private static final Pattern pattern = Pattern.compile(EMAIL_REGEX);
-
-    //********* Buttons *********
     @FXML
     private Button yourProfileButton;
     @FXML
@@ -64,8 +55,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private Button clearFieldsButton;
     @FXML
     private Button statisticsButton;
-
-    // ********** Llabels *********
     @FXML
     private Label firstNameLabel;
     @FXML
@@ -84,26 +73,38 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private Label passwordLabel;
     @FXML
     private Label reminderLabel;
-
-    //********* TextField and its Label Components *********
-    @FXML private TextField textFieldFirstName;
-    @FXML private Label subLabelFirstName;
-    @FXML private TextField textFieldLastName;
-    @FXML private Label subLabelLastName;
-    @FXML private ComboBox<String> comboBoxNationality;
-    @FXML private Label subLabelNationality;
-    @FXML private ComboBox<String> comboBoxGender;
-    @FXML private Label subLabelGender;
-    @FXML private DatePicker datePickerDate;
-    @FXML private Label subLabelDate;
-    @FXML private TextField textFieldEmail;
-    @FXML private Label subLabelEmail;
-    @FXML private TextField textFieldPassword;
-    @FXML private Label subLabelPassword;
-    @FXML private TextField textFieldRepeatPassword;
-    @FXML private Label subLabelRepeatedPassword;
-
-    //********* TextField Check Boxes *********
+    @FXML
+    private TextField textFieldFirstName;
+    @FXML
+    private Label subLabelFirstName;
+    @FXML
+    private TextField textFieldLastName;
+    @FXML
+    private Label subLabelLastName;
+    @FXML
+    private ComboBox<String> comboBoxNationality;
+    @FXML
+    private Label subLabelNationality;
+    @FXML
+    private ComboBox<String> comboBoxGender;
+    @FXML
+    private Label subLabelGender;
+    @FXML
+    private DatePicker datePickerDate;
+    @FXML
+    private Label subLabelDate;
+    @FXML
+    private TextField textFieldEmail;
+    @FXML
+    private Label subLabelEmail;
+    @FXML
+    private TextField textFieldPassword;
+    @FXML
+    private Label subLabelPassword;
+    @FXML
+    private TextField textFieldRepeatPassword;
+    @FXML
+    private Label subLabelRepeatedPassword;
     @FXML
     private CheckBox flagFirstName;
     @FXML
@@ -118,8 +119,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private CheckBox flagEmail;
     @FXML
     private CheckBox flagPassword;
-
-    //********* TextField Icons *********
     @FXML
     private FontAwesomeIconView iconFirstName;
     @FXML
@@ -146,13 +145,9 @@ public class ControllerViewAccountInfoPage implements Initializable{
     private FontAwesomeIconView iconSaveChanges;
     @FXML
     private FontAwesomeIconView iconCancel;
-
-
-    //********* Others View Components *********
     @FXML
     private ImageView profileImage;
 
-    //********* Autowireds *********
     @Autowired
     private UserDBMongo userDBMongo;
     @Autowired
@@ -160,19 +155,22 @@ public class ControllerViewAccountInfoPage implements Initializable{
     @Autowired
     private ModelBean modelBean;
 
-    //Stage Manager
+    private static final String EMAIL_REGEX =
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    private static final Pattern pattern = Pattern.compile(EMAIL_REGEX);
+    public enum UserActivity {
+        EDIT_INFO, NO_EDIT
+    }
     private final StageManager stageManager;
-    //User
     private static GenericUserModelMongo currentUser;
-    //Useful Variables
     private UserActivity selectedOperation;
-
 
     @Autowired
     @Lazy
     public ControllerViewAccountInfoPage(StageManager stageManager) {
         this.stageManager = stageManager;
     }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.initComboBox();
@@ -184,32 +182,36 @@ public class ControllerViewAccountInfoPage implements Initializable{
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
             initAdminDisplay();
         }
-
     }
 
-    //********** On Click Button Methods **********
     public void onClickEditAccountInfoButton() {
         this.selectedOperation = UserActivity.EDIT_INFO;
         this.cancelButton.setVisible(true);
         this.saveChangesButton.setVisible(true);
-        if(currentUser.get_class().equals("admin"))
+        if(currentUser.get_class().equals("admin")) {
             setEditFieldsVisibilityAdmin(true);
-        else
+        } else {
             setEditFieldsVisibilityUser(true);
+        }
     }
+
     public void onClickYourProfileButton() {
         stageManager.switchScene(FxmlView.USERPROFILEPAGE);
     }
+
     public void onClickBoardgamesButton() {
         stageManager.switchScene(FxmlView.REGUSERBOARDGAMES);
     }
+
     public void onClickPostsFeedButton() {
         stageManager.switchScene(FxmlView.REGUSERPOSTS);
     }
+
     public void onClickSearchUserButton() {
         stageManager.switchScene(FxmlView.SEARCHUSER);
     }
-    public void onClickLogout(ActionEvent event) {
+
+    public void onClickLogout() {
         modelBean.putBean(Constants.CURRENT_USER, null);
         stageManager.switchScene(FxmlView.WELCOMEPAGE);
     }
@@ -217,16 +219,20 @@ public class ControllerViewAccountInfoPage implements Initializable{
     public void onClickStatisticsButton() {
         stageManager.switchScene(FxmlView.STATISTICS);
     }
+
     public void onClickCancelButton() {
         clearFields();
-        if(currentUser.get_class().equals("admin"))
+        if(currentUser.get_class().equals("admin")) {
             initAdminDisplay();
-        else
+        } else {
             initUserDisplay();
+        }
     }
+
     public void onClickClearFieldsButton() {
         clearFields();
     }
+
     public void onClickDeleteAccountButton() {
         UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
         boolean userChoice = stageManager.showDeleteAccountInfoMessage();
@@ -236,32 +242,29 @@ public class ControllerViewAccountInfoPage implements Initializable{
         if (serviceUser.deleteUser(user)){
             modelBean.putBean(Constants.CURRENT_USER, null);
             stageManager.switchScene(FxmlView.WELCOMEPAGE);
-            stageManager.showInfoMessage("Delete Operation", "Your Account Was Successfully " +
-                    "Deleted From BoardGame-Cafè App." +
-                    "\n\n\t\t\tWe Hope You Can Sign-Up Again Soon.");
+            stageManager.showInfoMessage("INFO", "Your account has been successfully " +
+                    "deleted from the application." +
+                    "\n\n\t\t\tWe hope to see you again soon!");
         } else {
             modelBean.putBean(Constants.CURRENT_USER, null);
             stageManager.switchScene(FxmlView.WELCOMEPAGE);
-            stageManager.showInfoMessage("Delete Operation", "An Unexpected Error Occurred " +
-                    "While Deleting Your Account From BoardGame-Café_App." +
-                    "\n\n\t\t\tPlease contact the administrator.");
+            stageManager.showInfoMessage("INFO", "Something went wrong " +
+                    "while deleting your account. Please try again in a while." +
+                    "\n\n\t\t\tIf the error persists, contact an administrator.");
         }
     }
     public void onClickSaveChangesButton() {
-
         if(currentUser != null) {
-            if(currentUser.get_class().equals("admin"))
+            if(currentUser.get_class().equals("admin")) {
                 editAdminAccount();
-            else
+            } else {
                 editUserAccount();
+            }
         } else {
-            stageManager.showInfoMessage("Update Error: ",
-                    "There Is No Logged-In User To Update ");
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
         }
     }
 
-
-    //********** Internal Methods **********
     private void initAdminDisplay(){
         clearFields();
         AdminModelMongo admin = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -273,7 +276,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         Image image = new Image(Objects.requireNonNull(getClass().
                 getResource("/images/user.png")).toExternalForm());
         this.profileImage.setImage(image);
-
         this.firstNameLabel.setText("Not Available");
         this.lastNameLabel.setText("Not Available");
         this.nationalityLabel.setText("Not Available");
@@ -282,9 +284,9 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.emailLabel.setText(admin.getEmail());
         this.usernameLabel.setText(admin.getUsername());
         this.passwordLabel.setText("***************");
-
         setEditFieldsVisibilityAdmin(false);
     }
+
     private void initUserDisplay(){
         clearFields();
         UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -296,7 +298,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         Image image = new Image(Objects.requireNonNull(getClass().
                 getResource("/images/user.png")).toExternalForm());
         this.profileImage.setImage(image);
-
         this.firstNameLabel.setText(user.getName());
         this.lastNameLabel.setText(user.getSurname());
         this.nationalityLabel.setText(user.getNationality());
@@ -305,13 +306,12 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.emailLabel.setText(user.getEmail());
         this.usernameLabel.setText(user.getUsername());
         this.passwordLabel.setText("***************");
-
         setEditFieldsVisibilityUser(false);
     }
 
     private void editUserAccount(){
         UserModelMongo user = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        // Ottenere i dati dai campi di input
+
         String firstName = this.textFieldFirstName.getText();
         String lastName = this.textFieldLastName.getText();
         String country = this.comboBoxNationality.getValue();
@@ -320,7 +320,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
         String email = selectEmail();
         String password = this.textFieldPassword.getText();
         String repeatedPassword = this.textFieldRepeatPassword.getText();
-        // Gestione delle checkbox
+
         boolean updateFirstName = this.flagFirstName.isSelected();
         boolean updateLastName = this.flagLastName.isSelected();
         boolean updateNationality = this.flagNationality.isSelected();
@@ -329,18 +329,16 @@ public class ControllerViewAccountInfoPage implements Initializable{
         boolean updateEmail = this.flagEmail.isSelected();
         boolean updatePassword = this.flagPassword.isSelected();
 
-        // Verifica che almeno una checkbox sia selezionata
+        // Checking that at least a checkbox is selected
         if (!(updateFirstName || updateLastName || updateNationality || updateGender ||
                 updateDateOfBirth || updateEmail || updatePassword)) {
             clearFields();
-            stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
+            stageManager.showInfoMessage("INFO", "Please select at least one field box to update.");
             return;
         }
 
-        // Variabile di validazione
         boolean isValid = true;
 
-        // Validazione condizionata in base alla selezione delle checkbox
         if (updateFirstName) {
             if (firstName.isEmpty()) {
                 subLabelFirstName.setText("First Name is missing.");
@@ -409,7 +407,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 isValid = false;
             } else if (!password.equals(repeatedPassword)) {
                 subLabelPassword.setText("");
-                subLabelRepeatedPassword.setText("The two passwords above do not match.");
+                subLabelRepeatedPassword.setText("The passwords do not match.");
                 isValid = false;
             } else {
                 subLabelPassword.setText("");
@@ -418,7 +416,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         }
 
         if (isValid) {
-            // Esegui l'aggiornamento del modello utente come prima
             UserModelMongo newUser = new UserModelMongo();
 
             if (updateFirstName) newUser.setName(firstName);
@@ -455,35 +452,30 @@ public class ControllerViewAccountInfoPage implements Initializable{
 
             if (updateDbms(newUser)) {
                 modelBean.putBean(Constants.CURRENT_USER, newUser);
-                stageManager.showInfoMessage("Update Info: ",
-                        "Your account information has been successfully updated!");
+                stageManager.showInfoMessage("INFO", "Your account has been successfully updated.");
                 initUserDisplay();
             }
         }
     }
 
     private void editAdminAccount() {
-
         AdminModelMongo admin = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        // Ottenere i dati dai campi di input
+
         String email = selectEmail();
         String password = this.textFieldPassword.getText();
         String repeatedPassword = this.textFieldRepeatPassword.getText();
-        // Gestione delle checkbox
+
         boolean updateEmail = this.flagEmail.isSelected();
         boolean updatePassword = this.flagPassword.isSelected();
 
-        // Verifica che almeno una checkbox sia selezionata
         if (!( updateEmail || updatePassword)) {
             clearFields();
-            stageManager.showInfoMessage("Error", "Please select at least one field box to update.");
+            stageManager.showInfoMessage("INFO", "Please select at least one field box to update.");
             return;
         }
 
-        // Variabile di validazione
         boolean isValid = true;
 
-        // Validazione condizionata in base alla selezione delle checkbox
         if (updateEmail) {
             if (email.isEmpty()) {
                 subLabelEmail.setText("E-mail is missing.");
@@ -512,7 +504,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 isValid = false;
             } else if (!password.equals(repeatedPassword)) {
                 subLabelPassword.setText("");
-                subLabelRepeatedPassword.setText("The two passwords above do not match.");
+                subLabelRepeatedPassword.setText("The passwords do not match.");
                 isValid = false;
             } else {
                 subLabelPassword.setText("");
@@ -521,7 +513,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         }
 
         if (isValid) {
-
             AdminModelMongo newAdmin = new AdminModelMongo();
 
             if (updateEmail) newAdmin.setEmail(email);
@@ -542,36 +533,36 @@ public class ControllerViewAccountInfoPage implements Initializable{
 
             if (updateDbms(newAdmin)){
                 modelBean.putBean(Constants.CURRENT_USER, newAdmin);
-                stageManager.showInfoMessage("Update Info: ",
-                        "Your account information has been successfully updated!");
+                stageManager.showInfoMessage("INFO", "Your account has been successfully updated.");
                 initAdminDisplay();
             }
         }
     }
+
     private boolean updateDbms(GenericUserModelMongo newUser){
         String userType;
-        if(currentUser.get_class().equals("admin"))
+        if(currentUser.get_class().equals("admin")) {
             userType = "admin";
-        else
+        } else {
             userType = "user";
+        }
 
         boolean mongoUpdateUser = userDBMongo.updateUser(newUser.getId(), newUser, userType);
 
         if (!mongoUpdateUser) {
-            stageManager.showInfoMessage("Update Error: ",
-                    "There was an error updating your account information. " +
-                            "Please try again.");
-            if (currentUser.get_class().equals("admin"))
+            stageManager.showInfoMessage("INFO",
+                    "Something went wrong while updating your account. Please try again in a while.");
+            if (currentUser.get_class().equals("admin")) {
                 initAdminDisplay();
-            else
+            } else {
                 initUserDisplay();
+            }
             return false;
         }
         return true;
     }
 
     private void setEditFieldsVisibilityAdmin(boolean isVisible) {
-        //********** Actual Labels **********
         this.firstNameLabel.setDisable(isVisible);
         this.lastNameLabel.setDisable(isVisible);
         this.nationalityLabel.setDisable(isVisible);
@@ -581,7 +572,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.usernameLabel.setDisable(isVisible);
         this.passwordLabel.setDisable(isVisible);
         this.reminderLabel.setVisible(isVisible);
-        //********** TextFields & SubLabels **********
         this.textFieldFirstName.setVisible(false);
         this.subLabelFirstName.setVisible(false);
         this.textFieldLastName.setVisible(false);
@@ -598,7 +588,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.subLabelPassword.setVisible(isVisible);
         this.textFieldRepeatPassword.setVisible(isVisible);
         this.subLabelRepeatedPassword.setVisible(isVisible);
-        //********** Icons **********
         this.iconFirstName.setVisible(false);
         this.iconLastName.setVisible(false);
         this.iconNationality.setVisible(false);
@@ -611,7 +600,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.iconClearFields.setVisible(isVisible);
         this.iconCancel.setVisible(isVisible);
         this.iconSaveChanges.setVisible(isVisible);
-        //********** Related CheckBoxes **********
         this.flagFirstName.setVisible(false);
         this.flagLastName.setVisible(false);
         this.flagNationality.setVisible(false);
@@ -619,14 +607,13 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.flagDateOfBirth.setVisible(false);
         this.flagEmail.setVisible(isVisible);
         this.flagPassword.setVisible(isVisible);
-        //********** Related Buttons **********
         this.cancelButton.setVisible(isVisible);
         this.saveChangesButton.setVisible(isVisible);
         this.clearFieldsButton.setVisible(isVisible);
         this.editAccountInfoButton.setDisable(isVisible);
     }
+
     private void setEditFieldsVisibilityUser(boolean isVisible) {
-        //********** Actual Labels **********
         this.firstNameLabel.setDisable(isVisible);
         this.lastNameLabel.setDisable(isVisible);
         this.nationalityLabel.setDisable(isVisible);
@@ -636,7 +623,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.usernameLabel.setDisable(isVisible);
         this.passwordLabel.setDisable(isVisible);
         this.reminderLabel.setVisible(isVisible);
-        //********** TextFields & SubLabels **********
         this.textFieldFirstName.setVisible(isVisible);
         this.subLabelFirstName.setVisible(isVisible);
         this.textFieldLastName.setVisible(isVisible);
@@ -653,7 +639,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.subLabelPassword.setVisible(isVisible);
         this.textFieldRepeatPassword.setVisible(isVisible);
         this.subLabelRepeatedPassword.setVisible(isVisible);
-        //********** Icons **********
         this.iconFirstName.setVisible(isVisible);
         this.iconLastName.setVisible(isVisible);
         this.iconNationality.setVisible(isVisible);
@@ -666,7 +651,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.iconClearFields.setVisible(isVisible);
         this.iconCancel.setVisible(isVisible);
         this.iconSaveChanges.setVisible(isVisible);
-        //********** Related CheckBoxes **********
         this.flagFirstName.setVisible(isVisible);
         this.flagLastName.setVisible(isVisible);
         this.flagNationality.setVisible(isVisible);
@@ -674,7 +658,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.flagDateOfBirth.setVisible(isVisible);
         this.flagEmail.setVisible(isVisible);
         this.flagPassword.setVisible(isVisible);
-        //********** Related Buttons **********
         this.cancelButton.setVisible(isVisible);
         this.saveChangesButton.setVisible(isVisible);
         this.clearFieldsButton.setVisible(isVisible);
@@ -683,12 +666,11 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
 
     public void clearFields(){
-        //********** TextFields & SubLabels **********
         this.textFieldFirstName.clear();
         this.textFieldFirstName.setPromptText("First Name");
         this.subLabelFirstName.setText("");
         this.textFieldLastName.clear();
-        this.textFieldLastName.setPromptText("Laset Name");
+        this.textFieldLastName.setPromptText("Last Name");
         this.subLabelLastName.setText("");
         this.comboBoxNationality.setValue(null);
         this.comboBoxNationality.setPromptText("Nationality");
@@ -708,7 +690,6 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.textFieldRepeatPassword.clear();
         this.textFieldRepeatPassword.setPromptText("Repeat Password");
         this.subLabelRepeatedPassword.setText("");
-        //********** Related CheckBoxes **********
         this.flagFirstName.setSelected(false);
         this.flagLastName.setSelected(false);
         this.flagNationality.setSelected(false);
@@ -718,19 +699,16 @@ public class ControllerViewAccountInfoPage implements Initializable{
         this.flagPassword.setSelected(false);
     }
 
-    private void resetPage() {}
-
     public LocalDateTime selectDate() {
         LocalDate selectedDate = this.datePickerDate.getValue();
         LocalDate currentDate = LocalDate.now();
 
         if (selectedDate == null) {
-            subLabelDate.setText("Date of Birth is missing.");
+            subLabelDate.setText("Date of birth is missing.");
         } else if (selectedDate.isAfter(currentDate)) {
-            subLabelDate.setText("Were you born in the future?");
+            subLabelDate.setText("You cannot choose a future date as your date of birth.");
         } else {
             LocalDateTime dateTime = selectedDate.atStartOfDay();
-            //String formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
             Period age = Period.between(selectedDate, currentDate);
 
             if (age.getYears() < 13 ) {
@@ -744,13 +722,12 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
 
     public String selectEmail() {
-        //se email già presente o bannata: messaggio di errore.
-        Optional<GenericUserModelMongo> user = userDBMongo.
-                findByEmail(this.textFieldEmail.getText());
+        Optional<GenericUserModelMongo> user = userDBMongo.findByEmail(this.textFieldEmail.getText());
         if (user.isPresent()) {
             UserModelMongo userFromMongo = (UserModelMongo) user.get();
-            if (userFromMongo.isBanned())
+            if (userFromMongo.isBanned()) {
                 return "user_banned";
+            }
             return "already_used";
         }
         return this.textFieldEmail.getText();
@@ -762,7 +739,7 @@ public class ControllerViewAccountInfoPage implements Initializable{
     }
 
     private void initComboBox() {
-        this.comboBoxGender.getItems().addAll("Male","Female", "Prefer Not To Say");
+        this.comboBoxGender.getItems().addAll("Male", "Female", "Prefer Not To Say");
         this.comboBoxNationality.getItems().addAll("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica",
                 "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas",
                 "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan",
@@ -799,5 +776,4 @@ public class ControllerViewAccountInfoPage implements Initializable{
                 "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Viet Nam", "Virgin Islands",
                 "Virgin Islands", "Wallis and Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe", "Åland Islands");
     }
-
 }
