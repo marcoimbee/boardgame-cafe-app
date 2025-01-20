@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-// --- Funziona come una classe di configurazione per l'applicazione,
-// responsabile della creazione e della gestione di vari bean, incluso l'istanza StageManager. ---
+/*
+    This works as a configuration class for the application,
+    and it's responsible for the creation and management of the various beans, included the StageManager instance
+ */
 @Configuration
 public class AppConfig {
 

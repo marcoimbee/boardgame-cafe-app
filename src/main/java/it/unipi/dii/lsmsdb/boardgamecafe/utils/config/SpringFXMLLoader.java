@@ -6,15 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-
-// --- La classe SpringFXMLLoader è un FXMLLoader personalizzato che si integra con
-// l'iniezione delle dipendenze di Spring. Consente di caricare file FXML e iniettare
-// automaticamente gli "oggetti controller" nei componenti FXML.
-// Ciò rende più facile gestire le dipendenze e creare un'applicazione più decoesa. ---
+/*
+    SprigFXMLLoader is a personalized FXMLLoader that integrates with the injection of the dependencies of Spring.
+    Allows the uploading of FXML files and to automatically inject the controller objects in the FXML components.
+    This makes the dependencies management easier.
+ */
 @Component
 public class SpringFXMLLoader {
 

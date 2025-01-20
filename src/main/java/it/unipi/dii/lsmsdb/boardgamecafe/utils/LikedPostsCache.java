@@ -1,10 +1,8 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.utils;
 
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
 
 @Component
 public class LikedPostsCache {
@@ -13,16 +11,22 @@ public class LikedPostsCache {
     public final static int NOT_LIKED = 0;
     public final static int UNKNOWN = -1;
 
-    // Mappa che tiene traccia dei like per ogni post messi dall'utente corrente
-    //<postId, true/false>
+    /*
+        Map that keeps track of the likes of the current user for each post
+        <postId, True/False>
+     */
     private final HashMap<String, Boolean> likedPosts = new HashMap<>(); // Concurrent ?
-    // Mappa che tiene il conteggio dei like per ogni post
-    //<postId, likesNumber>
+
+    /*
+        Map that keeps the like count for each post
+        <postId, likeCount>
+     */
     private final ConcurrentHashMap<String, Integer> likeCounts = new ConcurrentHashMap<>();
 
-    public void addInfoLike(String postId, boolean infoLike, boolean likeAction)
-    {
-        // Aggiungi un'informazione di un like (Presente o Assente), nella cache
+    /*
+        Adds a like information (present or absent) to the cache
+     */
+    public void addInfoLike(String postId, boolean infoLike, boolean likeAction) {
         if ((likeAction) && (this.likedPosts.containsKey(postId)))
             if (infoLike)
                 this.incLikeCount(postId);
@@ -31,29 +35,32 @@ public class LikedPostsCache {
         this.likedPosts.put(postId, infoLike);
     }
 
-    public int hasLiked(String postId)
-    { // Controlla se l'utente ha messo like a un post.
-        // Ritorna:
-            // -1: se l'informazione è assente, e quindi bisogna andare verso Neo
-            //  1: se l'utente ha il like al post 'postId'
-            //  0: se l'utente non ha il like al post 'postId'
+    /*
+        Checks if a user has liked a post.
+        Returns:
+            -> -1: information is absent, so we must read into Neo4J
+            -> 1:  user has liked postId post
+            -> 0:  user has not liked postId post
+     */
+    public int hasLiked(String postId) {
         return (!this.likedPosts.containsKey(postId) ? UNKNOWN : (this.likedPosts.get(postId)) ? LIKED : NOT_LIKED);
     }
 
-    public int getLikeCount(String postId) { // Ottieni il conteggio totale dei like per un post
+    /*
+        Obtains the total like count for a given post
+     */
+    public int getLikeCount(String postId) {
         return likeCounts.getOrDefault(postId, 0);
     }
 
-    public void updateLikeCount(String postId, int likeCount) { // Imposta manualmente il conteggio dei like per un post
+    /*
+        Manually sets the like count for a given post
+     */
+    public void updateLikeCount(String postId, int likeCount) {
         likeCounts.put(postId, likeCount);
     }
 
     public void incLikeCount(String postId) { this.likeCounts.merge(postId, 1, Integer::sum); }
 
     public void decLikeCount(String postId) { this.likeCounts.merge(postId, -1, Integer::sum); }
-
-    public void clearCache() { // Pulisce la cache (se necessario)
-        likedPosts.clear();
-        likeCounts.clear();
-    }
 }
