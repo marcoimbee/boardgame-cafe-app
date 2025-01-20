@@ -706,7 +706,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 this.firstNameLabel.setText(userModel.getName());
                 this.lastNameLabel.setText(userModel.getSurname());
                 this.nationalityLabel.setText(userModel.getNationality());
-                //this.counterReviewsLabel.setText(String.valueOf(userModel.getReviews().size()));
+                this.counterReviewsLabel.setText(String.valueOf(reviewMongoOp.findReviewByUsername(userModel.getUsername()).size()));
             }
             this.usernameLabel.setText(openUserProfile.getUsername());
             this.followerLabel.setText(String.valueOf(userDBNeo.getCountFollowers(openUserProfile.getUsername())));
