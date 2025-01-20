@@ -120,6 +120,7 @@ class PostDBNeo4jTest {
         userDBNeo4j.addUser(followedUser);
         // Creare una relazione "follows" tra l'utente di test e l'altro utente
         userDBNeo4j.followUser(testAuthor.getUsername(), followedUser.getUsername());
+        postDBNeo4j.addLikePost(followedUser.getUsername(), testIdPost2, true);
         List<PostModelNeo4j> posts = postDBNeo4j.getPostsLikedByFollowedUsers(testAuthor.getUsername(), 10, 0);
         assertNotNull(posts);
         assertFalse(posts.isEmpty());
