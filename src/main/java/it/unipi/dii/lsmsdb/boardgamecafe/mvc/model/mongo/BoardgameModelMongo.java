@@ -1,9 +1,7 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,37 +18,13 @@ public class BoardgameModelMongo {
     private int maxPlayers;
     private int playingTime;
     private int minAge;
+    private Double avgRating;
+    private int reviewCount;
     private List<String> boardgameCategory = new ArrayList<>();
     private List<String> boardgameDesigner = new ArrayList<>();
     private List<String> boardgamePublisher = new ArrayList<>();
 
-    private Double avgRating;
-
-    private int reviewCount;
-
     public BoardgameModelMongo(){}
-
-    public BoardgameModelMongo(String id, String boardgameName, String image, String description,
-                               int yearPublished, int minPlayers, int maxPlayers,
-                               int playingTime, int minAge, List<String> boardgameCategory,
-                               List<String> boardgameDesigner, List<String> boardgamePublisher,
-                               Double avgRating, int reviewCount) {
-
-        this.id = id;
-        this.boardgameName = boardgameName;
-        this.image = image;
-        this.description = description;
-        this.yearPublished = yearPublished;
-        this.minPlayers = minPlayers;
-        this.maxPlayers = maxPlayers;
-        this.playingTime = playingTime;
-        this.minAge = minAge;
-        this.boardgameCategory = boardgameCategory;
-        this.boardgameDesigner = boardgameDesigner;
-        this.boardgamePublisher = boardgamePublisher;
-        this.reviewCount = reviewCount;
-        this.avgRating = avgRating;
-    }
 
     public BoardgameModelMongo(String boardgameName, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
@@ -168,29 +142,27 @@ public class BoardgameModelMongo {
         this.boardgamePublisher = boardgamePublisher;
     }
 
-    public void updateAvgRatingAfterReviewDeletion(int deletedRating)
-    {
-        if (this.reviewCount == 0)
+    public void updateAvgRatingAfterReviewDeletion(int deletedRating) {
+        if (this.reviewCount == 0) {
             return;
+        }
 
-        if (this.reviewCount == 1)
+        if (this.reviewCount == 1) {
             this.avgRating = -1.0;
-        else
+        } else {
             this.avgRating = ((this.reviewCount * this.avgRating) - deletedRating) / (this.reviewCount - 1);
+        }
         this.reviewCount--;
     }
 
-    public void updateAvgRatingAfterReviewUpdate(int newRating, int oldRating)
-    {
+    public void updateAvgRatingAfterReviewUpdate(int newRating, int oldRating) {
         this.avgRating = ((this.reviewCount * this.avgRating) - oldRating + newRating) / this.reviewCount;
     }
 
-    public void updateAvgRatingAndReviewCount (int reviewRating)
-    {
+    public void updateAvgRatingAndReviewCount (int reviewRating) {
         Double newAvg = ((this.reviewCount * this.avgRating) + reviewRating) / (this.reviewCount + 1);
         this.reviewCount++;
         this.avgRating = newAvg;
-        //this.reviews.add(0, reviewMongo);
     }
 
     public void updateAvgRatingAfterUserDeletion(List<Integer> ratings) {

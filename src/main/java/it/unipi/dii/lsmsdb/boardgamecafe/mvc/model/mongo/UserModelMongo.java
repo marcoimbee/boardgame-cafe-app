@@ -2,12 +2,9 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Document(collection = "users")
 @TypeAlias("user")
@@ -20,13 +17,13 @@ public class UserModelMongo extends GenericUserModelMongo {
     private String nationality;
     private boolean banned;
 
-    public UserModelMongo(){};
+    public UserModelMongo(){}
+
     public UserModelMongo(String id, String username, String email,
                           String name, String surname, String gender,
                           Date dateOfBirth, String nationality, boolean banned,
-                          String salt, String passwordHash, String _class
-    ) {
-
+                          String salt, String passwordHash, String _class)
+    {
         super(id, username, email, salt, passwordHash, _class);
         this.name = name;
         this.surname = surname;
@@ -39,9 +36,8 @@ public class UserModelMongo extends GenericUserModelMongo {
     public UserModelMongo(String username, String email,
                           String name, String surname, String gender,
                           Date dateOfBirth, String nationality, boolean banned,
-                          String salt, String passwordHash, String _class
-                          ) {
-
+                          String salt, String passwordHash, String _class)
+    {
         super(username, email, salt, passwordHash, _class);
         this.name = name;
         this.surname = surname;
@@ -50,8 +46,6 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.nationality = nationality;
         this.banned = banned;
     }
-
-
 
     public String getName() {
         return name;
@@ -77,20 +71,17 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.gender = gender;
     }
 
-    // Cambiata la gestione del tipo di dato per i metodi set/get per dateOfBirth a causa dei problemi
-    // generati dalle differenze di fuso orario ed evitare gestioni implicite da parte
-    // del framework e mongo db.
-    // Prima era tutto Date, ora si articola tra LocalDate e Date (Date continua a rimanere come tipo principale
-    // per per metter a mongo db di salvare l'informazione senza eccezioni).
+    /*
+        Dates need to be manually manipulated in order to prevent Spring and MongoDB managing them.
+     */
     public LocalDate getDateOfBirth() {
         Date dateOfBirth = this.dateOfBirth;
-        // Convertiamo Date in LocalDate per evitare problemi di fuso orario
+        // Converting Date in LocalDate to avoid jet lag problems
         return dateOfBirth.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
     }
     public void setDateOfBirth(LocalDate dateOfBirth) {
-        // Convertiamo LocalDate a Date in UTC per inserirlo in MongoDB
-        Date dateOfBirthInUTC = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
-        this.dateOfBirth = dateOfBirthInUTC;
+        // Converting LocalDate to Date in UTC to be able to insert into MongoDB
+        this.dateOfBirth = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
     }
 
     public String getNationality() {
@@ -125,8 +116,4 @@ public class UserModelMongo extends GenericUserModelMongo {
                 ", passwordHash='" + passwordHash + '\'' +
                 '}';
     }
-
-
-
 }
-

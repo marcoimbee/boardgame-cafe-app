@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 
 @Document(collection = "posts")
 public class PostModelMongo {
+
     @Id
     private String id;
     private String username;
@@ -25,9 +25,11 @@ public class PostModelMongo {
     private String _class;
 
     public PostModelMongo() {}
+
     public PostModelMongo(String id, String username,
                           String title, String text,
-                          String tag, Date timestamp, int like_count) {
+                          String tag, Date timestamp, int like_count)
+    {
         this.id = id;
         this.username = username;
         this.title = title;
@@ -39,7 +41,8 @@ public class PostModelMongo {
 
     public PostModelMongo(String username,
                           String title, String text,
-                          String tag, Date timestamp, int like_count) {
+                          String tag, Date timestamp, int like_count)
+    {
         this.username = username;
         this.title = title;
         this.text = text;
@@ -50,7 +53,8 @@ public class PostModelMongo {
 
     public PostModelMongo(String username,
                           String title, String text,
-                          String tag, Date timestamp) {
+                          String tag, Date timestamp)
+    {
         this.username = username;
         this.title = title;
         this.text = text;
@@ -69,6 +73,7 @@ public class PostModelMongo {
     public String getUsername(){
         return username;
     }
+
     public void setUsername(String username){
         this.username = username;
     }
@@ -76,6 +81,7 @@ public class PostModelMongo {
     public String getTitle(){
         return title;
     }
+
     public void setTitle(String title){
         this.title = title;
     }
@@ -83,6 +89,7 @@ public class PostModelMongo {
     public String getText(){
         return text;
     }
+
     public void setText(String text){
         this.text = text;
     }
@@ -90,6 +97,7 @@ public class PostModelMongo {
     public String getTag(){
         return tag;
     }
+
     public void setTag(String tag){
         this.tag = tag;
     }
@@ -97,6 +105,7 @@ public class PostModelMongo {
     public Date getTimestamp(){
         return timestamp;
     }
+
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
@@ -104,8 +113,6 @@ public class PostModelMongo {
     public int getLikeCount() { return this.like_count; }
 
     public void setLikeCount(int like_count) {this.like_count = like_count;}
-
-    // Comments Management
 
     public List<CommentModel> getComments(){
         return comments;
@@ -139,8 +146,6 @@ public class PostModelMongo {
         return false;
     }
 
-
-    // Other
     @Override
     public String toString() {
         return "Post{" +
@@ -148,9 +153,7 @@ public class PostModelMongo {
                 ", username='" + username + '\'' +
                 ", title='" + title + '\'' +
                 ", tag='" + tag + '\'' +
-                //", text='" + text + '\'' +
                 ", timestamp=" + timestamp +
-                //", comments=" + comments +
                 "like_count=" + like_count +
                 '}';
     }
