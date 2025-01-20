@@ -166,13 +166,13 @@ public class BoardgameModelMongo {
     }
 
     public void updateAvgRatingAfterUserDeletion(List<Integer> ratings) {
-        int ratingsSum = ratings.stream().mapToInt(Integer::intValue).sum();
         int reviewCount = ratings.size();
 
         if (this.reviewCount == reviewCount) {
             this.avgRating = -1.0;
             this.reviewCount = 0;
         } else {
+            int ratingsSum = ratings.stream().mapToInt(Integer::intValue).sum();
             this.avgRating = ((this.reviewCount * this.avgRating) - ratingsSum) / (this.reviewCount - reviewCount);
             this.reviewCount -= reviewCount;
         }
