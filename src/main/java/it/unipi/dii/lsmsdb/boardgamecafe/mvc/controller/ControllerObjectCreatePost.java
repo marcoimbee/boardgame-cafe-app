@@ -33,21 +33,20 @@ public class ControllerObjectCreatePost {
     protected TextField tagBoardgameText;
 
     private StageManager stageManager;
+
     @Autowired
     @Lazy
     public ControllerObjectCreatePost(StageManager stageManager) {
         this.stageManager = stageManager;
     }
 
-    public ControllerObjectCreatePost() {
-    }
+    public ControllerObjectCreatePost() {}
 
-    public void setData() {
-    }
+    public void setData() {}
 
     @FXML
-    public void onClickSubmitButton(ActionEvent event) {}
-    @FXML
-    public void onClickCancelButton(ActionEvent event) {}
+    public void onClickSubmitButton() {}
 
+    @FXML
+    public void onClickCancelButton() {}
 }

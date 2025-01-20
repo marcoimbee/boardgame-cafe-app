@@ -6,19 +6,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class ControllerObjectCreateBoardgame {
 
-    // *********** Buttons ***********
     @FXML
     private Button addCategoryButton;
     @FXML
@@ -35,8 +31,6 @@ public class ControllerObjectCreateBoardgame {
     private Button uploadButton;
     @FXML
     private Button cancelButton;
-
-    // *********** Text Fields ***********
     @FXML
     private TextField descriptionTextField;
     @FXML
@@ -59,8 +53,6 @@ public class ControllerObjectCreateBoardgame {
     private TextField designerTextField;
     @FXML
     private TextField publisherTextField;
-
-    // *********** List Views ***********
     @FXML
     private ListView<String> categoriesListView;
     @FXML
@@ -68,12 +60,10 @@ public class ControllerObjectCreateBoardgame {
     @FXML
     private ListView<String> publishersListView;
 
-    // *********** Utils ***********
+    private StageManager stageManager;
     private final List<String> listViewCategories = new ArrayList<>();
     private final List<String> listViewDesigners = new ArrayList<>();
     private final List<String> listViewPublishers = new ArrayList<>();
-
-    private StageManager stageManager;
 
     @Autowired
     @Lazy
@@ -83,23 +73,20 @@ public class ControllerObjectCreateBoardgame {
 
     public ControllerObjectCreateBoardgame() {}
 
-
     @FXML
     private void initialize() {
-
-        // Filtro numerico per i campi che devono contenere solo numeri
+        // Numerical filter for fields that need to contain just numbers
         addNumericValidation(yearOfPublicationTextField);
         addNumericValidation(playingTimeTextField);
         addNumericValidation(minPlayersTextField);
         addNumericValidation(maxPlayersTextField);
         addNumericValidation(minAgeTextField);
 
-        // Valida e formatta i campi di input per categorie, designer e publisher
+        // Validating and formatting input fields for categories, designers and publishers
         setupTextFieldValidation(categoryTextField);
         setupTextFieldValidation(designerTextField);
         setupTextFieldValidation(publisherTextField);
 
-        // Collega i pulsanti ai metodi
         addCategoryButton.setOnAction(event -> onClickAddCategoryButton());
         removeCategoryButton.setOnAction(event -> onClickRemoveCategoryButton());
         addDesignerButton.setOnAction(event -> onClickAddDesignerButton());
@@ -173,8 +160,8 @@ public class ControllerObjectCreateBoardgame {
 
     private void addNumericValidation(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) { // Permette solo numeri
-                textField.setText(oldValue); // Ripristina il valore precedente
+            if (!newValue.matches("\\d*")) {    // Allowing only numbers
+                textField.setText(oldValue);          // Resetting to the old value
             }
         });
     }
@@ -182,15 +169,15 @@ public class ControllerObjectCreateBoardgame {
     private void setupTextFieldValidation(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("^[a-zA-Z\\s\\-\\'&/_]*$") || newValue.contains(",")) {
-                // Permette lettere, spazi, trattini (-), apostrofi ('), punti (.), punti esclamativi (!) e interrogativi (?), blocca la virgola
-                textField.setText(oldValue); // Ripristina il valore precedente
-                showErrorMessage("Invalid input!",
+                textField.setText(oldValue);        // resetting to the old value
+                showErrorMessage(
+                        "Invalid input!",
                         "Only letters, spaces, and common special characters (-'&/_) are allowed. " +
-                                "Commas are not allowed.");
+                                "Commas are not allowed."
+                );
             }
         });
     }
-
 
     private void showErrorMessage(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -200,10 +187,10 @@ public class ControllerObjectCreateBoardgame {
         alert.showAndWait();
     }
 
-    public void onClickCancelButton(){};
-    public void onClickUploadButton(){};
+    public void onClickCancelButton(){}
 
-    // Metodo per ottenere le liste
+    public void onClickUploadButton(){}
+
     public List<String> getCategories() {
         return listViewCategories;
     }

@@ -8,7 +8,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.GenericUserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
@@ -21,7 +20,6 @@ import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.function.Consumer;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -49,30 +47,23 @@ public class ControllerObjectPost {
     protected Label tagBoardgameLabel;
     @FXML
     FontAwesomeIconView iconLikeButton;
-    private static final Map<String, String> commentCache = new HashMap<>();
 
-    private PostModelMongo post;
-
-    private PostListener postListener;
     @Autowired
     private PostService postService;
     @Autowired
     private PostDBNeo4j postDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
-//    @Autowired
-//    private CommentDBMongo commentDBMongo;
-
     @Autowired
     private ModelBean modelBean;
 
+    private static final Map<String, String> commentCache = new HashMap<>();
+    private PostModelMongo post;
+    private PostListener postListener;
     private static GenericUserModelMongo currentUser;
     private StageManager stageManager;
-
     private Consumer<String> deletedPostCallback;
-
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
-
     private Boolean likeIsPresent = null;
 
     @Autowired
@@ -81,8 +72,7 @@ public class ControllerObjectPost {
         this.stageManager = stageManager;
     }
 
-    public ControllerObjectPost() {
-    }
+    public ControllerObjectPost() {}
 
     public void setData(PostModelMongo post, PostListener listener, Consumer<String> deletedPostCallback) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
@@ -142,8 +132,9 @@ public class ControllerObjectPost {
         Button workingButton = (button != null) ? button : this.likeButton;     // NOTE: if the like exists, the button serves as a dislike button
         FontAwesomeIconView workingIcon = (icon != null) ? icon : this.iconLikeButton;
         this.likeIsPresent = this.postService.hasLikedPost(currentUser, post.getId());
-        if (button == null && icon == null) // First call
+        if (button == null && icon == null) {     // First call
             this.postDBNeo4j.setLikeCount(post.getId(), post.getLikeCount());
+        }
         workingIcon.setIcon((this.likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
         workingButton.setText((this.buttonLikeMessages.get((this.likeIsPresent) ? 1 : 0)));
     }
@@ -174,13 +165,13 @@ public class ControllerObjectPost {
 
         try {
             postService.deletePost(post);
+
             System.out.println("[INFO] Successful post deletion");
 
             deletedPostCallback.accept(post.getId());
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] onClickDeleteButton@ControllerObjectPost.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton()@ControllerObjectPost.java raised an exception: " + ex.getMessage());
         }
     }
 }
-

@@ -5,10 +5,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
-//import it.unipi.dii.lsmsdb.boardgamecafe.services.CommentService;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.fxml.FXML;
@@ -18,7 +16,6 @@ import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -39,16 +36,10 @@ public class ControllerObjectComment {
     @FXML
     protected TextArea bodyTextLabel;
 
-//    @Autowired
-//    private CommentDBMongo commentDBMongo;
     @Autowired
     private UserDBMongo userDBMongo;
-
-    @Autowired
-    private PostDBMongo postDBMongo;
     @Autowired
     private PostService postService;
-
     @Autowired
     private ModelBean modelBean;
     @Autowired
@@ -58,20 +49,17 @@ public class ControllerObjectComment {
     private CommentModel comment;
     private UserModelMongo commentAuthor;
     private static GenericUserModelMongo currentUser;
-
     private Consumer<String> deletedCommentCallback;
 
     public ControllerObjectComment() {}
 
-    public void setData(CommentModel comment, PostModelMongo post, Consumer<String> deletedCommentCallback)
-    {
+    public void setData(CommentModel comment, PostModelMongo post, Consumer<String> deletedCommentCallback) {
         currentUser = (GenericUserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        if (currentUser == null)
-            throw new RuntimeException("No logged");
-        if (!currentUser.get_class().equals("admin"))
+        if (!currentUser.get_class().equals("admin")) {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);
-        else
+        } else {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);
+        }
 
         this.comment = comment;
         this.commentAuthor = (UserModelMongo) userDBMongo.findByUsername(comment.getUsername(), false).get();       // Retrieving the comment's author
@@ -129,8 +117,9 @@ public class ControllerObjectComment {
             postService.deleteComment(comment, post);
 
             List<CommentModel> commentsDeleted = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
-            if (commentsDeleted == null)
+            if (commentsDeleted == null) {
                 commentsDeleted = new ArrayList<>();
+            }
             commentsDeleted.add(comment);
 
             System.out.println("[INFO] Successful comment deletion.");
@@ -139,7 +128,7 @@ public class ControllerObjectComment {
             deletedCommentCallback.accept(comment.getId());
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] onClickDeleteButton@ControllerObjectComment.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] onClickDeleteButton()@ControllerObjectComment.java raised an exception: " + ex.getMessage());
         }
     }
 }

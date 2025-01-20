@@ -15,13 +15,13 @@ import javafx.scene.layout.AnchorPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Component
 public class ControllerObjectUser {
+
     @FXML
     private Button followButton;
     @FXML
@@ -41,20 +41,17 @@ public class ControllerObjectUser {
     @FXML
     protected AnchorPane userCardAnchorPane;
 
-    private UserModelMongo user;
-
     @Autowired
     private ModelBean modelBean;
-
-    private StageManager stageManager;
-
-    private static GenericUserModelMongo currentUser;
-    private static List<String> currentUserFollowedList;
-
     @Autowired
     private UserDBNeo4j userDBNeo4j;
     @Autowired
     private UserService userService;
+
+    private StageManager stageManager;
+    private UserModelMongo user;
+    private static GenericUserModelMongo currentUser;
+    private static List<String> currentUserFollowedList;
 
     @Autowired
     @Lazy
@@ -62,8 +59,7 @@ public class ControllerObjectUser {
         this.stageManager = stageManager;
     }
 
-    public ControllerObjectUser() {
-    }
+    public ControllerObjectUser() {}
 
     public void setData(UserModelMongo user) {
         this.user = user;
@@ -150,7 +146,7 @@ public class ControllerObjectUser {
             }
         } catch (Exception e) {
             stageManager.showInfoMessage("INFO", "An error occurred. Please try again in a while.");
-            System.err.println("[ERROR] onClickFollowButton@ControllerObjectUser.java raised an exception: " + e.getMessage());
+            System.err.println("[ERROR] onClickFollowButton()@ControllerObjectUser.java raised an exception: " + e.getMessage());
         }
     }
 

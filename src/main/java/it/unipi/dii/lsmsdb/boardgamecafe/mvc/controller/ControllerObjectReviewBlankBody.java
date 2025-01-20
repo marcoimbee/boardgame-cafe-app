@@ -16,12 +16,12 @@ import javafx.scene.control.Label;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.function.Consumer;
 
 @Component
 public class ControllerObjectReviewBlankBody {
+
     @FXML
     private Button editButton;
     @FXML
@@ -42,10 +42,10 @@ public class ControllerObjectReviewBlankBody {
     @Autowired
     private ModelBean modelBean;
     @Autowired
+    private UserDBMongo userMongoOp;
+    @Autowired
     @Lazy
     private StageManager stageManager;
-    @Autowired
-    private UserDBMongo userMongoOp;
 
     private ReviewModelMongo review;
     private UserModelMongo reviewAuthor;
@@ -121,14 +121,15 @@ public class ControllerObjectReviewBlankBody {
 
             if (targetUser != null) {
                 reviewService.deleteReview(review, targetUser);
+
                 System.out.println("[INFO] Successfully deleted a review.");
 
                 modelBean.putBean(Constants.DELETED_REVIEW, review);
                 deletedReviewCallback.accept(review.getId());
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] onClickDeleteButton@ControllerObjectReviewBlankBody.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickDeleteButton()@ControllerObjectReviewBlankBody.java raised an exception: " + ex.getMessage());
         }
     }
 }
