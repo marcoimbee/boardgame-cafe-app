@@ -9,6 +9,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
@@ -55,6 +56,8 @@ public class ControllerObjectPost {
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
+    private UserDBMongo userDBMongo;
+    @Autowired
     private ModelBean modelBean;
 
     private static final Map<String, String> commentCache = new HashMap<>();
@@ -65,6 +68,7 @@ public class ControllerObjectPost {
     private Consumer<String> deletedPostCallback;
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
     private Boolean likeIsPresent = null;
+    private UserModelMongo postAuthor;
 
     @Autowired
     @Lazy
@@ -87,7 +91,16 @@ public class ControllerObjectPost {
         this.postListener = listener;
 
         String creationDate = post.getTimestamp().toString();
-        this.authorLabel.setText(post.getUsername());
+
+        this.postAuthor = (UserModelMongo) userDBMongo.findByUsername(post.getUsername(), false).get();
+        if (postAuthor.isBanned()) {
+            this.authorLabel.setText("[Banned user]");
+            this.textTitleLabel.setText("[Banned user]");
+        } else {
+            this.authorLabel.setText(post.getUsername());
+            textTitleLabel.setText("TITLE:" + " " + post.getTitle());
+        }
+
         this.timestampLabel.setText(creationDate);
         this.commentsLabel.setText(String.valueOf(post.getComments().size()));
         if (post.getTag() == null) {
@@ -95,8 +108,6 @@ public class ControllerObjectPost {
         } else {
             this.tagBoardgameLabel.setText(post.getTag());
         }
-
-        textTitleLabel.setText("TITLE:" + " " + post.getTitle());
 
         // Buttons setting
         boolean loggedAsAdmin = currentUser instanceof AdminModelMongo;
