@@ -5,7 +5,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
-//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
@@ -15,13 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class PostService {
+
     @Autowired
     PostDBMongo postDBMongo;
     @Autowired
@@ -30,10 +29,6 @@ public class PostService {
     UserDBNeo4j userDBNeo4j;
     @Autowired
     BoardgameDBNeo4j boardgameDBNeo4j;
-//    @Autowired
-//    CommentDBMongo commentDBMongo;
-
-    private final static Logger logger = LoggerFactory.getLogger(PostService.class);
 
     @Transactional
 //    @Retryable(
@@ -80,72 +75,55 @@ public class PostService {
         }
     }
 
-    private boolean addPostToUser(PostModelNeo4j postModelNeo4j, UserModelNeo4j userModelNeo4j)
-            // This methos is private beacuse is used only after the insetion-Post
-    {
+    private boolean addPostToUser(PostModelNeo4j postModelNeo4j, UserModelNeo4j userModelNeo4j) {
         try {
             userModelNeo4j.addWrittenPost(postModelNeo4j);
             if (!userDBNeo4j.updateUser(userModelNeo4j.getId(), userModelNeo4j)) {
-                logger.error("Error in connecting post to user in Neo4j");
+                System.err.println("[ERROR] addPostToUser()@PostService.java: unable to update user with a new post (MongoDB)");
                 return false;
             }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] addPostToUser()@PostService.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     @Transactional
-    public boolean deletePost(PostModelMongo postModelMongo)
-    {
-        try
-        {
-            // delete all comments
-//            if (!commentDBMongo.deleteByPost(postModelMongo.getId())) {
-//                throw new RuntimeException("Error in deleting comments of post in MongoDB");
-//            }
-//            if (!commentDBNeo4j.deleteByPost(postModelMongo.getId())) {
-//                throw new RuntimeException("Error in deleting comments of post in Neo4j");
-//            }
-            // delete post
+    public boolean deletePost(PostModelMongo postModelMongo) {
+        try {
             if (!postDBNeo4j.deletePost(postModelMongo.getId())) {
                 throw new RuntimeException("Error in deleting post in Neo4j");
             }
             if (!postDBMongo.deletePost(postModelMongo)) {
                 throw new RuntimeException("Error in deleting post in MongoDB");
             }
-        }
-        catch (Exception ex) {
-            System.out.println("Exception deletePost(): " + ex.getMessage());
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deletePost()@PostService.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
-    public void likeOrDislikePost(String username, String postId)
-    {
+    public void likeOrDislikePost(String username, String postId) {
         try {
-            if (postDBNeo4j.hasUserLikedPost(username, postId))
-            {
-                // System.out.println("PostService: Il post ha il Like. Rimuovo...");
-                if (postDBMongo.updateLikeCount(postId, false))
+            if (postDBNeo4j.hasUserLikedPost(username, postId)) {
+                if (postDBMongo.updateLikeCount(postId, false)) {
                     postDBNeo4j.removeLikePost(username, postId);
-                else
-                    throw new RuntimeException("Problem with Mongo removing like count");
-            }
-            else
-            {
-                // System.out.println("PostService: Il post non ha il Like. Aggiungo...");
-                if (postDBMongo.updateLikeCount(postId, true))
+                } else {
+                    throw new RuntimeException("Unable to update like count in MongoDB");
+                }
+            } else {
+                if (postDBMongo.updateLikeCount(postId, true)) {
                     postDBNeo4j.addLikePost(username, postId, true);
-                else
-                    throw new RuntimeException("Problem with Mongo adding like count");
+                } else {
+                    throw new RuntimeException("Unable to update like count in MongoDB");
+                }
             }
         } catch (Exception ex) {
-            // Log dell'eccezione
-            System.out.println("Error liking or disliking post for user " + username + " on post " + postId + ": " + ex.getMessage());
+            System.err.println("[ERROR] likeOrDislikePost()@PostService.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -153,47 +131,39 @@ public class PostService {
         try {
             return postDBNeo4j.hasUserLikedPost(username, postId);
         } catch (Exception ex) {
-            // Log dell'eccezione
-            logger.error("Error checking like status for user " + username + " on post " + postId + ": " + ex.getMessage());
-            return false; // Restituisce false in caso di errore
+            System.err.println("[ERROR] hasLikedPost()@PostService.java raised an exception: " + ex.getMessage());
+            return false;
         }
     }
 
     public List<PostModelMongo> suggestPostLikedByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
-        // skipCounter needed for incremental post displaying
-        List<PostModelNeo4j> postsLikedByFollowedUsers = postDBNeo4j.
+        List<PostModelNeo4j> postsLikedByFollowedUsers = postDBNeo4j.               // skipCounter needed for incremental post displaying
                 getPostsLikedByFollowedUsers(currentUser, limitResults, skipCounter);
         List<PostModelMongo> suggestedPostsMongo = new ArrayList<>();
 
-        for (PostModelNeo4j postsLikedId : postsLikedByFollowedUsers)
-        {
+        for (PostModelNeo4j postsLikedId : postsLikedByFollowedUsers) {
             Optional<PostModelMongo> postMongo = postDBMongo.findById(postsLikedId.getId());
-            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
-            postMongo.ifPresent(suggestedPostsMongo::add);
+            postMongo.ifPresent(suggestedPostsMongo::add);  // If the suggested Post is found, then it's added to the suggestedMongoUsers list
         }
 
         return suggestedPostsMongo;
     }
 
     public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
-        // skipCounter needed for incremental post displaying
-        List<PostModelNeo4j> postsByFollowedUsers = postDBNeo4j.
+        List<PostModelNeo4j> postsByFollowedUsers = postDBNeo4j.        // skipCounter needed for incremental post displaying
                 getPostsByFollowedUsers(currentUser, limitResults, skipCounter);
         List<PostModelMongo> retrievedPostsMongo = new ArrayList<>();
 
-        for (PostModelNeo4j postByFollowedUser : postsByFollowedUsers)
-        {
+        for (PostModelNeo4j postByFollowedUser : postsByFollowedUsers) {
             Optional<PostModelMongo> postMongo = postDBMongo.findById(postByFollowedUser.getId());
-            // (Lambda fun) If the suggested Post is found, then it's added to the suggestedMongoUsers list
-            postMongo.ifPresent(retrievedPostsMongo::add);
+            postMongo.ifPresent(retrievedPostsMongo::add);  // If the suggested Post is found, then it's added to the suggestedMongoUsers list
         }
 
         return retrievedPostsMongo;
     }
 
     public List<PostModelMongo> findPostsByTag(String tag, int limitResults, int skipCounter) {
-        // skipCounter needed for incremental post displaying
-        List<PostModelMongo> postsReferringToTag = postDBMongo.findByTag(tag, limitResults, skipCounter);
+        List<PostModelMongo> postsReferringToTag = postDBMongo.findByTag(tag, limitResults, skipCounter);   // skipCounter needed for incremental post displaying
         List<PostModelMongo> retrievedPostsMongo = new ArrayList<>();
         for (PostModelMongo postReferringToTag : postsReferringToTag) {
             Optional<PostModelMongo> postMongo = postDBMongo.findById(postReferringToTag.getId());
@@ -205,43 +175,40 @@ public class PostService {
 
     @Transactional
     public boolean insertComment(CommentModel comment, PostModelMongo post, UserModelNeo4j user) {
-        try
-        {
-            if (!addCommentToMongoPost(comment, post)) {        // Adding the comment to the post's comment list
+        try {
+            if (!addCommentToMongoPost(comment, post)) {    // Adding the comment to the post's comment list
                 deleteComment(comment, post);
                 throw new RuntimeException("Error while creating relationships in Neo4J related to a new comment insertion.");
             }
+
+            return true;
         } catch (RuntimeException e) {
-            System.err.println("[ERROR] insertComment@CommentService.java raised an exception: " + e.getMessage());
+            System.err.println("[ERROR] insertComment()@CommentService.java raised an exception: " + e.getMessage());
             return false;
         }
-
-        return true;
     }
 
     @Transactional
     public boolean deleteComment(CommentModel comment, PostModelMongo post) {
-        try
-        {
-            // delete all comments
+        try {
             if (!postDBMongo.deleteCommentFromArrayInPost(post, comment)) {
                 throw new RuntimeException("Error in deleting comments from array post in MongoDB");
             }
-        }
-        catch (Exception ex) {
-            System.out.println("Exception deletePost(): " + ex.getMessage());
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deleteComment()@PostService.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     private boolean addCommentToMongoPost(CommentModel comment, PostModelMongo post) {
-
         post.addComment(comment);           // Adding the comment to the local MongoDB post object
 
         if (!postDBMongo.addCommentInPostArray(post, comment)) {             // Updating the actual document in MongoDB
             return false;               // Aborting whole operation, this will make insertComment() fail and rollback
         }
+
         return true;
     }
 }

@@ -7,11 +7,8 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.context.LifecycleAutoConfiguration;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -33,7 +30,6 @@ public class UserService {
     private PostDBMongo postMongoOp;
     @Autowired
     private PostDBNeo4j postNeo4jOp;
-
     @Autowired
     private BoardgameDBMongo boardgameMongoOp;
 
@@ -51,7 +47,7 @@ public class UserService {
             generatedPassword = sb.toString();
             return generatedPassword;
         } catch (Exception ex) {
-            System.err.println("[ERROR] getHashedPassword@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] getHashedPassword()@UserService.java raised an exception: " + ex.getMessage());
             return null;
         }
     }
@@ -68,16 +64,17 @@ public class UserService {
                                      String nationality, int year,
                                      int month, int day)
     {
-        // Viene creata la data con tipo LocalDate perchè rappresenta solo una data
-        // senza informazioni di tempo né di fuso orario. Questa classe evita completamente
-        // l'incremento o decremento del giorno causato da conversioni di fuso orario (offset etc),
-        // mantenendo in modo più affidabile la data desiderata ed evitando la gestione di conversioni implicite
-        // dovute ad eventuali differenze di gestione dell'ora tra il framwork e il database
+        /*
+            The date gets created using LocalDate because it should just represent a date with no information
+            about time or jet lag. The use of such class completely avoids the increment or the decrement of the day
+            caused by jet lag conversions, maintaining in a more reliable way the desired date and avoiding potential
+            implicit conversions due to potential differences in dates management between framework and DB.
+         */
         LocalDate dateOfBirth = LocalDate.of(year, month, day);
         String salt = this.generateSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        // Convertiamo LocalDate a Date in UTC per inserirlo in MongoDB (step obbligatorio)
+        // LocalDate is converted to Date in UTC to insert it into MongoDB (this is a mandatory step)
         Date dateOfBirthInUTC = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
 
         return new UserModelMongo(username,email,name, surname,
@@ -88,7 +85,7 @@ public class UserService {
     @Transactional
     public boolean insertUser(UserModelMongo user) {
         try {
-            if (userMongoDB.findByUsername(user.getUsername(), false).isPresent()) {       // Username uniqueness check
+            if (userMongoDB.findByUsername(user.getUsername(), false).isPresent()) {  // Username uniqueness check
                 throw new Exception("Unable to insert an already existing user");
             }
 
@@ -115,7 +112,7 @@ public class UserService {
 
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] insertUser@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] insertUser()@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
@@ -130,7 +127,7 @@ public class UserService {
             }
             return deletedReviewsForBoardgame;
         } catch (Exception ex) {
-            System.err.println("[ERROR] removeUserReviews@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] removeUserReviews()@UserService.java raised an exception: " + ex.getMessage());
             return null;
         }
     }
@@ -147,7 +144,7 @@ public class UserService {
 
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] deleteUserPosts@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] deleteUserPosts()@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
@@ -166,7 +163,6 @@ public class UserService {
                     -> Update reviewCounter (if he wrote some reviews, those get deleted, so the
                        counter of the boardgame must be updates as well)
              */
-
             String username = user.getUsername();
 
             // Posts management
@@ -189,7 +185,7 @@ public class UserService {
             if (!deletedReviewsForBoardgame.isEmpty()) {            // Do the following only if the user had some reviews
                 for (Map.Entry<String, List<Integer>> hashMapElement : deletedReviewsForBoardgame.entrySet()) {
                     String reviewedBoardgame = hashMapElement.getKey();
-                    List<Integer> ratings = hashMapElement.getValue();        // get boardgame name and #reviews of the user
+                    List<Integer> ratings = hashMapElement.getValue();    // Get boardgame name and #reviews of the user
 
                     if (!boardgameMongoOp.updateRatingAfterUserDeletion(reviewedBoardgame, ratings)) {
                         throw new Exception("Failed to update a boardgame's rating and reviewCount after a user deletion");
@@ -209,7 +205,7 @@ public class UserService {
 
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] deleteUser@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] deleteUser()@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
@@ -223,7 +219,7 @@ public class UserService {
                 suggestedMongoUser.ifPresent(
                         genericUserModelMongo -> {
                             UserModelMongo user = (UserModelMongo) genericUserModelMongo;
-                            if (!"admin".equals(user.get_class())) {        // Exclude users with _class = "admin"
+                            if (!"admin".equals(user.get_class())) {    // Exclude users with _class = "admin"
                                 suggestedMongoUsers.add(user);
                             }
                         }
@@ -231,7 +227,7 @@ public class UserService {
             }
             return suggestedMongoUsers;
         } catch (Exception ex) {
-            System.err.println("[ERROR] suggestUsersByCommonBoardgamePosted@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] suggestUsersByCommonBoardgamePosted()@UserService.java raised an exception: " + ex.getMessage());
             return new ArrayList<>();
         }
     }
@@ -267,9 +263,8 @@ public class UserService {
                 );
             }
             return suggestedInfluencers;
-
         } catch (Exception ex) {
-            System.err.println("[ERROR] suggestInfluencerUsers@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] suggestInfluencerUsers()@UserService.java raised an exception: " + ex.getMessage());
             return new ArrayList<>();
         }
     }
@@ -291,7 +286,7 @@ public class UserService {
             }
             return suggestedMongoUsers;
         } catch (Exception ex) {
-            System.err.println("[ERROR] suggestUsersByCommonLikedPosts@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] suggestUsersByCommonLikedPosts()@UserService.java raised an exception: " + ex.getMessage());
             return new ArrayList<>();
         }
     }
@@ -307,7 +302,7 @@ public class UserService {
 
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] banUser@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] banUser()@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
@@ -327,7 +322,7 @@ public class UserService {
 
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] unbanUser@UserService.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] unbanUser()@UserService.java raised an exception: " + ex.getMessage());
             return false;
         }
     }
@@ -343,9 +338,8 @@ public class UserService {
                 avgAgeByNationality.put(country, avgAge);
             }
         } catch (Exception e) {
-            System.out.println("Exception getAvgAgeByNationality(): " + e.getMessage());
+            System.err.println("[ERROR] getAvgAgeByNationality()@UserService.java raised an exception: " + e.getMessage());
         }
-
         return avgAgeByNationality;
     }
 
@@ -353,16 +347,14 @@ public class UserService {
         LinkedHashMap<String, Integer> avgAgeByNationality = new LinkedHashMap<>();
         try {
             Document docResult = this.userMongoDB.findCountriesWithMostUsers(minUserNumber, limit);
-
             for (Document doc : (List<Document>)docResult.get("results")) {
                 String country = doc.getString("_id");
                 Integer usersNumber = doc.getInteger("numUsers");
                 avgAgeByNationality.put(country, usersNumber);
             }
         } catch (Exception e) {
-            System.out.println("Exception getCountriesWithMostUsers(): " + e.getMessage());
+            System.err.println("[ERROR] getCountriesWithMostUsers()@UserService.java raised an exception: " + e.getMessage());
         }
-
         return avgAgeByNationality;
     }
 }

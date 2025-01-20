@@ -2,24 +2,15 @@ package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
-
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import jakarta.transaction.Transactional;
-import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.SimpleTimeZone;
-
 
 @Service
 public class BoardgameService {
@@ -31,149 +22,98 @@ public class BoardgameService {
     @Autowired
     private ReviewDBMongo reviewMongoOp;
     @Autowired
-    private UserDBMongo userMongoOp;
-    @Autowired
     private PostDBNeo4j postNeo4jOp;
     @Autowired
     private PostDBMongo postMongoOp;
-//    @Autowired
-//    private CommentDBMongo commentMongoOp;
-
-    private final static Logger logger = LoggerFactory.getLogger(BoardgameService.class);
 
     @Transactional
     public boolean insertBoardgame(BoardgameModelMongo boardgameMongo) {
-
         try{
             String boardgameNameUsed = boardgameMongo.getBoardgameName();
             Optional<BoardgameModelMongo> boardgameNameToCompare = boardgameMongoOp.
                                                                    findBoardgameByName(boardgameNameUsed);
             // Check if the Boardgame already exists
             if (boardgameNameToCompare.isPresent()) {
-                throw new RuntimeException("InsertBoardgame Exception: Boardgame not added.\n" +
-                                           "A Board-Game with this name already exists in the database. " +
-                                           "Change the name!");
+                throw new RuntimeException("A boardgame with this name already exists in the database.");
             }
-            // Gestione MongoDB
+
+            // MongoDB management
             BoardgameModelMongo insertedBoardgameMongo = boardgameMongoOp.addBoardgame(boardgameMongo);
             if (insertedBoardgameMongo == null) {
-                throw new RuntimeException("\nError while inserting the new Boardgame into MongoDB.");
+                throw new RuntimeException("Error while inserting the new Boardgame into MongoDB.");
             }
 
             BoardgameModelNeo4j boardgameForNeo4j = BoardgameModelNeo4j.castBoardgameMongoInBoardgameNeo(insertedBoardgameMongo);
-//            new BoardgameModelNeo4j(
-//                    insertedBoardgameMongo.getId(),
-//                    insertedBoardgameMongo.getBoardgameName(),
-//                    insertedBoardgameMongo.getImage(),
-//                    insertedBoardgameMongo.getDescription(),
-//                    insertedBoardgameMongo.getYearPublished());
 
-            // Gestione Neo4j
+            // Neo4J management
             BoardgameModelNeo4j insertedBoardgameNeo4j = boardgameNeo4jOp.addBoardgame(boardgameForNeo4j);
             if (insertedBoardgameNeo4j == null) {
-                // ROLLBACK: Eliminazione da mongo se non avviene il caricamento su neo4j
-                if (!boardgameMongoOp.deleteBoardgame(insertedBoardgameMongo)) {
-                    throw new RuntimeException ("\nError in deleting the boardgame from MongoDB");
+                if (!boardgameMongoOp.deleteBoardgame(insertedBoardgameMongo)) {        // Deleting from MongoDB if Neo4J insertion fails
+                    throw new RuntimeException ("Error while deleting the boardgame from MongoDB");
                 }
-                throw new RuntimeException("\nError while inserting the new Boardgame " +
-                                            "into Neo4j - Rollback for MongoDB Done!.");
+                throw new RuntimeException("Error while inserting the new Boardgame into Neo4J. Rolling back...");
             }
 
-            System.out.println("\n\nNew Boardgame's ID (MongoDB): " + insertedBoardgameMongo.getId());
-            System.out.println("\nNew Boardgame's ID (Neo4j): " + insertedBoardgameNeo4j.getId());
-
+            return true;
         } catch (RuntimeException e) {
-            System.err.println("[ERROR] " + e.getMessage());
+            System.err.println("[ERROR] insertBoardgame()@BoardgameService.java raised an exception: " + e.getMessage());
             return false;
         }
-
-        return true;
     }
 
     @Transactional
     public boolean deleteBoardgame(BoardgameModelMongo boardgame) {
-
         String boardgameName = boardgame.getBoardgameName();
-
         try {
-            //--- Deleting reviews both from MongoDB and Neo4j ---
+            // Deleting reviews both from MongoDB and Neo4j
             if (!deleteBoardgameReviews(boardgame)){
-                throw new RuntimeException("\nError while deleting the review from User list.");
+                throw new RuntimeException("Error while deleting reviews after a boardgame's deletion.");
             }
 
-            //--- Deleting posts both from MongoDB and Neo4j ---
+            // Deleting posts both from MongoDB and Neo4j
             if (!deleteBoardgamePosts(boardgameName)){
-                throw new RuntimeException("\nError while deleting the post from Boardgame list.");
+                throw new RuntimeException("Error while deleting posts after a boardgame's deletion.");
             }
 
-            //--- Deleting Boardgame From MONGO DB ---
+            // Deleting boardgame from MongoDB
             if (!boardgameMongoOp.deleteBoardgame(boardgame)) {
-                throw new RuntimeException("\nError while deleting the Boargame from MongoDB.");
+                throw new RuntimeException("Error while deleting a boardgame from MongoDB.");
             }
-            //--- Deleting Boardgame From NEO4J DB ---
-            if (!boardgameNeo4jOp.deleteBoardgameDetach(boardgameName)) {
-                throw new RuntimeException("\nError while deleting the Board Game from Neo4j.");
-            }
-            System.out.println("\nBoardgame Deleted from MongoDB and Neo4j");
 
+            // Deleting boardgame from Neo4J
+            if (!boardgameNeo4jOp.deleteBoardgameDetach(boardgameName)) {
+                throw new RuntimeException("Error while deleting a boardgame from Neo4J.");
+            }
+
+            return true;
         } catch (Exception e) {
-            System.err.println("[ERROR] " + e.getMessage());
+            System.err.println("[ERROR] deleteBoardgame()@BoardgameService.java raised an exception: " + e.getMessage());
             return false;
         }
-
-        return true;
     }
 
     private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
-
         List<ReviewModelMongo> boardgameReviewsList = reviewMongoOp.findReviewByUsername(boardgame.getBoardgameName());
-        if (boardgameReviewsList.isEmpty())
-        {
-            System.out.println("\nThere are no REVIEWS to eliminate for this boardgame");
-        } else {
-            // delete reviews in their own collection
+        if (!boardgameReviewsList.isEmpty()) {
+            // Delete reviews in their own collection
             if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
-                logger.error("Error in deleting reviews about boardgame");
                 return false;
             }
-            System.out.println("\nReviews regarding the Boardgame elminated " +
-                                  "from Mongo DB, also from its related Authors");
         }
         return true;
     }
 
     private boolean deleteBoardgamePosts(String boardgameName) {
-
         List<PostModelMongo> posts = postMongoOp.findByTag(boardgameName);
-        if (posts.isEmpty())
-        {
-            System.out.println("\nThere are no POSTS to eliminate for this boardgame");
-        } else {
-
-//            // --- Delete Comments from their own mongo collection and from neo4j based on post ---
-//            for (PostModelMongo post : posts) {
-////                if (!commentMongoOp.deleteByPost(post.getId())) {
-////                    logger.error("Error in deleting comments in posts about boardgame in MongoDB");
-////                    return false;
-////                }
-//                if (!commentNeo4jOp.deleteByPost(post.getId())) {
-//                    logger.error("Error in deleting comments in posts about boardgame in Neo4j");
-//                    return false;
-//                }
-//            }
-
-            // --- Delete Posts from Mongo DB ---
+        if (!posts.isEmpty()) {
+            // Delete posts from MongoDB
             if (!postMongoOp.deleteByTag(boardgameName)) {
-                logger.error("Error in deleting posts about boardgame in MongoDB");
                 return false;
             }
-            // --- Delete Posts from Neo4j and all its relationships ---
+            // Delete posts from Neo4J and all their relationships
             if (!postNeo4jOp.deleteByReferredBoardgame(boardgameName)) {
-                logger.error("Error in deleting posts about boardgame in Neo4j");
                 return false;
             }
-            System.out.println("\nPosts and related Comments regarding the Boardgame" +
-                                  " elminated both from Mongo DB and Neo4j");
         }
         return true;
     }
@@ -194,27 +134,25 @@ public class BoardgameService {
                                                      boardgameDescription,
                                                      boardgameYearPublished);
 
-            //Gestione MongoDB
+            // MongoDB management
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
-                throw new RuntimeException("\nError in updating the Board Game in MongoDB.");
+                throw new RuntimeException("Error while updating a boardgame in MongoDB.");
             }
 
             // Editing the reviews related to the boardgame - only do this if the boardgame name was updated
             if (!boardgameName.equals(oldBoardgameName)) {
                 if (!reviewMongoOp.updateReviewsAfterBoardgameUpdate(oldBoardgameName, boardgameName)) {
-                    throw new RuntimeException("Error while updating the reviews of the updated boardgame (MongoDB).");
+                    throw new RuntimeException("Error while updating the reviews of the updated boardgame in MongoDB.");
                 }
             }
 
-            //Gestione Neo4j (NEW)
+            // Neo4j management
             if(!boardgameNeo4jOp.updateBoardgameNeo4j(boardgameId, boardgameNeo4j)){
-                throw new RuntimeException("\nError in updating the Board Game on Neo4j.");
+                throw new RuntimeException("Error while updating a boardgame in Neo4J.");
             }
-
         } catch (Exception e) {
-            System.err.println("[ERROR] " + e.getMessage());
-            throw new RuntimeException("\nError in updating the Board Game on Neo4j.");
-            //return false;
+            System.err.println("[ERROR] updateBoardgame()@BoardgameService.java raised an exception: " + e.getMessage());
+            throw new RuntimeException("Error while updating a boardgame in Neo4J.");
         }
         return true;
     }
@@ -224,23 +162,11 @@ public class BoardgameService {
             // Get suggested boardgames' Ids from Neo4J
             List<BoardgameModelNeo4j> suggestedBoardgames = boardgameNeo4jOp.
                     getBoardgamesWithPostsByFollowedUsers(username, 10, skipCounter);
-            // Init empty list of BoardgameModelMongo objects
-//            List<BoardgameModelMongo> suggestedMongoBoardgames = new ArrayList<>();
-//            // For each returned Neo4J ID
-//            for (String boardgameId: suggestedBoardgamesId) {
-//                // Get Mongo object related to that ID
-//                Optional<BoardgameModelMongo> suggestedMongoBoardgame = boardgameMongoOp.
-//                        findBoardgameById(boardgameId);
-//                // If an object is found in Mongo matching such ID
-//                suggestedMongoBoardgame.ifPresent(
-//                        // Add it to the List that'll be returned
-//                        boardgameModelMongo -> suggestedMongoBoardgames.add(boardgameModelMongo)
-//                );
-//            }
+
             return suggestedBoardgames;
         } catch (Exception e) {
-            logger.error("ERROR: " + e.getMessage());
-            return new ArrayList<>();       // Return empty list in case of exception
+            System.err.println("[ERROR] suggestBoardgamesWithPostsByFollowedUsers()@BoardgameService.java raised an exception: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 }
