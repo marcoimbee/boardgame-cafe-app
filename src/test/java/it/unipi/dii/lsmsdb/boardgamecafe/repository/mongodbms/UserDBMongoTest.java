@@ -102,15 +102,23 @@ class UserDBMongoTest {
 
     @Test
     @Order(80)
-    public void testGetUserUsernames_THEN_usernames_returned() {
+    public void GIVEN_all_users_WHEN_search_their_usernames_THEN_usernames_returned() {
         assertNotNull(userDBMongo.getUserUsernames());
     }
 
     @Test
     @Order(90)
-    public void testGetBannedUsers_THEN_banned_users_returned() {
+    public void GIVEN_banned_users_WHEN_search_banned_users_THEN_banned_users_returned() {
         sampleUser.setBanned(true);
         userDBMongo.updateUser(sampleUser.getId(), sampleUser, sampleUser.get_class());
         assertNotNull(userDBMongo.getBannedUsers());
+    }
+
+    @Test
+    @Order(100)
+    public void GIVEN_user_WHEN_update_THEN_user_is_updated() {
+        sampleUser.setUsername("New username");
+        assertTrue(userDBMongo.updateUser(sampleUser.getId(), sampleUser, sampleUser.get_class()));
+        assertEquals("New username", userDBMongo.findByUsername("New username", true).get().getUsername());
     }
 }
