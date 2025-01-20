@@ -4,13 +4,11 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import java.util.List;
-
 @Node("Post")
 public class PostModelNeo4j {
+
     @Id
     private String id;
-
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.OUTGOING)
     private BoardgameModelNeo4j taggedGame;
     @Relationship(type = "WRITES_POST", direction = Relationship.Direction.INCOMING)
@@ -19,6 +17,7 @@ public class PostModelNeo4j {
     private UserModelNeo4j likes;
 
     public PostModelNeo4j(){}
+
     public PostModelNeo4j(String id) {
         this.id = id;
     }
@@ -42,12 +41,15 @@ public class PostModelNeo4j {
     public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
+
     public BoardgameModelNeo4j getTaggedGame() {
         return taggedGame;
     }
+
     public void setTaggedGame(BoardgameModelNeo4j taggedGame) {
         this.taggedGame = taggedGame;
     }

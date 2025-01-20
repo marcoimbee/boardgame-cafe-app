@@ -3,17 +3,14 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
-
-import java.util.ArrayList;
 import java.util.List;
-
 
 @Node("User")
 public class UserModelNeo4j {
+
     @Id
     private String id;
     private String username;
-
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     private List<UserModelNeo4j> followedUsers;
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
@@ -90,36 +87,12 @@ public class UserModelNeo4j {
         return this.writtenPosts;
     }
 
-    public List<PostModelNeo4j> newGetWrittenPosts(String username) {
-        List<PostModelNeo4j> posts = new ArrayList<>();
-        if (!this.writtenPosts.isEmpty()) {
-            for (PostModelNeo4j post : this.writtenPosts) {
-                if (post.getAuthor().equals(username)) {
-                    posts.add(post);
-                }
-            }
-        } else { return null;}
-        return posts;
-    }
-
     public void setWrittenPosts(List<PostModelNeo4j> writtenPosts) {
         this.writtenPosts = writtenPosts;
     }
 
-    public PostModelNeo4j getPostWrittenByUser(String id) {
-        if (!this.writtenPosts.isEmpty()) {
-            for (PostModelNeo4j post : writtenPosts) {
-                if (post.getId().equals(id)) {
-                    return post;
-                }
-            }
-        }
-        return null;
-    }
-
     public void addWrittenPost(PostModelNeo4j post) {
         this.writtenPosts.add(post);
-
     }
 
     public List<PostModelNeo4j> getLikedPosts() {
@@ -128,17 +101,6 @@ public class UserModelNeo4j {
 
     public void setLikedPosts(List<PostModelNeo4j> likedPosts) {
         this.likedPosts = likedPosts;
-    }
-
-    public PostModelNeo4j getPostLikedByUser(String id) {
-        if (!this.likedPosts.isEmpty()) {
-            for (PostModelNeo4j post : likedPosts) {
-                if (post.getId().equals(id)) {
-                    return post;
-                }
-            }
-        }
-        return null;
     }
 
     public void addLikedPost(PostModelNeo4j post) {
@@ -153,4 +115,3 @@ public class UserModelNeo4j {
                 '}';
     }
 }
-

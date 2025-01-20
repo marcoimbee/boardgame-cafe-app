@@ -1,11 +1,9 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
-
 import java.util.List;
 
 @Node("Boardgame")
@@ -17,15 +15,12 @@ public class BoardgameModelNeo4j {
     public String image;
     public String description;
     public int yearPublished;
-
-    // Relazione in entrata dai nodi Post
     @Relationship(type = "REFERS_TO", direction = Relationship.Direction.INCOMING)
     private List<PostModelNeo4j> posts;
 
     public BoardgameModelNeo4j() {}
 
     public BoardgameModelNeo4j(String id, String boardgameName, String image, String description, int yearPublished) {
-
         this.id = id;
         this.boardgameName = boardgameName;
         this.image = image;
@@ -74,7 +69,14 @@ public class BoardgameModelNeo4j {
     }
 
     public List<PostModelNeo4j> getPosts() { return posts; }
+
     public void setPosts(List<PostModelNeo4j> posts) { this.posts = posts; }
+
+    public static BoardgameModelNeo4j castBoardgameMongoInBoardgameNeo(BoardgameModelMongo boardgameMongo) {
+        return new BoardgameModelNeo4j(boardgameMongo.getId(), boardgameMongo.getBoardgameName(),
+                boardgameMongo.getImage(), boardgameMongo.getDescription(),
+                boardgameMongo.getYearPublished());
+    }
 
     @Override
     public String toString() {
@@ -84,12 +86,4 @@ public class BoardgameModelNeo4j {
                 ", posts=" + posts +
                 '}';
     }
-
-    public static BoardgameModelNeo4j castBoardgameMongoInBoardgameNeo(BoardgameModelMongo boardgameMongo)
-    {
-        return new BoardgameModelNeo4j(boardgameMongo.getId(), boardgameMongo.getBoardgameName(),
-                boardgameMongo.getImage(), boardgameMongo.getDescription(),
-                boardgameMongo.getYearPublished());
-    }
 }
-
