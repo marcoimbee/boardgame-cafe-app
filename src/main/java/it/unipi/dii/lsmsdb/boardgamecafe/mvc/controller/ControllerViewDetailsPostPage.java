@@ -9,6 +9,7 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.FxmlView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
+import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.PostService;
@@ -83,6 +84,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private UserDBNeo4j userNeo4jDB;
     @Autowired
     private PostService postService;
+    @Autowired
+    private UserDBMongo userDBMongo;
 
     private List<CommentModel> comments = new ArrayList<>();
     private PostModelMongo post;
@@ -95,6 +98,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
     private final static int LIMIT = 10;    // How many posts to show for each page
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
     private Consumer<String> deletedCommentCallback;
+    private UserModelMongo postAuthor;
 
     public ControllerViewDetailsPostPage() {}
 
@@ -115,12 +119,21 @@ public class ControllerViewDetailsPostPage implements Initializable {
         comments.clear();
 
         post = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
+
+        this.postAuthor = (UserModelMongo) userDBMongo.findByUsername(post.getUsername(), false).get();
+        if (postAuthor.isBanned()) {
+            this.usernameLabel.setText("[Banned user]");
+            this.postTitleTextArea.setText("[Banned user]");
+            this.postBodyTextArea.setText("[Banned user]");
+        } else {
+            this.usernameLabel.setText(post.getUsername());
+            this.postTitleTextArea.setText(post.getTitle());
+            this.postBodyTextArea.setText(post.getText());
+        }
+
         this.setTextLikeButton(currentUser.getUsername(), post.getId());
-        this.usernameLabel.setText(post.getUsername());
         this.tagBoardgameLabel.setText(post.getTag());
         this.timestampLabel.setText(post.getTimestamp().toString());
-        this.postTitleTextArea.setText(post.getTitle());
-        this.postBodyTextArea.setText(post.getText());
         this.counterLikesLabel.setText(String.valueOf(post.getLikeCount()));
         this.counterCommentsLabel.setText(String.valueOf(post.getComments().size()));
 
