@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="857.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsPostPage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="857.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsPostPage">
    <center>
       <VBox prefHeight="782.0" prefWidth="884.0" BorderPane.alignment="CENTER">
          <children>
@@ -138,17 +138,17 @@
                         <FontAwesomeIconView fill="WHITE" glyphName="THUMBS_UP" size="14" text="" />
                      </graphic>
                   </Button>
-                  <Label fx:id="likesTitleLabel" alignment="TOP_LEFT" layoutX="169.0" layoutY="340.0" prefHeight="23.0" prefWidth="52.0" text="Likes: " textFill="#182e58">
+                  <Label fx:id="likesTitleLabel" alignment="TOP_LEFT" layoutX="175.0" layoutY="340.0" prefHeight="23.0" prefWidth="52.0" text="Likes: " textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="counterLikesLabel" alignment="TOP_LEFT" layoutX="214.0" layoutY="340.0" prefHeight="23.0" prefWidth="47.0" text="200" textFill="#182e58">
+                  <Label fx:id="counterLikesLabel" alignment="TOP_LEFT" layoutX="220.0" layoutY="340.0" prefHeight="23.0" prefWidth="47.0" text="200" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Button fx:id="commentLogo" layoutX="271.0" layoutY="338.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="26.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                  <Button fx:id="commentLogo" layoutX="275.0" layoutY="338.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="26.0" style="-fx-background-color: #182E58;" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
@@ -156,12 +156,12 @@
                         <FontAwesomeIconView fill="WHITE" glyphName="COMMENT" size="16" />
                      </graphic>
                   </Button>
-                  <Label fx:id="commentsTitleLabel" alignment="TOP_LEFT" layoutX="313.0" layoutY="339.0" prefHeight="23.0" prefWidth="105.0" text="Comments:" textFill="#182e58">
+                  <Label fx:id="commentsTitleLabel" alignment="TOP_LEFT" layoutX="317.0" layoutY="339.0" prefHeight="23.0" prefWidth="105.0" text="Comments:" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="counterCommentsLabel" alignment="TOP_LEFT" layoutX="401.0" layoutY="339.0" prefHeight="23.0" prefWidth="57.0" text="150" textFill="#182e58">
+                  <Label fx:id="counterCommentsLabel" alignment="TOP_LEFT" layoutX="405.0" layoutY="339.0" prefHeight="23.0" prefWidth="57.0" text="150" textFill="#182e58">
                      <font>
                         <Font name="Calibri Bold" size="18.0" />
                      </font>

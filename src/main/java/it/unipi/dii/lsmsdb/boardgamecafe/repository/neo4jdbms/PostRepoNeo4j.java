@@ -40,12 +40,13 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
     @Query("MATCH (p:Post)<-[:LIKES]-(:User) RETURN p, COUNT(*) AS likeCount ORDER BY likeCount DESC LIMIT 1")
     PostModelNeo4j findMostLikedPost();
 
+    //WITH p.id as id, COUNT(l) as likes
     @Query("""
             MATCH (u:User{username: $username})-[:FOLLOWS]->(following:User)-
             [:LIKES]->(p:Post), (p)<-[l:LIKES]-(:User)
             WHERE NOT EXISTS{MATCH (u)-[:LIKES]->(p)}
-            WITH p.id as id, COUNT(l) as likes
-            RETURN DISTINCT id, likes
+            WITH p, COUNT(l) AS likes
+            RETURN p
             ORDER BY likes desc
             SKIP $skipCounter
             LIMIT $limit
@@ -56,7 +57,7 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
 
     @Query("""
             MATCH (currentUser:User {username: $username})-[:FOLLOWS]->(followedUser:User)-[:WRITES_POST]->(post:Post)
-            OPTIONAL MATCH (post)-[:LIKES]->(likedBy:User)
+            OPTIONAL MATCH (post)<-[:LIKES]-(likedBy:User)
             WITH post, COUNT(likedBy) AS likeCount
             RETURN post
             ORDER BY likeCount DESC
