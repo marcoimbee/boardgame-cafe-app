@@ -7,7 +7,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Welcome Page of BoardGameCafè App";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewWelcomePage.fxml";
@@ -17,7 +16,6 @@ public enum FxmlView {
         public String getTitle() {
             return "LOG-IN Page";
         }
-
         @Override
         public String getFxmlFile() { return "/viewLogin.fxml"; }
     }, SIGNUP {
@@ -25,7 +23,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Sign-Up Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewSignUp.fxml";
@@ -35,7 +32,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Guest-Boardgames Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewGuestBoardgamesPage.fxml";
@@ -45,7 +41,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Guest-Boardgames's Posts Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewGuestPostPage.fxml";
@@ -55,7 +50,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Registered User-Boardgames's Posts Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewRegUserPostPage.fxml";
@@ -65,7 +59,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Registered User-Boardgames Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewRegUserBoardgamesPage.fxml";
@@ -75,7 +68,6 @@ public enum FxmlView {
         public String getTitle() {
             return "User HomePage - BoardGameCafè App";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewRegUserProfilePage.fxml";
@@ -85,7 +77,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Boardgame Details Page";
         }
-
         @Override
         public String getFxmlFile() { return "/viewDetailsBoardgame.fxml"; }
     }, OBJECTBOARDGAME {
@@ -93,7 +84,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Boardgame Preview Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectBoardgame.fxml";
@@ -103,7 +93,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Post Preview Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectPost.fxml";
@@ -113,7 +102,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Review Preview Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectReview.fxml";
@@ -123,7 +111,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Comment Preview Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectComment.fxml";
@@ -133,7 +120,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Create Comment Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectCreateComment.fxml";
@@ -143,7 +129,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Create Post Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectCreatePost.fxml";
@@ -153,7 +138,6 @@ public enum FxmlView {
         public String getTitle() {
             return "User Info Preview Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectUser.fxml";
@@ -163,7 +147,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Post Details Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewDetailsPostPage.fxml";
@@ -173,7 +156,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Info Users Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoUsersMsg.fxml";
@@ -183,7 +165,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Info Posts Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoPostsMsg.fxml";
@@ -193,7 +174,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Info Reviews Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoReviewsMsg.fxml";
@@ -203,7 +183,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Info Boardgames Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoBoardgamesMsg.fxml";
@@ -213,7 +192,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Search Users Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewSearchUserPage.fxml";
@@ -223,7 +201,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Info Comments";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectInfoCommentsMsg.fxml";
@@ -233,7 +210,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Info Account";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewAccountInfoPage.fxml";
@@ -243,7 +219,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Post Editing";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewEditPostPage.fxml";
@@ -253,7 +228,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Comment Editing";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewEditCommentPage.fxml";
@@ -263,7 +237,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Boardgame Creation and Upload";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectCreateBoardgame.fxml";
@@ -273,7 +246,6 @@ public enum FxmlView {
         public String getTitle() {
             return "BoardgameCafè_App Statistics Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewStatisticsPage.fxml";
@@ -283,20 +255,15 @@ public enum FxmlView {
         public String getTitle() {
             return "BoardgameCafè_App Analytic Page";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewAdminAnalytics.fxml";
         }
-    },
-
-
-    EDIT_REVIEW {
+    }, EDIT_REVIEW {
         @Override
         public String getTitle() {
             return "Review Editing";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewEditReviewPage.fxml";
@@ -306,7 +273,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Review Creation";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectCreateReview.fxml";
@@ -316,7 +282,6 @@ public enum FxmlView {
         public String getTitle() {
             return "Review Creation";
         }
-
         @Override
         public String getFxmlFile() {
             return "/viewObjectReviewBlankBody.fxml";
@@ -324,7 +289,6 @@ public enum FxmlView {
     };
 
     public abstract String getTitle();
+
     public abstract String getFxmlFile();
-
 }
-

@@ -18,21 +18,20 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javafx.stage.Window;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-//--- La classe StageManager è responsabile della gestione delle finestre e delle scene dell'applicazione.
-// Fornisce metodi per caricare le viste, mostrare le finestre e visualizzare eventuali messaggi di errore.
-// Utilizza la classe SpringFXMLLoader per caricare i file FXML e creare scene per le viste dell'applicazione ---
+/*
+    This class is responsible for the management of the windows and scenes of the application.
+    Provides methods to create views, show windows and visualize potential error messages.
+    SpringFXMLLoader is employed to load FXML files and create scenes for the application's views.
+ */
 public class StageManager {
-    private final Stage primaryStage;
 
+    private final Stage primaryStage;
     private final SpringFXMLLoader springFXMLLoader;
-    private final static Logger logger = LoggerFactory.getLogger(StageManager.class);
 
     public StageManager(SpringFXMLLoader springFXMLLoader, Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -40,20 +39,16 @@ public class StageManager {
     }
 
     public void switchScene(final FxmlView view) {
-//        Parent viewRoot = loadViewNode(view.getFxmlFile());
-//        show(viewRoot, view.getTitle());
-
-
         Parent viewRoot = loadViewNode(view.getFxmlFile());
 
-        // Ottieni lo stage corrente dall’elemento attuale
+        // Getting the current stage of the current element
         Stage currentStage = (Stage) Stage.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
 
         if (currentStage != null) {
-            currentStage.close(); // Chiude l'attuale
+            currentStage.close();
         }
 
-        // Crea un nuovo stage per la nuova scena
+        // Creating a new stage for the new scene
         Stage newStage = new Stage();
         Scene newScene = new Scene(viewRoot);
         newStage.setScene(newScene);
@@ -73,46 +68,17 @@ public class StageManager {
     }
 
     public Parent loadViewNode(String fxmlFilePath) {
-
         Parent rootNode = null;
-
         try {
             rootNode = springFXMLLoader.load(fxmlFilePath);
             Objects.requireNonNull(rootNode, "A Root FXML node must not be null");
         } catch (Exception e){
-            logger.error("Exception occurred: " + e.getLocalizedMessage());
+            System.err.println("[ERROR] loadViewNode()@StageManager.java raised an exception: " + e.getMessage());
         }
         return rootNode;
     }
 
-    private void show(final Parent rootNode, String title) {
-
-        Scene scene = prepareScene(rootNode);
-
-        primaryStage.setTitle(title);
-        primaryStage.setScene(scene);
-        primaryStage.sizeToScene();
-        primaryStage.centerOnScreen();
-        try {
-            primaryStage.show();
-        } catch (Exception e) {
-            logger.error("Exception occurred: " + e.getLocalizedMessage());
-        }
-    }
-
-    private Scene prepareScene(Parent rootNode) {
-
-        Scene scene = primaryStage.getScene();
-
-        if (scene == null) {
-            scene = new Scene(rootNode);
-        }
-        scene.setRoot(rootNode);
-        return scene;
-    }
-
     public Stage showWindow(final FxmlView window) {
-
         try {
             Parent viewRoot = loadViewNode(window.getFxmlFile());
             Stage stage = new Stage();
@@ -122,7 +88,7 @@ public class StageManager {
             stage.show();
             return stage;
         } catch (Exception e) {
-            logger.error("Exception occurred: " + e.getLocalizedMessage());
+            System.err.println("[ERROR] showWindow()@StageManager.java raised an exception: " + e.getMessage());
             return null;
         }
     }
@@ -137,10 +103,9 @@ public class StageManager {
 
         Label label = new Label();
         label.setText(message);
-        // Imposta il font e il colore del testo
         label.setFont(Font.font("Georgia Pro Cond Black", FontWeight.BOLD, FontPosture.REGULAR, 16));
         label.setTextFill(Color.rgb(24,46,88));
-        label.setAlignment(Pos.CENTER); // Centra il testo del messaggio
+        label.setAlignment(Pos.CENTER);
 
         Button closeButton = new Button("Close");
         closeButton.setOnAction(e -> window.close());
@@ -156,9 +121,9 @@ public class StageManager {
 
     public boolean showDeleteBoardgameInfoMessage() {
         String title = "ATTENTION";
-        String message = "Are You Sure You Want To Delete This Boardgame from BoardGame-Cafè_App Collection?";
+        String message = "Delete this boardgame? This action cannot be undone.";
         String okButtonString = "Delete Boardgame";
-        String backButtonString = "Return Boardgames Page";
+        String backButtonString = "Return to the Boardgames page";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
@@ -174,17 +139,18 @@ public class StageManager {
 
     public boolean showConfirmUpdateBoardgameListInfoMessage(String listName) {
         String title = "ATTENTION";
-        String message = "Some fields are empty. Do you want to update only "+listName +" and filled fields?";
+        String message = "Some fields are empty. Do you want to update only " + listName + " and filled fields?";
         String okButtonString = "Save Changes";
         String backButtonString = "Return to Editing";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
+
     public boolean showConfirmDiscardEditBoardgameInfoMessage() {
         String title = "ATTENTION";
         String message = "Are you sure you want to discard changes? Your updates will be lost.";
-        String okButtonString = "Discard changes";
-        String backButtonString = "Return to editing";
+        String okButtonString = "Discard Changes";
+        String backButtonString = "Return to Editing";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
@@ -201,8 +167,8 @@ public class StageManager {
     public boolean showDiscardReviewInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? What you wrote will be lost.";
-        String okButtonString = "Discard review";
-        String backButtonString = "Return to review";
+        String okButtonString = "Discard Review";
+        String backButtonString = "Return to Review";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
@@ -210,8 +176,8 @@ public class StageManager {
     public boolean showDiscardCommentInfoMessage() {
         String title = "ATTENTION";
         String message = "Discard changes? What you wrote will be lost.";
-        String okButtonString = "Discard comment";
-        String backButtonString = "Return to comment";
+        String okButtonString = "Discard Comment";
+        String backButtonString = "Return to Comment";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
@@ -220,7 +186,7 @@ public class StageManager {
         String title = "ATTENTION";
         String message = "Discard changes? What you wrote will be lost.";
         String okButtonString = "Discard Boardgame Creation";
-        String backButtonString = "Return To Boardgame Creation";
+        String backButtonString = "Return to Boardgame Creation Page";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
@@ -282,9 +248,9 @@ public class StageManager {
 
     public boolean showDeleteAccountInfoMessage() {
         String title = "ATTENTION";
-        String message = "Are You Sure You Want To Delete Your Account From BoardGame-Cafè_App?";
+        String message = "Are you sure you want to delete your account? This action cannot be undone.";
         String okButtonString = "Delete Account";
-        String backButtonString = "Return To Account Info Page";
+        String backButtonString = "Return to Account Info Page";
 
         return displayInfoMessageAfterContentEditingOrDeletion(title, message, okButtonString, backButtonString);
     }
@@ -340,24 +306,5 @@ public class StageManager {
     public void closeStageButton(Button button) {
         Stage stage = (Stage) button.getScene().getWindow();
         stage.close();
-    }
-
-    public void closeStageMouseEvent(MouseEvent click) {
-
-        Stage stage = (Stage) ((Node) click.getSource()).getScene().getWindow();
-        stage.close();
-    }
-
-    public void setNullList(List<ImageView> imageViews, List<Label> labels) {
-        for (int i = 0;i <labels.size();i++) {
-            imageViews.get(i).setImage(null);
-            labels.get(i).setText("");
-        }
-    }
-
-    public int getElemIndexGridPane(MouseEvent event) {
-        String id = event.getPickResult().getIntersectedNode().getId();
-        String[] value = id.split("image");
-        return Integer.parseInt(value[1]);
     }
 }
