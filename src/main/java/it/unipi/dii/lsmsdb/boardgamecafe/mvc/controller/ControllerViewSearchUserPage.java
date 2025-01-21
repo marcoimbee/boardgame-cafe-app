@@ -226,6 +226,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
         selectedSearchUser = null;
 
+        //ToDo: Mostrare la lista di banned user per facilitare la loro accessibilità per l'admin
         // Setting up admin tools - list of banned users, needed to set up ban/unban buttons
         if (currentUser.get_class().equals("admin")) {
             if (modelBean.getBean(Constants.BANNED_USERS_LIST) == null) {
