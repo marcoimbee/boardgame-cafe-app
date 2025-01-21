@@ -35,18 +35,12 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
-
 @Component
 public class ControllerViewUserProfilePage implements Initializable{
-
-    public enum ContentType {
-        POSTS, REVIEWS;
-    }
 
     @FXML
     private Button yourProfileButton;
@@ -122,7 +116,9 @@ public class ControllerViewUserProfilePage implements Initializable{
     @Autowired
     private ModelBean modelBean;
 
-    private final StageManager stageManager;
+    public enum ContentType {
+        POSTS, REVIEWS;
+    }
 
     private List<PostModelMongo> postsUser = new ArrayList<>();
     private List<ReviewModelMongo> reviewsUser = new ArrayList<>();
@@ -143,6 +139,10 @@ public class ControllerViewUserProfilePage implements Initializable{
     private static UserModelMongo selectedUser;
     private Consumer<String> deletedContentCallback;
     private final List<String> buttonLikeMessages = new ArrayList<>(Arrays.asList("Like", "Dislike"));
+
+    private final StageManager stageManager;
+
+    private static boolean openedPost;
 
     @Autowired
     @Lazy
@@ -165,16 +165,18 @@ public class ControllerViewUserProfilePage implements Initializable{
         if (!currentUser.get_class().equals("user")) {
             currentUser = (AdminModelMongo) modelBean.getBean(Constants.CURRENT_USER);          // The logged user is an admin
             openUserProfile = null;
-            if (selectedUser != null)           // User is looking at another user's profile
+            if (selectedUser != null) {           // User is looking at another user's profile
                 checkSelectedUser();
+            }
             this.yourProfileButton.setVisible(false);
         } else {
             currentUser = (UserModelMongo) modelBean.getBean(Constants.CURRENT_USER);           // The logged user is a regular user
             openUserProfile = currentUser;
-            if (selectedUser != null)           // User is looking at another user's profile
+            if (selectedUser != null) {           // User is looking at another user's profile
                 checkSelectedUser();
-            else
+            } else {
                 this.followButton.setDisable(true);
+            }
             this.statisticsButton.setVisible(false);
         }
 
@@ -190,6 +192,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         int totalFollowing = userDBNeo.getCountFollowing(user.getUsername());
         int reviewsCount = reviewMongoOp.findReviewByUsername(user.getUsername()).size();
         totalReviews = reviewsCount;
+
         // Retrieving user posts - these are shown by default as the profile page opens
         postsUser.addAll(getPosts(user.getUsername()));
         if (this.postsUser.isEmpty()) {
@@ -206,6 +209,7 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.counterReviewsLabel.setText(String.valueOf(reviewsCount));
         String profileImageFilename;
         Image image;
+
         // Disabling follow/unfollow button based on if the selected user is banned or not - only admins can visit the profile of a banned user
         if (selectedUser != null && selectedUser.isBanned()) {
             this.followButton.setDisable(true);
@@ -216,13 +220,13 @@ public class ControllerViewUserProfilePage implements Initializable{
         image = new Image(Objects.requireNonNull(getClass().getResource(profileImageFilename)).toExternalForm());
         this.profileImage.setImage(image);
 
-        fillGridPane(postsUser);
+         fillGridPane(postsUser);
+         openedPost = false;
 
         // If we enter here we are at the app start - it's the first time we see this page, so the constant is certainly empty
         if (modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST) == null) {
             currentUserFollowedList = userDBNeo.getFollowedUsernames(currentUser.getUsername());
             modelBean.putBean(Constants.CURRENT_USER_FOLLOWED_LIST, currentUserFollowedList);
-            System.out.println("[INFO] Fetched " + currentUserFollowedList.size() + " followed users' usernames");
         } else {            // If we enter here for sure we're re-visiting the current user profile page, or we're visiting another user's profile page
             currentUserFollowedList = (List<String>) modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST);
 
@@ -263,7 +267,10 @@ public class ControllerViewUserProfilePage implements Initializable{
                         // After gaining focus for a post details window closing or a review update window closing,
                         // UI needs to be potentially updated
                         if (selectedContentType == ContentType.POSTS) {
-                            onRegainPageFocusAfterPostDetailsWindowClosing();
+                            if (modelBean.getBean(Constants.OPENED_POST) != null) {
+                                onRegainPageFocusAfterPostDetailsWindowClosing();
+                                modelBean.putBean(Constants.OPENED_POST, null);
+                            }
                         } else {
                             onRegainPageFocusAfterEditReviewWindowClosing();
                         }
@@ -272,6 +279,7 @@ public class ControllerViewUserProfilePage implements Initializable{
             }
         });
     }
+
     private void onRegainPageFocusAfterEditReviewWindowClosing() {
         // Potentially update UI after review editing
         ReviewModelMongo updatedReview = (ReviewModelMongo) modelBean.getBean(Constants.UPDATED_REVIEW);
@@ -283,58 +291,80 @@ public class ControllerViewUserProfilePage implements Initializable{
             prevNextButtonsCheck(reviewsUser);
         }
 
-        // No need to handle review deletion here, as that operation is only viable by using the 'Delete' button on the review card
+        /*
+            No need to handle review deletion here,
+            as that operation is only viable by using the
+            'Delete' button on the review card
+         */
+    }
+
+    private void refreshPage() {
+        postsUser.clear();
+        resetPage();
+//        checkSelectedUser();
+        List<PostModelMongo> retrievedPosts = new ArrayList<>();
+        if (openUserProfile.get_class().equals("user")) {
+            retrievedPosts = getPosts(openUserProfile.getUsername());
+        }
+        postsUser.addAll(retrievedPosts);
+        fillGridPane(postsUser);
+        prevNextButtonsCheck(retrievedPosts);
+        if (this.postsUser.isEmpty()) {
+            loadViewMessageInfo();
+        }
     }
 
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
-        // Once regaining focus on profile page after a post details page has been closed, the user could have:
-        //      Deleted the entire post
-        //      Edited the post
-        //      Added a comment
-        //      Deleted a comment
+        /*
+            Once regaining focus on profile page after a post details page has been closed, the user could have:
+                Deleted the entire post
+                Edited the post
+                Added a comment
+                Deleted a comment
+         */
+        refreshPage();
 
-        // Potentially update UI after post deletion
-        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
-        if (deletedPostId != null) {
-            modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
-            resetPage();
-            List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
-            this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
-            if (retrievedPosts.isEmpty()) {
-                loadViewMessageInfo();
-            } else {
-                postsUser.addAll(retrievedPosts);
-                fillGridPane(postsUser);
-                prevNextButtonsCheck(postsUser);
-            }
-        }
-
-        // Potentially update UI after post editing
-        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
-        if (updatedPost != null) {
-            postsUser.replaceAll(post -> post.getId().equals(updatedPost.getId()) ? updatedPost : post);
-            fillGridPane(postsUser);
-        }
-
-        // Update UI after potentially having added a comment to a post
-        CommentModel addedComment = (CommentModel) modelBean.getBean(Constants.ADDED_COMMENT);
-        if (addedComment != null) {
-            modelBean.putBean(Constants.ADDED_COMMENT, null);
-            fillGridPane(postsUser);
-        }
-
-        // Potentially update UI after comment deletion under a post
-        List<CommentModel> deletedComments = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
-        if (deletedComments != null)
-        {
-            for (CommentModel deletedComment : deletedComments) {
-                for (PostModelMongo post : postsUser) {
-                    post.getComments().remove(deletedComment);
-                    fillGridPane(postsUser);
-                }
-            }
-            modelBean.putBean(Constants.DELETED_COMMENT, null);
-        }
+//        // Potentially update UI after post deletion
+//        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
+//        if (deletedPostId != null) {
+//            modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
+//            resetPage();
+//            List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
+//            this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
+//            if (retrievedPosts.isEmpty()) {
+//                loadViewMessageInfo();
+//            } else {
+//                postsUser.addAll(retrievedPosts);
+//                fillGridPane(postsUser);
+//                prevNextButtonsCheck(postsUser);
+//            }
+//        }
+//
+//        // Potentially update UI after post editing
+//        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
+//        if (updatedPost != null) {
+//            postsUser.replaceAll(post -> post.getId().equals(updatedPost.getId()) ? updatedPost : post);
+//            fillGridPane(postsUser);
+//        }
+//
+//        // Update UI after potentially having added a comment to a post
+//        CommentModel addedComment = (CommentModel) modelBean.getBean(Constants.ADDED_COMMENT);
+//        if (addedComment != null) {
+//            modelBean.putBean(Constants.ADDED_COMMENT, null);
+//            fillGridPane(postsUser);
+//        }
+//
+//        // Potentially update UI after comment deletion under a post
+//        List<CommentModel> deletedComments = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
+//        if (deletedComments != null) {
+//            for (CommentModel deletedComment : deletedComments) {
+//                for (PostModelMongo post : postsUser) {
+//                    post.getComments().remove(deletedComment);
+//                    fillGridPane(postsUser);
+//                }
+//            }
+//            modelBean.putBean(Constants.DELETED_COMMENT, null);
+//        }
     }
 
 
@@ -370,8 +400,6 @@ public class ControllerViewUserProfilePage implements Initializable{
 
                 // Update follow/unfollow button graphics
                 this.followButton.setText(" Unfollow");
-
-                System.out.println("[INFO] " + currentUser.getUsername() + " followed " + selectedUser.getUsername());
             } else {
                 // Remove Neo4J relationship
                 userDBNeo.unfollowUser(currentUser.getUsername(), selectedUser.getUsername());
@@ -386,12 +414,10 @@ public class ControllerViewUserProfilePage implements Initializable{
 
                 // Update follow/unfollow button graphics
                 this.followButton.setText(" Follow");
-
-                System.out.println("[INFO] " + currentUser.getUsername() + " stopped following " + selectedUser.getUsername());
             }
         } catch (Exception e) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again in a while.");
-            System.err.println("[ERROR] onClickFollowButton@ControllerViewUserProfilePage raised an exception: " + e.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickFollowButton()@ControllerViewUserProfilePage raised an exception: " + e.getMessage());
         }
     }
 
@@ -514,15 +540,13 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     private List<PostModelMongo> getPosts(String username) {
-        List<PostModelMongo> posts = postDBMongo.
-                findRecentPostsByUsername(username, LIMIT, skipCounter);
+        List<PostModelMongo> posts = postDBMongo.findRecentPostsByUsername(username, LIMIT, skipCounter);
         prevNextButtonsCheck(posts);
         return posts;
     }
 
     private List<ReviewModelMongo> getReviews(String username) {
-        List<ReviewModelMongo> reviews = reviewMongoOp.
-                findRecentReviewsByUsername(username, LIMIT, skipCounter);
+        List<ReviewModelMongo> reviews = reviewMongoOp.findRecentReviewsByUsername(username, LIMIT, skipCounter);
         prevNextButtonsCheck(reviews);
         return reviews;
     }
@@ -549,8 +573,10 @@ public class ControllerViewUserProfilePage implements Initializable{
         GridPane.setMargin(noContentsYet, new Insets(100, 200, 200, 331));
     }
 
-    // This method gets called whenever the author decides to delete a comment or a
-    // review by using the 'Delete' button in the comment/review card
+    /*
+        This method gets called whenever the author decides to delete a comment or a
+        review by using the 'Delete' button in the comment/review card
+     */
     private void updateUIAfterPostOrReviewDeletion(String contentId) {
         resetPage();
         switch (selectedContentType) {
@@ -603,8 +629,8 @@ public class ControllerViewUserProfilePage implements Initializable{
                 addItemToGridPane(itemNode);
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "An error occurred while retrieving content. Please try again in a while.");
-            System.err.println("[ERROR] fillGridPane@ControllerViewUserProfile.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] fillGridPane()@ControllerViewUserProfile.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -686,15 +712,15 @@ public class ControllerViewUserProfilePage implements Initializable{
                 this.yourReviewsButton.setDisable(false);
                 modelBean.putBean(Constants.SELECTED_USER, null);
             }
-
         }
     }
 
     public void onClickYourProfileButton() {
-        if (openUserProfile != currentUser)
+        if (openUserProfile != currentUser) {
             resetToCurrent();
-        else
+        } else {
             checkSelectedUser();
+        }
     }
 
     private void resetToCurrent(){
@@ -737,5 +763,4 @@ public class ControllerViewUserProfilePage implements Initializable{
     public void onClickStatisticsButton() {
         stageManager.switchScene(FxmlView.STATISTICS);
     }
-
 }
