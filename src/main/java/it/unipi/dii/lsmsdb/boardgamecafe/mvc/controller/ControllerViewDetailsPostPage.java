@@ -164,13 +164,13 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 });
             }
         });
+
+        modelBean.putBean(Constants.OPENED_POST, "1");
     }
 
     public void onFocusGained() {
         PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
         this.tagBoardgameLabel.setText(updatedPost.getTag());
-        //this.postTitleTextArea.setText(updatedPost.getTitle());
-        //this.postBodyTextArea.setText(updatedPost.getText());
         if (this.postAuthor.isBanned()) {
             this.usernameLabel.setText("[Banned user]");
             this.postTitleTextArea.setText("[Banned user]");
@@ -240,6 +240,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
         comments.addAll(post.getComments());
         fillGridPane();
         prevNextButtonsCheck(comments);
+        this.counterCommentsLabel.setText(String.valueOf(comments.size()));
     }
 
     public void onClickCloseButton() {
@@ -393,6 +394,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 } else {
                     stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
                 }
+                onClickRefreshButton();
                 prevNextButtonsCheck(comments);
             });
 
@@ -405,6 +407,7 @@ public class ControllerViewDetailsPostPage implements Initializable {
                 }
             });
         } catch (Exception e) {
+            System.err.println("[ERROR] onClickAddCommentButton()@ControllerViewDetailsPostPage.java raised an exception: " + e.getMessage());
             stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
         }
     }

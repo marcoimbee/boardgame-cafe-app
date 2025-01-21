@@ -19,6 +19,7 @@ public class Constants {
     public static final String DELETED_BOARDGAME = "deletedBoardgame";
     public static final String SELECTED_POST = "selectedPost";
     public static final String UPDATED_POST = "updatedPost";
+    public static final String OPENED_POST = "openedPost";
 
     // ------ COMMENT MANAGEMENT ------
     public static final String SELECTED_COMMENT = "selectedComment";

@@ -10,16 +10,12 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -34,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.bson.Document;
-
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,9 +38,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
 @Component
 public class ControllerViewSearchUserPage implements Initializable {
+
     @FXML
     private Label adminInfoLabel;
     @FXML
@@ -62,8 +57,6 @@ public class ControllerViewSearchUserPage implements Initializable {
     private DatePicker startDateFilter;
     @FXML
     private TextField limitFilter;
-
-
     @FXML
     private ListView searchResultsList;
     @FXML
@@ -96,6 +89,7 @@ public class ControllerViewSearchUserPage implements Initializable {
     private GridPane usersGridPane;
     @FXML
     private ScrollPane scrollSet;
+
     @Autowired
     private UserDBMongo userDBMongo;
     @Autowired
@@ -104,10 +98,10 @@ public class ControllerViewSearchUserPage implements Initializable {
     private ControllerObjectUser controllerObjectUser;
     @Autowired
     private ModelBean modelBean;
+
     private final StageManager stageManager;
     UserListener userListener;
 
-    // Choice box variables
     private ObservableList<String> whatUsersToShowList;
 
     private final List<String> availableUserQueries = Arrays.asList(
@@ -124,13 +118,11 @@ public class ControllerViewSearchUserPage implements Initializable {
     );
 
     private List<UserModelMongo> users = new ArrayList<>();
-
     private List<GenericUserModelMongo> bannedUsers = new ArrayList<>();
 
-    //Utils Variables
     private int columnGridPane = 0;
     private int rowGridPane = 0;
-    private int skipCounter = 0;            // Ho many times the user clicked on the 'Next' button
+    private int skipCounter = 0;            // How many times the user clicked on the 'Next' button
     private final static int SKIP = 10;     // How many users to skip each time
     private final static int LIMIT = 10;    // How many users to show in each page
 
@@ -141,20 +133,18 @@ public class ControllerViewSearchUserPage implements Initializable {
         INFLUENCER_USERS,
         SEARCH_RESULTS,
         ADMIN_MOST_ACTIVE_USERS;
-    };
+    }
     private static UsersToFetch currentlyShowing;       // Global indicator of what type of user is being shown on the page
     private static int currentPage;
 
     private static List<Integer> visitedPages;
     private static boolean visualizedLastUser;      // Keeps track of whether the user has reached the last reachable page or not;
-    // Search functionalities
 
     private List<String> userUsernames;
     private static String selectedSearchUser;
     private static GenericUserModelMongo currentUser;
 
     static class TableData {
-
         private final SimpleStringProperty username;
         private final SimpleStringProperty reviewCount;
         private final SimpleStringProperty avgDateDiff;
@@ -324,20 +314,20 @@ public class ControllerViewSearchUserPage implements Initializable {
         LocalDate startDateFilterLocaldate = this.startDateFilter.getValue();
         Date startDateFilter = Date.from(startDateFilterLocaldate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         if (startDateFilter.compareTo(new Date()) > 0) {
-            stageManager.showInfoMessage("Invalid filter values", "Start date cannot be greater than the current date.");
+            stageManager.showInfoMessage("INFO", "Start date cannot be greater than the current date.");
             return;
         }
 
         LocalDate endDateFilterLocaldate = this.endDateFilter.getValue();
         Date endDateFilter = Date.from(endDateFilterLocaldate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         if (startDateFilter.compareTo(endDateFilter) > 0) {
-            stageManager.showInfoMessage("Invalid filter values", "Start date cannot be greater than end date.");
+            stageManager.showInfoMessage("INFO", "Start date cannot be greater than end date.");
             return;
         }
 
         int limitResultsFilter = Integer.parseInt(this.limitFilter.getText());
         if (limitResultsFilter <= 0) {
-            stageManager.showInfoMessage("Invalid filter values", "Choose a positive non-negative integer to limit results.");
+            stageManager.showInfoMessage("INFO", "Choose a positive non-negative integer to limit results.");
             return;
         }
 
@@ -411,13 +401,12 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (!visitedPages.contains(currentPage)) {
             // New users need to be retrieved from the DB when visiting a page further from the furthest visited page
             skipCounter += SKIP;
-            retrievedUsers = (List<UserModelMongo>)
-                    fetchUsers(
+            retrievedUsers = (List<UserModelMongo>) fetchUsers(             // Fetching new users
                             selectedSearchUser,
                             null,
                             null,
                             null
-                    );        // Fetching new users
+                    );
             users.addAll(retrievedUsers);            // Adding fetched users to the users list
             visitedPages.add(currentPage);
         } else {
@@ -510,7 +499,7 @@ public class ControllerViewSearchUserPage implements Initializable {
 
     @FXML
     void fillGridPane() {
-        if (users.size() == 1) {        // Needed to correctly position a single user in the gridpane
+        if (users.size() == 1) {        // Needed to correctly position a single user in the grid pane
             columnGridPane = 0;
             rowGridPane = 0;
         } else {
@@ -536,8 +525,6 @@ public class ControllerViewSearchUserPage implements Initializable {
                     visualizedLastUser = true;
                 }
 
-                System.out.println("[DEBUG] [startUser, endUser]: [" + startUser + ", " + endUser + "]");
-
                 for (int i = startUser; i <= endUser; i++) {
                     UserModelMongo user = users.get(i);
                     if (currentUser.get_class().equals("user")) {      // Only show users which are not banned
@@ -552,8 +539,8 @@ public class ControllerViewSearchUserPage implements Initializable {
                 }
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "An error occurred while retrieving users. Try again in a while.");
-            System.err.println("[ERROR] fillGridPane@ControllerViewSearchUserPage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] fillGridPane()@ControllerViewSearchUserPage.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -695,7 +682,6 @@ public class ControllerViewSearchUserPage implements Initializable {
         ObservableList<String> usernamesContainingSearchString = FXCollections.observableArrayList(
                 ((List<String>)modelBean.getBean(Constants.USERS_USERNAMES)).stream()
                         .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
-        System.out.println("[DEBUG] filtered usernames list size: " + usernamesContainingSearchString.size());
 
         searchResultsList.setItems(usernamesContainingSearchString);
         int LIST_ROW_HEIGHT = 24;

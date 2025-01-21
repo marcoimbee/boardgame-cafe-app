@@ -34,7 +34,7 @@
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="boardgamesCollectionButton" alignment="CENTER" contentDisplay="CENTER" layoutX="67.0" layoutY="211.0" mnemonicParsing="false" onAction="#onClickBoardgamesColletcion" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
+            <Button fx:id="boardgamesCollectionButton" alignment="CENTER" contentDisplay="CENTER" layoutX="67.0" layoutY="211.0" mnemonicParsing="false" onAction="#onClickBoardgamesCollection" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>

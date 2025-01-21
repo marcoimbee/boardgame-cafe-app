@@ -13,12 +13,12 @@ import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
 @Component
 public class ControllerViewEditReviewPage implements Initializable {
+
     @FXML
     public TextField bodyTextLabel;
     @FXML
@@ -29,12 +29,13 @@ public class ControllerViewEditReviewPage implements Initializable {
     public Button submitButton;
 
     @Autowired
+    @Lazy
+    private StageManager stageManager;
+    @Autowired
     private ModelBean modelBean;
     @Autowired
     private ReviewService reviewService;
-    @Autowired
-    @Lazy
-    private StageManager stageManager;
+
     private static ReviewModelMongo selectedReview;
 
     public ControllerViewEditReviewPage() {}
@@ -42,7 +43,6 @@ public class ControllerViewEditReviewPage implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         selectedReview = (ReviewModelMongo) modelBean.getBean(Constants.SELECTED_REVIEW);
-
         this.ratingSlider.setValue(selectedReview.getRating());
         this.bodyTextLabel.setText(selectedReview.getBody());
     }
@@ -68,7 +68,8 @@ public class ControllerViewEditReviewPage implements Initializable {
         String updatedBody = this.bodyTextLabel.getText();
         int updateRating = (int) this.ratingSlider.getValue();
 
-        if (updatedBody.equals(selectedReview.getBody()) && updateRating == selectedReview.getRating()) {      // Nothing was updated, ok to close and no further action
+        // Nothing was updated, ok to close and no further action
+        if (updatedBody.equals(selectedReview.getBody()) && updateRating == selectedReview.getRating()) {
             stageManager.closeStage();
             return;
         }
@@ -89,7 +90,7 @@ public class ControllerViewEditReviewPage implements Initializable {
             stageManager.closeStage();
         } catch (Exception ex) {
             stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
-            System.err.println("[ERROR] onClickSubmitButton@ControllerViewEditReviewPage.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] onClickSubmitButton()@ControllerViewEditReviewPage.java raised an exception: " + ex.getMessage());
         }
     }
 }
