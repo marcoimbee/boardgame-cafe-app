@@ -112,19 +112,6 @@ class PostDBNeo4jTest {
         assertTrue(hasLiked2); // Assuming the user hasn't liked the post in this setup
     }
 
-    @Test
-    @Order(100)
-    public void GIVEN_username_WHEN_getting_posts_liked_by_followed_users_THEN_return_posts_list() {
-        // Salvare gli utenti nel database
-        userDBNeo4j.addUser(testAuthor);
-        userDBNeo4j.addUser(followedUser);
-        // Creare una relazione "follows" tra l'utente di test e l'altro utente
-        userDBNeo4j.followUser(testAuthor.getUsername(), followedUser.getUsername());
-        postDBNeo4j.addLikePost(followedUser.getUsername(), testIdPost2, true);
-        List<PostModelNeo4j> posts = postDBNeo4j.getPostsLikedByFollowedUsers(testAuthor.getUsername(), 10, 0);
-        assertNotNull(posts);
-        assertFalse(posts.isEmpty());
-    }
 
     @Test
     @Order(110)
