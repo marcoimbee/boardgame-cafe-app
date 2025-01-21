@@ -116,8 +116,13 @@ class PostDBNeo4jTest {
     @Test
     @Order(110)
     public void GIVEN_username_WHEN_getting_posts_by_followed_users_THEN_return_posts_list() {
+        // Salvare gli utenti nel database
+        userDBNeo4j.addUser(testAuthor);
+        userDBNeo4j.addUser(followedUser);
+        // Creare una relazione "follows" tra l'utente di test e l'altro utente
+        userDBNeo4j.followUser(testAuthor.getUsername(), followedUser.getUsername());
 
-        List<PostModelNeo4j> posts = postDBNeo4j.getPostsByFollowedUsers(testUsername1, 10, 0);
+        List<PostModelNeo4j> posts = postDBNeo4j.getPostsByFollowedUsers(testAuthor.getUsername(), 10, 0);
         assertNotNull(posts);
         assertFalse(posts.isEmpty());
     }
