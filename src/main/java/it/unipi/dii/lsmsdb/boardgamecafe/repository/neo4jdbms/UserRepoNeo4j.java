@@ -57,9 +57,10 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             WITH notFriend, COUNT(p) as sameLikedPosts
             RETURN notFriend.username
             ORDER BY sameLikedPosts DESC
-            SKIP $skipCounter LIMIT $limit
+            SKIP $skipCounter LIMIT $limit;
             """)
     List<String> findUsersBySameLikedPosts(@Param("username")String username, @Param("limit") int limit, @Param("skipCounter") int skipCounter);
+
 
     @Query("""
             MATCH (follower:User {username: $username})-[r:FOLLOWS]->(followed:User)
