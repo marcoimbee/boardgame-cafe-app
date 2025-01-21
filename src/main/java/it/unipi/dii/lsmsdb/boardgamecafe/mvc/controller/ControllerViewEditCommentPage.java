@@ -4,7 +4,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
-//import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.CommentDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
 import javafx.fxml.FXML;
@@ -14,13 +13,12 @@ import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
 @Component
 public class ControllerViewEditCommentPage implements Initializable {
+
     @FXML
     public Button cancelButton;
     @FXML
@@ -29,14 +27,12 @@ public class ControllerViewEditCommentPage implements Initializable {
     public TextField bodyTextLabel;
 
     @Autowired
-    @Lazy
-    private StageManager stageManager;
-    @Autowired
     private ModelBean modelBean;
-//    @Autowired
-//    private CommentDBMongo commentDBMongo;
     @Autowired
     private PostDBMongo postDBMongo;
+    @Autowired
+    @Lazy
+    private StageManager stageManager;
 
     private static CommentModel selectedComment;
     private static PostModelMongo postReferredByComment;
@@ -45,10 +41,8 @@ public class ControllerViewEditCommentPage implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("[INFO] Loaded ControllerViewEditCommentPage");
         selectedComment = (CommentModel) modelBean.getBean(Constants.SELECTED_COMMENT);
         postReferredByComment = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
-
         this.bodyTextLabel.setText(selectedComment.getText());
     }
 
@@ -79,7 +73,6 @@ public class ControllerViewEditCommentPage implements Initializable {
             // Update mongoDB comment in comment collection
             CommentModel updatedComment = selectedComment;
             updatedComment.setText(updatedBody);
-//            commentDBMongo.updateComment(selectedComment.getId(), updatedComment);
             postDBMongo.updatePostComment(postReferredByComment, updatedComment);
 
             // Setting updated in model bean to retrieve them in post details page for UI update
@@ -88,8 +81,8 @@ public class ControllerViewEditCommentPage implements Initializable {
             System.out.println("[INFO] Successfully updated a comment.");
             stageManager.closeStage();
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again  in a while.");
-            System.err.println("[ERROR] onClickSubmitButton@ControllerViewEditPostPage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again  in a while.");
+            System.err.println("[ERROR] onClickSubmitButton()@ControllerViewEditPostPage.java raised an exception: " + ex.getMessage());
         }
     }
 }

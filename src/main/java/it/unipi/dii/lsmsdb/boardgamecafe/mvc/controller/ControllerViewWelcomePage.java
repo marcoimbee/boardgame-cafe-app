@@ -30,22 +30,20 @@ public class ControllerViewWelcomePage {
         this.stageManager = stageManager;
     }
 
-
-    public void onClickLogIn(ActionEvent event) {
+    public void onClickLogIn() {
         stageManager.switchScene(FxmlView.LOGIN);
     }
 
-    public void onClickSignUpWPage(ActionEvent event) {
+    public void onClickSignUpWPage() {
         stageManager.showWindow(FxmlView.SIGNUP);
     }
 
-    public void onClickGuestUser(ActionEvent actionEvent) {
+    public void onClickGuestUser() {
         stageManager.showWindow(FxmlView.GUESTPOSTS);
         stageManager.closeStageButton(this.guestUserButton);
     }
 
-    public void onClickQuitAppButton(ActionEvent actionEvent)
-    {
+    public void onClickQuitAppButton() {
         stageManager.closeStageButton(this.quitAppButton);
         Platform.exit();
         System.exit(0);

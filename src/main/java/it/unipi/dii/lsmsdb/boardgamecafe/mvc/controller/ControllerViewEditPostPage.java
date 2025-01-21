@@ -16,14 +16,13 @@ import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-
 @Component
 public class ControllerViewEditPostPage implements Initializable {
+
     @FXML
     public Button cancelButton;
     @FXML
@@ -39,20 +38,19 @@ public class ControllerViewEditPostPage implements Initializable {
     @FXML
     public TextField boardgameTextLabel;
 
-    private static PostModelMongo selectedPost;
-
-    @Autowired
-    private ModelBean modelBean;
-
     @Autowired
     @Lazy
     private StageManager stageManager;
+    @Autowired
+    private ModelBean modelBean;
     @Autowired
     private PostDBNeo4j postDBNeo4j;
     @Autowired
     private PostDBMongo postDBMongo;
     @Autowired
     private BoardgameDBMongo boardgameDBMongo;
+
+    private static PostModelMongo selectedPost;
 
     public ControllerViewEditPostPage() {}
 
@@ -65,7 +63,7 @@ public class ControllerViewEditPostPage implements Initializable {
         this.titleTextLabel.setText(selectedPost.getTitle());
         this.bodyTextLabel.setText(selectedPost.getText());
 
-        // set boardgame names bean if not already set - needed to check the updated boardgame tag existence
+        // Set boardgame names bean if not already set - needed to check the updated boardgame tag existence
         if (modelBean.getBean(Constants.BOARDGAME_LIST) == null ) {
             List<String> boardgameNames = boardgameDBMongo.getBoardgameTags();
             modelBean.putBean(Constants.BOARDGAME_LIST, boardgameNames);
@@ -98,7 +96,8 @@ public class ControllerViewEditPostPage implements Initializable {
         String updatedTitle = this.titleTextLabel.getText();
         String updatedBody = this.bodyTextLabel.getText();
 
-        if (noChangesWereMade(updatedTitle, updatedBody, updatedBoardgame)) {      // Nothing was updated, ok to close and no further action
+        // Nothing was updated, ok to close and no further action
+        if (noChangesWereMade(updatedTitle, updatedBody, updatedBoardgame)) {
             stageManager.closeStage();
             return;
         }
@@ -120,8 +119,8 @@ public class ControllerViewEditPostPage implements Initializable {
             System.out.println("[INFO] Successfully updated a post.");
             stageManager.closeStage();
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "Something went wrong. Try again  in a while.");
-            System.err.println("[ERROR] onClickSubmitButton@ControllerViewEditPostPage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again  in a while.");
+            System.err.println("[ERROR] onClickSubmitButton()@ControllerViewEditPostPage.java raised an exception: " + ex.getMessage());
         }
     }
 }

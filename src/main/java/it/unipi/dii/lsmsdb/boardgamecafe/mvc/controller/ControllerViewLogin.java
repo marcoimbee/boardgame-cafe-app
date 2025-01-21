@@ -9,20 +9,15 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.view.StageManager;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.UserDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.services.UserService;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.Constants;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +27,6 @@ import java.util.ResourceBundle;
 @Component
 public class ControllerViewLogin implements Initializable {
 
-    @Autowired
-    private ModelBean modelBean;
-    @Autowired
-    private UserDBMongo userMongoOp;
-    @Autowired
-    private UserService serviceUser;
-
     @FXML
     private TextField textFieldUsername;
     @FXML
@@ -47,76 +35,77 @@ public class ControllerViewLogin implements Initializable {
     private Button cancelButton;
     @FXML
     private Button loginButton;
+
+    @Autowired
+    private ModelBean modelBean;
+    @Autowired
+    private UserDBMongo userMongoOp;
+    @Autowired
+    private UserService serviceUser;
+
     private final StageManager stageManager;
 
-    private final static Logger logger = LoggerFactory.getLogger(ControllerViewLogin.class);
-
-    @Autowired @Lazy
+    @Autowired
+    @Lazy
     public ControllerViewLogin(StageManager stageManager) {
         this.stageManager = stageManager;
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(URL location, ResourceBundle resources) {}
 
-    }
-    public void onClickLogin()
-    {
+    public void onClickLogin() {
         List<UserModelMongo> usersPath = new ArrayList<>();
         modelBean.putBean(Constants.USERS_PATH, usersPath);
         String password = textFieldPassword.getText();
         String username = textFieldUsername.getText().trim();
         if (password.isEmpty() && username.isEmpty()) {
-            stageManager.showInfoMessage("ERROR", "You have to insert your " +
-                    "username and your password");
+            stageManager.showInfoMessage("INFO", "Please insert your username and password");
             return;
         } else if (username.isEmpty()) {
-            stageManager.showInfoMessage("ERROR", "You have to insert your " +
-                    "username");
+            stageManager.showInfoMessage("INFO", "Please insert your username");
             return;
         } else if (password.isEmpty()) {
-            stageManager.showInfoMessage("ERROR", "You have to insert your " +
-                    "password");
+            stageManager.showInfoMessage("INFO", "Please insert your password");
             return;
         }
+
         try {
             Optional<GenericUserModelMongo> genericUser = userMongoOp.findByUsername(username, true);
             if (genericUser.isEmpty()) {
-                stageManager.showInfoMessage("ERROR", "Wrong username or password");
+                stageManager.showInfoMessage("INFO", "Wrong username or password");
                 this.clearFields();
                 return;
             }
             String salt = genericUser.get().getSalt();
             String hashedPassword = serviceUser.getHashedPassword(password, salt);
             if (!genericUser.get().getPasswordHashed().equals(hashedPassword)) {
-                stageManager.showInfoMessage("ERROR", "Wrong username or password");
+                stageManager.showInfoMessage("INFO", "Wrong username or password");
                 this.clearFields();
                 return;
             }
 
-            // Controllo se l'utente è bannato
+            // Checking if the user is banned
             if (genericUser.get() instanceof UserModelMongo user && user.isBanned()) {
-                stageManager.showInfoMessage("ERROR", "You cannot login because you are banned.");
+                stageManager.showInfoMessage("INFO", "You have been banned from this application. You will be able to login again if unbanned.");
                 this.clearFields();
                 return;
             }
-
-            System.out.println("\n_class value: " + genericUser.get().get_class());
 
             if (genericUser.get().get_class().equals("admin")) {
                 AdminModelMongo admin = (AdminModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, admin);
                 stageManager.switchScene(FxmlView.STATISTICS);
-                System.out.println("[DEBUG] USER IS ADMIN");
+                System.out.println("[INFO] LOGGED IN AS ADMIN");
             } else {
                 UserModelMongo user = (UserModelMongo) genericUser.get();
                 modelBean.putBean(Constants.CURRENT_USER, user);
                 stageManager.switchScene(FxmlView.USERPROFILEPAGE);
+                System.out.println("[INFO] LOGGED IN AS REGULAR USER");
             }
-
         } catch (Exception e) {
-            logger.error("Exception occurred: ");
-            e.printStackTrace();
+            System.err.println("[ERROR] onClickLogin()@ControllerViewLogin.java raised an exception: " + e.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
         }
     }
 
@@ -125,8 +114,7 @@ public class ControllerViewLogin implements Initializable {
         this.textFieldPassword.clear();
     }
 
-    public void onClickCancelButton(ActionEvent actionEvent)
-    {
+    public void onClickCancelButton() {
         stageManager.closeStageButton(this.cancelButton);
         stageManager.showWindow(FxmlView.WELCOMEPAGE);
     }
@@ -134,6 +122,4 @@ public class ControllerViewLogin implements Initializable {
     public void onClickEnter(KeyEvent keyEvent) {
         if(keyEvent.getCode() == KeyCode.ENTER) this.onClickLogin();
     }
-
-
 }

@@ -39,9 +39,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
-
 @Component
 public class ControllerViewRegUserPostsPage implements Initializable {
+
     @FXML
     private ListView searchResultsList;
     @FXML
@@ -94,20 +94,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @Autowired
     private ModelBean modelBean;
 
-    private final StageManager stageManager;
-
     PostListener postListener;
 
     private boolean shiftDownSingleObjectGridPane;
-
-    // Choice box variables
     private ObservableList<String> whatPostsToShowList;
     private final List<String> availableUserQueries = Arrays.asList(
             "Posts by followed users",
             "Posts liked by followed users",
-//            "Posts commented by followed users",
             "All posts"
     );
+
     private final List<String> availableAdminQueries = Arrays.asList(
             "All posts",
             "ADMIN: top commented tagged posts"
@@ -125,25 +121,23 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     public enum PostsToFetch {
         POSTS_BY_FOLLOWED_USERS,
         POSTS_LIKED_BY_FOLLOWED_USERS,
-//        POSTS_COMMENTED_BY_FOLLOWED_USERS,
         SEARCH_RESULTS,
         ALL_POSTS,
         ADMIN_TOP_COMMENTED_POST
     };
     public static PostsToFetch currentlyShowing;       // Global indicator of what type of post is being shown on the page
 
-    // Navigation functionalities variables
     private static int currentPage;
     private static List<Integer> visitedPages;
     private static boolean visualizedLastPost;      // Keeps track of whether the user has reached the las reachable page or not;
 
-    // Search functionalities variables
     private List<String> boardgameTags;
     private static String selectedSearchTag;
-
     private static GenericUserModelMongo currentUser;
 
     private Consumer<String> deletedPostCallback;       // Used when a post author decides to delete a post via the delete button without opening its details page
+
+    private final StageManager stageManager;
 
     @Autowired
     @Lazy
@@ -246,7 +240,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
         // Retrieve the post that had been opened
         PostModelMongo previouslyOpenedPost = (PostModelMongo) modelBean.getBean(Constants.SELECTED_POST);
-        //modelBean.putBean(Constants.SELECTED_POST, null);
 
         // Update UI after potentially having deleted a post
         String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
@@ -291,7 +284,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             // Setting up regular user queries correspondence
             if (choiceBoxValue.equals(whatPostsToShowList.get(0)))      currentlyShowing = PostsToFetch.POSTS_BY_FOLLOWED_USERS;
             else if (choiceBoxValue.equals(whatPostsToShowList.get(1))) currentlyShowing = PostsToFetch.POSTS_LIKED_BY_FOLLOWED_USERS;
-//            else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) currentlyShowing = PostsToFetch.POSTS_COMMENTED_BY_FOLLOWED_USERS;
             else if (choiceBoxValue.equals(whatPostsToShowList.get(2))) currentlyShowing = PostsToFetch.ALL_POSTS;
         } else {
             // Setting up admin queries correspondence
@@ -417,7 +409,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             this.newPostButton.setDisable(false);
         }
 
-        System.out.println("[INFO] New data has been fetched");
         List<PostModelMongo> postListToReturn = new ArrayList<>();
 
         if (currentlyShowing != PostsToFetch.ADMIN_TOP_COMMENTED_POST) {
@@ -430,8 +421,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     postListToReturn = postService.findPostsByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case POSTS_LIKED_BY_FOLLOWED_USERS ->
                     postListToReturn = postService.suggestPostLikedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
-//            case POSTS_COMMENTED_BY_FOLLOWED_USERS ->
-//                    postListToReturn = postService.suggestPostCommentedByFollowedUsers(currentUser.getUsername(), LIMIT, skipCounter);
             case SEARCH_RESULTS ->
                     postListToReturn = postService.findPostsByTag(tag, LIMIT, skipCounter);
             case ALL_POSTS ->
@@ -479,7 +468,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     void fillGridPane() {
         searchResultsList.setVisible(false);
-        columnGridPane = 0;       // Needed to correctly position a single element in the gridpane
+        columnGridPane = 0;       // Needed to correctly position a single element in the grid pane
         if (posts.size() == 1) {
             if (shiftDownSingleObjectGridPane) {
                 rowGridPane = 2;
@@ -504,8 +493,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                     visualizedLastPost = true;
                 }
 
-                //System.out.println("[DEBUG] [post.size(), startPost, endPost]: [" + posts.size() + ", " + startPost + ", " + endPost + "]");
-
                 for (int i = startPost; i <= endPost; i++) {
                     PostModelMongo post = posts.get(i);
                     AnchorPane postNode = createPostViewNode(post);
@@ -513,8 +500,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 }
             }
         } catch (Exception ex) {
-            stageManager.showInfoMessage("INFO", "An error occurred while retrieving posts. Please try again in a while.");
-            System.err.println("[ERROR] fillGridPane@ControllerViewRegUserPostsPage.java raised an exception: " + ex.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] fillGridPane()@ControllerViewRegUserPostsPage.java raised an exception: " + ex.getMessage());
         }
     }
 
@@ -524,7 +511,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             rowGridPane++;
         }
 
-        postGridPane.add(postNode, columnGridPane++, rowGridPane); //(child,column,row)
+        postGridPane.add(postNode, columnGridPane++, rowGridPane);
 
         postGridPane.setMinWidth(Region.USE_COMPUTED_SIZE);
         postGridPane.setPrefWidth(500);
@@ -574,7 +561,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     }
 
     public void onClickNewPostButton() {
-        System.out.println("[INFO] Starting new post creation procedure");
         scrollSet.setVvalue(0);
         try {
             this.newPostButton.setDisable(true);
@@ -587,8 +573,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             Button cancelPostButton = (Button) loadViewItem.lookup("#cancelButton");
 
             tagBoardgameTextArea.setPromptText("What boardgame will the post be about? (Optional)");
-            titleTextArea.setPromptText("Write The Post Title Here...");
-            postTextArea.setPromptText("Write Your Post Here...");
+            titleTextArea.setPromptText("Write the post title here...");
+            postTextArea.setPromptText("write your post here...");
 
             // AddButton behavior
             submitPostButton.setOnAction(e -> {
@@ -637,8 +623,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             GridPane.setMargin(addPostBox, new Insets(15, 5, 15, 190));
 
         } catch (Exception e) {
-            stageManager.showInfoMessage("INFO", "An error occurred while creating the post. Try again in a while.");
-            System.err.println("[ERROR] onClickNewPostButton@ControllerViewRegUserPostsPage.java raised an exception: " + e.getMessage());
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
+            System.err.println("[ERROR] onClickNewPostButton()@ControllerViewRegUserPostsPage.java raised an exception: " + e.getMessage());
         }
     }
 
@@ -654,16 +640,16 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     private void addNewPost(String tag, String title, String body) {
         if (body.isEmpty()) {
-            stageManager.showInfoMessage("Error", "Post Cannot Be Empty.");
+            stageManager.showInfoMessage("INFO", "The post cannot be empty.");
             return;
         }
         if (title.isEmpty()){
-            stageManager.showInfoMessage("Error", "Title Cannot Be Empty.");
+            stageManager.showInfoMessage("INFO", "The post title cannot be empty.");
             return;
         }
 
         if (!tag.isEmpty() && !boardgameTags.contains(tag)) {     // Checking boardgame validity
-            stageManager.showInfoMessage("Error", "'" + tag + "' is not a valid boardgame name.");
+            stageManager.showInfoMessage("INFO", "'" + tag + "' is not a valid boardgame name.");
             return;
         }
 
@@ -678,12 +664,11 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         PostModelMongo savedPost = postService.insertPost(newPost);     // MongoDB + Neo4J insertion
 
         if (savedPost != null) {
-            System.out.println("[INFO] New post added");
             handleSuccessfulPostAddition(savedPost);
             this.newPostButton.setDisable(false);
         } else {
             System.out.println("[INFO] An error occurred while adding a new post");
-            stageManager.showInfoMessage("INFO", "Failed to add post. Please try again in a while.");
+            stageManager.showInfoMessage("INFO", "Something went wrong. Please try again in a while.");
             fillGridPane();             // Restoring GridPane if anything went wrong
         }
     }
@@ -695,7 +680,7 @@ public class ControllerViewRegUserPostsPage implements Initializable {
             fillGridPane();
             prevNextButtonsCheck(posts.size() <= LIMIT ? posts.size() : LIMIT);
         } else {
-            stageManager.showInfoMessage("Success", "Your post has been added successfully! You're being redirected to the 'All posts' page.");
+            stageManager.showInfoMessage("INFO", "Your post has been added successfully! You're being redirected to the 'All posts' page.");
             currentlyShowing = PostsToFetch.ALL_POSTS;          // get back to ALL_POSTS page, show the new post first
             whatPostsToShowChoiceBox.setValue(whatPostsToShowList.get(whatPostsToShowList.size() - 1));       // Setting string inside choice box
             onSelectChoiceBoxOption();      // What needs to be done is the same as what's done here
@@ -717,10 +702,10 @@ public class ControllerViewRegUserPostsPage implements Initializable {
         } else {
             searchResultsList.setVisible(true);
         }
+
         ObservableList<String> tagsContainingSearchString = FXCollections.observableArrayList(
                 ((List<String>)modelBean.getBean(Constants.BOARDGAME_LIST)).stream()
                 .filter(tag -> tag.toLowerCase().contains(searchString.toLowerCase())).toList());
-        //System.out.println("[DEBUG] filtered tag list size: " + tagsContainingSearchString.size());
 
         searchResultsList.setItems(tagsContainingSearchString);
         int LIST_ROW_HEIGHT = 24;
