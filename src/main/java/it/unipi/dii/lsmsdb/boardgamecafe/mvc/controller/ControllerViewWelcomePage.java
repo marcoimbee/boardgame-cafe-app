@@ -39,7 +39,7 @@ public class ControllerViewWelcomePage {
     }
 
     public void onClickGuestUser() {
-        stageManager.showWindow(FxmlView.GUESTPOSTS);
+        stageManager.showWindow(FxmlView.GUESTBOARDGAMES);
         stageManager.closeStageButton(this.guestUserButton);
     }
 
