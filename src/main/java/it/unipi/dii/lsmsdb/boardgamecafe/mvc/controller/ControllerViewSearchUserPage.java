@@ -114,7 +114,8 @@ public class ControllerViewSearchUserPage implements Initializable {
     private final List<String> availableAdminQueries = Arrays.asList(
             "All users",
             "Influencers in the boardgame community",   // suggestInfluencerUsers@UserService
-            "ADMIN: most active users"
+            "ADMIN: most active users",
+            "ADMIN: all banned users"
     );
 
     private List<UserModelMongo> users = new ArrayList<>();
@@ -132,7 +133,8 @@ public class ControllerViewSearchUserPage implements Initializable {
         USERS_WITH_COMMON_LIKED_POSTS,
         INFLUENCER_USERS,
         SEARCH_RESULTS,
-        ADMIN_MOST_ACTIVE_USERS;
+        ADMIN_MOST_ACTIVE_USERS,
+        ADMIN_ALL_BANNED_USERS;
     }
     private static UsersToFetch currentlyShowing;       // Global indicator of what type of user is being shown on the page
     private static int currentPage;
@@ -277,6 +279,7 @@ public class ControllerViewSearchUserPage implements Initializable {
             if (choiceBoxValue.equals(whatUsersToShowList.get(0)))      currentlyShowing = UsersToFetch.ALL_USERS;
             else if (choiceBoxValue.equals(whatUsersToShowList.get(1))) currentlyShowing = UsersToFetch.INFLUENCER_USERS;
             else if (choiceBoxValue.equals(whatUsersToShowList.get(2))) currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
+            else if (choiceBoxValue.equals(whatUsersToShowList.get(3))) currentlyShowing = UsersToFetch.ADMIN_ALL_BANNED_USERS;
         }
     }
 
@@ -477,6 +480,9 @@ public class ControllerViewSearchUserPage implements Initializable {
                 Date endDate = adminQueryEndDate == null ? (new Date()) : adminQueryEndDate;                // Get specified end date or today
                 int limitResults = adminQueryResultLimit == null ? 10 : adminQueryResultLimit;          // Get specified limit or top 10
                 return userDBMongo.findActiveUsersByReviews(startDate, endDate, limitResults);
+            case ADMIN_ALL_BANNED_USERS:
+                this.refreshButton.setDisable(false);
+                return userDBMongo.getBannedUsers(skipCounter, LIMIT);
         }
 
         return new ArrayList<>();
@@ -666,7 +672,11 @@ public class ControllerViewSearchUserPage implements Initializable {
     }
 
     public void onClickRefreshButton(){
-        currentlyShowing = UsersToFetch.ALL_USERS;
+        if (currentlyShowing != UsersToFetch.ADMIN_ALL_BANNED_USERS)
+        {
+            currentlyShowing = UsersToFetch.ALL_USERS;
+            whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(0));
+        }
         onSelectChoiceBoxOption();  // The same actions that are performed when clicking a choice box option have to be performed
     }
 
