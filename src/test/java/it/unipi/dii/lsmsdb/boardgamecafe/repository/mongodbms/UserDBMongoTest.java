@@ -111,7 +111,7 @@ class UserDBMongoTest {
     public void GIVEN_banned_users_WHEN_search_banned_users_THEN_banned_users_returned() {
         sampleUser.setBanned(true);
         userDBMongo.updateUser(sampleUser.getId(), sampleUser, sampleUser.get_class());
-        assertNotNull(userDBMongo.getBannedUsers());
+        assertNotNull(userDBMongo.getBannedUsers(0, 10));
     }
 
     @Test
