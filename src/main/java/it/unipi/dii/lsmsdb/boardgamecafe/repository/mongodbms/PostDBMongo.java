@@ -141,6 +141,7 @@ public class PostDBMongo {
         try {
             Query query = new Query();
             query.addCriteria(Criteria.where("tag").is(bgName));
+            query.with(Sort.by(Sort.Direction.DESC, "timestamp")); // Ordina per "timestamp" in ordine decrescente
             query.skip(skip);
             query.limit(limit);
             posts = mongoOperations.find(query, PostModelMongo.class);
