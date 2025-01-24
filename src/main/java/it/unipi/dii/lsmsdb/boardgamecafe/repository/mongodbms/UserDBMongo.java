@@ -304,10 +304,10 @@ public class UserDBMongo {
         }
     }
 
-    public List<GenericUserModelMongo> getBannedUsers() {
+    public List<GenericUserModelMongo> getBannedUsers(int skip, int limit) {
         List<GenericUserModelMongo> bannedUsers = null;
         try {
-            bannedUsers = userRepoMongo.getBannedUsers();
+            bannedUsers = userRepoMongo.getBannedUsers(skip, limit);
         } catch (Exception e) {
             System.err.println("[ERROR] getBannedUsers()@UserDBMongo.java raised an exception: " + e.getMessage());
         }
