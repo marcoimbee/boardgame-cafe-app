@@ -23,6 +23,10 @@ public interface UserRepoMongo extends MongoRepository<GenericUserModelMongo, St
     })
     List<String> findAllUsernames();
 
-    @Query("{'banned': true}")
-    List<GenericUserModelMongo> getBannedUsers();
+    @Aggregation(pipeline = {
+            "{ $match: { 'banned': true } }",
+            "{ $skip: ?0 }",
+            "{ $limit: ?1 }"
+    })
+    List<GenericUserModelMongo> getBannedUsers(int skip, int limit);
 }
