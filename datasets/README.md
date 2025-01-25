@@ -5,7 +5,7 @@ of this github repository for using properly the application.
 
 N.B. 
 
-# Mongo DB
+## Mongo DB
 Once you create the Database and the various collections within it, in the local MongoDB Compass environment, to populate
 every single collection just load through the appropriate import procedure the JSON file related to that specific collection.
 Repeat for all collections.
