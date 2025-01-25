@@ -159,13 +159,4 @@ public class PostDBNeo4j {
         return posts;
     }
 
-    public List<PostModelNeo4j> getPostsByFollowedUsers(String username, int limitResults, int skipCounter) {
-        List<PostModelNeo4j> posts = new ArrayList<>();
-        try {
-            posts = postRepoNeo4j.findPostsCreatedByFollowedUsers(username, limitResults, skipCounter);
-        } catch (Exception ex) {
-            System.err.println("[ERROR] getPostsByFollowedUsers()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
-        }
-        return posts;
-    }
 }

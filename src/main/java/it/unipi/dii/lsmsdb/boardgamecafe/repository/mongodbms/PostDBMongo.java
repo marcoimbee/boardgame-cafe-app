@@ -316,4 +316,22 @@ public class PostDBMongo {
             return false;
         }
     }
+
+    public List<PostModelMongo> findPostsCreatedByFollowedUsers(List<String> followedUsernames, int limit, int skip) {
+        try {
+            Query query = new Query();
+
+            query.addCriteria(Criteria.where("username").in(followedUsernames));
+            query.with(Sort.by(Sort.Order.desc("timestamp")));
+            query.skip(skip).limit(limit);
+
+            return mongoOperations.find(query, PostModelMongo.class);
+        }
+        catch (Exception e)
+        {
+            System.err.println("[ERROR] findPostsCreatedByFollowedUsers()@PostDBMongo.java raised an exception: " + e.getMessage());
+            return null;
+        }
+    }
+
 }
