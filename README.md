@@ -38,6 +38,10 @@ To run the application correctly, the following software needs to be set up:
 - [MongoDB](https://www.mongodb.com/try/download/community)
 - [Neo4j](https://neo4j.com/download/)
 
+When you have configured all the environments and software above
+move on to populating the DBMSs by reading the guide written in the [README](/datasets/README.md).md
+file located in the *"datastes"* folder.
+
 ## Package Structure
 
  - More details will come soon.
