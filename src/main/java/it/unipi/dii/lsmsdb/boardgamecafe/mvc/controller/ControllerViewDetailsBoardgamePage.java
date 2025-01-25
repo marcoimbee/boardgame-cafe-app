@@ -782,8 +782,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
                 updatedBoardgame.setImage(image.isEmpty()
                                                   ? boardgame.getImage() : image);
-                updatedBoardgame.setBoardgameName(boardgameName.isEmpty()
-                                                  ? boardgame.getBoardgameName() : boardgameName);
+                if(boardgameName.isEmpty()){
+                    updatedBoardgame.setBoardgameName(boardgame.getBoardgameName());
+                } else {
+                    updatedBoardgame.setBoardgameName(boardgameName);
+                    modelBean.putBean(Constants.OLD_BOARDGAME_NAME, oldBoardgameName);
+                }
                 updatedBoardgame.setDescription(description.isEmpty()
                                                   ? boardgame.getDescription() : description);
                 updatedBoardgame.setMinPlayers(minPlayer != null
