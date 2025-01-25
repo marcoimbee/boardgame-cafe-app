@@ -79,4 +79,12 @@ public interface UserRepoNeo4j extends Neo4jRepository<UserModelNeo4j, String> {
             DELETE f
             """)
     void removeFollowRelationship(@Param("username") String unfollowingUser, @Param("unfollowed") String unfollowedUser);
+
+    @Query("""
+            MATCH (u:User {username: $username})-[:FOLLOWS]->(followed:User)-[:WRITES_POST]->(p:Post)
+            RETURN DISTINCT followed.username SKIP $skip LIMIT $limit
+            """)
+    List<String> findFollowedUsernamesWhoCreatedAtLeastOnePost(@Param("username") String username,
+                                       @Param("limit") int limitResults,
+                                       @Param("skip") int skipCounter);
 }
