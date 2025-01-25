@@ -9,9 +9,9 @@ every single collection just load through the appropriate import procedure the J
 Repeat for all collections.
 
 ## Neo4j DB
-For neo4j you need to pay attention, first of all, that the DB is properly configured and that the jar file *“apoc-x.y.z-core.jar”*
-(x.y.z will correspond to the version you are using of neo4j) is inside the directory *“var/lib/neo4j/plugins”*.
-The the set of datasets files (.csv) to be loaded must be placed in the directory *“var/lib/neo4j/import”.*
+For neo4j you need to pay attention that the DB is properly configured and that the jar file *“apoc-x.y.z-core.jar”*
+(x.y.z will correspond to the version you are using of neo4j) is located inside the directory *“var/lib/neo4j/plugins”*.
+The set of datasets files (.csv) to be loaded must be placed in the directory *“var/lib/neo4j/import”.*
 If everything has been properly organized then you can run, respecting the following order,
 these commands on *“Neo4j Browser”* to populate the database.
 
