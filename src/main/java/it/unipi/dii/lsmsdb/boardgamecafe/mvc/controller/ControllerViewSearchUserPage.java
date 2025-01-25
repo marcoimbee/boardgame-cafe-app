@@ -437,19 +437,6 @@ public class ControllerViewSearchUserPage implements Initializable {
         scrollSet.setVvalue(0);
     }
 
-//    void prevNextButtonsCheck(int retrievedUsersSize) {
-//        previousButton.setDisable(currentPage == 0);
-//
-//        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
-//
-//        if (onFurthestPage && retrievedUsersSize == 0 && !visualizedLastUser) {
-//            nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
-//        } else {
-//            boolean moreUsersAvailable = (retrievedUsersSize == SKIP);          // If we retrieved SKIP users, likely there will be more available in the DB
-//            nextButton.setDisable(onFurthestPage && !moreUsersAvailable);       // Disable if on last page and if retrieved less than SKIP users
-//        }
-//    }
-
     void prevNextButtonsCheck(int retrievedUsersSize) {
         // Disabilita il pulsante "Previous" se siamo alla prima pagina
         previousButton.setDisable(currentPage == 0);
