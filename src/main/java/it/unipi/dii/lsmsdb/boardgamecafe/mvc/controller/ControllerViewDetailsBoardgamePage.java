@@ -361,8 +361,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
 
         try {
+            String boardgameName = this.boardgame.getBoardgameName();
             if (serviceBoardgame.deleteBoardgame(this.boardgame)){
-                modelBean.putBean(Constants.DELETED_BOARDGAME, this.boardgame.getBoardgameName());
+                modelBean.putBean(Constants.DELETED_BOARDGAME, boardgameName);
                 stageManager.closeStage();
                 stageManager.showInfoMessage("INFO", "The boardgame was successfully deleted.");
             } else {
