@@ -437,16 +437,37 @@ public class ControllerViewSearchUserPage implements Initializable {
         scrollSet.setVvalue(0);
     }
 
+//    void prevNextButtonsCheck(int retrievedUsersSize) {
+//        previousButton.setDisable(currentPage == 0);
+//
+//        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
+//
+//        if (onFurthestPage && retrievedUsersSize == 0 && !visualizedLastUser) {
+//            nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
+//        } else {
+//            boolean moreUsersAvailable = (retrievedUsersSize == SKIP);          // If we retrieved SKIP users, likely there will be more available in the DB
+//            nextButton.setDisable(onFurthestPage && !moreUsersAvailable);       // Disable if on last page and if retrieved less than SKIP users
+//        }
+//    }
+
     void prevNextButtonsCheck(int retrievedUsersSize) {
+        // Disabilita il pulsante "Previous" se siamo alla prima pagina
         previousButton.setDisable(currentPage == 0);
 
-        boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;     // User is in the furthest page he visited
-
-        if (onFurthestPage && retrievedUsersSize == 0 && !visualizedLastUser) {
-            nextButton.setDisable(false);   // Keep enabled if we are on the furthest visited page up to now, we re-visited it, and we didn't reach the end
+        if (users.isEmpty()) {
+            // Se non ci sono utenti nella lista, disabilita il pulsante "Next"
+            nextButton.setDisable(true);
         } else {
-            boolean moreUsersAvailable = (retrievedUsersSize == SKIP);          // If we retrieved SKIP users, likely there will be more available in the DB
-            nextButton.setDisable(onFurthestPage && !moreUsersAvailable);       // Disable if on last page and if retrieved less than SKIP users
+            boolean onFurthestPage = visitedPages.get(visitedPages.size() - 1) == currentPage;
+
+            if (onFurthestPage) {
+                // Disabilita "Next" se siamo alla fine o non ci sono più utenti
+                boolean noMoreUsersAvailable = (retrievedUsersSize < SKIP) || visualizedLastUser;
+                nextButton.setDisable(noMoreUsersAvailable);
+            } else {
+                // Abilita il pulsante se non siamo sull'ultima pagina
+                nextButton.setDisable(false);
+            }
         }
     }
 
@@ -526,10 +547,12 @@ public class ControllerViewSearchUserPage implements Initializable {
             } else {
                 // Creating an item for each user: displaying users in [skipCounter, skipCounter + LIMIT - 1]
                 int startUser = skipCounter;
-                int endUser = skipCounter + LIMIT - 1;
-                if (endUser > users.size()) {
+                int endUser = skipCounter + LIMIT -1;
+                if (endUser >= users.size()) {
                     endUser = users.size() - 1;
                     visualizedLastUser = true;
+                } else {
+                    visualizedLastUser = false;
                 }
 
                 for (int i = startUser; i <= endUser; i++) {
