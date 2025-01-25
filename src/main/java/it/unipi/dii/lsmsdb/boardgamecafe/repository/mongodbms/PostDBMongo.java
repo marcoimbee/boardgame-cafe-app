@@ -299,4 +299,21 @@ public class PostDBMongo {
             return false;
         }
     }
+
+    public boolean updatePostsAfterBoardgameUpdate(String oldBoardgameName, String updatedBoardgameName) {
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("tag").is(oldBoardgameName));
+
+            Update update = new Update();
+            update.set("tag", updatedBoardgameName);
+
+            mongoOperations.updateMulti(query, update, "posts");
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] updatePostsAfterBoardgameUpdate()@PostDBMongo.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
 }

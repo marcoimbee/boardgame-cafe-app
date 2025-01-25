@@ -93,12 +93,9 @@ public class BoardgameService {
     }
 
     private boolean deleteBoardgameReviews(BoardgameModelMongo boardgame) {
-        List<ReviewModelMongo> boardgameReviewsList = reviewMongoOp.findReviewByUsername(boardgame.getBoardgameName());
-        if (!boardgameReviewsList.isEmpty()) {
-            // Delete reviews in their own collection
-            if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
-                return false;
-            }
+        // Delete reviews in their own collection
+        if (!reviewMongoOp.deleteReviewByBoardgameName(boardgame.getBoardgameName())) {
+            return false;
         }
         return true;
     }
@@ -144,6 +141,10 @@ public class BoardgameService {
                 if (!reviewMongoOp.updateReviewsAfterBoardgameUpdate(oldBoardgameName, boardgameName)) {
                     throw new RuntimeException("Error while updating the reviews of the updated boardgame in MongoDB.");
                 }
+                if (!postMongoOp.updatePostsAfterBoardgameUpdate(oldBoardgameName, boardgameName)) {
+                    throw new RuntimeException("Error while updating the posts of the updated boardgame in MongoDB.");
+                }
+
             }
 
             // Neo4j management

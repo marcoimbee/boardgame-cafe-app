@@ -361,8 +361,9 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
         }
 
         try {
+            String boardgameName = this.boardgame.getBoardgameName();
             if (serviceBoardgame.deleteBoardgame(this.boardgame)){
-                modelBean.putBean(Constants.DELETED_BOARDGAME, this.boardgame.getBoardgameName());
+                modelBean.putBean(Constants.DELETED_BOARDGAME, boardgameName);
                 stageManager.closeStage();
                 stageManager.showInfoMessage("INFO", "The boardgame was successfully deleted.");
             } else {
@@ -781,8 +782,12 @@ public class ControllerViewDetailsBoardgamePage implements Initializable {
 
                 updatedBoardgame.setImage(image.isEmpty()
                                                   ? boardgame.getImage() : image);
-                updatedBoardgame.setBoardgameName(boardgameName.isEmpty()
-                                                  ? boardgame.getBoardgameName() : boardgameName);
+                if(boardgameName.isEmpty()){
+                    updatedBoardgame.setBoardgameName(boardgame.getBoardgameName());
+                } else {
+                    updatedBoardgame.setBoardgameName(boardgameName);
+                    modelBean.putBean(Constants.OLD_BOARDGAME_NAME, oldBoardgameName);
+                }
                 updatedBoardgame.setDescription(description.isEmpty()
                                                   ? boardgame.getDescription() : description);
                 updatedBoardgame.setMinPlayers(minPlayer != null

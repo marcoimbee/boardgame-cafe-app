@@ -6,6 +6,7 @@ public class Constants {
     public static final String SELECTED_BOARDGAME = "selectedBoardgame";
     public static final String BOARDGAME_LIST = "boardgameList";
     public static final String UPDATED_BOARDGAME = "updatedBoardgame";
+    public static final String OLD_BOARDGAME_NAME = "oldBoardgameName";
 
     // ------ USER MANAGEMENT ------
     public static final String CURRENT_USER = "currentUser";

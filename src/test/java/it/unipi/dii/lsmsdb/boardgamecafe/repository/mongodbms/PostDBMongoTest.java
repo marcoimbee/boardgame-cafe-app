@@ -67,24 +67,6 @@ class PostDBMongoTest {
     }
 
     @Test
-    @Order(30)
-    public void GIVEN_posts_with_specific_tag_WHEN_deleting_posts_by_tag_THEN_posts_are_removed() {
-        postDBMongo.deleteByTag(testBoardgameName2);
-
-        var deletedPost = postDBMongo.findById(post2.getId());
-        assertTrue(deletedPost.isEmpty());
-    }
-
-    @Test
-    @Order(40)
-    public void GIVEN_posts_by_specific_user_WHEN_deleting_posts_by_username_THEN_posts_are_removed() {
-        postDBMongo.deleteByUsername(testUsername);
-
-        var deletedPost = postDBMongo.findById(post3.getId());
-        assertTrue(deletedPost.isEmpty());
-    }
-
-    @Test
     @Order(50)
     public void GIVEN_post_with_comments_WHEN_adding_comment_to_post_THEN_comment_is_added() {
         String testCommentID = "000000000000000000000000";
@@ -116,12 +98,6 @@ class PostDBMongoTest {
     }
 
     @Test
-    @Order(80)
-    public void GIVEN_existing_post_WHEN_deleting_post_THEN_post_is_removed() {
-        assertTrue(postDBMongo.deletePost(post1));
-    }
-
-    @Test
     @Order(90)
     public void GIVEN_existing_post_WHEN_searching_for_author_username_THEN_post_is_returned() {
         assertNotNull(postDBMongo.findByUsername(post1.getUsername()));
@@ -140,8 +116,48 @@ class PostDBMongoTest {
     }
 
     @Test
-    @Order(110)
+    @Order(111)
     public void GIVEN_post_with_tag_WHEN_searching_for_tag_with_limit_and_skip_THEN_post_is_returned() {
         assertNotNull(postDBMongo.findByTag(post1.getTag(), 10, 0));
+    }
+
+    @Test
+    @Order(112)
+    public void GIVEN_post_about_boardgame_WHEN_boardgame_name_is_updated_THEN_postTag_is_updated() {
+        String newBoardgameName = "New test boardgame name";
+        postDBMongo.updatePostsAfterBoardgameUpdate(post1.getTag(), newBoardgameName);
+        assertEquals(newBoardgameName, postDBMongo.findByTag(newBoardgameName, 10, 0).get(0).getTag());
+    }
+
+    @Test
+    @Order(120)
+    public void GIVEN_existing_post_WHEN_deleting_post_THEN_post_is_removed() {
+        assertTrue(postDBMongo.deletePost(post1));
+    }
+
+    @Test
+    @Order(130)
+    public void GIVEN_posts_with_specific_tag_WHEN_deleting_posts_by_tag_THEN_posts_are_removed() {
+        postDBMongo.deleteByTag(testBoardgameName2);
+
+        var deletedPost = postDBMongo.findById(post2.getId());
+        assertTrue(deletedPost.isEmpty());
+    }
+
+    @Test
+    @Order(140)
+    public void GIVEN_posts_by_specific_user_WHEN_deleting_posts_by_username_THEN_posts_are_removed() {
+        postDBMongo.deleteByUsername(testUsername);
+
+        var deletedPost = postDBMongo.findById(post3.getId());
+        assertTrue(deletedPost.isEmpty());
+    }
+
+    @Test
+    @Order(150)
+    public void cleaning() {
+        postDBMongo.deletePost(post1);
+        postDBMongo.deletePost(post2);
+        postDBMongo.deletePost(post3);
     }
 }

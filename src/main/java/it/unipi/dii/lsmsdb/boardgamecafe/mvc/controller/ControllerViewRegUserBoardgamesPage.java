@@ -299,8 +299,17 @@ public class ControllerViewRegUserBoardgamesPage implements Initializable {
         // Update UI after potentially having updated a Boardgame
         BoardgameModelNeo4j updatedBoardgame = (BoardgameModelNeo4j) modelBean.getBean(Constants.UPDATED_BOARDGAME);
         if (updatedBoardgame != null) {
+            String oldBoardgameName = (String) modelBean.getBean(Constants.OLD_BOARDGAME_NAME);
+            String newBoardgameName = updatedBoardgame.getBoardgameName();
+            if (oldBoardgameName != null){
+                if (!oldBoardgameName.equals(newBoardgameName)){
+                    boardgameNames.remove(oldBoardgameName);
+                    boardgameNames.add(newBoardgameName);
+                    modelBean.putBean(Constants.OLD_BOARDGAME_NAME, null);
+                }
             boardgames.removeIf(boardgame -> boardgame.getBoardgameName().equals(updatedBoardgame.getBoardgameName()));
             boardgames.add(updatedBoardgame);
+            }
             currentlyShowing = BoardgamesToFetch.ALL_BOARDGAMES;
             viewCurrentlyShowing();
         }

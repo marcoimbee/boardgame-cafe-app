@@ -491,6 +491,8 @@ public class ControllerViewRegUserPostsPage implements Initializable {
                 if (endPost >= posts.size()) {
                     endPost = posts.size() - 1;
                     visualizedLastPost = true;
+                } else {
+                    visualizedLastPost = false;
                 }
 
                 for (int i = startPost; i <= endPost; i++) {
