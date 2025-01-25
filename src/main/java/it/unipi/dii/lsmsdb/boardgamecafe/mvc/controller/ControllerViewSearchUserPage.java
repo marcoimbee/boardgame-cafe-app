@@ -293,7 +293,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         if (showMostActiveUsersAnalytic != null) {                  // User is admin and he comes from the analytics panel
             modelBean.putBean(Constants.SELECTED_ANALYTICS, null);
             currentlyShowing = UsersToFetch.ADMIN_MOST_ACTIVE_USERS;
-            whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(whatUsersToShowList.size() - 1));
+            whatUsersToShowChoiceBox.setValue(whatUsersToShowList.get(2)); // 2 is the index position of the "ADMIN: most active users" in whatUsersToShowList
             Object fetchedResults = fetchUsers(null, null, null, null);
             if (fetchedResults instanceof Document) {
                 System.out.println("[DEBUG] Displaying fetched results...");
