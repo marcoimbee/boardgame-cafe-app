@@ -99,7 +99,7 @@ public class BoardgameDBMongo {
         try {
             Query query = new Query();
             query.addCriteria(Criteria.where("boardgameName").regex("^" + namePrefix, "i")); // 'i' ignores lowercase and uppercase characters in the search
-            query.with(Sort.by(Sort.Order.desc("yearPublished"), Sort.Order.asc("_id")));
+            query.with(Sort.by(Sort.Order.asc("boardgameName"), Sort.Order.asc("_id")));
             query.skip(skip).limit(limit);
             boardgames = mongoOperations.find(query, BoardgameModelMongo.class);
         } catch (Exception e) {
