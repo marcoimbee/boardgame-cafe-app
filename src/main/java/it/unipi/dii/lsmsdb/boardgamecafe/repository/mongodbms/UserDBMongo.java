@@ -69,11 +69,13 @@ public class UserDBMongo {
         }
     }
 
-    public List<UserModelMongo> findAllUsersWithLimit(int limit, int skip) {
+    public List<UserModelMongo> findAllUsersWithLimit(int limit, int skip, boolean showAlsoBanned) {
         List<UserModelMongo> users = null;
         try {
             Query query = new Query();
             query.addCriteria(Criteria.where("_class").ne("admin")); // Exclude documents with _class = admin
+            if (! showAlsoBanned)
+                query.addCriteria(Criteria.where("banned").is(false));
             query.skip(skip).limit(limit);
             users = mongoOperations.find(query, UserModelMongo.class);
         } catch (Exception e) {
