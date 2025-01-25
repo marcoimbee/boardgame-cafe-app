@@ -476,7 +476,7 @@ public class ControllerViewSearchUserPage implements Initializable {
         switch (currentlyShowing) {             // Decide what type of users need to be fetched
             case ALL_USERS:
                 this.refreshButton.setDisable(false);
-                return userDBMongo.findAllUsersWithLimit(LIMIT, skipCounter);
+                return userDBMongo.findAllUsersWithLimit(LIMIT, skipCounter, currentUser.get_class().equals("admin"));
             case USERS_WITH_COMMON_BOARDGAMES_POSTED:
                 this.refreshButton.setDisable(false);
                 return userService.suggestUsersByCommonBoardgamePosted(currentUser.getUsername(), LIMIT, skipCounter);
