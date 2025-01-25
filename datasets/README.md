@@ -20,7 +20,7 @@ Populating Neo4j, in some of the following *LOAD* runs,
 may take several minutes to complete the operation; due to the large number 
 of nodes and relationships to be created.
 
-### LOAD NODES ON NEO4J DB
+### - LOAD NODES ON NEO4J DB -
 
 #### USER NODES
 ```
@@ -35,7 +35,7 @@ CREATE (:Boardgame {id: line._id, boardgameName: line.boardgameName,
         yearPublished: toInteger(line.yearPublished)})
 ```
 #### POST NODES
-#### 1) *WITH-TAG (WITH RELATIONSHIPS)*
+#### 1) *WITH-TAG ( + RELATIONSHIPS )*
 ```
 LOAD CSV WITH HEADERS FROM 'file:///postsWithTagNeo.csv' AS line
 MATCH (u:User {username: line.username})
@@ -45,7 +45,7 @@ CREATE (u)-[:WRITES_POST]->(p)
 CREATE (p)-[:REFERS_TO]->(b)
 ```
 
-#### 2) *WITHOUT-TAG (WITH RELATIONSHIPS)*
+#### 2) *WITHOUT-TAG ( + RELATIONSHIPS )*
 ```
 LOAD CSV WITH HEADERS FROM 'file:///postsWithoutTagNeo.csv' AS line
 MATCH (u:User {username: line.username})
@@ -53,7 +53,7 @@ CREATE (p:Post {id: line._id})
 CREATE (u)-[:WRITES_POST]->(p)
 ```
 
-### CREATE RELATIONSHIPS FOLLOWS AND LIKES ON NEO4J DB
+### - CREATE RELATIONSHIPS FOLLOWS AND LIKES ON NEO4J DB -
 
 #### USER FOLLOWS USER - UNIQUE WAY: User 'A' cannot follow himself, and this script guarantees it
 ```
