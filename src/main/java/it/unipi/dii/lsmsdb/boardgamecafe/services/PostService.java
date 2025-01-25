@@ -150,16 +150,18 @@ public class PostService {
     }
 
     public List<PostModelMongo> findPostsByFollowedUsers(String currentUser, int limitResults, int skipCounter) {
-        List<PostModelNeo4j> postsByFollowedUsers = postDBNeo4j.        // skipCounter needed for incremental post displaying
-                getPostsByFollowedUsers(currentUser, limitResults, skipCounter);
-        List<PostModelMongo> retrievedPostsMongo = new ArrayList<>();
+        List<String> followedUsernames = userDBNeo4j.getFollowedUsernamesWhoCreatedAtLeastOnePost(currentUser, limitResults, skipCounter);
+        List<PostModelMongo> postCreateByFollowedUsers = postDBMongo.findPostsCreatedByFollowedUsers(followedUsernames, limitResults, skipCounter);
 
-        for (PostModelNeo4j postByFollowedUser : postsByFollowedUsers) {
-            Optional<PostModelMongo> postMongo = postDBMongo.findById(postByFollowedUser.getId());
-            postMongo.ifPresent(retrievedPostsMongo::add);  // If the suggested Post is found, then it's added to the suggestedMongoUsers list
-        }
+        return (postCreateByFollowedUsers == null) ? new ArrayList<>() : postCreateByFollowedUsers;
 
-        return retrievedPostsMongo;
+//
+//        for (String postByFollowedUser : postsByFollowedUsers) {
+//            Optional<PostModelMongo> postMongo = postDBMongo.findById(postByFollowedUser.getId());
+//            postMongo.ifPresent(retrievedPostsMongo::add);  // If the suggested Post is found, then it's added to the suggestedMongoUsers list
+//        }
+
+        //return retrievedPostsMongo;
     }
 
     public List<PostModelMongo> findPostsByTag(String tag, int limitResults, int skipCounter) {
