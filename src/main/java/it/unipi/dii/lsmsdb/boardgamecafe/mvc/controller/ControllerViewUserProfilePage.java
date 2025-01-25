@@ -315,56 +315,7 @@ public class ControllerViewUserProfilePage implements Initializable{
     }
 
     private void onRegainPageFocusAfterPostDetailsWindowClosing() {
-        /*
-            Once regaining focus on profile page after a post details page has been closed, the user could have:
-                Deleted the entire post
-                Edited the post
-                Added a comment
-                Deleted a comment
-         */
         refreshPage();
-
-//        // Potentially update UI after post deletion
-//        String deletedPostId = (String) modelBean.getBean(Constants.DELETED_POST);
-//        if (deletedPostId != null) {
-//            modelBean.putBean(Constants.DELETED_POST, null);            // Deleting bean for consistency
-//            resetPage();
-//            List<PostModelMongo> retrievedPosts = getPosts(currentUser.getUsername());
-//            this.counterPostsLabel.setText(String.valueOf(retrievedPosts.size()));
-//            if (retrievedPosts.isEmpty()) {
-//                loadViewMessageInfo();
-//            } else {
-//                postsUser.addAll(retrievedPosts);
-//                fillGridPane(postsUser);
-//                prevNextButtonsCheck(postsUser);
-//            }
-//        }
-//
-//        // Potentially update UI after post editing
-//        PostModelMongo updatedPost = (PostModelMongo) modelBean.getBean(Constants.UPDATED_POST);
-//        if (updatedPost != null) {
-//            postsUser.replaceAll(post -> post.getId().equals(updatedPost.getId()) ? updatedPost : post);
-//            fillGridPane(postsUser);
-//        }
-//
-//        // Update UI after potentially having added a comment to a post
-//        CommentModel addedComment = (CommentModel) modelBean.getBean(Constants.ADDED_COMMENT);
-//        if (addedComment != null) {
-//            modelBean.putBean(Constants.ADDED_COMMENT, null);
-//            fillGridPane(postsUser);
-//        }
-//
-//        // Potentially update UI after comment deletion under a post
-//        List<CommentModel> deletedComments = (List<CommentModel>) modelBean.getBean(Constants.DELETED_COMMENT);
-//        if (deletedComments != null) {
-//            for (CommentModel deletedComment : deletedComments) {
-//                for (PostModelMongo post : postsUser) {
-//                    post.getComments().remove(deletedComment);
-//                    fillGridPane(postsUser);
-//                }
-//            }
-//            modelBean.putBean(Constants.DELETED_COMMENT, null);
-//        }
     }
 
 
