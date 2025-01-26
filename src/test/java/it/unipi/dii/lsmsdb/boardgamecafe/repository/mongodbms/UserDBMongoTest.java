@@ -91,13 +91,13 @@ class UserDBMongoTest {
     @Test
     @Order(60)
     public void GIVEN_number_of_users_WHEN_find_all_THEN_users_returned_with_skip() {
-        assertNotNull(userDBMongo.findAllUsersWithLimit(10, 10));
+        assertNotNull(userDBMongo.findAllUsersWithLimit(10, 10, false));
     }
 
     @Test
     @Order(70)
     public void GIVEN_number_of_users_WHEN_find_all_THEN_users_returned_skip_zero() {
-        assertNotNull(userDBMongo.findAllUsersWithLimit(10, 0));
+        assertNotNull(userDBMongo.findAllUsersWithLimit(10, 0, false));
     }
 
     @Test
