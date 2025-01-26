@@ -131,23 +131,6 @@ public class PostDBNeo4j {
         this.likedPostsCache.updateLikeCount(postId, likeCount);
     }
 
-    public int findTotalLikesByPostId(String postId) {
-        try {
-            int likeCount = likedPostsCache.getLikeCount(postId);       // First, check in the cache
-            if (likeCount > 0) {
-                return likeCount;
-            }
-
-            int totalLikes = postRepoNeo4j.findPostLikesById(postId);       // Not present in cache, check Neo4j DB
-
-            likedPostsCache.updateLikeCount(postId, totalLikes);        // Update the cache with the count obtained from DB
-
-            return totalLikes;
-        } catch (Exception ex) {
-            System.err.println("[ERROR] findTotalLikesByPostId()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
-            return 0;       // Return 0 if anything wrong happens
-        }
-    }
 
     public List<PostModelNeo4j> getPostsLikedByFollowedUsers(String username, int limitResults, int skipCounter) {
         List<PostModelNeo4j> posts = new ArrayList<>();

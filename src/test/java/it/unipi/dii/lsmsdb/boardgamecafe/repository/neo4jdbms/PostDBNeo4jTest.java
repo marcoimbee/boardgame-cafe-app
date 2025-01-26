@@ -81,20 +81,6 @@ class PostDBNeo4jTest {
     }
 
     @Test
-    @Order(60)
-    public void GIVEN_post_id_and_like_count_WHEN_setting_like_count_THEN_cache_is_updated() {
-        postDBNeo4j.setLikeCount(testIdPost1, 5);
-        int cachedLikes = postDBNeo4j.findTotalLikesByPostId(testIdPost1);
-        assertEquals(5, cachedLikes);
-    }
-
-    @Test
-    @Order(70)
-    public void GIVEN_post_id_WHEN_finding_total_likes_THEN_return_correct_count() {
-        int totalLikes = postDBNeo4j.findTotalLikesByPostId(testIdPost1);
-        assertTrue(totalLikes >= 0);
-    }
-    @Test
     @Order(80)
     public void GIVEN_username_and_post_id_WHEN_adding_like_THEN_like_is_added_successfully() {
         boolean likeAdded = postDBNeo4j.addLikePost(testUsername1, testIdPost1, true);
