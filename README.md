@@ -42,10 +42,6 @@ When you have configured all the environments and software above
 move on to populating the DBMSs by reading the guide written in the [README.md](/datasets/README.md)
 file located in the *"datastes"* folder.
 
-## Package Structure
-
- - More details will come soon.
-
 ## Documentation Report
 
 You can find out more in detail by reading the final report on the [Board-Game Cafè Documentation](/docs/BoardGameCafe-Documentation.pdf)
