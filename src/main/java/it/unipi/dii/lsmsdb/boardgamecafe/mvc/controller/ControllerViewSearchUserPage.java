@@ -218,18 +218,6 @@ public class ControllerViewSearchUserPage implements Initializable {
         System.out.println("[INFO] Fetched " + userUsernames.size() + " user usernames in " + elapsedTime + " ms");
         selectedSearchUser = null;
 
-        //ToDo: Mostrare la lista di banned user per facilitare la loro accessibilità per l'admin
-        // Setting up admin tools - list of banned users, needed to set up ban/unban buttons
-
-//        if (currentUser.get_class().equals("admin")) {
-//            if (modelBean.getBean(Constants.BANNED_USERS_LIST) == null) {
-//                bannedUsers = userDBMongo.getBannedUsers();
-//                modelBean.putBean(Constants.BANNED_USERS_LIST, bannedUsers);
-//            } else {
-//                bannedUsers = (List<GenericUserModelMongo>) modelBean.getBean(Constants.BANNED_USERS_LIST);
-//            }
-//        }
-
         // Page focus listener - needed to potentially update UI when coming back from a user ban or delete operation by the admin
         usersGridPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
             if (newScene != null) {
