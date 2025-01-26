@@ -1,5 +1,5 @@
 
-# Board-Game Cafè Java Application
+# BoardGame-Cafè Java Application
 
 <p align="center">
   <img src="https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/logo.png?raw=true" alt="BoardGameCafè_App-Logo"/>
