@@ -87,8 +87,9 @@ class BoardgamesDBNeo4jTest {
     @Order(40)
     public void GIVEN_a_boardgame_WHEN_updating_name_THEN_boardgame_is_updated_successfully() {
         String newName = "NewName";
+        String oldBoardgameName = testBoardgame.getBoardgameName();
         testBoardgame.setBoardgameName(newName);
-        boardgameDBNeo4j.updateBoardgameNeo4j(testIdBoardgame, testBoardgame);
+        boardgameDBNeo4j.updateBoardgameNeo4j(oldBoardgameName, testBoardgame);
 
         var shouldHaveUpdatedBoardgameName = boardgameDBNeo4j.findByBoardgameName("NewName").get();
         assertEquals(newName, shouldHaveUpdatedBoardgameName.boardgameName);
