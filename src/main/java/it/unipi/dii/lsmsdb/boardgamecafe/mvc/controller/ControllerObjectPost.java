@@ -160,12 +160,10 @@ public class ControllerObjectPost {
     }
 
     private void updateLikesLabel(ActionEvent event, PostModelMongo post) {
+        post = postDBMongo.findById(post.getId()).get();
         Label workingLikeCountLbl = (event == null) ?
                 this.counterLikesLabel : (Label) ((Button) event.getSource()).getParent().lookup("#counterLikesLabel");
-        int likeCount = (event == null) ?
-                post.getLikeCount() : postDBNeo4j.findTotalLikesByPostId(post.getId());
-        post.setLikeCount(likeCount);
-        workingLikeCountLbl.setText(String.valueOf(likeCount));
+        workingLikeCountLbl.setText(String.valueOf(post.getLikeCount()));
     }
 
     public void onClickDeleteButton(PostModelMongo post) {

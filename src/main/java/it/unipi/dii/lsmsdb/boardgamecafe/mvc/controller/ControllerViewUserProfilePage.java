@@ -246,7 +246,7 @@ public class ControllerViewUserProfilePage implements Initializable{
                 String lastPostId = ((PostModelMongo)modelBean.getBean(Constants.SELECTED_POST)).getId();
                 AnchorPane eventAnchorPanePost = (AnchorPane) (mouseEvent.getSource());
                 ((Label)eventAnchorPanePost.lookup("#counterLikesLabel")).setText(
-                        String.valueOf(postDBNeo4j.findTotalLikesByPostId(lastPostId)));
+                        String.valueOf(post.getLikeCount()));
                 Button workingButton = ((Button)eventAnchorPanePost.lookup("#likeButton"));
                 FontAwesomeIconView workingIcon = (FontAwesomeIconView) workingButton.getGraphic();
                 boolean likeIsPresent = this.postService.hasLikedPost(currentUser.getUsername(), lastPostId);

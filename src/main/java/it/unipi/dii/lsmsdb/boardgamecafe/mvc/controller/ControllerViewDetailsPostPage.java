@@ -259,9 +259,8 @@ public class ControllerViewDetailsPostPage implements Initializable {
         boolean likeIsPresent = this.postService.hasLikedPost(username, postId);
         icon.setIcon((likeIsPresent) ? FontAwesomeIcon.THUMBS_DOWN : FontAwesomeIcon.THUMBS_UP);
         this.likeButton.setText(this.buttonLikeMessages.get((likeIsPresent) ? 1 : 0));
-        int likeCount = this.postDBNeo4j.findTotalLikesByPostId(postId);
-        post.setLikeCount(likeCount);
-        this.counterLikesLabel.setText(String.valueOf(likeCount));
+        post = postDBMongo.findById(post.getId()).get();
+        this.counterLikesLabel.setText(String.valueOf(post.getLikeCount()));
     }
 
     @FXML
