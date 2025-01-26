@@ -39,9 +39,9 @@ public class BoardgameDBNeo4j {
         }
     }
 
-    public boolean updateBoardgameNeo4j(String id, BoardgameModelNeo4j newBoardgame) {
+    public boolean updateBoardgameNeo4j(String boardgameName, BoardgameModelNeo4j newBoardgame) {
         try {
-            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4j.findById(id);
+            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4j.findByBoardgameName(boardgameName);
             if (boardgameNeo.isPresent()) {
 
                 BoardgameModelNeo4j boardgameToBeUpdated = boardgameNeo.get();
