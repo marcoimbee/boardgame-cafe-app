@@ -148,7 +148,7 @@ public class BoardgameService {
             }
 
             // Neo4j management
-            if(!boardgameNeo4jOp.updateBoardgameNeo4j(boardgameId, boardgameNeo4j)){
+            if(!boardgameNeo4jOp.updateBoardgameNeo4j(oldBoardgameName, boardgameNeo4j)){
                 throw new RuntimeException("Error while updating a boardgame in Neo4J.");
             }
         } catch (Exception e) {
