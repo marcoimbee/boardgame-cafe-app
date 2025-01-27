@@ -35,7 +35,7 @@ CREATE (:Boardgame {id: line._id, boardgameName: line.boardgameName,
         yearPublished: toInteger(line.yearPublished)})
 ```
 #### POST NODES
-#### 1) *WITH-TAG ( + RELATIONSHIPS )*
+#### 1) *WITH-TAG ( REFERS_TO and WRITES_POST RELATIONSHIPS include)*
 ```
 LOAD CSV WITH HEADERS FROM 'file:///postsWithTagNeo.csv' AS line
 MATCH (u:User {username: line.username})
@@ -45,7 +45,7 @@ CREATE (u)-[:WRITES_POST]->(p)
 CREATE (p)-[:REFERS_TO]->(b)
 ```
 
-#### 2) *WITHOUT-TAG ( + RELATIONSHIPS )*
+#### 2) *WITHOUT-TAG ( WRITES_POST RELATIONSHIPS include)*
 ```
 LOAD CSV WITH HEADERS FROM 'file:///postsWithoutTagNeo.csv' AS line
 MATCH (u:User {username: line.username})
