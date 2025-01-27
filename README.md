@@ -5,7 +5,7 @@
   <img src="https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/logo.png?raw=true" alt="BoardGameCafè_App-Logo"/>
 </p>
 
-Large-Scale and Multi-Structured Databases Project at University of Pisa - MSc Computer Engineering
+Large-Scale and Multi-Structured Databases Project at University of Pisa - MSc Computer Engineering....
 
 ## Overview Description
 
