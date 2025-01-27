@@ -1,0 +1,165 @@
+.choice-box {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: white; /* Colore del testo principale */
+}
+
+.choice-box > .label
+{
+    -fx-text-fill: white;
+    -fx-background-color: #182E58;
+}
+
+/* Stile per gli elementi del menu a tendina */
+.choice-box .list-cell {
+    -fx-background-color: #182E58; /* Sfondo degli elementi */
+    -fx-text-fill: white; /* Colore del testo */
+}
+
+.choice-box .menu-item:hover {
+    -fx-background-color: #182E58; /* Colore al passaggio del mouse */
+}
+
+#cboxYear .list-cell {
+    -fx-background-color: #182E58;
+    -fx-text-fill: white;
+}
+
+#cboxYear {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-prompt-text-fill: white;
+}
+
+#cboxYear .list-cell:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #182E58;
+}
+
+#cboxCategory .list-cell {
+    -fx-background-color: #182E58;
+    -fx-text-fill: white;
+}
+
+#cboxCategory {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-prompt-text-fill: white;
+}
+
+#cboxCategory .list-cell:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #182E58;
+}
+
+#comboBoxFullCategories,
+#comboBoxFullDesigners,
+#comboBoxFullPublishers {
+    -fx-background-color: transparent;  /* Sfondo trasparente */
+    -fx-border-color: #182E58;          /* Colore del bordo */
+    -fx-border-width: 0px 0px 2px 0px;  /* Bordo solo in basso, 2px di spessore */
+}
+
+/* Rimuovere l'effetto di focus (sfondo blu) quando la ComboBox è selezionata */
+#comboBoxFullCategories:focused,
+#comboBoxFullDesigners:focused,
+#comboBoxFullPublishers:focused {
+    -fx-background-color: transparent;  /* Rende il background trasparente quando è a fuoco */
+    -fx-border-color: #182E58;          /* Mantiene il colore del bordo blu */
+    -fx-border-width: 0px 0px 2px 0px;  /* Il bordo inferiore resta */
+}
+
+/* Aggiungi l'effetto hover per mantenere il background bianco */
+#comboBoxFullCategories .list-cell:hover,
+#comboBoxFullDesigners:hover,
+#comboBoxFullPublishers:hover {
+    -fx-background-color: transparent;  /* Rende il background trasparente durante l'hover */
+    -fx-border-width: 0px 0px 2px 0px;  /* Mantiene il bordo inferiore */
+    -fx-text-fill: black;
+}
+
+/* Testo della ComboBox in stato normale */
+#comboBoxFullCategories .text,
+#comboBoxFullDesigners .text,
+#comboBoxFullPublishers .text {
+    -fx-text-fill: #182E58;
+}
+
+.table-view .table-cell {
+    -fx-alignment: CENTER;
+}
+
+.table-view .scroll-bar * {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+.choice-box {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: white; /* Colore del testo principale */
+}
+
+#cboxLimit .list-cell {
+    -fx-background-color: #182E58;
+    -fx-text-fill: white;
+}
+
+#cboxLimit {
+    -fx-background-color: #182E58;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-prompt-text-fill: white;
+}
+
+#cboxLimit .list-cell:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #182E58;
+}
+
+
+.default-color0.chart-bar {
+    -fx-bar-fill: #182E58;
+}
+
+.table-view .table-cell {
+    -fx-alignment: CENTER;
+}
+.default-color1.chart-bar {
+    -fx-bar-fill: #182E58;
+}
+
+.table-view .scroll-bar * {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+}
+
+#textFieldSearch {
+    -fx-background-color:  trasparent;
+    -fx-border-color: #182E58;
+    -fx-border-width:  0px 0px 2px 0px;
+}

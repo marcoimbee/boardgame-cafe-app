@@ -2,7 +2,6 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +11,6 @@ public class BoardgameModelMongo {
     @Id
     private String id;
     private String boardgameName;
-    private String thumbnail;
     private String image;
     private String description;
     private int yearPublished;
@@ -20,22 +18,20 @@ public class BoardgameModelMongo {
     private int maxPlayers;
     private int playingTime;
     private int minAge;
-    private List<String> boardgameCategoryList = new ArrayList<>();
-    private List<String> boardgameDesignerList = new ArrayList<>();
-    private List<String> boardgamePublisherList = new ArrayList<>();
-    private List<ReviewModelMongo> reviewMongo = new ArrayList<>();
+    private Double avgRating;
+    private int reviewCount;
+    private List<String> boardgameCategory = new ArrayList<>();
+    private List<String> boardgameDesigner = new ArrayList<>();
+    private List<String> boardgamePublisher = new ArrayList<>();
 
     public BoardgameModelMongo(){}
 
-    public BoardgameModelMongo(String id, String boardgameName,
-                               String thumbnail, String image, String description,
+    public BoardgameModelMongo(String boardgameName, String image, String description,
                                int yearPublished, int minPlayers, int maxPlayers,
-                               int playingTime, int minAge, List<String> boardgameCategoryList,
-                               List<String> boardgameDesignerList, List<String> boardgamePublisherList) {
+                               int playingTime, int minAge, List<String> boardgameCategory,
+                               List<String> boardgameDesigner, List<String> boardgamePublisher) {
 
-        this.id = id;
         this.boardgameName = boardgameName;
-        this.thumbnail = thumbnail;
         this.image = image;
         this.description = description;
         this.yearPublished = yearPublished;
@@ -43,9 +39,11 @@ public class BoardgameModelMongo {
         this.maxPlayers = maxPlayers;
         this.playingTime = playingTime;
         this.minAge = minAge;
-        this.boardgameCategoryList = boardgameCategoryList;
-        this.boardgameDesignerList = boardgameDesignerList;
-        this.boardgamePublisherList = boardgamePublisherList;
+        this.boardgameCategory = boardgameCategory;
+        this.boardgameDesigner = boardgameDesigner;
+        this.boardgamePublisher = boardgamePublisher;
+        this.avgRating = -1.0;
+        this.reviewCount = 0;
     }
 
     public String getId() {
@@ -62,14 +60,6 @@ public class BoardgameModelMongo {
 
     public void setBoardgameName(String boardgameName) {
         this.boardgameName = boardgameName;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
     }
 
     public String getImage() {
@@ -128,61 +118,80 @@ public class BoardgameModelMongo {
         this.minAge = minAge;
     }
 
-    public List<String> getBoardgameCategoryList() {
-        return boardgameCategoryList;
+    public List<String> getBoardgameCategory() {
+        return boardgameCategory;
     }
 
-    public void setBoardgameCategoryList(List<String> boardgameCategoryList) {
-        this.boardgameCategoryList = boardgameCategoryList;
+    public void setBoardgameCategory(List<String> boardgameCategory) {
+        this.boardgameCategory = boardgameCategory;
     }
 
-    public List<String> getBoardgameDesignerList() {
-        return boardgameDesignerList;
+    public List<String> getBoardgameDesigner() {
+        return boardgameDesigner;
     }
 
-    public void setBoardgameDesignerList(List<String> boardgameDesignerList) {
-        this.boardgameDesignerList = boardgameDesignerList;
+    public void setBoardgameDesigner(List<String> boardgameDesigner) {
+        this.boardgameDesigner = boardgameDesigner;
     }
 
-    public List<String> getBoardgamePublisherList() {
-        return boardgamePublisherList;
+    public List<String> getBoardgamePublisher() {
+        return boardgamePublisher;
     }
 
-    public void setBoardgamePublisherList(List<String> boardgamePublisherList) {
-        this.boardgamePublisherList = boardgamePublisherList;
+    public void setBoardgamePublisher(List<String> boardgamePublisher) {
+        this.boardgamePublisher = boardgamePublisher;
     }
 
-
-    // --- Reviews Management ---
-    public List<ReviewModelMongo> getReviews() {
-        return reviewMongo;
-    }
-    public void setReviews(List<ReviewModelMongo> reviewMongo) {
-        this.reviewMongo = reviewMongo;
-    }
-
-    public void addReview (ReviewModelMongo reviewMongo) {
-        this.reviewMongo.add(0, reviewMongo);
-    }
-
-    public ReviewModelMongo getReviewInBoardgame(String id) {
-        if (!this.reviewMongo.isEmpty()) {
-            for (ReviewModelMongo reviewMongo : reviewMongo) {
-                if (reviewMongo.getId().equals(id)) {
-                    return reviewMongo;
-                }
-            }
+    public void updateAvgRatingAfterReviewDeletion(int deletedRating) {
+        if (this.reviewCount == 0) {
+            return;
         }
-        return null;
+
+        if (this.reviewCount == 1) {
+            this.avgRating = -1.0;
+        } else {
+            this.avgRating = ((this.reviewCount * this.avgRating) - deletedRating) / (this.reviewCount - 1);
+        }
+        this.reviewCount--;
     }
 
-    public boolean deleteReview(String id) {
-        ReviewModelMongo reviewMongo = this.getReviewInBoardgame(id);
-        if (reviewMongo != null) {
-            this.reviewMongo.remove(reviewMongo);
-            return true;
+    public void updateAvgRatingAfterReviewUpdate(int newRating, int oldRating) {
+        this.avgRating = ((this.reviewCount * this.avgRating) - oldRating + newRating) / this.reviewCount;
+    }
+
+    public void updateAvgRatingAndReviewCount (int reviewRating) {
+        Double newAvg = ((this.reviewCount * this.avgRating) + reviewRating) / (this.reviewCount + 1);
+        this.reviewCount++;
+        this.avgRating = newAvg;
+    }
+
+    public void updateAvgRatingAfterUserDeletion(List<Integer> ratings) {
+        int reviewCount = ratings.size();
+
+        if (this.reviewCount == reviewCount) {
+            this.avgRating = -1.0;
+            this.reviewCount = 0;
+        } else {
+            int ratingsSum = ratings.stream().mapToInt(Integer::intValue).sum();
+            this.avgRating = ((this.reviewCount * this.avgRating) - ratingsSum) / (this.reviewCount - reviewCount);
+            this.reviewCount -= reviewCount;
         }
-        return false;
+    }
+
+    public double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     @Override
@@ -190,7 +199,6 @@ public class BoardgameModelMongo {
         return "Boardgame{" +
                 "id='" + id + '\'' +
                 ", boardgameName='" + boardgameName + '\'' +
-                ", thumbnail='" + thumbnail + '\'' +
                 ", image='" + image + '\'' +
                 ", description='" + description + '\'' +
                 ", yearPublished=" + yearPublished +
@@ -198,10 +206,9 @@ public class BoardgameModelMongo {
                 ", maxPlayers=" + maxPlayers +
                 ", playingTime=" + playingTime +
                 ", minAge=" + minAge +
-                ", boardgameCategoryList=" + boardgameCategoryList +
-                ", boardgameDesignerList=" + boardgameDesignerList +
-                ", boardgamePublisherList=" + boardgamePublisherList +
-                ", reviews=" + reviewMongo +
+                ", boardgameCategoryList=" + boardgameCategory +
+                ", boardgameDesignerList=" + boardgameDesigner +
+                ", boardgamePublisherList=" + boardgamePublisher +
                 '}';
     }
 }

@@ -1,5 +1,5 @@
 
-# Board-Game Cafè Java Application
+# BoardGame-Cafè Java Application
 
 <p align="center">
   <img src="https://github.com/g-sferr/BoardGame-Cafe_App/blob/g.sferr/src/main/resources/logo.png?raw=true" alt="BoardGameCafè_App-Logo"/>
@@ -38,16 +38,16 @@ To run the application correctly, the following software needs to be set up:
 - [MongoDB](https://www.mongodb.com/try/download/community)
 - [Neo4j](https://neo4j.com/download/)
 
-## Package Structure
+When you have configured all the environments and software above
+move on to populating the DBMSs by reading the guide written in the [README.md](/datasets/README.md)
+file located in the *"datastes"* folder.
 
- - More details will come soon.
+## Documentation
 
-## Documentation Report
-
-You can find out more in detail by reading the final report on the [Board-Game Cafè Documentation](/docs/BoardGameCafe-Documentation.pdf)
+You can find out more in detail by reading the final report on the [BoardGame-Cafè_Documentation](/docs/BoardGameCafe-Documentation.pdf)
 
 ## Authors
 
 * Francesco Bruno - *e-mail*: f.bruno10@studenti.unipi.it - *GitHub Profile*: [ [@francescoB1997](https://github.com/francescoB1997) ]
 * Gaetano Sferrazza - *e-mail*: g.sferrazza@studenti.unipi.it - *GitHub Profile*: [ [@g-sferr](https://github.com/g-sferr) ]
-* Marco Imbellicai - *e-mail*: m.imbellicai@studenti.unipi.it - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]
+* Marco Imbelli Cai - *e-mail*: m.imbellicai@studenti.unipi.it - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]

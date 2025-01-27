@@ -3,8 +3,14 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
@@ -12,43 +18,47 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewRegUserPostsPage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewRegUserPostsPage">
    <left>
       <AnchorPane prefHeight="677.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
          <children>
-            <Text fill="WHITE" layoutX="26.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="BoardGameCafè Application" textAlignment="CENTER" wrappingWidth="217.921875">
-               <font>
-                  <Font name="System Bold Italic" size="28.0" />
-               </font>
-            </Text>
-            <Button fx:id="boardgamePostsButton" contentDisplay="CENTER" layoutX="20.0" layoutY="297.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="176.0" style="-fx-background-color: #ffffff;" text="Boardgame's Posts" textFill="#182e58">
+            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="95.0" layoutY="577.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="80.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#onClickBoardgamesColletcion" prefHeight="39.0" prefWidth="209.0" style="-fx-background-color: #ffffff;" text="Boardgames Collection" textFill="#182e58">
+            <Button fx:id="yourProfileButton" contentDisplay="CENTER" layoutX="67.0" layoutY="192.0" mnemonicParsing="false" onAction="#onClickYourProfileButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="85.0" layoutY="602.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="79.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
+            <Button fx:id="postsFeedButton" contentDisplay="CENTER" layoutX="67.0" layoutY="304.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Posts Feed" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="profileButton" contentDisplay="CENTER" layoutX="20.0" layoutY="182.0" mnemonicParsing="false" onAction="#onClickYourProfile" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
+            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="67.0" layoutY="247.0" mnemonicParsing="false" onAction="#onClickBoardgamesCollection" prefHeight="39.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="accountDetailsButton" contentDisplay="CENTER" layoutX="20.0" layoutY="354.0" mnemonicParsing="false" onAction="#onClickAccountDetails" prefHeight="38.0" prefWidth="149.0" style="-fx-background-color: #ffffff;" text="Account Details" textFill="#182e58">
+            <Button fx:id="accountInfoButton" contentDisplay="CENTER" layoutX="67.0" layoutY="418.0" mnemonicParsing="false" onAction="#onClickAccountInfoButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Account Info" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="20.0" layoutY="414.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="128.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="67.0" layoutY="363.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="171.0" fitWidth="173.0" layoutX="48.0">
+               <image>
+                  <Image url="@logo.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="statisticsButton" contentDisplay="CENTER" layoutX="67.0" layoutY="473.0" mnemonicParsing="false" onAction="#onClickStatisticsButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Statistics" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
@@ -59,21 +69,23 @@
    <center>
       <VBox prefHeight="677.0" prefWidth="783.0" BorderPane.alignment="CENTER">
          <children>
-            <AnchorPane>
+            <AnchorPane onMouseClicked="#onClickAnchorPane">
                <children>
-                  <Button fx:id="searchButton" contentDisplay="CENTER" layoutX="380.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickSearch" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Search" textFill="WHITE">
+                  <Button fx:id="clearFieldButton" contentDisplay="CENTER" layoutX="380.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickClearField" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Clear Field" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="clearFieldButton" contentDisplay="CENTER" layoutX="486.0" layoutY="45.0" mnemonicParsing="false" onAction="#onClickClearField" prefHeight="31.0" prefWidth="96.0" style="-fx-background-color: #182E58;" text="Clear Field" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="15.0" />
-                     </font>
-                  </Button>
-                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" prefHeight="32.0" prefWidth="285.0" promptText="Search Posts About a Bordgame" style="-fx-background-color: trasparent; -fx-border-color: #182E58; -fx-border-width: 0px 0px 2px 0px;" />
+                  <TextField fx:id="textFieldSearch" layoutX="80.0" layoutY="45.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="32.0" prefWidth="285.0" promptText="Search Posts About a Bordgame" stylesheets="@css/style.css">
+                     <tooltip>
+                        <Tooltip fx:id="tooltipAdminHint" text="Insert the Boardgame name" wrapText="true">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip></TextField>
                   <FontAwesomeIconView fill="#182e58" glyphName="SEARCH" layoutX="53.0" layoutY="68.0" size="20" />
-                  <ScrollPane fx:id="scrollSet" layoutY="115.0" prefHeight="492.0" prefWidth="953.0">
+                  <ScrollPane fx:id="scrollSet" layoutY="115.0" onKeyTyped="#onKeyTypedSearchBar" prefHeight="492.0" prefWidth="953.0">
                      <content>
                         <GridPane fx:id="postGridPane">
                           <rowConstraints>
@@ -87,15 +99,38 @@
                         <Insets />
                      </opaqueInsets>
                   </HBox>
-                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="379.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="351.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="492.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="503.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
+                  </Button>
+                  <ChoiceBox fx:id="whatPostsToShowChoiceBox" layoutX="666.0" layoutY="45.0" prefHeight="32.0" prefWidth="279.0" stylesheets="@css/style.css" />
+                  <Label layoutX="618.0" layoutY="50.0" text="Show:" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="refreshButton" layoutX="458.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="REFRESH" size="18" />
+                     </graphic>
+                  </Button>
+                  <ListView fx:id="searchResultsList" layoutX="80.0" layoutY="81.0" onMouseClicked="#onMouseClickedListView" prefWidth="286.0" />
+                  <Button fx:id="newPostButton" layoutX="766.0" layoutY="625.0" mnemonicParsing="false" onAction="#onClickNewPostButton" prefHeight="31.0" prefWidth="130.0" style="-fx-background-color: #182E58;" text="New Post" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="EDIT" />
+                     </graphic>
                   </Button>
                </children>
                <padding>

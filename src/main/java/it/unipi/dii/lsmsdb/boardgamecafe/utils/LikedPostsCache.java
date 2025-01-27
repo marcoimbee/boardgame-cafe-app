@@ -1,49 +1,66 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.utils;
 
 import org.springframework.stereotype.Component;
-
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
 
 @Component
 public class LikedPostsCache {
 
-    private final Map<String, ConcurrentHashMap<String, Boolean>> likedPosts = new ConcurrentHashMap<>(); // Mappa che tiene traccia dei like in base all'utente e al post
-    private final ConcurrentHashMap<String, Integer> likeCounts = new ConcurrentHashMap<>(); // Mappa che tiene il conteggio dei like per ogni post
+    public final static int LIKED = 1;
+    public final static int NOT_LIKED = 0;
+    public final static int UNKNOWN = -1;
 
-    public void addLike(String username, String postId) { // Aggiungi un like per un utente a un post
-        likedPosts
-                .computeIfAbsent(username, k -> new ConcurrentHashMap<>())
-                .put(postId, true);
+    /*
+        Map that keeps track of the likes of the current user for each post
+        <postId, True/False>
+     */
+    private final HashMap<String, Boolean> likedPosts = new HashMap<>(); // Concurrent ?
 
-        // Incrementa il conteggio dei like per il post
-        likeCounts.merge(postId, 1, Integer::sum);
+    /*
+        Map that keeps the like count for each post
+        <postId, likeCount>
+     */
+    private final ConcurrentHashMap<String, Integer> likeCounts = new ConcurrentHashMap<>();
+
+    /*
+        Adds a like information (present or absent) to the cache
+     */
+    public void addInfoLike(String postId, boolean infoLike, boolean likeAction) {
+        if ((likeAction) && (this.likedPosts.containsKey(postId)))
+            if (infoLike)
+                this.incLikeCount(postId);
+            else
+                this.decLikeCount(postId);
+        this.likedPosts.put(postId, infoLike);
     }
 
-    public void removeLike(String username, String postId) { // Rimuovi un like per un utente da un post
-        ConcurrentHashMap<String, Boolean> userLikes = likedPosts.get(username);
-        if (userLikes != null) {
-            // Rimuovi il like e decrementa il conteggio dei like
-            if (userLikes.remove(postId) != null) {
-                likeCounts.merge(postId, -1, Integer::sum);
-            }
-            // Rimuovi l'utente se non ha più like
-            if (userLikes.isEmpty()) {
-                likedPosts.remove(username);
-            }
-        }
+    /*
+        Checks if a user has liked a post.
+        Returns:
+            -> -1: information is absent, so we must read into Neo4J
+            -> 1:  user has liked postId post
+            -> 0:  user has not liked postId post
+     */
+    public int hasLiked(String postId) {
+        return (!this.likedPosts.containsKey(postId) ? UNKNOWN : (this.likedPosts.get(postId)) ? LIKED : NOT_LIKED);
     }
 
-    public boolean hasLiked(String username, String postId) { // Controlla se un utente ha messo like a un post
-        return likedPosts.getOrDefault(username, new ConcurrentHashMap<>()).containsKey(postId);
-    }
-
-    public int getLikeCount(String postId) { // Ottieni il conteggio totale dei like per un post
+    /*
+        Obtains the total like count for a given post
+     */
+    public int getLikeCount(String postId) {
         return likeCounts.getOrDefault(postId, 0);
     }
 
-    public void clearCache() { // Pulisce la cache (se necessario)
-        likedPosts.clear();
-        likeCounts.clear(); // Pulisce anche i conteggi dei like
+    /*
+        Manually sets the like count for a given post
+     */
+    public void updateLikeCount(String postId, int likeCount) {
+        likeCounts.put(postId, likeCount);
     }
+
+    public void incLikeCount(String postId) { this.likeCounts.merge(postId, 1, Integer::sum); }
+
+    public void decLikeCount(String postId) { this.likeCounts.merge(postId, -1, Integer::sum); }
 }

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="857.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewDetailsPostPage">
+   <center>
+      <VBox prefHeight="782.0" prefWidth="884.0" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane prefHeight="782.0" prefWidth="859.0">
+               <children>
+                  <Button fx:id="editButton" layoutX="517.0" layoutY="337.0" mnemonicParsing="false" onAction="#onClickEditButton" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #182E58;" text="Edit Post" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="EDIT" size="14" />
+                     </graphic>
+                  </Button>
+                  <Button fx:id="addCommentButton" layoutX="629.0" layoutY="336.0" mnemonicParsing="false" onAction="#onClickAddCommentButton" prefHeight="27.0" prefWidth="142.0" style="-fx-background-color: #182E58;" text="Add Comment" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="COMMENT" />
+                     </graphic>
+                  </Button>
+                  <ScrollPane fx:id="scrollSet" layoutX="54.0" layoutY="379.0" prefHeight="263.0" prefWidth="747.0">
+                     <content>
+                        <GridPane fx:id="commentGridPane">
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                        </GridPane>
+                     </content>
+                  </ScrollPane>
+                  <HBox alignment="CENTER" spacing="20.0">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </HBox>
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="293.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="459.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Label fx:id="authorLabel" alignment="TOP_LEFT" layoutX="116.0" layoutY="34.0" prefHeight="23.0" prefWidth="69.0" text="Author : " textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="creationDateLabel" alignment="TOP_RIGHT" layoutX="438.0" layoutY="33.0" prefHeight="25.0" prefWidth="116.0" text="Creation Date :" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Separator layoutX="85.0" layoutY="113.0" prefHeight="3.0" prefWidth="685.0" />
+                  <Label fx:id="usernameLabel" alignment="TOP_LEFT" layoutX="183.0" layoutY="35.0" prefHeight="23.0" prefWidth="252.0" text="Francesco" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="timestampLabel" alignment="TOP_LEFT" layoutX="558.0" layoutY="34.0" prefHeight="22.0" prefWidth="240.0" text="21/01/2022" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <TextArea fx:id="postTitleTextArea" editable="false" layoutX="84.0" layoutY="115.0" prefHeight="50.0" prefWidth="687.0" wrapText="true">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </TextArea>
+                  <Label fx:id="referredBoardgameLabel" alignment="BASELINE_LEFT" layoutX="114.0" layoutY="62.0" prefHeight="25.0" prefWidth="188.0" text="Referred to Boardgame :" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="tagBoardgameLabel" alignment="BASELINE_LEFT" layoutX="303.0" layoutY="63.0" prefHeight="25.0" prefWidth="493.0" text="Monopoly" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Separator layoutX="115.0" layoutY="52.0" prefHeight="10.0" prefWidth="63.0" />
+                  <FontAwesomeIconView fill="#182e58" glyphName="USER" layoutX="84.0" layoutY="54.0" size="25" />
+                  <Separator layoutX="799.0" layoutY="21.0" orientation="VERTICAL" prefHeight="356.0" prefWidth="4.0" />
+                  <FontAwesomeIconView fill="#182e58" glyphName="PLAY" layoutX="85.0" layoutY="84.0" size="20" />
+                  <FontAwesomeIconView fill="#182e58" glyphName="CALENDAR" layoutX="417.0" layoutY="52.0" size="20" />
+                  <Label fx:id="postTitle" alignment="BASELINE_LEFT" layoutX="83.0" layoutY="89.0" prefHeight="25.0" prefWidth="40.0" text="Title:" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="titleBodyText" alignment="BASELINE_LEFT" layoutX="109.0" layoutY="165.0" prefHeight="25.0" prefWidth="83.0" text="Body Text:" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <FontAwesomeIconView fill="#182e58" glyphName="PENCIL" layoutX="86.0" layoutY="185.0" size="20" />
+                  <TextArea fx:id="postBodyTextArea" editable="false" layoutX="84.0" layoutY="191.0" prefHeight="133.0" prefWidth="688.0" wrapText="true">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </TextArea>
+                  <Separator layoutX="85.0" layoutY="189.0" prefHeight="1.0" prefWidth="686.0" />
+                  <Separator layoutX="115.0" layoutY="84.0" prefHeight="7.0" prefWidth="181.0" />
+                  <Separator layoutX="439.0" layoutY="52.0" prefHeight="9.0" prefWidth="110.0" />
+                  <Separator layoutX="53.0" layoutY="21.0" orientation="VERTICAL" prefHeight="356.0" prefWidth="4.0" />
+                  <Button fx:id="closeButton" alignment="CENTER" layoutX="704.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickCloseButton" prefHeight="22.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Close" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="BAN" size="17" />
+                     </graphic>
+                  </Button>
+                  <Button fx:id="likeButton" layoutX="86.0" layoutY="337.0" mnemonicParsing="false" onAction="#onClickLikeButton" prefHeight="18.0" prefWidth="80.0" style="-fx-background-color: #182E58;" text="Like" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="THUMBS_UP" size="14" text="" />
+                     </graphic>
+                  </Button>
+                  <Label fx:id="likesTitleLabel" alignment="TOP_LEFT" layoutX="175.0" layoutY="340.0" prefHeight="23.0" prefWidth="52.0" text="Likes: " textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="counterLikesLabel" alignment="TOP_LEFT" layoutX="220.0" layoutY="340.0" prefHeight="23.0" prefWidth="47.0" text="200" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="commentLogo" layoutX="275.0" layoutY="338.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="26.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="COMMENT" size="16" />
+                     </graphic>
+                  </Button>
+                  <Label fx:id="commentsTitleLabel" alignment="TOP_LEFT" layoutX="317.0" layoutY="339.0" prefHeight="23.0" prefWidth="105.0" text="Comments:" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="counterCommentsLabel" alignment="TOP_LEFT" layoutX="405.0" layoutY="339.0" prefHeight="23.0" prefWidth="57.0" text="150" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="refreshButton" layoutX="407.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickRefreshButton" prefHeight="31.0" prefWidth="28.0" style="-fx-background-color: #182E58;" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="REFRESH" size="18" />
+                     </graphic>
+                  </Button>
+                  <Button fx:id="deleteButton" layoutX="54.0" layoutY="656.0" mnemonicParsing="false" onAction="#onClickDeleteButton" prefHeight="22.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Delete" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="TRASH" />
+                     </graphic>
+                  </Button>
+                  <Separator layoutX="54.0" layoutY="379.0" prefHeight="0.0" prefWidth="747.0" />
+                  <Separator layoutX="54.0" layoutY="16.0" prefHeight="12.0" prefWidth="746.0" />
+               </children>
+               <padding>
+                  <Insets bottom="30.0" />
+               </padding>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

@@ -1,52 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="669.0" prefWidth="1230.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewUserProfilePage">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="680.0" prefWidth="1109.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewUserProfilePage">
    <left>
-      <AnchorPane prefHeight="677.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="502.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
          <children>
-            <Text fill="WHITE" layoutX="26.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="BoardGameCafè Application" textAlignment="CENTER" wrappingWidth="217.921875">
-               <font>
-                  <Font name="System Bold Italic" size="28.0" />
-               </font>
-            </Text>
-            <Button fx:id="boardgamePostsButton" contentDisplay="CENTER" layoutX="20.0" layoutY="297.0" mnemonicParsing="false" onAction="#onClickBoardgamePosts" prefHeight="31.0" prefWidth="176.0" style="-fx-background-color: #ffffff;" text="Boardgame's Posts" textFill="#182e58">
+            <Button fx:id="postsFeedButton" contentDisplay="CENTER" layoutX="68.0" layoutY="298.0" mnemonicParsing="false" onAction="#onClickPostsFeedButton" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Posts Feed" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#onClickBoardgamesColletcion" prefHeight="39.0" prefWidth="209.0" style="-fx-background-color: #ffffff;" text="Boardgames Collection" textFill="#182e58">
+            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="68.0" layoutY="239.0" mnemonicParsing="false" onAction="#onClickBoardgamesButton" prefHeight="39.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="85.0" layoutY="602.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="79.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
+            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="95.0" layoutY="598.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="79.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="profileButton" contentDisplay="CENTER" layoutX="20.0" layoutY="182.0" mnemonicParsing="false" onAction="#onClickYourProfile" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
+            <Button fx:id="yourProfileButton" contentDisplay="CENTER" layoutX="68.0" layoutY="183.0" mnemonicParsing="false" onAction="#onClickYourProfileButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="accountDetailsButton" contentDisplay="CENTER" layoutX="20.0" layoutY="354.0" mnemonicParsing="false" onAction="#onClickAccountDetails" prefHeight="38.0" prefWidth="149.0" style="-fx-background-color: #ffffff;" text="Account Details" textFill="#182e58">
+            <Button fx:id="accountInfoButton" contentDisplay="CENTER" layoutX="67.0" layoutY="419.0" mnemonicParsing="false" onAction="#onClickAccountInfoButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Account Info" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
-            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="20.0" layoutY="414.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="128.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="67.0" layoutY="359.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="167.0" fitWidth="173.0" layoutX="48.0">
+               <image>
+                  <Image url="@logo.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="statisticsButton" contentDisplay="CENTER" layoutX="68.0" layoutY="477.0" mnemonicParsing="false" onAction="#onClickStatisticsButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Statistics" textFill="#182e58">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
@@ -55,33 +63,149 @@
       </AnchorPane>
    </left>
    <center>
-      <VBox prefHeight="677.0" prefWidth="783.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="701.0" prefWidth="840.0" BorderPane.alignment="CENTER">
          <children>
-            <AnchorPane>
+            <AnchorPane prefHeight="718.0" prefWidth="946.0">
                <children>
-                  <ScrollPane fx:id="scrollSet" layoutY="115.0" prefHeight="492.0" prefWidth="953.0">
+                  <ScrollPane fx:id="scrollSet" layoutY="241.0" prefHeight="398.0" prefWidth="836.0">
                      <content>
-                        <GridPane fx:id="postGridPane">
+                        <GridPane fx:id="gridPane">
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                         </GridPane>
                      </content>
                   </ScrollPane>
-                  <HBox alignment="CENTER" spacing="20.0">
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </HBox>
-                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="379.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
+                  <Button fx:id="previousButton" alignment="CENTER" contentDisplay="CENTER" layoutX="313.0" layoutY="657.0" mnemonicParsing="false" onAction="#onClickPrevious" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Previous" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="492.0" layoutY="626.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
+                  <Button fx:id="nextButton" alignment="CENTER" contentDisplay="CENTER" layoutX="425.0" layoutY="657.0" mnemonicParsing="false" onAction="#onClickNext" prefHeight="25.0" prefWidth="98.0" style="-fx-background-color: #182E58;" text="Next" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
+                  </Button>
+                  <Separator blendMode="SRC_ATOP" layoutY="237.0" prefHeight="5.0" prefWidth="835.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="409.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="6.0" />
+                  <Separator blendMode="SRC_ATOP" layoutY="201.0" prefHeight="9.0" prefWidth="835.0" />
+                  <VBox layoutX="79.0" layoutY="53.0" prefHeight="99.0" prefWidth="104.0">
+                     <children>
+                        <ImageView fx:id="profileImage" fitHeight="97.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </VBox>
+                  <Label fx:id="name111111" alignment="TOP_LEFT" layoutX="581.0" layoutY="93.0" prefHeight="21.0" prefWidth="63.0" text="follower" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="followerLabel" alignment="TOP_LEFT" layoutX="600.0" layoutY="72.0" text="1000" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="17.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="name1111111" alignment="TOP_LEFT" layoutX="38.0" layoutY="164.0" prefHeight="21.0" prefWidth="83.0" text="Username:" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="usernameLabel" alignment="TOP_LEFT" layoutX="114.0" layoutY="164.0" prefHeight="23.0" prefWidth="148.0" text="f.imbellicai" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="16.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="yourPostsButton" layoutX="1.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickPostsButton" prefHeight="30.0" prefWidth="408.0" style="-fx-background-color: #ffffff;" text="Posts" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="#182e58" glyphName="FILE" size="14" />
+                     </graphic>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </Button>
+                  <Button fx:id="yourReviewsButton" layoutX="412.0" layoutY="207.0" mnemonicParsing="false" onAction="#onClickReviewsButton" prefHeight="30.0" prefWidth="423.0" style="-fx-background-color: #ffffff;" text="Reviews" textFill="#182e58">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="#182e58" glyphName="LIST" size="14" />
+                     </graphic>
+                  </Button>
+                  <Separator blendMode="SRC_ATOP" layoutX="834.0" layoutY="205.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="3.0" />
+                  <Label fx:id="firstName" alignment="TOP_LEFT" layoutX="220.0" layoutY="68.0" prefHeight="21.0" prefWidth="83.0" text="First Name: " textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="firstNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="68.0" prefHeight="18.0" prefWidth="119.0" text="Francesco" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lastName" alignment="TOP_LEFT" layoutX="220.0" layoutY="93.0" prefHeight="21.0" prefWidth="83.0" text="Last Name: " textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lastNameLabel" alignment="TOP_LEFT" layoutX="301.0" layoutY="93.0" prefHeight="18.0" prefWidth="127.0" text="Imbelli Cai" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="nationality" alignment="TOP_LEFT" layoutX="220.0" layoutY="118.0" prefHeight="21.0" prefWidth="83.0" text="Nationality:" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="nationalityLabel" alignment="TOP_LEFT" layoutX="303.0" layoutY="118.0" prefHeight="18.0" prefWidth="126.0" text="Italy" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="name11111121" alignment="TOP_LEFT" layoutX="432.0" layoutY="92.0" prefHeight="21.0" prefWidth="42.0" text="posts" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="counterPostsLabel" alignment="TOP_LEFT" layoutX="440.0" layoutY="72.0" text="1000" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="17.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="name111111211" alignment="TOP_LEFT" layoutX="498.0" layoutY="93.0" prefHeight="22.0" prefWidth="63.0" text="reviews" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="counterReviewsLabel" alignment="TOP_LEFT" layoutX="516.0" layoutY="72.0" text="1000" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="17.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="name1111112" alignment="TOP_LEFT" layoutX="664.0" layoutY="93.0" prefHeight="22.0" prefWidth="71.0" text="following" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold Italic" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="followingLabel" alignment="TOP_LEFT" layoutX="689.0" layoutY="72.0" text="1000" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="17.0" />
+                     </font>
+                  </Label>
+                  <Separator fx:id="separator" blendMode="SRC_ATOP" layoutX="209.0" layoutY="68.0" orientation="VERTICAL" prefHeight="69.0" prefWidth="12.0" />
+                  <Button fx:id="followButton" layoutX="429.0" layoutY="140.0" mnemonicParsing="false" onAction="#onClickFollowButton" prefHeight="30.0" prefWidth="311.0" style="-fx-background-color: #182E58;" text="Follow" textFill="WHITESMOKE">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                     <graphic>
+                        <FontAwesomeIconView fill="WHITE" glyphName="USER" size="16" text="">
+                           <font>
+                              <Font size="19.0" />
+                           </font>
+                        </FontAwesomeIconView>
+                     </graphic>
                   </Button>
                </children>
                <padding>

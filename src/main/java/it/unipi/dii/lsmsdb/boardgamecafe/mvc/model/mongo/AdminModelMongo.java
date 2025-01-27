@@ -7,12 +7,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @TypeAlias("admin")
 public class AdminModelMongo extends GenericUserModelMongo {
 
-    public AdminModelMongo() {
-    }
-    public AdminModelMongo(String id, String username, String email, String salt,
-                           String passwordHash, String _class) {
+    public AdminModelMongo() {}
 
+    public AdminModelMongo(String id, String username, String email, String salt,
+                           String passwordHash, String _class)
+    {
         super(id, username, email, salt, passwordHash, _class);
+    }
+
+    public AdminModelMongo(String username, String email, String salt,
+                           String passwordHash, String _class)
+    {
+        super(username, email, salt, passwordHash, _class);
     }
 
     @Override

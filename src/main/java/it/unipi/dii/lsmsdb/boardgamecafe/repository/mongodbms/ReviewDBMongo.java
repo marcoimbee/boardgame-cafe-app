@@ -1,5 +1,6 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms;
 
+import com.mongodb.BasicDBObject;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,48 +21,25 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 @Component
 public class ReviewDBMongo {
 
-    public ReviewDBMongo() {}
-
     @Autowired
     private ReviewRepoMongo reviewMongo;
     @Autowired
     private MongoOperations mongoOperations;
+
+    public ReviewDBMongo() {}
 
     public ReviewRepoMongo getReviewMongo() {
         return reviewMongo;
     }
 
     public boolean addReview(ReviewModelMongo review) {
-        boolean result = true;
         try {
             reviewMongo.save(review);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            System.err.println("[ERROR] addReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
+            return false;
         }
-        return result;
-    }
-
-    public Optional<ReviewModelMongo> findReviewById(String id) {
-        Optional<ReviewModelMongo> review = Optional.empty();
-        try {
-            review = reviewMongo.findById(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return review;
-    }
-
-    public Optional<ReviewModelMongo> findByUsernameAndBoardgameName(String username,
-                                                                     String boardgameName) {
-
-        Optional<ReviewModelMongo> review = Optional.empty();
-        try {
-            review = reviewMongo.findByUsernameAndBoardgameName(username, boardgameName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return review;
     }
 
     public List<ReviewModelMongo> findReviewByUsername(String username) {
@@ -69,178 +47,174 @@ public class ReviewDBMongo {
         try {
             reviews = reviewMongo.findByUsername(username);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
         }
         return reviews;
     }
 
-    public List<ReviewModelMongo> findReviewByBoardgameName(String boardgameName) {
+    public List<ReviewModelMongo> findRecentReviewsByUsername(String username, int limit, int skip) {
         List<ReviewModelMongo> reviews = null;
         try {
-            reviews = reviewMongo.findByBoardgameName(boardgameName);
+            Query query = new Query();
+            query.addCriteria(Criteria.where("username").is(username));
+            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
+            query.skip(skip).limit(limit);
+            reviews = mongoOperations.find(query, ReviewModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] findRecentReviewsByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
         }
         return reviews;
     }
 
-
-    /*
-    public boolean updateReview(String id, ReviewModelMongo newReview) {
-
-        boolean result = true;
+    public List<ReviewModelMongo> findRecentReviewsByBoardgame(String boardgameName, int limit, int skip) {
+        List<ReviewModelMongo> reviews = null;
         try {
-            Optional<ReviewModelMongo> review = reviewMongo.findById(id);
-            if (review.isPresent()) {
-                ReviewModelMongo resultReview = review.get();
-
-                ReviewModelMongo.ReviewBuilder builder =
-                        new ReviewModelMongo.ReviewBuilder(newReview);
-
-                builder.id(id).boardgameName(resultReview.getBoardgameName()).
-                               username(resultReview.getUsername());
-
-                this.addReview(builder.build());
-            }
+            Query query = new Query();
+            query.addCriteria(Criteria.where("boardgameName").is(boardgameName));
+            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
+            query.skip(skip).limit(limit);
+            reviews = mongoOperations.find(query, ReviewModelMongo.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            System.err.println("[ERROR] findRecentReviewsByBoardgame()@ReviewDBMongo.java raised an exception: " + e.getMessage());
         }
-        return result;
-    }     */
-
-    public boolean updateReview(String id, ReviewModelMongo newReview) {
-
-        boolean result = true;
-        try {
-            Optional<ReviewModelMongo> review = reviewMongo.findById(id);
-            if (review.isPresent()) {
-                review.get().setUsername(newReview.getUsername());
-                review.get().setBoardgameName(newReview.getBoardgameName());
-                review.get().setRating(newReview.getRating());
-                review.get().setBody(newReview.getBody());
-                review.get().setDateOfReview(newReview.getDateOfReview());
-
-                reviewMongo.save(review.get());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
+        return reviews;
     }
 
-    public boolean deleteReviewById(String id) {
-        boolean result = true;
+    public boolean updateReview(String id, ReviewModelMongo newReview) {
         try {
-            reviewMongo.deleteById(id);
+            Optional<ReviewModelMongo> review = reviewMongo.findById(id);
+            if (review.isPresent()) {
+                ReviewModelMongo reviewToBeUpdated = review.get();
+
+                reviewToBeUpdated.setUsername(newReview.getUsername());
+                reviewToBeUpdated.setBoardgameName(newReview.getBoardgameName());
+                reviewToBeUpdated.setRating(newReview.getRating());
+                reviewToBeUpdated.setBody(newReview.getBody());
+                reviewToBeUpdated.setDateOfReview(newReview.getDateOfReview());
+
+                this.addReview(reviewToBeUpdated);
+            }
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            System.err.println("[ERROR] updateReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
+            return false;
         }
-        return result;
     }
 
     public boolean deleteReview(ReviewModelMongo review) {
-        boolean result = true;
         try {
             reviewMongo.delete(review);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean deleteReviewByUsername(String id) {
-        boolean result = true;
-        try {
-            reviewMongo.deleteReviewByUsername(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean deleteReviewByBoardgameName(String id) {
-        boolean result = true;
-        try {
-            reviewMongo.deleteReviewByBoardgameName(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
-        }
-        return result;
-    }
-
-    public List<ReviewModelMongo> findOldReviews(String parameter, boolean isBoardgame) {
-        List<ReviewModelMongo> reviews = new ArrayList<>();
-        try {
-            Query query = new Query();
-            if (isBoardgame) {
-                query.addCriteria(new Criteria("boardgameName").is(parameter));
-            } else {
-                query.addCriteria(new Criteria("username").is(parameter));
-            }
-            query.with(Sort.by(Sort.Direction.DESC, "dateOfReview"));
-            query.skip(50);
-            reviews = mongoOperations.find(query, ReviewModelMongo.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return reviews;
-    }
-
-    public boolean updateReviewsOldUser(String username) {
-        try {
-            Query query = Query.query(
-                    Criteria.where("username").is(username));
-            Update update = new Update().set("username", "Deleted User");
-            mongoOperations.updateMulti(query,
-                                        update,
-                                        ReviewModelMongo.class,
-                                        "reviews");
-        } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteReview()@ReviewDBMongo.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
-    // --- ToBeChanged ---
-    /*
-    public Document findTopPhonesByRating(int minReviews, int results) {
-        GroupOperation groupOperation = group("$phoneName").avg("$rating")
-                .as("avgRating").count().as("numReviews");
-        MatchOperation matchOperation = match(new Criteria("numReviews").gte(minReviews));
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("phoneName").andExclude("_id")
-                .andExpression("numReviews").as("reviews")
-                .and(ArithmeticOperators.Round.roundValueOf("avgRating").place(1)).as("rating");
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "rating", "reviews"));
-        LimitOperation limitOperation = limit(results);
-        Aggregation aggregation = newAggregation(groupOperation, matchOperation, projectionOperation,
-                sortOperation, limitOperation);
-        AggregationResults<ReviewModelMongo> result = mongoOperations
-                .aggregate(aggregation, "reviews", ReviewModelMongo.class);
-        return result.getRawResults();
+    // Returns a HashMap<K, V> in which:
+    //      -> K is a String: the boardgame that the user that is being deleted had reviewed
+    //      -> V is an Integer: the number of reviews that the user that is being deleted had done for that boardgame
+    public HashMap<String, List<Integer>> deleteReviewByUsername(String username) {
+        HashMap<String, List<Integer>> deletedReviewsForBoardgame = new HashMap<>();
+        try {
+            List<ReviewModelMongo> reviewsToBeDeleted = reviewMongo.findByUsername(username);
+
+            for (ReviewModelMongo review : reviewsToBeDeleted) {
+                String boardgameName = review.getBoardgameName();
+                int rating = review.getRating();
+
+                deletedReviewsForBoardgame
+                        .computeIfAbsent(boardgameName, k -> new ArrayList<>())
+                        .add(rating);
+
+                reviewMongo.deleteById(review.getId());
+            }
+
+            return deletedReviewsForBoardgame;
+        } catch (Exception e) {
+            System.err.println("[ERROR] deleteReviewByUsername()@ReviewDBMongo.java raised an exception: " + e.getMessage());
+            return null;
+        }
     }
 
-    public Document findMostActiveUsers(int results) {
-        GroupOperation groupOperation = group("$username").count().as("numReviews").
-                avg("$rating").as("ratingUser");
-        SortOperation sortOperation = sort(Sort.by(Sort.Direction.DESC, "numReviews"));
-        LimitOperation limitOperation = limit(results);
-        ProjectionOperation projectionOperation = project()
-                .andExpression("_id").as("username")
-                .andExpression("numReviews").as("reviews").andExclude("_id")
-                .and(ArithmeticOperators.Round.roundValueOf("ratingUser").place(1)).as("rating");
-        Aggregation aggregation = newAggregation(groupOperation, sortOperation, limitOperation,
-                projectionOperation);
-        AggregationResults<ReviewModelMongo> result = mongoOperations
-                .aggregate(aggregation, "reviews", ReviewModelMongo.class);
-        return result.getRawResults();
+    public boolean deleteReviewByBoardgameName(String boardgameName) {
+        try {
+            reviewMongo.deleteReviewByBoardgameName(boardgameName);
+            return true;
+        } catch (Exception e) {
+            System.err.println("[ERROR] deleteReviewByBoardgameName()@ReviewDBMongo.java raised an exception: " + e.getMessage());
+            return false;
+        }
     }
-    */
+
+    public Document getTopRatedBoardgamePerYear(int minReviews, int limit, int year) {
+        ProjectionOperation projectYear = project()
+                .andExpression("boardgameName").as("name")
+                .andExpression("rating").as("rating")
+                .andExpression("year(dateOfReview)").as("year");
+
+        Criteria minReviewsAndYear = new Criteria().andOperator(
+                Criteria.where("numReviews").gte(minReviews),
+                Criteria.where("_id.year").is(year) // Accessing year via _id, since the year became a key because of the grouping
+        );
+
+        GroupOperation groupByYearAndGame = group("name" ,"year")
+                .avg("rating").as("avgRating")
+                .count().as("numReviews");
+
+        MatchOperation matchMinReviews = match(minReviewsAndYear);
+
+        GroupOperation groupByYear = group("_id.year")
+                .push(new BasicDBObject("name", "$_id.name")
+                        .append("avgRating", "$avgRating")
+                        .append("numReviews", "$numReviews"))
+                .as("topGames");
+
+        AddFieldsOperation addFieldsSortTopGames = addFields()
+                .addField("topGames")
+                .withValue(new BasicDBObject("$let", new BasicDBObject("vars", new BasicDBObject("topGames", "$topGames"))
+                        .append("in", new BasicDBObject("$sortArray", new BasicDBObject("input", "$$topGames")
+                                .append("sortBy", new BasicDBObject("avgRating", -1)))))).build();
+
+        ProjectionOperation limitTopGamesPerYear = project()
+                .and("topGames").slice(limit)
+                .as("topGames");
+
+        SortOperation sortByYear = sort(Sort.by(Sort.Order.asc("_id"), Sort.Order.desc("topGames.avgRating")));
+
+        Aggregation aggregation = newAggregation(
+                projectYear,
+                groupByYearAndGame,
+                matchMinReviews,
+                groupByYear,
+                addFieldsSortTopGames,
+                limitTopGamesPerYear,
+                sortByYear
+        );
+
+        AggregationResults<Document> results = mongoOperations.aggregate(
+                aggregation,
+                "reviews",
+                Document.class
+        );
+
+        return results.getRawResults();
+    }
+
+    public boolean updateReviewsAfterBoardgameUpdate(String oldBoardgameName, String updatedBoardgameName) {
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("boardgameName").is(oldBoardgameName));
+
+            Update update = new Update();
+            update.set("boardgameName", updatedBoardgameName);
+
+            mongoOperations.updateMulti(query, update, "reviews");
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] updateReviewsAfterBoardgameUpdate()@ReviewDBMongo.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
 }

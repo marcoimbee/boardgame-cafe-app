@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="678.0" prefWidth="1109.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.ControllerViewStatisticsPage">
+   <left>
+      <AnchorPane prefHeight="502.0" prefWidth="270.0" style="-fx-background-color: #182E58;" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="postsFeedButton" contentDisplay="CENTER" layoutX="68.0" layoutY="299.0" mnemonicParsing="false" onAction="#onClickPostsFeedButton" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Posts Feed" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="boardgamesCollectionButton" contentDisplay="CENTER" layoutX="68.0" layoutY="240.0" mnemonicParsing="false" onAction="#onClickBoardgamesButton" prefHeight="39.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Boardgames" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="logoutButton" alignment="BOTTOM_LEFT" contentDisplay="CENTER" layoutX="95.0" layoutY="576.0" mnemonicParsing="false" onAction="#onClickLogout" prefHeight="39.0" prefWidth="79.0" style="-fx-background-color: #ffffff;" text="Logout" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="yourProfileButton" contentDisplay="CENTER" layoutX="68.0" layoutY="184.0" mnemonicParsing="false" onAction="#onClickYourProfileButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Your Profile" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="accountInfoButton" contentDisplay="CENTER" layoutX="67.0" layoutY="420.0" mnemonicParsing="false" onAction="#onClickAccountInfoButton" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Account Info" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <Button fx:id="searchUserButton" contentDisplay="CENTER" layoutX="67.0" layoutY="360.0" mnemonicParsing="false" onAction="#onClickSearchUserButton" prefHeight="38.0" prefWidth="135.0" style="-fx-background-color: #ffffff;" text="Search Users" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="171.0" fitWidth="173.0" layoutX="50.0" layoutY="4.0">
+               <image>
+                  <Image url="@logo.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="statisticsButton" contentDisplay="CENTER" layoutX="67.0" layoutY="480.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="136.0" style="-fx-background-color: #ffffff;" text="Statistics" textFill="#182e58">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </left>
+   <center>
+      <VBox prefHeight="701.0" prefWidth="840.0" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane prefHeight="706.0" prefWidth="839.0">
+               <children>
+                  <Separator blendMode="SRC_ATOP" layoutX="50.0" layoutY="40.0" orientation="VERTICAL" prefHeight="651.0" prefWidth="15.0" />
+                  <Label fx:id="statisticTitle" alignment="TOP_LEFT" layoutX="275.0" layoutY="40.0" prefHeight="28.0" prefWidth="289.0" text="Query Statistics and Analysis" textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="24.0" />
+                     </font>
+                  </Label>
+                  <Separator blendMode="SRC_ATOP" layoutX="58.0" layoutY="85.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="780.0" layoutY="33.0" orientation="VERTICAL" prefHeight="651.0" prefWidth="15.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="180.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="295.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="415.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Label fx:id="statisticTitle1" alignment="TOP_LEFT" layoutX="65.0" layoutY="110.0" prefHeight="29.0" prefWidth="388.0" text="Show the countries with the highest user number" textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="statisticTitle2" alignment="TOP_LEFT" layoutX="65.0" layoutY="228.0" prefHeight="29.0" prefWidth="388.0" text="Show average users age per country" textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="statisticTitle3" alignment="TOP_LEFT" layoutX="65.0" layoutY="345.0" prefHeight="29.0" prefWidth="388.0" text="Show the most active users in the application" textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="statisticTitle4" alignment="TOP_LEFT" layoutX="65.0" layoutY="465.0" prefHeight="30.0" prefWidth="426.0" text="Show the most posted and commented boardgames" textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="countriesAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="109.0" mnemonicParsing="false" onAction="#onClickCountriesAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="avgAgeAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="227.0" mnemonicParsing="false" onAction="#onClickAvgAgeAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="mostActiveUsersAnalyticsBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="350.0" mnemonicParsing="false" onAction="#onClickMostActiveUsersAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="mostPostedBGameBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="465.0" mnemonicParsing="false" onAction="#onClickMostPostedBGamesAnalyticsBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Separator blendMode="SRC_ATOP" layoutX="55.0" layoutY="540.0" prefHeight="4.0" prefWidth="729.0" />
+                  <Label fx:id="statisticTitle5" alignment="TOP_LEFT" layoutX="65.0" layoutY="589.0" prefHeight="30.0" prefWidth="426.0" text="Show the top commented tagged posts " textAlignment="CENTER" textFill="#182e58">
+                     <font>
+                        <Font name="Calibri Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="topCommentedTaggedPostBtn" contentDisplay="CENTER" layoutX="540.0" layoutY="589.0" mnemonicParsing="false" onAction="#onClickTopCommentedTaggedPostBtn" prefHeight="31.0" prefWidth="131.0" style="-fx-background-color: #182E58;" text="Show Analytic" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets bottom="30.0" />
+               </padding>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

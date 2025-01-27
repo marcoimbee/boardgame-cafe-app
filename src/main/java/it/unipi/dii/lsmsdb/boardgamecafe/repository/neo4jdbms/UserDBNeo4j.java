@@ -4,7 +4,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,21 +14,16 @@ public class UserDBNeo4j {
     @Autowired
     UserRepoNeo4j userNeo4jDB;
     @Autowired
-    Neo4jOperations neo4jOperations; //useful for aggregation
-
-    public UserRepoNeo4j getUserNeo4jDB() {
-        return userNeo4jDB;
-    }
+    Neo4jOperations neo4jOperations;
 
     public boolean addUser(UserModelNeo4j user) {
-        boolean result = true;
         try {
-            userNeo4jDB.save(user); //L'equivalente di MERGE
+            userNeo4jDB.save(user);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            System.err.println("[ERROR] addUser()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+            return false;
         }
-        return result;
     }
 
     public boolean updateUser(String id, UserModelNeo4j updated) {
@@ -41,35 +35,24 @@ public class UserDBNeo4j {
                 oldUser.setFollowedUsers(updated.getFollowedUsers());
                 oldUser.setWrittenPosts(updated.getWrittenPosts());
                 oldUser.setLikedPosts(updated.getLikedPosts());
-                oldUser.setWrittenComments(updated.getWrittenComments());
                 userNeo4jDB.save(oldUser);
+                return true;
             }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
             return false;
-        }
-        return true;
-    }
-
-    public boolean deleteUser(UserModelNeo4j user) {
-        try {
-            userNeo4jDB.delete(user);   //Default method (elimina soltanto l'utente)
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] updateUser()@UserDBNeo4j.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean deleteUserDetach(String username) {
         try {
-            userNeo4jDB.deleteAndDetachUserByUsername(username); //Detach esplicito in repositoryINF
+            userNeo4jDB.deleteAndDetachUserByUsername(username);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteUserDetach()@UserDBNeo4j.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
     public Optional<UserModelNeo4j> findByUsername(String username) {
@@ -77,32 +60,103 @@ public class UserDBNeo4j {
         try {
             user = userNeo4jDB.findByUsername(username);
         }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        catch (Exception e) {
+            System.err.println("[ERROR] findByUsername()@UserDBNeo4j.java raised an exception: " + e.getMessage());
         }
         return user;
     }
 
-    public List<UserModelNeo4j> getFollowers(String username) {
-        List<UserModelNeo4j> followers = new ArrayList<>();
+    public void followUser(String following, String followed) {
         try {
-            return userNeo4jDB.findFollowersByUsername(username);
+            userNeo4jDB.addFollowRelationship(following, followed);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] followUser()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+    }
+
+    public void unfollowUser(String unfollowing, String unfollowed) {
+        try {
+            userNeo4jDB.removeFollowRelationship(unfollowing, unfollowed);
+        } catch (Exception e) {
+            System.err.println("[ERROR] unfollowUser()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+    }
+
+    public List<String> getFollowedUsernames(String username) {
+        List<String> followers = new ArrayList<>();
+        try {
+            return userNeo4jDB.findFollowedUsernamesByUsername(username);
+        } catch (Exception e) {
+            System.err.println("[ERROR] getFollowedUsernames()@UserDBNeo4j.java raised an exception: " + e.getMessage());
         }
         return followers;
     }
 
-
-    public List<UserModelNeo4j> getFollowing(String username) {
-        List<UserModelNeo4j> following = new ArrayList<>();
+    public int getCountFollowing(String username) {
         try {
-            return userNeo4jDB.findFollowingByUsername(username);
+            return userNeo4jDB.countFollowingByUsername(username);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] getCountFollowing()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+            return 0;
         }
-        return following;
     }
 
+    public int getCountFollowers(String username) {
+        try {
+            return userNeo4jDB.countFollowersByUsername(username);
+        } catch (Exception e) {
+            System.err.println("[ERROR] getCountFollowers()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+            return 0;
+        }
+    }
 
+    public List<String> getUsersByCommonBoardgamePosted(String username, int limit, int skipCounter) {
+        List<String> suggestedUsers = new ArrayList<>();
+        try {
+            return userNeo4jDB.usersByCommonBoardgamePosted(username, limit, skipCounter);
+        } catch (Exception e) {
+            System.err.println("[ERROR] getUsersByCommonBoardgamePosted()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+        return suggestedUsers;
+    }
+
+    public List<String> getUsersBySameLikedPosts(String username, int limit, int skipCounter) {
+        List<String> suggestedUsers = new ArrayList<>();
+        try {
+            return userNeo4jDB.findUsersBySameLikedPosts(username, limit, skipCounter);
+        } catch (Exception e) {
+            System.err.println("[ERROR] getUsersBySameLikedPosts()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+        return suggestedUsers;
+    }
+
+    public List<String> getMostFollowedUsersUsernames(long minFollowersCount, int limit) {
+        List<String> mostFollowedUsersUsernames = new ArrayList<>();
+        try {
+            return userNeo4jDB.findMostFollowedUsersUsernames(minFollowersCount, limit);
+        } catch (Exception e) {
+            System.err.println("[ERROR] getMostFollowedUsersUsernames()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+        return mostFollowedUsersUsernames;
+    }
+
+    public Optional<UserModelNeo4j> findById(String id) {
+        Optional<UserModelNeo4j> user = Optional.empty();
+        try {
+            user = userNeo4jDB.findById(id);
+        }
+        catch (Exception e) {
+            System.err.println("[ERROR] findById()@UserDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+        return user;
+    }
+
+    public List<String> getFollowedUsernamesWhoCreatedAtLeastOnePost(String username, int limitResults, int skipCounter) {
+        List<String> followedUsernames = new ArrayList<>();
+        try { followedUsernames = userNeo4jDB.findFollowedUsernamesWhoCreatedAtLeastOnePost(username, limitResults, skipCounter); }
+        catch (Exception ex) {
+            System.err.println("[ERROR] getFollowedUsernamesWhoCreatedAtLeastOnePost()@UserDBNeo4j.java raised an exception: " + ex.getMessage());
+        }
+        return followedUsernames;
+    }
 }

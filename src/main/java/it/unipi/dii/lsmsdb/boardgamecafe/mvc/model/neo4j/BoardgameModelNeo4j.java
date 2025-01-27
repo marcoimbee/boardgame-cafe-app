@@ -1,7 +1,10 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j;
 
+import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.BoardgameModelMongo;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+import java.util.List;
 
 @Node("Boardgame")
 public class BoardgameModelNeo4j {
@@ -9,21 +12,22 @@ public class BoardgameModelNeo4j {
     @Id
     public String id;
     public String boardgameName;
-    public String thumbnail;
+    public String image;
+    public String description;
     public int yearPublished;
+    @Relationship(type = "REFERS_TO", direction = Relationship.Direction.INCOMING)
+    private List<PostModelNeo4j> posts;
 
-    public BoardgameModelNeo4j(){};
+    public BoardgameModelNeo4j() {}
 
-    public BoardgameModelNeo4j(String id, String boardgameName,
-                               String thumbnail, int yearPublished) {
-
+    public BoardgameModelNeo4j(String id, String boardgameName, String image, String description, int yearPublished) {
         this.id = id;
         this.boardgameName = boardgameName;
-        this.thumbnail = thumbnail;
+        this.image = image;
+        this.description = description;
         this.yearPublished = yearPublished;
     }
 
-    // Metodi setter/getter
     public String getId() {
         return id;
     }
@@ -40,12 +44,20 @@ public class BoardgameModelNeo4j {
         this.boardgameName = boardgameName;
     }
 
-    public String getThumbnail() {
-        return thumbnail;
+    public String getImage() {
+        return image;
     }
 
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getYearPublished() {
@@ -56,14 +68,22 @@ public class BoardgameModelNeo4j {
         this.yearPublished = yearPublished;
     }
 
+    public List<PostModelNeo4j> getPosts() { return posts; }
+
+    public void setPosts(List<PostModelNeo4j> posts) { this.posts = posts; }
+
+    public static BoardgameModelNeo4j castBoardgameMongoInBoardgameNeo(BoardgameModelMongo boardgameMongo) {
+        return new BoardgameModelNeo4j(boardgameMongo.getId(), boardgameMongo.getBoardgameName(),
+                boardgameMongo.getImage(), boardgameMongo.getDescription(),
+                boardgameMongo.getYearPublished());
+    }
+
     @Override
     public String toString() {
         return "BoardgameNeo4j{" +
                 "id='" + id + '\'' +
                 ", name='" + boardgameName + '\'' +
-                ", image='" + thumbnail + '\'' +
-                ", yearpublished='" + yearPublished + '\'' +
+                ", posts=" + posts +
                 '}';
     }
 }
-

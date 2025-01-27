@@ -2,30 +2,43 @@ package it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 
 @Document(collection = "users")
 @TypeAlias("user")
 public class UserModelMongo extends GenericUserModelMongo {
+
     private String name;
     private String surname;
     private String gender;
     private Date dateOfBirth;
     private String nationality;
     private boolean banned;
-    private List<ReviewModelMongo> reviews = new ArrayList<>();
 
-    public UserModelMongo(){};
+    public UserModelMongo(){}
 
-    public UserModelMongo(String id, String username, String passwordHash,
-                          String salt, String _class, String email,
+    public UserModelMongo(String id, String username, String email,
                           String name, String surname, String gender,
-                          Date dateOfBirth, String nationality, boolean banned) {
-
+                          Date dateOfBirth, String nationality, boolean banned,
+                          String salt, String passwordHash, String _class)
+    {
         super(id, username, email, salt, passwordHash, _class);
+        this.name = name;
+        this.surname = surname;
+        this.gender = gender;
+        this.dateOfBirth = dateOfBirth;
+        this.nationality = nationality;
+        this.banned = banned;
+    }
+
+    public UserModelMongo(String username, String email,
+                          String name, String surname, String gender,
+                          Date dateOfBirth, String nationality, boolean banned,
+                          String salt, String passwordHash, String _class)
+    {
+        super(username, email, salt, passwordHash, _class);
         this.name = name;
         this.surname = surname;
         this.gender = gender;
@@ -58,12 +71,17 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.gender = gender;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
+    /*
+        Dates need to be manually manipulated in order to prevent Spring and MongoDB managing them.
+     */
+    public LocalDate getDateOfBirth() {
+        Date dateOfBirth = this.dateOfBirth;
+        // Converting Date in LocalDate to avoid jet lag problems
+        return dateOfBirth.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
     }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        // Converting LocalDate to Date in UTC to be able to insert into MongoDB
+        this.dateOfBirth = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
     }
 
     public String getNationality() {
@@ -82,45 +100,11 @@ public class UserModelMongo extends GenericUserModelMongo {
         this.banned = banned;
     }
 
-    public List<ReviewModelMongo> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<ReviewModelMongo> reviews) {
-        this.reviews = reviews;
-    }
-
-    public void addReview(ReviewModelMongo review) {
-        this.reviews.add(0, review);
-    }
-
-    public ReviewModelMongo getReviewInUser(String id) {
-        if (!this.reviews.isEmpty()) {
-            for (ReviewModelMongo review : reviews) {
-                if (review.getId().equals(id)) {
-                    return review;
-                }
-            }
-        }
-        return null;
-    }
-
-    public boolean deleteReview(String id) {
-        ReviewModelMongo review = this.getReviewInUser(id);
-        if (review != null) {
-            reviews.remove(review);
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public String toString() {
         return "UserModelMongo{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
-                ", salt='" + salt + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
@@ -128,10 +112,8 @@ public class UserModelMongo extends GenericUserModelMongo {
                 ", dateOfBirth=" + dateOfBirth +
                 ", nationality='" + nationality + '\'' +
                 ", banned=" + banned +
-                ", reviews=" + reviews +
+                ", salt='" + salt + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 '}';
     }
-
-
 }
-

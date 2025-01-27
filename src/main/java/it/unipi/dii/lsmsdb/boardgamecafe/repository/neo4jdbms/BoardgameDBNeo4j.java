@@ -4,9 +4,9 @@ import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.BoardgameModelNeo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-
 
 @Component
 public class BoardgameDBNeo4j {
@@ -16,58 +16,53 @@ public class BoardgameDBNeo4j {
     @Autowired
     Neo4jOperations neo4jOperations;
 
-    public BoardgameRepoNeo4j getUserNeo4jDB() {
-        return boardgameRepoNeo4j;
-    }
 
-
-    public boolean addBoardgame(BoardgameModelNeo4j boardgameNeo4j) {
-        boolean result = true;
+    public BoardgameModelNeo4j addBoardgame(BoardgameModelNeo4j boardgame) {
         try {
-            boardgameRepoNeo4j.save(boardgameNeo4j);
+            return boardgameRepoNeo4j.save(boardgame);
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            System.err.println("[ERROR] addBoardgame()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
+            return null;
         }
-        return result;
     }
 
     public boolean deleteBoardgameDetach(String boardgameName) {
         try {
             boardgameRepoNeo4j.deleteAndDetachBoardgameByBoardgameName(boardgameName);
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] deleteBoardgameDetach()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
             return false;
         }
-        return true;
     }
 
-    public boolean updateBoardgameNeo4j(String id, BoardgameModelNeo4j newBoardgame) {
-
-        boolean result = true;
+    public boolean updateBoardgameNeo4j(String boardgameName, BoardgameModelNeo4j newBoardgame) {
         try {
-            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4j.findById(id);
+            Optional<BoardgameModelNeo4j> boardgameNeo = boardgameRepoNeo4j.findByBoardgameName(boardgameName);
             if (boardgameNeo.isPresent()) {
-                boardgameNeo.get().setBoardgameName(newBoardgame.getBoardgameName());
-                boardgameNeo.get().setThumbnail(newBoardgame.getThumbnail());
-                boardgameNeo.get().setYearPublished(newBoardgame.getYearPublished());
 
-                boardgameRepoNeo4j.save(boardgameNeo.get());
+                BoardgameModelNeo4j boardgameToBeUpdated = boardgameNeo.get();
+
+                boardgameToBeUpdated.setBoardgameName(newBoardgame.getBoardgameName());
+                boardgameToBeUpdated.setImage(newBoardgame.getImage());
+                boardgameToBeUpdated.setDescription(newBoardgame.getDescription());
+                boardgameToBeUpdated.setYearPublished(newBoardgame.getYearPublished());
+
+                boardgameRepoNeo4j.save(boardgameToBeUpdated);
             }
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            System.err.println("[ERROR] updateBoardgameNeo4j()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
+            return false;
         }
-        return result;
     }
 
     public Optional<BoardgameModelNeo4j> findById(String id) {
         Optional<BoardgameModelNeo4j> bg = Optional.empty();
         try {
             bg = boardgameRepoNeo4j.findById(id);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findById()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
         }
         return bg;
     }
@@ -76,10 +71,31 @@ public class BoardgameDBNeo4j {
         Optional<BoardgameModelNeo4j> bg = Optional.empty();
         try {
             bg = boardgameRepoNeo4j.findByBoardgameName(boardgameName);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR] findByBoardgameName()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
         }
         return bg;
+    }
+
+    // Suggest boardgames which users you follow posted about
+    public List<BoardgameModelNeo4j> getBoardgamesWithPostsByFollowedUsers(String username, int limit, int skipCounter) {
+        List<BoardgameModelNeo4j> boardgames = new ArrayList<>();
+        try {
+            boardgames = boardgameRepoNeo4j.getBoardgamesWithPostsByFollowedUsers(username, limit, skipCounter);
+        } catch (Exception e) {
+            System.err.println("[ERROR] getBoardgamesWithPostsByFollowedUsers()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+        return boardgames;
+    }
+
+    public List<BoardgameModelNeo4j> findRecentBoardgames(int limit, int skip) {
+        Optional<List<BoardgameModelNeo4j>> optionalRecentBoardgames = Optional.empty();
+        try {
+            optionalRecentBoardgames = boardgameRepoNeo4j.findRecentBoardgames(skip, limit);
+        } catch (Exception e) {
+            System.err.println("[ERROR] findRecentBoardgames()@BoardgameDBNeo4j.java raised an exception: " + e.getMessage());
+        }
+
+        return optionalRecentBoardgames.orElseGet(ArrayList::new);      // Return an empty list
     }
 }

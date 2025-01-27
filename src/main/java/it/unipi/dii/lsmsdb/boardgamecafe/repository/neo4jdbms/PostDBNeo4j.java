@@ -3,160 +3,140 @@ package it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.utils.LikedPostsCache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class PostDBNeo4j {
+
     @Autowired
     private PostRepoNeo4j postRepoNeo4j;
     @Autowired
-    private Neo4jOperations neo4jOperations;
-    @Autowired
     private LikedPostsCache likedPostsCache;
 
-    public PostRepoNeo4j getPostRepoNeo4j() {
-        return postRepoNeo4j;
-    }
 
     public boolean addPost(PostModelNeo4j post) {
         try {
             postRepoNeo4j.save(post);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] addPost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean updatePost(PostModelNeo4j updated) {
         try {
             Optional<PostModelNeo4j> old = postRepoNeo4j.findById(updated.getId());
             if (old.isPresent()) {
-                PostModelNeo4j oldPost = old.get();
-                oldPost.setComments(updated.getComments());
-                postRepoNeo4j.save(oldPost);
+                PostModelNeo4j newPost = old.get();
+                newPost.setTaggedGame(updated.getTaggedGame());
+                postRepoNeo4j.save(newPost);
             }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] updatePost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean deletePost(String id) {
         try {
             postRepoNeo4j.deleteAndDetach(id);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deletePost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean deleteByReferredBoardgame(String bgName) {
         try {
             postRepoNeo4j.deleteByReferredBoardgame(bgName);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deleteByReferredBoardgame()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     public boolean deleteByUsername(String username) {
         try {
             postRepoNeo4j.deleteByUsername(username);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deleteByUsername()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
             return false;
         }
-        return true;
     }
 
     public Optional<PostModelNeo4j> findById(String id) {
         Optional<PostModelNeo4j> post = Optional.empty();
         try {
             post = postRepoNeo4j.findById(id);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return post;
-    }
-    public Optional<PostModelNeo4j> findFromCommentId(String commentId) {
-        Optional<PostModelNeo4j> post = Optional.empty();
-        try {
-            post = postRepoNeo4j.findFromCommentId(commentId);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception ex) {
+            System.err.println("[ERROR] findById()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
         }
         return post;
     }
 
-    public List<PostModelNeo4j> findFromReferredBoardgame(String boardgameName) {
-        List<PostModelNeo4j> posts = new ArrayList<>();
+    public boolean addLikePost(String username, String postId, boolean likeAction) {
         try {
-            posts = postRepoNeo4j.findFromReferredBoardgame(boardgameName);
+            likedPostsCache.addInfoLike(postId, true, likeAction);      // AutoIncrement done here
+            postRepoNeo4j.addLike(username, postId);            // Creating Neo4j relationship here
+        } catch (Exception ex) {
+            System.err.println("[ERROR] addLikePost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
+            return false;
         }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return posts;
+        return true;
     }
 
-    public void addLikePost(String username, String postId) {
+    public boolean removeLikePost(String username, String postId) {
         try {
-            if (!likedPostsCache.hasLiked(username, postId)) {
-                postRepoNeo4j.addLike(username, postId);
-                likedPostsCache.addLike(username, postId);
-            }
+            likedPostsCache.addInfoLike(postId, false, true);       // AutoDecrement done here
+            postRepoNeo4j.removeLike(username, postId);
         } catch (Exception ex) {
-            // Log dell'eccezione
-            System.err.println("Error adding like from user " + username + " to post " + postId + ": " + ex.getMessage());
+            System.err.println("[ERROR] removeLikePost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
+            return false;
         }
-    }
-
-    public void removeLikePost(String username, String postId) {
-        try {
-            if (likedPostsCache.hasLiked(username, postId)) {
-                postRepoNeo4j.removeLike(username, postId);
-                likedPostsCache.removeLike(username, postId);
-            }
-        } catch (Exception ex) {
-            // Log dell'eccezione
-            System.err.println("Error removing like from user " + username + " for post " + postId + ": " + ex.getMessage());
-        }
+        return true;
     }
 
     public boolean hasUserLikedPost(String username, String postId) {
         try {
-            // Prima controlla la cache
-            if (likedPostsCache.hasLiked(username, postId)) {
-                return true;
-            }
-            // Se non è in cache, controlla il database Neo4j
-            boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
-            if (hasLiked) {
-                likedPostsCache.addLike(username, postId); // Aggiorna la cache
-            }
-            return hasLiked;
+            int likeInfo = likedPostsCache.hasLiked(postId);       // First, check the cache
 
+            // If the infoLike is in the cache, then return immediately. Otherwise, it's necessary to ask Neo4j
+            if (likeInfo == LikedPostsCache.LIKED) { // Info present in cache. LIKE IS PRESENT.
+                return true;
+            } else if (likeInfo == LikedPostsCache.NOT_LIKED) { // Info present in cache. LIKE IS NOT PRESENT.
+                return false;
+            } else {        // Not in cache, check Neo4j DB
+                boolean hasLiked = postRepoNeo4j.hasLiked(username, postId);
+                likedPostsCache.addInfoLike(postId, hasLiked, false);
+                return hasLiked;
+            }
         } catch (Exception ex) {
-            // Log dell'eccezione
-            System.err.println("Error checking like status for user " + username + " on post " + postId + ": " + ex.getMessage());
-            return false; // In caso di errore, restituisce false
+            System.err.println("[ERROR] hasUserLikedPost()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
+            return false;
         }
+    }
+
+    public void setLikeCount(String postId, Integer likeCount) {
+        this.likedPostsCache.updateLikeCount(postId, likeCount);
+    }
+
+
+    public List<PostModelNeo4j> getPostsLikedByFollowedUsers(String username, int limitResults, int skipCounter) {
+        List<PostModelNeo4j> posts = new ArrayList<>();
+        try {
+            posts = postRepoNeo4j.findPostsLikedByFollowedUsers(username, limitResults, skipCounter);
+        } catch (Exception ex) {
+            System.err.println("[ERROR] getPostsLikedByFollowedUsers()@PostDBNeo4j.java raised an exception: " + ex.getMessage());
+        }
+        return posts;
     }
 
 }

@@ -1,24 +1,20 @@
 package it.unipi.dii.lsmsdb.boardgamecafe.services;
 
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.CommentModelNeo4j;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.PostModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.neo4j.UserModelNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.*;
-import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.CommentDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import org.neo4j.cypherdsl.core.Use;
 import java.util.*;
 
 @Component
@@ -35,16 +31,10 @@ public class UserService {
     @Autowired
     private PostDBNeo4j postNeo4jOp;
     @Autowired
-    private CommentDBMongo commentMongoOp;
-    @Autowired
-    private CommentDBNeo4j commentNeo4jOp;
-    @Autowired
     private BoardgameDBMongo boardgameMongoOp;
 
-    private final static Logger logger = LoggerFactory.getLogger(UserService.class);
-
     public String getHashedPassword(String passwordToHash, String salt) {
-        String generatedPassword = null;
+        String generatedPassword;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(salt.getBytes());
@@ -55,34 +45,18 @@ public class UserService {
                         .substring(1));
             }
             generatedPassword = sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            return generatedPassword;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] getHashedPassword()@UserService.java raised an exception: " + ex.getMessage());
+            return null;
         }
-        return generatedPassword;
     }
-    public String getSalt() {
+
+    public String generateSalt() {
         SecureRandom sr = new SecureRandom();
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
-    }
-
-    public AdminModelMongo createAdmin(String username,
-                                       String email,
-                                       String password){
-
-        String salt = this.getSalt();
-        String hashedPassword = this.getHashedPassword(password, salt);
-
-        return new AdminModelMongo(null, username, email, salt, hashedPassword, "admin");
-    }
-
-    public boolean insertAdmin(AdminModelMongo admin) {
-        if (!userMongoDB.addUser(admin)) {
-            logger.error("Error in adding the admin to MongoDB");
-            return false;
-        }
-        return true;
     }
 
     public UserModelMongo createUser(String username, String email, String password,
@@ -90,154 +64,296 @@ public class UserService {
                                      String nationality, int year,
                                      int month, int day)
     {
-        Date dateOfBirth = new GregorianCalendar(year, month-1, day+1).getTime();
-        String salt = this.getSalt();
+        /*
+            The date gets created using LocalDate because it should just represent a date with no information
+            about time or jet lag. The use of such class completely avoids the increment or the decrement of the day
+            caused by jet lag conversions, maintaining in a more reliable way the desired date and avoiding potential
+            implicit conversions due to potential differences in dates management between framework and DB.
+         */
+        LocalDate dateOfBirth = LocalDate.of(year, month, day);
+        String salt = this.generateSalt();
         String hashedPassword = this.getHashedPassword(password, salt);
 
-        return new UserModelMongo(null, username,hashedPassword,
-                salt, "user",email, name, surname,
-                gender,dateOfBirth,
-                nationality, false);
+        // LocalDate is converted to Date in UTC to insert it into MongoDB (this is a mandatory step)
+        Date dateOfBirthInUTC = Date.from(dateOfBirth.atStartOfDay(ZoneId.of("UTC")).toInstant());
+
+        return new UserModelMongo(username,email,name, surname,
+                gender,dateOfBirthInUTC, nationality, false,
+                salt, hashedPassword, "user");
     }
 
+    @Transactional
     public boolean insertUser(UserModelMongo user) {
-        // MongoDB
-        if (!userMongoDB.addUser(user)) {
-            logger.error("Error in adding the user to MongoDB");
-            return false;
-        }
-
-        // Update id
-        user = (UserModelMongo) userMongoDB.findByUsername(user.getUsername()).get();
-
-        // Neo4j
-        if (!userNeo4jDB.addUser(new UserModelNeo4j(user.getId(), user.getUsername()))) {
-            logger.error("Error in adding the user to Neo4j");
-            if (!userMongoDB.deleteUser(user)) {
-                logger.error("Error in deleting the user from MongoDB");
-            }
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean removeUserReviews(UserModelMongo user) {
-        for (ReviewModelMongo review : user.getReviews()) {
-            Optional<BoardgameModelMongo> boardgameResult = boardgameMongoOp.findBoardgameByName(review.getBoardgameName());
-            if (boardgameResult.isPresent()) {
-                BoardgameModelMongo boardgame = boardgameResult.get();
-                boardgame.deleteReview(review.getId());
-                if (!boardgameMongoOp.updateBoardgameMongo(boardgame.getId(), boardgame)) {
-                    logger.error("Error in deleting review inside boardgame collection in MongoDB");
-                    return false;
-                }
-            }
-        }
-
-        if (!reviewMongoOp.deleteReviewByUsername(user.getId())) {
-            logger.error("Error in deleting reviews written by user in MongoDB");
-            return false;
-        }
-        return true;
-    }
-    private boolean removeUserPosts(String username) {
-        Optional<UserModelNeo4j> userResult = userNeo4jDB.findByUsername(username);
-        if (userResult.isEmpty()) {
-            return true;
-        }
-        UserModelNeo4j user = userResult.get();
-
-        // Delete comments in posts written by the user
-        for (PostModelNeo4j post : user.getWrittenPosts()) {
-            // MongoDB
-            if (!commentMongoOp.deleteByPost(post.getId())) {
-                logger.error("Error deleting comments in post written by user in MongoDB");
-                return false;
-            }
-            // Neo4j
-            if (!commentNeo4jOp.deleteByPost(post.getId())) {
-                logger.error("Error deleting comments in post written by user in Neo4j");
-                return false;
-            }
-        }
-
-        // Delete posts
-        // MongoDB
-        if (!postMongoOp.deleteByUsername(user.getUsername())) {
-            logger.error("Error deleting posts written by user in MongoDB");
-            return false;
-        }
-        // Neo4j
-        if (!postNeo4jOp.deleteByUsername(user.getUsername())) {
-            logger.error("Error deleting posts written by user in Neo4j");
-            return false;
-        }
-        return true;
-    }
-    private boolean removeUserComments(String username) {
-        // Update comments in post collection
-        for (CommentModelMongo comment : commentMongoOp.findByUsername(username)) {
-            Optional<PostModelMongo> postResult = postMongoOp.findById(comment.getPost());
-            if (postResult.isPresent()) {
-                PostModelMongo post = postResult.get();
-                post.deleteCommentInPost(comment.getId());
-                comment.setUsername("[deleted]");
-                comment.setText("[deleted]");
-                post.addComment(comment);
-                if (!postMongoOp.updatePost(post.getId(), post)) {
-                    logger.error("Error in deleting user comments in post collection in MongoDB");
-                    return false;
-                }
-            }
-        }
-
-        // Delete Comments
-        // MongoDB
-        if (!commentMongoOp.deleteByUsername(username)) {
-            logger.error("Error in deleting user comments in MongoDB");
-            return false;
-        }
-        // Neo4j
-        if (!commentNeo4jOp.deleteByUsername(username)) {
-            logger.error("Error in deleting user comments in Neo4j");
-            return false;
-        }
-        return true;
-    }
-
-    public boolean banUser(UserModelMongo user) {
-        String username = user.getUsername();
-        user.setBanned(true);
-
-        if (!userMongoDB.updateUser(user.getId(), user, "user")) {
-            logger.error("Error in setting banned flag in user");
-            return false;
-        }
-        return removeUserReviews(user) && removeUserPosts(username) && removeUserComments(username);
-    }
-    public boolean deleteUser(UserModelMongo user) {
-        String username = user.getUsername();
-
-        if (!removeUserReviews(user) || !removeUserPosts(username) || !removeUserComments(username))
-            return false;
-
         try {
-            // MongoDB
-            if (!userMongoDB.deleteUser(user)) {
-                logger.error("Error in deleting the user from the user collection in MongoDB");
-                return false;
+            if (userMongoDB.findByUsername(user.getUsername(), false).isPresent()) {  // Username uniqueness check
+                throw new Exception("Unable to insert an already existing user");
             }
 
-            // Neo4jDB
-            if (!userNeo4jDB.deleteUserDetach(username)) {
-                logger.error("Error in deleting the user in Neo4j");
+            // MongoDB insert
+            if (!userMongoDB.addUser(user)) {       // Adding the new user in MongoDB
+                throw new Exception("Failed to insert the new user in MongoDB");
+            }
+
+            // Getting the ID of the newly created user from MongoDB
+            Optional<GenericUserModelMongo> createdUserOptional = userMongoDB.findByUsername(user.getUsername(), false);
+            if (createdUserOptional.isEmpty()) {
+                userMongoDB.deleteUser(user);
+                throw new Exception("Failed to retrieve newly inserted user from MongoDB");
+            }
+
+            user = (UserModelMongo) createdUserOptional.get();   // This user has an ID
+
+            // Neo4j insert
+            UserModelNeo4j newNeo4jUser = new UserModelNeo4j(user.getId(), user.getUsername());
+            if (!userNeo4jDB.addUser(newNeo4jUser)) {
+                userMongoDB.deleteUser(user);               // MongoDB rollback if anything goes wrong
+                throw new Exception("Failed to insert new user in Neo4J");
+            }
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] insertUser()@UserService.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    private HashMap<String, List<Integer>> deleteUserReviews(UserModelMongo user) {
+        try {
+            // Deleting the reviews in the reviews collection, getting a map in which for each reviewed
+            // boardgame we have the number of reviews that got deleted
+            HashMap<String, List<Integer>> deletedReviewsForBoardgame = reviewMongoOp.deleteReviewByUsername(user.getUsername());
+            if (deletedReviewsForBoardgame == null) {
+                throw new Exception("Failed to delete the user's reviews from the 'Reviews' collection");
+            }
+            return deletedReviewsForBoardgame;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] removeUserReviews()@UserService.java raised an exception: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    private boolean deleteUserPosts(String username) {
+        try {
+            // Delete actual post documents and nodes
+            if (!postNeo4jOp.deleteByUsername(username)) {      // Neo4J post nodes deletion
                 return false;
+            }
+            if (!postMongoOp.deleteByUsername(username)) {      // MongoDB deletion from posts collection
+                return false;
+            }
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deleteUserPosts()@UserService.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean deleteUser(UserModelMongo user) {
+        try {
+            /*
+                Posts of a deleted user
+                    -> delete from the collection
+                Comments of a deleted user (inside a Post)
+                    -> delete from comments array
+                Reviews of a deleted user
+                    -> delete from the collection
+                Boardgames
+                    -> Update reviewCounter (if he wrote some reviews, those get deleted, so the
+                       counter of the boardgame must be updates as well)
+             */
+            String username = user.getUsername();
+
+            // Neo4j user deletion
+            if (!userNeo4jDB.deleteUserDetach(username)) {
+                throw new Exception("Failed to delete the user from Neo4J");
+            }
+
+            // Posts management
+            if (!deleteUserPosts(username)) {
+                throw new Exception("Failed to delete user posts");
+            }
+
+            // Comments management - deletion of comments under posts the user had commented
+            if (!postMongoOp.deleteCommentsAfterUserDeletion(username)) {
+                throw new Exception("Failed to delete user comments");
+            }
+
+            // Reviews management - deletion of documents + update of reviews under boardgames
+            HashMap<String, List<Integer>> deletedReviewsForBoardgame = deleteUserReviews(user);
+            if (deletedReviewsForBoardgame == null) {
+                throw new Exception("Failed to delete user reviews");
+            }
+
+            // Boardgames management - update reviewCount field, if the user we are deleting had reviewed some boardgames
+            if (!deletedReviewsForBoardgame.isEmpty()) {            // Do the following only if the user had some reviews
+                for (Map.Entry<String, List<Integer>> hashMapElement : deletedReviewsForBoardgame.entrySet()) {
+                    String reviewedBoardgame = hashMapElement.getKey();
+                    List<Integer> ratings = hashMapElement.getValue();    // Get boardgame name and #reviews of the user
+
+                    if (!boardgameMongoOp.updateRatingAfterUserDeletion(reviewedBoardgame, ratings)) {
+                        throw new Exception("Failed to update a boardgame's rating and reviewCount after a user deletion");
+                    }
+                }
+            }
+
+            // MongoDB user deletion
+            if (!userMongoDB.deleteUser(user)) {
+                throw new Exception("Failed to delete the user from MongoDB collection");
+            }
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] deleteUser()@UserService.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public List<UserModelMongo> suggestUsersByCommonBoardgamePosted(String username, int limit, int skipCounter) {
+        try {
+            List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersByCommonBoardgamePosted(username, limit, skipCounter);
+            List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
+            for (String suggestedUsername : suggestedNeo4jUsers) {
+                Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername, false);
+                suggestedMongoUser.ifPresent(
+                        genericUserModelMongo -> {
+                            UserModelMongo user = (UserModelMongo) genericUserModelMongo;
+                            if (!"admin".equals(user.get_class())) {    // Exclude users with _class = "admin"
+                                suggestedMongoUsers.add(user);
+                            }
+                        }
+                );
+            }
+            return suggestedMongoUsers;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] suggestUsersByCommonBoardgamePosted()@UserService.java raised an exception: " + ex.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UserModelMongo> suggestInfluencerUsers(
+            long minFollowersCount,
+            int mostFollowedUsersLimit,
+            long minAvgLikeCount,
+            int influencerUsersLimit)
+    {
+        try {
+            List<String> mostFollowedUsersUsernamesNeo = userNeo4jDB.getMostFollowedUsersUsernames(
+                    minFollowersCount,
+                    mostFollowedUsersLimit
+            );
+
+            List<String> mostFollowedUsersWithHighestAvgLikeCountIdsMongo = userMongoDB.findMostFollowedUsersWithMinAverageLikesCountUsernames(
+                    mostFollowedUsersUsernamesNeo,
+                    minAvgLikeCount,
+                    influencerUsersLimit
+            );
+
+            List<UserModelMongo> suggestedInfluencers = new ArrayList<>();
+            for (String influencerUsername : mostFollowedUsersWithHighestAvgLikeCountIdsMongo) {
+                Optional<GenericUserModelMongo> suggestedInfluencer = userMongoDB.findByUsername(influencerUsername, false);
+                suggestedInfluencer.ifPresent(
+                        genericUserModelMongo -> {
+                            UserModelMongo user = (UserModelMongo) genericUserModelMongo;
+                            if (!"admin".equals(user.get_class())) {        // Exclude users with _class = "admin"
+                                suggestedInfluencers.add(user);
+                            }
+                        }
+                );
+            }
+            return suggestedInfluencers;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] suggestInfluencerUsers()@UserService.java raised an exception: " + ex.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UserModelMongo> suggestUsersByCommonLikedPosts(String username, int limit, int skipCounter) {
+        try {
+            List<String> suggestedNeo4jUsers = userNeo4jDB.getUsersBySameLikedPosts(username, limit, skipCounter);
+            List<UserModelMongo> suggestedMongoUsers = new ArrayList<>();
+            for (String suggestedUsername : suggestedNeo4jUsers) {
+                Optional<GenericUserModelMongo> suggestedMongoUser = userMongoDB.findByUsername(suggestedUsername, false);
+                suggestedMongoUser.ifPresent(
+                        genericUserModelMongo -> {
+                            UserModelMongo user = (UserModelMongo) genericUserModelMongo;
+                            if (!"admin".equals(user.get_class())) {            // Exclude users with _class = "admin"
+                                suggestedMongoUsers.add(user);
+                            }
+                        }
+                );
+            }
+            return suggestedMongoUsers;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] suggestUsersByCommonLikedPosts()@UserService.java raised an exception: " + ex.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public boolean banUser(UserModelMongo user) {
+        try {
+            // Setting MongoDB 'banned' flag to true
+            user.setBanned(true);
+            if (!userMongoDB.updateUser(user.getId(), user, "user")) {
+                throw new Exception("Failed to set 'banned' MongoDB flag in 'Users' collection.");
+            }
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] banUser()@UserService.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean unbanUser(UserModelMongo user) {
+        try {
+            if (user.isBanned()) {
+                String userId = user.getId();
+
+                // Setting MongoDB 'banned' flag to false - MongoDB
+                user.setBanned(false);
+                if (!userMongoDB.updateUser(userId, user, "user")) {
+                    throw new Exception("Failed to unset 'banned' MongoDB flag");
+                }
+            }
+
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] unbanUser()@UserService.java raised an exception: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    public HashMap<String, Double> getAvgAgeByNationality(int limit) {
+        HashMap<String, Double> avgAgeByNationality = new HashMap<>();
+        try {
+            Document docResult = this.userMongoDB.showUserAvgAgeByNationality(limit).get();
+
+            for (Document doc : (List<Document>)docResult.get("results")) {
+                String country = doc.getString("_id");
+                Double avgAge = doc.getDouble("averageAge");
+                avgAgeByNationality.put(country, avgAge);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[ERROR] getAvgAgeByNationality()@UserService.java raised an exception: " + e.getMessage());
         }
-        return true;
+        return avgAgeByNationality;
     }
 
+    public LinkedHashMap<String, Integer> getCountriesWithMostUsers(int minUserNumber, int limit) {
+        LinkedHashMap<String, Integer> avgAgeByNationality = new LinkedHashMap<>();
+        try {
+            Document docResult = this.userMongoDB.findCountriesWithMostUsers(minUserNumber, limit);
+            for (Document doc : (List<Document>)docResult.get("results")) {
+                String country = doc.getString("_id");
+                Integer usersNumber = doc.getInteger("numUsers");
+                avgAgeByNationality.put(country, usersNumber);
+            }
+        } catch (Exception e) {
+            System.err.println("[ERROR] getCountriesWithMostUsers()@UserService.java raised an exception: " + e.getMessage());
+        }
+        return avgAgeByNationality;
+    }
 }
