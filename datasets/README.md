@@ -66,7 +66,7 @@ WHERE u2 <> any(user IN randomUsers WHERE user = u2)
 FOREACH (user in randomUsers | CREATE (u2)-[:FOLLOWS]->(user))
 ```
 
-#### USER LIKES POST - UNIQUE WAY: User A cannot likes a post 2 times, and this script guarantees it
+#### USER LIKES POST - UNIQUE WAY: User 'A' cannot likes a post 2 times, and this script guarantees it
 ```
 WITH range(1, 100) as likesRange
 MATCH (u:User)
