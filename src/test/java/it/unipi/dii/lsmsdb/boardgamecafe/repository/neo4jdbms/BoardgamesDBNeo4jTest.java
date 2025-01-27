@@ -117,7 +117,6 @@ class BoardgamesDBNeo4jTest {
         List<BoardgameModelNeo4j> boardgames = boardgameDBNeo4j.
                 getBoardgamesWithPostsByFollowedUsers(testUserName1, 10, 0);
 
-        // Assert che l'output non sia nullo
         assertNotNull(boardgames, "La lista restituita non deve essere null");
         assertFalse(boardgames.isEmpty());
         assertTrue(boardgames.size() <= 10, "Il numero di boardgame restituiti non deve superare il limite");

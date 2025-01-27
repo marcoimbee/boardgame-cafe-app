@@ -45,7 +45,6 @@ class PostDBNeo4jTest {
         testAuthor = new UserModelNeo4j(testIdUsername1, testUsername1);
         testPost1.setAuthor(testAuthor);
 
-        // Creazione di un altro utente e post per i test
         testPost2 = new PostModelNeo4j(testIdPost2);
         followedUser = new UserModelNeo4j(testIdUsername2, testUsername2);
         testPost2.setAuthor(followedUser);
@@ -145,19 +144,19 @@ class PostDBNeo4jTest {
     @Test
     @Order(160)
     public void cleanup() {
-        // Eliminare il Boardgame creato nel setup
+        // Delete the Boardgame created in the setup
         boolean boardgameDeleted = boardgameDBNeo4j.deleteBoardgameDetach(testBoardgameName);
         assertTrue(boardgameDeleted, "Failed to delete followed post in cleanup");
-        // Eliminare il post creato nel setup
+        // Delete the post created in the setup
         boolean postDeleted = postDBNeo4j.deletePost(testIdPost2);
         assertTrue(postDeleted, "Failed to delete followed post in cleanup");
-        // Eliminare l'utente creato nel setup
+        // Delete the user created in the setup
         boolean userDeleted = userDBNeo4j.deleteUserDetach(testUsername2);
         assertTrue(userDeleted, "Failed to delete followed user in cleanup");
-        // Eliminare il post creato nel setup
+        // Delete the post created in the setup
         boolean postDeleted2 = postDBNeo4j.deletePost(testIdPost1);
         assertTrue(postDeleted2, "Failed to delete followed post in cleanup");
-        // Eliminare l'utente creato nel setup
+        // Delete the user created in the setup
         boolean userDeleted2 = userDBNeo4j.deleteUserDetach(testUsername1);
         assertTrue(userDeleted2, "Failed to delete followed user in cleanup");
     }

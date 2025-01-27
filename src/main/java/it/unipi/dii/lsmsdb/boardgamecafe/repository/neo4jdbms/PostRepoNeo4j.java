@@ -48,14 +48,4 @@ public interface PostRepoNeo4j extends Neo4jRepository<PostModelNeo4j, String> {
                                                        @Param("limit") int limitResults,
                                                        @Param("skipCounter") int skipCounter);
 
-//    @Query("""
-//            MATCH (currentUser:User {username: $username})-[:FOLLOWS]->(followedUser:User)-[:WRITES_POST]->(post:Post)
-//            OPTIONAL MATCH (post)<-[:LIKES]-(likedBy:User)
-//            WITH post, COUNT(likedBy) AS likeCount
-//            RETURN post
-//            ORDER BY likeCount DESC
-//            SKIP $skipCounter
-//            LIMIT $limit
-//            """)
-
 }

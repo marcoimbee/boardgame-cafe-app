@@ -35,6 +35,7 @@ class UserDBNeo4jTest {
     static final String testIdUsername1 = "testIdUsername1";
     static final String testUsername2 = "testUsername2";
     static final String testIdUsername2 = "testIdUsername2";
+    static final String testExistingUserUsername = "tinyelephant515";
     static final String testIdBoardgame = "testIdBoardgame";
     static final String testBoardgameName = "testBoardgameName";
     static final String testImageBoardgame = "testImageLink";
@@ -170,33 +171,48 @@ class UserDBNeo4jTest {
     @Test
     @Order(110)
     public void GIVEN_username_WHEN_getUsersByCommonBoardgamePosted_THEN_users_with_common_boardgames_returned() {
-        // ottenere utenti con boardgame in comune nei posts creati nel campo tag
+        // Get users with common boardgames in the posts created in the tag field
         List<String> suggestedUsers = userDBNeo4j.
                 getUsersByCommonBoardgamePosted(testUsername1, 10, 0);
-        // verifica che il suggerimento includa l'utente corretto
+        // Verify that the suggestion includes the correct user
         assertTrue(suggestedUsers.contains(notFriendUser.getUsername()));
     }
 
     @Test
     @Order(120)
     public void GIVEN_username_WHEN_getUsersBySameLikedPosts_THEN_users_with_common_liked_posts_returned() {
-        // aggiunta like a un post da entrambi gli utenti
+        // Add a like to a post from both users
         postDBNeo4j.addLikePost(sampleUser.getUsername(), testIdPost1, true);
-        postDBNeo4j.addLikePost(notFriendUser.getUsername(),testIdPost1, true);
+        postDBNeo4j.addLikePost(notFriendUser.getUsername(), testIdPost1, true);
 
-        // Act: ottenere utenti con post comuni piaciuti
+        // Get users with common liked posts
         List<String> suggestedUsers = userDBNeo4j.getUsersBySameLikedPosts(sampleUser.getUsername(), 10, 0);
-        // Assert: verifica che l'utente seguito venga suggerito
+        // Verify that the followed user is suggested
         assertTrue(suggestedUsers.contains(notFriendUser.getUsername()));
     }
 
     @Test
     @Order(130)
     public void GIVEN_min_followers_count_WHEN_getMostFollowedUsersUsernames_THEN_users_with_high_followers_returned() {
-        // ottenere utenti con almeno 1 follower
+        // Get users with at least 1 follower
         List<String> mostFollowedUsers = userDBNeo4j.getMostFollowedUsersUsernames(5, 10);
-        // verifica che l'utente con più follower del limit venga incluso
+        // Verify that the user with the most followers within the limit is included
         assertTrue(mostFollowedUsers.contains(oneOfTheMostFollowedUser));
     }
+
+    @Test
+    @Order(140)
+    public void GIVEN_username_WHEN_getFollowedUsernamesWhoCreatedAtLeastOnePost_THEN_returned_followed_users_with_posts() {
+        // The sampleUser follows testAuthor who created a post
+        userDBNeo4j.followUser(sampleUser.getUsername(), testAuthor.getUsername());
+        // Get the usernames of followed users who created at least one post
+        List<String> followedUsersWithPosts = userDBNeo4j.getFollowedUsernamesWhoCreatedAtLeastOnePost(
+                sampleUser.getUsername(), 10, 0);
+
+        // Verify that the followed user who created a post is included
+        assertTrue(followedUsersWithPosts.contains(testAuthor.getUsername()));
+    }
+
+
 
 }
