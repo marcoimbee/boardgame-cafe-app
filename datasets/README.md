@@ -3,6 +3,8 @@
 The following guideline is useful to populate de DBMSs with the files that you can find in the current *"datasets"* folder
 of this github repository for using properly the application.
 
+( N.B.)
+Don't forget to correctly include in the *src/main/resources/application.properties* file the information of the DBMSs with which the application must communicate.
 ## Mongo DB
 Once you have created the Database and the various collections within it, in the local MongoDB Compass environment, to populate
 every single collection just load through the appropriate import procedure the JSON file related to that specific collection.
@@ -14,7 +16,7 @@ The set of datasets files (.csv) to be loaded must be placed in the directory *�
 If everything has been properly organized then you can run, respecting the following order,
 these commands on *“Neo4j Browser”* to populate the database.
 
-(N.B.)
+( N.B.)
 Populating Neo4j, in some of the following *LOAD* runs,
 may take several minutes to complete the operation; due to the large number 
 of nodes and relationships to be created.
