@@ -6,7 +6,6 @@ of this github repository for using properly the application.
 ## Mongo DB
 Once you have created the Database and the various collections within it, in the local MongoDB Compass environment, to populate
 every single collection just load through the appropriate import procedure the JSON file related to that specific collection.
-Repeat for all collections.
 
 ## Neo4j DB
 For neo4j you need to pay attention that the DB is properly configured and that the jar file *“apoc-x.y.z-core.jar”*
