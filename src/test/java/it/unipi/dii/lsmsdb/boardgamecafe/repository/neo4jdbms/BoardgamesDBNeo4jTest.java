@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-// Per evitare metodi statici in @BeforeAll scommentare la riga sottostante
+// To avoid static methods in @BeforeAll uncomment the line below
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BoardgamesDBNeo4jTest {
 

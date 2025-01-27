@@ -35,7 +35,6 @@ class UserDBNeo4jTest {
     static final String testIdUsername1 = "testIdUsername1";
     static final String testUsername2 = "testUsername2";
     static final String testIdUsername2 = "testIdUsername2";
-    static final String testExistingUserUsername = "tinyelephant515";
     static final String testIdBoardgame = "testIdBoardgame";
     static final String testBoardgameName = "testBoardgameName";
     static final String testImageBoardgame = "testImageLink";
@@ -212,7 +211,4 @@ class UserDBNeo4jTest {
         // Verify that the followed user who created a post is included
         assertTrue(followedUsersWithPosts.contains(testAuthor.getUsername()));
     }
-
-
-
 }

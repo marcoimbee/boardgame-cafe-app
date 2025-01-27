@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,18 +13,11 @@ import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @WritingConverter
 public class StatisticsCollectionTest {
 
-    @Autowired
-    private ReviewDBMongo reviewDBMongo;
-    @Autowired
-    private MongoOperations mongoOperations;
     @Autowired
     private MongoTemplate mongoTemplate;
 
