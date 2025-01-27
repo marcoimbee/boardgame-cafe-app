@@ -65,6 +65,11 @@ public class BoardgameService {
     public boolean deleteBoardgame(BoardgameModelMongo boardgame) {
         String boardgameName = boardgame.getBoardgameName();
         try {
+            // Deleting first boardgame from Neo4J
+            if (!boardgameNeo4jOp.deleteBoardgameDetach(boardgameName)) {
+                throw new RuntimeException("Error while deleting a boardgame from Neo4J.");
+            }
+
             // Deleting reviews both from MongoDB and Neo4j
             if (!deleteBoardgameReviews(boardgame)){
                 throw new RuntimeException("Error while deleting reviews after a boardgame's deletion.");
@@ -78,11 +83,6 @@ public class BoardgameService {
             // Deleting boardgame from MongoDB
             if (!boardgameMongoOp.deleteBoardgame(boardgame)) {
                 throw new RuntimeException("Error while deleting a boardgame from MongoDB.");
-            }
-
-            // Deleting boardgame from Neo4J
-            if (!boardgameNeo4jOp.deleteBoardgameDetach(boardgameName)) {
-                throw new RuntimeException("Error while deleting a boardgame from Neo4J.");
             }
 
             return true;
@@ -130,7 +130,10 @@ public class BoardgameService {
                                                      boardgameImage,
                                                      boardgameDescription,
                                                      boardgameYearPublished);
-
+            // Neo4j management
+            if(!boardgameNeo4jOp.updateBoardgameNeo4j(oldBoardgameName, boardgameNeo4j)){
+                throw new RuntimeException("Error while updating a boardgame in Neo4J.");
+            }
             // MongoDB management
             if (!boardgameMongoOp.updateBoardgameMongo(boardgameId, boardgameMongo)) {
                 throw new RuntimeException("Error while updating a boardgame in MongoDB.");
@@ -145,11 +148,6 @@ public class BoardgameService {
                     throw new RuntimeException("Error while updating the posts of the updated boardgame in MongoDB.");
                 }
 
-            }
-
-            // Neo4j management
-            if(!boardgameNeo4jOp.updateBoardgameNeo4j(oldBoardgameName, boardgameNeo4j)){
-                throw new RuntimeException("Error while updating a boardgame in Neo4J.");
             }
         } catch (Exception e) {
             System.err.println("[ERROR] updateBoardgame()@BoardgameService.java raised an exception: " + e.getMessage());

@@ -135,13 +135,12 @@ public class UserService {
     private boolean deleteUserPosts(String username) {
         try {
             // Delete actual post documents and nodes
-            if (!postMongoOp.deleteByUsername(username)) {      // MongoDB deletion from posts collection
-                return false;
-            }
             if (!postNeo4jOp.deleteByUsername(username)) {      // Neo4J post nodes deletion
                 return false;
             }
-
+            if (!postMongoOp.deleteByUsername(username)) {      // MongoDB deletion from posts collection
+                return false;
+            }
             return true;
         } catch (Exception ex) {
             System.err.println("[ERROR] deleteUserPosts()@UserService.java raised an exception: " + ex.getMessage());
@@ -164,6 +163,11 @@ public class UserService {
                        counter of the boardgame must be updates as well)
              */
             String username = user.getUsername();
+
+            // Neo4j user deletion
+            if (!userNeo4jDB.deleteUserDetach(username)) {
+                throw new Exception("Failed to delete the user from Neo4J");
+            }
 
             // Posts management
             if (!deleteUserPosts(username)) {
@@ -196,11 +200,6 @@ public class UserService {
             // MongoDB user deletion
             if (!userMongoDB.deleteUser(user)) {
                 throw new Exception("Failed to delete the user from MongoDB collection");
-            }
-
-            // Neo4j user deletion
-            if (!userNeo4jDB.deleteUserDetach(username)) {
-                throw new Exception("Failed to delete the user from Neo4J");
             }
 
             return true;
