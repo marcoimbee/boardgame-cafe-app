@@ -1,5 +1,5 @@
 
-# { Application Usage }
+# { DBMSs Management }
 The following guideline is useful to populate de DBMSs with the files that you can find in the current *"datasets"* folder
 of this github repository for using properly the application.
 
