@@ -44,7 +44,7 @@ file located in the *"datastes"* folder.
 
 ## Documentation
 
-You can find out more in detail by reading the final report on the [BoardGame-Cafè_Documentation](/docs/BoardGameCafe-Documentation.pdf)
+You can find out more in detail by reading the final report on the [BoardGame-Cafè_Documentation](/docs/BoardGameCafé-Documentation.pdf)
 
 ## Authors
 
