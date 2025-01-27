@@ -154,14 +154,6 @@ public class PostService {
         List<PostModelMongo> postCreateByFollowedUsers = postDBMongo.findPostsCreatedByFollowedUsers(followedUsernames, limitResults, skipCounter);
 
         return (postCreateByFollowedUsers == null) ? new ArrayList<>() : postCreateByFollowedUsers;
-
-//
-//        for (String postByFollowedUser : postsByFollowedUsers) {
-//            Optional<PostModelMongo> postMongo = postDBMongo.findById(postByFollowedUser.getId());
-//            postMongo.ifPresent(retrievedPostsMongo::add);  // If the suggested Post is found, then it's added to the suggestedMongoUsers list
-//        }
-
-        //return retrievedPostsMongo;
     }
 
     public List<PostModelMongo> findPostsByTag(String tag, int limitResults, int skipCounter) {
