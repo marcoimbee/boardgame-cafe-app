@@ -73,8 +73,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
     @FXML
     private Tooltip tooltipAdminHint;
     @FXML
-    private Button testButton;
-    @FXML
     private TextField textFieldSearch;
     @FXML
     private GridPane postGridPane;
@@ -83,8 +81,6 @@ public class ControllerViewRegUserPostsPage implements Initializable {
 
     @Autowired
     private PostDBMongo postDBMongo;
-    @Autowired
-    private PostDBNeo4j postDBNeo4j;
     @Autowired
     private PostService postService;
     @Autowired

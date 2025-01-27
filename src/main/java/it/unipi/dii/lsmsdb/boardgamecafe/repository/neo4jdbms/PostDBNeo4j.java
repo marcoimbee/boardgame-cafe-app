@@ -16,9 +16,6 @@ public class PostDBNeo4j {
     @Autowired
     private LikedPostsCache likedPostsCache;
 
-    public PostRepoNeo4j getPostRepoNeo4j() {
-        return postRepoNeo4j;
-    }
 
     public boolean addPost(PostModelNeo4j post) {
         try {

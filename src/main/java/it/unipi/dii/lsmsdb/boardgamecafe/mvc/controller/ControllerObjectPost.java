@@ -60,7 +60,6 @@ public class ControllerObjectPost {
     @Autowired
     private ModelBean modelBean;
 
-    private static final Map<String, String> commentCache = new HashMap<>();
     private PostModelMongo post;
     private PostListener postListener;
     private static GenericUserModelMongo currentUser;

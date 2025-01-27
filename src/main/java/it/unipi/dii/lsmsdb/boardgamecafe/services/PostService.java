@@ -9,8 +9,6 @@ import it.unipi.dii.lsmsdb.boardgamecafe.repository.mongodbms.PostDBMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.BoardgameDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.PostDBNeo4j;
 import it.unipi.dii.lsmsdb.boardgamecafe.repository.neo4jdbms.UserDBNeo4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +29,6 @@ public class PostService {
     BoardgameDBNeo4j boardgameDBNeo4j;
 
     @Transactional
-//    @Retryable(
-//            retryFor = {DataAccessException.class, TransactionSystemException.class},
-//            maxAttempts = 3,
-//            backoff = @Backoff(delay = 2000)
-//    )
     public PostModelMongo insertPost(PostModelMongo postModelMongo)
     {
         try

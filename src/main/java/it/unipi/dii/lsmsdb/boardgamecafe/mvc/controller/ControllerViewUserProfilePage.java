@@ -4,7 +4,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.controller.listener.PostListener;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.ModelBean;
-import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.CommentModel;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.PostModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.ReviewModelMongo;
 import it.unipi.dii.lsmsdb.boardgamecafe.mvc.model.mongo.UserModelMongo;
@@ -142,8 +141,6 @@ public class ControllerViewUserProfilePage implements Initializable{
 
     private final StageManager stageManager;
 
-    private static boolean openedPost;
-
     @Autowired
     @Lazy
     public ControllerViewUserProfilePage(StageManager stageManager) {
@@ -221,7 +218,6 @@ public class ControllerViewUserProfilePage implements Initializable{
         this.profileImage.setImage(image);
 
          fillGridPane(postsUser);
-         openedPost = false;
 
         // If we enter here we are at the app start - it's the first time we see this page, so the constant is certainly empty
         if (modelBean.getBean(Constants.CURRENT_USER_FOLLOWED_LIST) == null) {

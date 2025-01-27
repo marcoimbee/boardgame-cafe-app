@@ -19,7 +19,7 @@ public class BoardgamecafeApplication extends Application {
     }
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         springContext = bootStrapSpringAppContext();
     }
 
@@ -30,7 +30,7 @@ public class BoardgamecafeApplication extends Application {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         springContext.close();
     }
 

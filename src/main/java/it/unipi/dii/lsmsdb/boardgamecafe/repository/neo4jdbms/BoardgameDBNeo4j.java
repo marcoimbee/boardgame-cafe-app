@@ -16,9 +16,6 @@ public class BoardgameDBNeo4j {
     @Autowired
     Neo4jOperations neo4jOperations;
 
-    public BoardgameRepoNeo4j getUserNeo4jDB() {
-        return boardgameRepoNeo4j;
-    }
 
     public BoardgameModelNeo4j addBoardgame(BoardgameModelNeo4j boardgame) {
         try {
