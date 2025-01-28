@@ -151,11 +151,16 @@ public class UserDBNeo4j {
         return user;
     }
 
-    public List<String> getFollowedUsernamesWhoCreatedAtLeastOnePost(String username, int limitResults, int skipCounter) {
+    public List<String> getFollowedUsernamesWhoCreatedAtLeastOnePost(String username,
+                                                                     int limitResults,
+                                                                     int skipCounter) {
         List<String> followedUsernames = new ArrayList<>();
-        try { followedUsernames = userNeo4jDB.findFollowedUsernamesWhoCreatedAtLeastOnePost(username, limitResults, skipCounter); }
+        try { followedUsernames = userNeo4jDB.findFollowedUsernamesWhoCreatedAtLeastOnePost(username,
+                                                                                            limitResults,
+                                                                                            skipCounter); }
         catch (Exception ex) {
-            System.err.println("[ERROR] getFollowedUsernamesWhoCreatedAtLeastOnePost()@UserDBNeo4j.java raised an exception: " + ex.getMessage());
+            System.err.println("[ERROR] getFollowedUsernamesWhoCreatedAtLeastOnePost()@UserDBNeo4j.java " +
+                    "raised an exception: " + ex.getMessage());
         }
         return followedUsernames;
     }
