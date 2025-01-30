@@ -26,6 +26,7 @@ public class BoardgameService {
     @Autowired
     private PostDBMongo postMongoOp;
 
+    private String boardgameNameToBeUsed;
     @Transactional
     public boolean insertBoardgame(BoardgameModelMongo boardgameMongo) {
         try{
@@ -124,12 +125,15 @@ public class BoardgameService {
             String boardgameDescription = boardgameMongo.getDescription();
             int boardgameYearPublished = boardgameMongo.getYearPublished();
 
+            boardgameNameToBeUsed = (!oldBoardgameName.equals(boardgameName)) ? boardgameName : oldBoardgameName;
+
             BoardgameModelNeo4j boardgameNeo4j = new BoardgameModelNeo4j(
                                                      boardgameId,
-                                                     boardgameName,
+                                                     boardgameNameToBeUsed,
                                                      boardgameImage,
                                                      boardgameDescription,
                                                      boardgameYearPublished);
+
             // Neo4j management
             if(!boardgameNeo4jOp.updateBoardgameNeo4j(oldBoardgameName, boardgameNeo4j)){
                 throw new RuntimeException("Error while updating a boardgame in Neo4J.");
