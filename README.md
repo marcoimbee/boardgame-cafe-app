@@ -1,53 +1,42 @@
 
-# BoardGame-Cafè Java Application
+# BoardGame-Cafè Application
 
 <p align="center">
-  <img src="https://github.com/g-sferr/BoardGame-Cafe_App/blob/master/src/main/resources/logo.png?raw=true" alt="BoardGameCafè_App-Logo"/>
+  <img src="https://github.com/marcoimbee/boardgame-cafe-app/blob/master/src/main/resources/logo.png?raw=true" alt="BoardGameCafè_App-Logo" height=230 width=250/>
 </p>
-
-Large-Scale and Multi-Structured Databases Project at University of Pisa - MSc Computer Engineering
 
 ## Overview Description
 
-**BoardGameCafé** is a social networking application designed for board games enthusiasts that provides several functions
-for taking information about it, staying up-to-date on people's opinions about board games based on their own experiences,
-and much more.
+**BoardGameCafé** is a social networking application designed for board games enthusiasts that provides several functionalities to learn more about your favourite games, stay up-to-date with people's opinions about them, and much more.
 
-* **Non-registered Users** can only browse in read-only mode the contents of the application without the ability to perform
-actions that in any way lead to possible undesirable consequences for the purpose of respecting the content uploaded by registered users.
+* **Non-registered Users** can only browse in read-only mode the contents of the application without the ability to create content.
 
-* **Registered Users** can browse among a large number of Board Games with the possibility to read their specifications,
-write a review and give a rating, create posts in which a topic related to a board game can be covered and moreover
-they can also interact with other users by following them and commenting on their posts.
+* **Registered Users** can browse a large number of Board Games with the possibility to read their specifications,
+write a review and give a rating, create posts about them and interact with other users by following them and commenting on their posts.
 
-* **Admins** can manage Users, Board Games, Post, Comment and Reviews with special privileges.
-They also have access to the usage analytics of the application and Ban Users if needed.
-
-
-***N.B.***
-Users who do not comply with the social network rules may incur in a status change within the application, more precisely
-they may be "*Banned*" by the admin, as already mention above, and this involves a drastic deletion of the user profile and
-all content linked to it irreversibly.
+* **Admins** can manage Users, Board Games, Posts, Comments and Reviews with special privileges.
+They also have access to the usage analytics of the application and ban users if needed: users who do not comply
+with the social network rules may get *banned* by the admin.
 
 ## Required Software
-
 To run the application correctly, the following software needs to be set up:
 
-- [Intellij IDEA](https://www.jetbrains.com/idea/download/) (Even a different one as long as there is compatibility)
+- [Intellij IDEA](https://www.jetbrains.com/idea/download/)
 - [JavaFX](https://openjfx.io/)  (Follow [this](https://ashley-tharp.medium.com/solved-error-javafx-runtime-components-are-missing-and-are-required-to-run-this-application-ec4779eb796d) guide in case any problems arise)
 - [MongoDB](https://www.mongodb.com/try/download/community)
 - [Neo4j](https://neo4j.com/download/)
 
-When you have configured all the environments and software above
-move on to populating the DBMSs by reading the guide written in the [README.md](/datasets/README.md)
-file located in the *"datastes"* folder.
+After configuring all the environments and softwares above,
+please refer to [this](/datasets/README.md) guide to setup the DBs.
+The datasets are located in the *"datasets"* folder.
 
 ## Documentation
+You can find out more about the architectural choices by reading the final report [here](/docs/BoardGameCafe-Documentation.pdf)
 
-You can find out more in detail by reading the final report on the [BoardGame-Cafè_Documentation](/docs/BoardGameCafe-Documentation.pdf)
+## Note:
+This project has been developed for the Large-Scale and Multi-Structured Databases course at University of Pisa - MSc Computer Engineering
 
 ## Authors
-
-* Francesco Bruno - *e-mail*: f.bruno10@studenti.unipi.it - *GitHub Profile*: [ [@francescoB1997](https://github.com/francescoB1997) ]
-* Gaetano Sferrazza - *e-mail*: g.sferrazza@studenti.unipi.it - *GitHub Profile*: [ [@g-sferr](https://github.com/g-sferr) ]
-* Marco Imbelli Cai - *e-mail*: m.imbellicai@studenti.unipi.it - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]
+* Francesco Bruno - *GitHub Profile*: [ [@francescoB1997](https://github.com/francescoB1997) ]
+* Gaetano Sferrazza - *GitHub Profile*: [ [@g-sferr](https://github.com/g-sferr) ]
+* Marco Imbelli Cai - *GitHub Profile*: [ [@marcoimbee](https://github.com/marcoimbee) ]
